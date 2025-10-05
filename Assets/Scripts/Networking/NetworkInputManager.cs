@@ -76,6 +76,15 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
         input.Set(accumulatedInput);
         resetInput = true;
     }
+    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
+    {
+        if (player == runner.LocalPlayer)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = true;
+        }
+    }
+
     public void OnConnectedToServer(NetworkRunner runner) { }
 
 
@@ -112,14 +121,6 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
     {
     }
 
-    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
-    {
-        if (player == runner.LocalPlayer)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = true;
-        }
-    }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
@@ -146,7 +147,7 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
     }
 
     //called when the conection fails or we are disconected    
-    public async Task OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
+    public async void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -175,6 +176,5 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
 
     void INetworkRunnerCallbacks.OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
-        throw new NotImplementedException();
     }
 }
