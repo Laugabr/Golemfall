@@ -1,19 +1,28 @@
 using UnityEngine;
 
-public class Coins : MonoBehaviour
+public class Coin : MonoBehaviour
 {
-    [SerializeField] private Rigidbody rb;
-    [SerializeField] private int experienceAmount;
+    [Header("Coin Settings")]
+    [SerializeField] private int experienceAmount = 10;
+    [SerializeField] private float rotationSpeed = 90f; // grados por segundo
+    [SerializeField] private ParticleSystem pickupEffect;
 
-    void OnCollisionEnter(Collision collision)
+    private void Update()
     {
-        BasicEventsManager.OnExperienceGain.Invoke(experienceAmount);
-
-        Destroy(this);
-    }
-    void Update()
-    {
-        transform.Rotate(0, 5 * Time.deltaTime, 0, Space.Self);
+        // Rotación visual simple
+        transform.Rotate(0f, rotationSpeed * Time.deltaTime, 0f, Space.Self);
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        // Verificamos que sea el jugador
+        if (other.CompareTag("Player"))
+        {
+            // Invocamos el evento de experiencia
+            BasicEventsManager.OnExperienceGain?.Invoke(experienceAmount);
+            Instantiate(pickupEffect, transform.position, Quaternion.identity);
+            // Destruimos la moneda completa
+            Destroy(gameObject);
+        }
+    }
 }

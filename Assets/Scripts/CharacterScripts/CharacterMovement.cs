@@ -18,7 +18,7 @@ public class CharacterMovement : NetworkBehaviour
 
         if (HasInputAuthority)
         {
-            CameraFollow.Instance.SetTarget(camTarget);
+//            CameraFollow.Instance.SetTarget(camTarget);
         }
     }
 
