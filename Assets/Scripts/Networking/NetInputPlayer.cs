@@ -10,6 +10,8 @@ public struct NetInputPlayer : INetworkInput
 {
     public NetworkButtons Buttons;
     public Vector2 Direction;
+    public Vector2 LookDelta; 
+
 
     
 }
