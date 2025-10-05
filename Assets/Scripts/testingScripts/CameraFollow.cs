@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CameraFollow : MonoBehaviour
+public class Camera1Follow : MonoBehaviour
 {
     [SerializeField] private Transform target;  // El Player
     [SerializeField] private Vector3 offset = new Vector3(0f, 5f, -7f);
