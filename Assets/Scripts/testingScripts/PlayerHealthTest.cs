@@ -51,7 +51,6 @@ public class Health : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         meshRenderer.material.SetColor("_BaseColor", currentColor);
 
-
     }
 
     public void Heal(int amount)
