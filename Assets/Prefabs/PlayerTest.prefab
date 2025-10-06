@@ -16,6 +16,8 @@ GameObject:
   - component: {fileID: 2863339193444060199}
   - component: {fileID: 5027730181171396861}
   - component: {fileID: 8086779716165580698}
+  - component: {fileID: 1041969364907043449}
+  - component: {fileID: -3514983964872360537}
   m_Layer: 3
   m_Name: PlayerTest
   m_TagString: Player
@@ -71,7 +73,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 17e744db88bcd0c4da045d6c3a58e1c9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -132,6 +134,16 @@ MonoBehaviour:
   speed: 5
   jumpPower: 10
   camTarget: {fileID: 9019286994899052271}
+  attackCooldown: 0.5
+  projectilePrefab: {fileID: 4695642118095032319, guid: e678130e0c743684598758290be96f8c, type: 3}
+  projectileSpawnPoint: {fileID: 45590896181684198}
+  projectileSpeed: 0
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  dashSpeed: 20
+  dashDuration: 0.3
+  dashCooldown: 1
 --- !u!114 &2863339193444060199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -201,7 +213,7 @@ MonoBehaviour:
     ColliderLayer: 3
     CollisionLayerMask:
       serializedVersion: 2
-      m_Bits: 9
+      m_Bits: 73
     ProxyInterpolationMode: 0
     MaxPenetrationSteps: 8
     CCDRadiusMultiplier: 0.75
@@ -216,6 +228,67 @@ MonoBehaviour:
     StepRequireGroundTarget: 0
     SnapDistance: 0.25
     SnapSpeed: 4
+--- !u!114 &1041969364907043449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2042440013039451085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 542770d3344da3f4cb6837e162d5f870, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  OnDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  OnHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  meshRenderer: {fileID: 8449284307180182827}
+--- !u!114 &-3514983964872360537
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2042440013039451085}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 442e7e7c0d714324d8e17ee7f208aabe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dashDistance: 5
+  dashDuration: 0.2
+  dashCooldown: 1
+  dashSpeedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  kcc: {fileID: 8086779716165580698}
 --- !u!1 &6459267549577680078
 GameObject:
   m_ObjectHideFlags: 0
@@ -281,7 +354,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 17e744db88bcd0c4da045d6c3a58e1c9, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

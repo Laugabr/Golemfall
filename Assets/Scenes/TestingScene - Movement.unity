@@ -229,7 +229,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 15.899994, y: -4.399994}
+  m_AnchoredPosition: {x: 15.900024, y: -4.4000244}
   m_SizeDelta: {x: 21.58, y: 19}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &80310748
@@ -1590,7 +1590,7 @@ GameObject:
   - component: {fileID: 1538890353}
   - component: {fileID: 1538890352}
   - component: {fileID: 1538890351}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2080,6 +2080,7 @@ GameObject:
   - component: {fileID: 1748845372}
   - component: {fileID: 1748845371}
   - component: {fileID: 1748845370}
+  - component: {fileID: 1748845374}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -2133,7 +2134,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 85b015d2d7a171248ba40f4eb7cbc7ac, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2172,12 +2173,33 @@ Transform:
   m_GameObject: {fileID: 1748845369}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.14, y: 2.8947017, z: 2.58}
+  m_LocalPosition: {x: 2.14, y: 1.2, z: 2.58}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1748845374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1748845369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 542770d3344da3f4cb6837e162d5f870, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  OnDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  OnHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  meshRenderer: {fileID: 1748845371}
 --- !u!1 &1758668451
 GameObject:
   m_ObjectHideFlags: 0
