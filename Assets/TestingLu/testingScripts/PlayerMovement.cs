@@ -5,7 +5,7 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("Movimiento")]
     [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private Transform cameraTransform; // referencia a la cámara
+    [SerializeField] private Transform cameraTransform;
 
     [Header("Salto")]
     [SerializeField] private float jumpHeight = 1.5f;
@@ -22,50 +22,65 @@ public class PlayerMovement : MonoBehaviour
         controller = GetComponent<CharacterController>();
     }
 
+
     void Update()
     {
-        HandleMovement();
+        Vector3 move = GetMovementInput(); // solo calcula movimiento
         HandleJump();
         ApplyGravity();
+
+        // mover todo junto (horizontal + vertical)
+        controller.Move((move * moveSpeed + velocity) * Time.deltaTime);
+
+        Debug.DrawRay(transform.position, Vector3.down * (controller.height / 2 + 0.2f), Color.red);
     }
 
-    private void HandleMovement()
+    private Vector3 GetMovementInput()
     {
-        float inputX = Input.GetAxis("Horizontal"); // A/D o ←/→
-        float inputZ = Input.GetAxis("Vertical");   // W/S o ↑/↓
+        float inputX = Input.GetAxis("Horizontal");
+        float inputZ = Input.GetAxis("Vertical");
 
-        // dirección basada en la cámara
         Vector3 forward = cameraTransform.forward;
         Vector3 right = cameraTransform.right;
-
-        // quitamos la inclinación vertical (si la cámara mira hacia arriba o abajo)
         forward.y = 0f;
         right.y = 0f;
         forward.Normalize();
         right.Normalize();
 
-        // movimiento final según entrada + orientación de la cámara
         Vector3 move = forward * inputZ + right * inputX;
 
-        controller.Move(move * moveSpeed * Time.deltaTime);
-
-        // si se está moviendo, rotar el jugador hacia esa dirección
         if (move.magnitude > 0.1f)
         {
             Quaternion targetRotation = Quaternion.LookRotation(move);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
         }
+
+        return move;
+    }
+
+
+    private bool CheckGrounded()
+    {
+        float rayLength = controller.height / 2 + 0.2f;
+        return Physics.Raycast(transform.position, Vector3.down, rayLength);
     }
 
     private void HandleJump()
     {
-        isGrounded = controller.isGrounded;
+        isGrounded = CheckGrounded();
+        Debug.Log($"Grounded (raycast): {isGrounded}, VelY: {velocity.y}");
 
         if (isGrounded && velocity.y < 0)
+        {
             velocity.y = -2f;
+        }
 
         if (Input.GetButtonDown("Jump") && isGrounded)
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        {
+            velocity.y = 0f; // reset vertical velocity before jump
+            velocity.y += Mathf.Sqrt(jumpHeight * -2f * gravity);
+            Debug.Log($"JUMP! velocity.y = {velocity.y}");
+        }
     }
 
     private void ApplyGravity()
