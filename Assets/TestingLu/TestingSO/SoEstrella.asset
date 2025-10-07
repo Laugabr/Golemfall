@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7119008e2cc0a5b41937077913cc87e1, type: 3}
+  m_Name: SoEstrella
+  m_EditorClassIdentifier: 
+  id: estrella
+  displayName: estrella
+  icon: {fileID: 21300000, guid: 753d1d554c66c6d4e9d0d41382e237cc, type: 3}
+  color: {r: 0.9717806, g: 0.990566, b: 0.07943219, a: 1}
+  worldPrefab: {fileID: 0}
+  isEquipable: 1
+  speedMultiplier: 1
+  jumpMultiplier: 1
