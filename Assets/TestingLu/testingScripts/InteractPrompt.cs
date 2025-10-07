@@ -1,12 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro; 
 
 public class InteractPrompt : MonoBehaviour
 {
     public static InteractPrompt Instance { get; private set; }
 
     [SerializeField] private GameObject promptGO; // pequeño panel con texto "F"
-    [SerializeField] private Text promptText;
+    [SerializeField] private TMP_Text promptText;
+    [SerializeField] private TMP_Text messageText;
     private RectTransform rect;
     private Camera mainCam;
     private Transform tracked; // transform del item que estamos marcando

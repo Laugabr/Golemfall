@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class SlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public int slotIndex; // asigná 0..4 en inspector
+    public int slotIndex; // 0..4
     private Canvas canvas;
     private GameObject dragIcon;
     private Image dragImage;
@@ -20,10 +20,9 @@ public class SlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         ItemData it = InventoryManager.Instance.GetItemAt(slotIndex);
         if (it == null) return;
 
-        DragData.sourceInventoryIndex = slotIndex;
         DragData.item = it;
+        DragData.sourceSlot = this;
 
-        // crear icono drag
         dragIcon = new GameObject("DragIcon");
         dragIcon.transform.SetParent(canvas.transform, false);
         dragImage = dragIcon.AddComponent<Image>();
@@ -35,41 +34,59 @@ public class SlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (dragIcon == null) return;
-        dragIcon.transform.position = Input.mousePosition;
+        if (dragIcon != null)
+            dragIcon.transform.position = Input.mousePosition;
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
         if (dragIcon != null) Destroy(dragIcon);
 
-        // raycast UI para ver si soltamos sobre equip slot
+        bool droppedOnEquip = false;
+
         PointerEventData pointerData = new PointerEventData(EventSystem.current) { position = Input.mousePosition };
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointerData, results);
 
-        bool droppedOnEquip = false;
         foreach (var res in results)
         {
             var equip = res.gameObject.GetComponentInParent<EquipSlotUI>();
             if (equip != null)
             {
-                // pedimos equip
-                equip.ReceiveDrop(DragData.sourceInventoryIndex);
+                equip.ReceiveDrop(DragData.item); // enviamos referencia directa
                 droppedOnEquip = true;
                 break;
             }
         }
 
-        if (!droppedOnEquip)
+        if (!droppedOnEquip && DragData.item != null)
         {
-            // no se dropeó en equip => arrojamos el item al mundo como prototipo
-            InventoryManager.Instance.ThrowItemFromInventory(DragData.sourceInventoryIndex);
+            // Si no se droppea en equip slot, dejamos el item en su slot original
+            DragData.sourceSlot.RefreshSlot();
         }
 
-        // limpiar
-        DragData.sourceInventoryIndex = -1;
         DragData.item = null;
+        DragData.sourceSlot = null;
+    }
+
+    public void RefreshSlot()
+    {
+        // actualizamos el sprite según el item actual en InventoryManager
+        ItemData it = InventoryManager.Instance.GetItemAt(slotIndex);
+        Image img = GetComponent<Image>();
+        if (img != null)
+        {
+            if (it != null)
+            {
+                img.sprite = it.icon;
+                img.color = Color.white;
+            }
+            else
+            {
+                img.sprite = null;
+                img.color = new Color(1, 1, 1, 0.2f);
+            }
+        }
     }
 }
 

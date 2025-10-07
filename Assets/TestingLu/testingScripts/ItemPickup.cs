@@ -5,6 +5,12 @@ public class ItemPickup : MonoBehaviour
 {
     public ItemData itemData;
     private bool playerInRange = false;
+    [HideInInspector] public Vector3 originalPosition;
+
+    void Awake()
+    {
+        originalPosition = transform.position;
+    }
 
     void Reset()
     {
@@ -38,8 +44,14 @@ public class ItemPickup : MonoBehaviour
             TryPickup();
         }
     }
+    public void ReturnToOriginalPosition()
+    {
+        transform.position = originalPosition;
+        gameObject.SetActive(true);
+    }
 
-    void TryPickup()
+
+    public void TryPickup()
     {
         if (itemData == null) return;
 

@@ -25,9 +25,27 @@ public class InventoryUI : MonoBehaviour
 
     void Update()
     {
+
         if (Input.GetKeyDown(KeyCode.I))
         {
-            if (inventoryPanel != null) inventoryPanel.SetActive(!inventoryPanel.activeSelf);
+            if (inventoryPanel != null)
+            {
+                bool isActive = !inventoryPanel.activeSelf;
+                inventoryPanel.SetActive(isActive);
+
+                if (isActive)
+                {
+                    // Abrimos inventario -> mostrar cursor
+                    Cursor.lockState = CursorLockMode.None;
+                    Cursor.visible = true;
+                }
+                else
+                {
+                    // Cerramos inventario -> ocultar cursor
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
+                }
+            }
         }
     }
 
@@ -40,12 +58,12 @@ public class InventoryUI : MonoBehaviour
             {
                 var it = InventoryManager.Instance.GetItemAt(i);
                 slotIcons[i].sprite = it != null ? it.icon : emptySprite;
-                slotIcons[i].color = it != null ? Color.white : new Color(1,1,1,0.2f);
+                slotIcons[i].color = it != null ? Color.white : new Color(1, 1, 1, 0.2f);
             }
             else
             {
                 slotIcons[i].sprite = emptySprite;
-                slotIcons[i].color = new Color(1,1,1,0.2f);
+                slotIcons[i].color = new Color(1, 1, 1, 0.2f);
             }
         }
         RefreshEquip();
@@ -65,7 +83,7 @@ public class InventoryUI : MonoBehaviour
             else
             {
                 equipSlotIcons[i].sprite = emptySprite;
-                equipSlotIcons[i].color = new Color(1,1,1,0.2f);
+                equipSlotIcons[i].color = new Color(1, 1, 1, 0.2f);
             }
         }
     }

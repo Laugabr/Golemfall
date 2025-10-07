@@ -5,19 +5,20 @@ public class EquipSlotUI : MonoBehaviour, IDropHandler
 {
     public int equipIndex = 0; // 0 o 1
 
-    // Este método es llamado por EventSystem si implementás IDropHandler,
-    // pero también hay un método público ReceiveDrop usado desde SlotUI para simplificar.
     public void OnDrop(PointerEventData eventData)
     {
-        // si alguien usa IDropHandler directo, chequeamos DragData
-        if (DragData.sourceInventoryIndex >= 0)
+        if (DragData.item != null)
         {
-            EquipManager.Instance.EquipFromInventory(DragData.sourceInventoryIndex, equipIndex);
+            ReceiveDrop(DragData.item);
         }
     }
 
-    public void ReceiveDrop(int inventoryIndex)
+    public void ReceiveDrop(ItemData item)
     {
-        EquipManager.Instance.EquipFromInventory(inventoryIndex, equipIndex);
+        // Buscar índice real del item en inventory
+        int inventoryIndex = InventoryManager.Instance.FindIndex(item);
+        if (inventoryIndex >= 0)
+            EquipManager.Instance.EquipFromInventory(inventoryIndex, equipIndex);
     }
 }
+

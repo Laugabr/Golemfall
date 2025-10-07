@@ -84,5 +84,10 @@ public class InventoryManager : MonoBehaviour
             }
         }
     }
+    public int FindIndex(ItemData item)
+    {
+        return items.IndexOf(item);
+    }
+
 }
 
