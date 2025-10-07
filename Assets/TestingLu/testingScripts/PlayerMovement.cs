@@ -68,7 +68,6 @@ public class PlayerMovement : MonoBehaviour
     private void HandleJump()
     {
         isGrounded = CheckGrounded();
-        Debug.Log($"Grounded (raycast): {isGrounded}, VelY: {velocity.y}");
 
         if (isGrounded && velocity.y < 0)
         {
@@ -79,7 +78,6 @@ public class PlayerMovement : MonoBehaviour
         {
             velocity.y = 0f; // reset vertical velocity before jump
             velocity.y += Mathf.Sqrt(jumpHeight * -2f * gravity);
-            Debug.Log($"JUMP! velocity.y = {velocity.y}");
         }
     }
 

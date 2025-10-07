@@ -24,15 +24,24 @@ public class InventoryManager : MonoBehaviour
 
     public bool HasSpace() => items.Count < capacity;
 
+
     public bool AddItem(ItemData item)
     {
         if (item == null) return false;
         if (!HasSpace()) return false;
+        if (items.Contains(item))
+        {
+            Debug.LogWarning("Intentaron agregar un item que ya está en el inventario: " + item.name);
+            return false;
+        }
+
         items.Add(item);
+        Debug.Log("Item agregado al inventario: " + item.name);
         OnInventoryChanged?.Invoke();
         OnItemAdded?.Invoke(item);
         return true;
     }
+
 
     public ItemData GetItemAt(int index)
     {

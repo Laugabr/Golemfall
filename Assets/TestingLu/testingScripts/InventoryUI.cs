@@ -11,11 +11,42 @@ public class InventoryUI : MonoBehaviour
     [Header("Equip slots UI (2)")]
     public Image[] equipSlotIcons; // 2 images para equipados
 
+    void Start()
+    {
+        // Si el InventoryManager no existía cuando se habilitó el UI, nos suscribimos ahora.
+        if (InventoryManager.Instance != null)
+        {
+            Debug.Log("[InventoryUI] Subscribiéndose desde Start al InventoryManager");
+            InventoryManager.Instance.OnInventoryChanged += Refresh;
+            Refresh(); // refrescamos de entrada por si ya había ítems
+        }
+
+        if (EquipManager.Instance != null)
+        {
+            Debug.Log("[InventoryUI] Subscribiéndose desde Start al EquipManager");
+            EquipManager.Instance.OnEquipChanged += RefreshEquip;
+            RefreshEquip();
+        }
+    }
+
     void OnEnable()
     {
-        InventoryManager.Instance.OnInventoryChanged += Refresh;
-        if (EquipManager.Instance != null) EquipManager.Instance.OnEquipChanged += RefreshEquip;
+        if (InventoryManager.Instance != null)
+        {
+            // evitar registrarse doble vez
+            InventoryManager.Instance.OnInventoryChanged -= Refresh;
+            InventoryManager.Instance.OnInventoryChanged += Refresh;
+        }
+
+        if (EquipManager.Instance != null)
+        {
+            EquipManager.Instance.OnEquipChanged -= RefreshEquip;
+            EquipManager.Instance.OnEquipChanged += RefreshEquip;
+        }
     }
+
+
+
 
     void OnDisable()
     {
@@ -51,6 +82,8 @@ public class InventoryUI : MonoBehaviour
 
     public void Refresh()
     {
+        Debug.Log($"[InventoryUI] Refrescando inventario — Items actuales: {InventoryManager.Instance.Count}");
+
         // actualizar casilleros recolectados
         for (int i = 0; i < slotIcons.Length; i++)
         {
@@ -67,6 +100,7 @@ public class InventoryUI : MonoBehaviour
             }
         }
         RefreshEquip();
+        Debug.Log("Refrescando inventario. Cantidad: " + InventoryManager.Instance.Count);
     }
 
     public void RefreshEquip()

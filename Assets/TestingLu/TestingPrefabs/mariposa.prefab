@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 2805937238331353209}
   - component: {fileID: 1003696718206332755}
   - component: {fileID: 4835158557000410472}
-  - component: {fileID: 7697278920971599474}
   m_Layer: 0
   m_Name: mariposa
   m_TagString: Untagged
@@ -123,16 +122,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemData: {fileID: 11400000, guid: c9f6ffc2fe76bcf42b31d70e6bf778ff, type: 2}
---- !u!114 &7697278920971599474
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4760848001611887951}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 886e0c66bf12e9842ae0e23b61d76444, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemData: {fileID: 0}
+  originalPosition: {x: 0, y: 0, z: 0}
