@@ -47,6 +47,7 @@ public class CharacterMovement : NetworkBehaviour
             if (Input.GetMouseButtonDown(0))
             {
                 HandleAttack();
+            
             }
 
             Vector3 worldDirection = kcc.TransformRotation * new Vector3(input.Direction.x, 0f, input.Direction.y); //take the kcc transform rotation and we multiply it by the direction of the input
