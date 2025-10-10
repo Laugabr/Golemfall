@@ -8,7 +8,6 @@ public class PlayerInteractor : MonoBehaviour
     [SerializeField] private GameObject inventoryPanel; // panel del inventario (debe estar desactivado al inicio)
     [SerializeField] private Camera mainCamera;
 
-    private bool isInventoryOpen = false;
     private bool canPickup = false;
     private ItemPickup nearbyItem;
 

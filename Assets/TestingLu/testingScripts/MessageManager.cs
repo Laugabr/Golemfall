@@ -1,13 +1,15 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class MessageManager : MonoBehaviour
 {
     public static MessageManager Instance { get; private set; }
 
     [SerializeField] private GameObject messagePanel; // panel con texto
-    [SerializeField] private Text messageText;
+    [SerializeField] private TextMeshProUGUI messageText;
+
     [SerializeField] private float showSeconds = 1.4f;
 
     void Awake()

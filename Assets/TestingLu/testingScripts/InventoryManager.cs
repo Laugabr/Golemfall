@@ -31,7 +31,7 @@ public class InventoryManager : MonoBehaviour
         if (!HasSpace()) return false;
         if (items.Contains(item))
         {
-            Debug.LogWarning("Intentaron agregar un item que ya está en el inventario: " + item.name);
+            //Debug.LogWarning("Intentaron agregar un item que ya está en el inventario: " + item.name);
             return false;
         }
 

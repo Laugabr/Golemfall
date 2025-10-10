@@ -69,9 +69,5 @@ public class ItemPickup : MonoBehaviour
             MessageManager.Instance?.Show("Item recolectado");
             Destroy(gameObject);
         }
-        else
-        {
-            MessageManager.Instance?.Show("Inventario lleno");
-        }
     }
 }
