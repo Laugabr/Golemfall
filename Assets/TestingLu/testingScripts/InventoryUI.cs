@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+
 
 public class InventoryUI : MonoBehaviour
 {
@@ -61,21 +63,14 @@ public class InventoryUI : MonoBehaviour
         {
             if (inventoryPanel != null)
             {
-                bool isActive = !inventoryPanel.activeSelf;
+                bool isActive = inventoryPanel.activeSelf;
+                // Si el inventario está abierto a punto de cerrarse y hay un drag activo
+                if (isActive && DragData.sourceSlot != null)
+                {
+                    DragData.sourceSlot.OnEndDrag(new PointerEventData(EventSystem.current));
+                }
+                isActive = !inventoryPanel.activeSelf;
                 inventoryPanel.SetActive(isActive);
-
-                if (isActive)
-                {
-                    // Abrimos inventario -> mostrar cursor
-                    Cursor.lockState = CursorLockMode.None;
-                    Cursor.visible = true;
-                }
-                else
-                {
-                    // Cerramos inventario -> ocultar cursor
-                    Cursor.lockState = CursorLockMode.Locked;
-                    Cursor.visible = false;
-                }
             }
         }
     }

@@ -21,7 +21,6 @@ public class PlayerInteractor : MonoBehaviour
     void Update()
     {
         HandleInteraction();
-        HandleInventoryToggle();
     }
 
     private void HandleInteraction()
@@ -32,18 +31,6 @@ public class PlayerInteractor : MonoBehaviour
             nearbyItem.TryPickup();
             nearbyItem = null;
             canPickup = false;
-        }
-    }
-
-    private void HandleInventoryToggle()
-    {
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            isInventoryOpen = !isInventoryOpen;
-            inventoryPanel.SetActive(isInventoryOpen);
-            // manejar el cursor
-            Cursor.visible = isInventoryOpen;
-            Cursor.lockState = isInventoryOpen ? CursorLockMode.None : CursorLockMode.Locked;
         }
     }
 

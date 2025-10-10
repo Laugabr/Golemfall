@@ -40,8 +40,6 @@ public class SlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (dragIcon != null) Destroy(dragIcon);
-
         bool droppedOnEquip = false;
 
         PointerEventData pointerData = new PointerEventData(EventSystem.current) { position = Input.mousePosition };
@@ -59,15 +57,20 @@ public class SlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
             }
         }
 
-        if (!droppedOnEquip && DragData.item != null)
+        //si no se soltó sobre un equip slot válido, devolver al slot original
+        if (!droppedOnEquip && DragData.sourceSlot != null)
         {
-            // Si no se droppea en equip slot, dejamos el item en su slot original
+            // Volvemos a colocar el ítem visualmente en el slot original
             DragData.sourceSlot.RefreshSlot();
         }
 
+        if (dragIcon != null) Destroy(dragIcon);
+
+        // Limpiamos datos estáticos
         DragData.item = null;
         DragData.sourceSlot = null;
     }
+
 
     public void RefreshSlot()
     {
