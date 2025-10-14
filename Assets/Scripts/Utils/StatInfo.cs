@@ -7,5 +7,5 @@ using UnityEngine;
 public class StatInfo
 {
     public Stat statType;
-    public float value;
+    public float statValue;
 }
