@@ -1,11 +1,15 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
 
-
-[Serializable]
+[Serializable] //Para poder asiganrle los valores en el inspector
 public class StatInfo
 {
     public Stat statType;
-    public float statValue;
+    public int statValue;
+
+    public StatInfo(Stat statType, int statValue)
+    {
+        this.statType = statType;
+        this.statValue = statValue;
+    }
 }
