@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 8086779716165580698}
   - component: {fileID: 1041969364907043449}
   - component: {fileID: -3514983964872360537}
+  - component: {fileID: -8669180899056666853}
   m_Layer: 3
   m_Name: PlayerTest
   m_TagString: Player
@@ -34,7 +35,7 @@ Transform:
   m_GameObject: {fileID: 2042440013039451085}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5799999, y: 1.08, z: 0.1800003}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -240,7 +241,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 542770d3344da3f4cb6837e162d5f870, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  localMaxHealth: 0
   currentHealth: 0
   OnDeath:
     m_PersistentCalls:
@@ -248,6 +249,7 @@ MonoBehaviour:
   OnHealthChanged:
     m_PersistentCalls:
       m_Calls: []
+  charStats: {fileID: -8669180899056666853}
   meshRenderer: {fileID: 8449284307180182827}
 --- !u!114 &-3514983964872360537
 MonoBehaviour:
@@ -289,6 +291,20 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   kcc: {fileID: 8086779716165580698}
+--- !u!114 &-8669180899056666853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2042440013039451085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 874c8951faca731439516ec6b102d8d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stats: {fileID: 11400000, guid: 5f1dc252c01a302448d541b00d45f5fa, type: 2}
+  localStats: []
 --- !u!1 &6459267549577680078
 GameObject:
   m_ObjectHideFlags: 0
