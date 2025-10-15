@@ -11,25 +11,9 @@ public enum Stat
     armor
 }
 
-
-
-[CreateAssetMenu(menuName = "Stats", fileName = "Stat")]
+[CreateAssetMenu(menuName = "Game Data/Stats", fileName = "NewStats")]
 public class Stats : ScriptableObject
 {
+    [Header("Stat values for this object")]
     public List<StatInfo> statInfo = new List<StatInfo>();
-
-    public float GetStat(Stat stat)
-    {
-        foreach (var s in statInfo)
-        {
-            if (s.statType == stat)
-            {
-                return s.statValue;
-            }
-        }
-
-        Debug.LogError("No stat value found for " + stat + " on " + name);
-        return 0;
-    }
-
 }
