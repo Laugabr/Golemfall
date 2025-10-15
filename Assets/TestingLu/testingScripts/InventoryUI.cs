@@ -116,5 +116,11 @@ public class InventoryUI : MonoBehaviour
             }
         }
     }
+    public void RefreshEquip(ItemData item, bool equipped)
+    {
+        // simplemente refresca todo el UI, no hace falta usar los parámetros
+        RefreshEquip();
+    }
+
 }
 
