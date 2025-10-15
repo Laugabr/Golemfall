@@ -11,11 +11,9 @@ public enum Stat
     armor
 }
 
-
-
-[CreateAssetMenu(menuName = "Stats", fileName = "Stat")]
+[CreateAssetMenu(menuName = "Game Data/Stats", fileName = "NewStats")]
 public class Stats : ScriptableObject
 {
-    public List<StatInfo> stats = new List<StatInfo>();
-
+    [Header("Stat values for this object")]
+    public List<StatInfo> statInfo = new List<StatInfo>();
 }
