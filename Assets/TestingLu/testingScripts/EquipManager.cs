@@ -16,14 +16,11 @@ public class EquipManager : MonoBehaviour
     [Tooltip("Dos cubos hijos (desactivados por defecto). Size debe = slots")]
     public GameObject[] equipCubes;
 
-    private float baseMoveSpeed = 5f;
-    private float baseJumpHeight = 1.5f;
-
     private Component playerMovementComp;
     private FieldInfo moveSpeedField;
     private FieldInfo jumpHeightField;
 
-    public event Action OnEquipChanged;
+    public event Action<ItemData, bool> OnEquipChanged; // bool = true si se equipó, false si se quitó
 
     void Awake()
     {
@@ -44,9 +41,6 @@ public class EquipManager : MonoBehaviour
                 var type = pm.GetType();
                 moveSpeedField = type.GetField("moveSpeed", BindingFlags.NonPublic | BindingFlags.Instance);
                 jumpHeightField = type.GetField("jumpHeight", BindingFlags.NonPublic | BindingFlags.Instance);
-
-                if (moveSpeedField != null) baseMoveSpeed = (float)moveSpeedField.GetValue(pm);
-                if (jumpHeightField != null) baseJumpHeight = (float)jumpHeightField.GetValue(pm);
             }
             else
             {
@@ -54,10 +48,12 @@ public class EquipManager : MonoBehaviour
             }
         }
 
-        // ensure arrays sizes
+        // asegurar tamaños
         if (equipped == null || equipped.Length != slots) equipped = new ItemData[slots];
-        if (equipCubes == null || equipCubes.Length != slots) Debug.LogWarning("Asigná equipCubes en inspector (dos cubos)");
-        // esconder cubos al inicio (si no lo están)
+        if (equipCubes == null || equipCubes.Length != slots)
+            Debug.LogWarning("Asigná equipCubes en inspector (dos cubos)");
+
+        // esconder cubos al inicio
         for (int i = 0; i < Mathf.Min(slots, equipCubes.Length); i++)
             if (equipCubes[i] != null) equipCubes[i].SetActive(false);
     }
@@ -69,7 +65,7 @@ public class EquipManager : MonoBehaviour
         ItemData it = InventoryManager.Instance.RemoveAndReturn(inventoryIndex);
         if (it == null) return;
 
-        // si ya hay item en equip slot, lo devolvemos al inventario (o spawneamos si no hay lugar)
+        // si ya hay item en equip slot, lo devolvemos al inventario
         if (equipped[equipIndex] != null)
         {
             InventoryManager.Instance.AddOrSpawn(equipped[equipIndex]);
@@ -77,8 +73,7 @@ public class EquipManager : MonoBehaviour
 
         equipped[equipIndex] = it;
         UpdateVisuals();
-        ApplyModifiers();
-        OnEquipChanged?.Invoke();
+        OnEquipChanged?.Invoke(it, true);
     }
 
     public void UnEquipToInventory(int equipIndex)
@@ -87,12 +82,11 @@ public class EquipManager : MonoBehaviour
         ItemData it = equipped[equipIndex];
         if (it == null) return;
 
-        // intento de devolver al inventario; si no hay espacio, spawnear en world
+        // devolver al inventario
         InventoryManager.Instance.AddOrSpawn(it);
         equipped[equipIndex] = null;
         UpdateVisuals();
-        ApplyModifiers();
-        OnEquipChanged?.Invoke();
+        OnEquipChanged?.Invoke(it, false);
     }
 
     private void UpdateVisuals()
@@ -114,24 +108,6 @@ public class EquipManager : MonoBehaviour
             }
         }
     }
-
-    private void ApplyModifiers()
-    {
-        if (playerMovementComp == null || moveSpeedField == null || jumpHeightField == null) return;
-
-        float finalMove = baseMoveSpeed;
-        float finalJump = baseJumpHeight;
-
-        for (int i = 0; i < slots; i++)
-        {
-            var it = equipped[i];
-            if (it == null) continue;
-            finalMove *= it.speedMultiplier;
-            finalJump *= it.jumpMultiplier;
-        }
-
-        moveSpeedField.SetValue(playerMovementComp, finalMove);
-        jumpHeightField.SetValue(playerMovementComp, finalJump);
-    }
 }
+
 
