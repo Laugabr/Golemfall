@@ -8,6 +8,30 @@ public class PlayerStats : CharacterStats
 {
     [Header("Events")]
     public UnityEvent OnStatsChanged; //Notifys when a stat is changed
+    private void OnEnable()
+{
+    if (EquipManager.Instance != null)
+        EquipManager.Instance.OnEquipChanged += HandleEquipChange;
+}
+
+    private void HandleEquipChange(ItemData itemData, bool isEquiped)
+    {
+        switch (isEquiped)
+        {
+        case true:
+            EquipItem(itemData.stats);
+            break;
+        case false:
+            UnequipItem(itemData.stats);
+            break;
+        }
+    }
+
+    private void OnDisable()
+{
+    if (EquipManager.Instance != null)
+        EquipManager.Instance.OnEquipChanged -= HandleEquipChange;
+}
     public void EquipItem(Stats itemStats)
     {
         if (itemStats == null) return;
@@ -42,8 +66,10 @@ public class PlayerStats : CharacterStats
 
         OnStatsChanged?.Invoke(); // 
         Debug.Log($"Se quitó item {itemStats.name}. Stats actualizadas.");
-        
+
     }
+    
+    
 
 }
 
