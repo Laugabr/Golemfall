@@ -15,6 +15,7 @@ public class ExperienceManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI levelText;
     [SerializeField] Image experienceFill;
 
+    
 
     private void AddExperience(int amount)
     {
@@ -36,6 +37,8 @@ public class ExperienceManager : MonoBehaviour
     {
         previousLevelsExperience = (int)experienceCurve.Evaluate(currentLevel);
         nextLevelsExperience = (int)experienceCurve.Evaluate(currentLevel + 1);
+        BasicEventsManager.OnLevelUp?.Invoke(currentLevel);
+
         UpdateInterface();
     }
 
