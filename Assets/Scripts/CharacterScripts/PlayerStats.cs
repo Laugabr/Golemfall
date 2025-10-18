@@ -8,11 +8,31 @@ public class PlayerStats : CharacterStats
 {
     [Header("Events")]
     public UnityEvent OnStatsChanged; //Notifys when a stat is changed
+
+    public List<StatInfo> levelsData = new();
+
     private void OnEnable()
-{
-    if (EquipManager.Instance != null)
-        EquipManager.Instance.OnEquipChanged += HandleEquipChange;
-}
+    {
+        BasicEventsManager.OnLevelUp += HandleLevelUp;
+
+        if (EquipManager.Instance != null)
+            EquipManager.Instance.OnEquipChanged += HandleEquipChange;
+    }
+
+    private void HandleLevelUp(int levelId)
+    {
+        var currentLevel = levelsData[levelId - 1];
+
+        foreach (var level in levelsData)
+        {
+            var stat = localStats.FirstOrDefault(s => s.statType == level.statType);
+            if (stat != null)
+            {
+                stat.statValue += level.statValue;
+                if (stat.statValue < 0)
+                    stat.statValue = 0;
+            }
+        }    }
 
     private void HandleEquipChange(ItemData itemData, bool isEquiped)
     {
