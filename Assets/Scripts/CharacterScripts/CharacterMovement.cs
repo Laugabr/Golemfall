@@ -38,7 +38,13 @@ public class CharacterMovement : NetworkBehaviour
             //            CameraFollow.Instance.SetTarget(camTarget);
         }
     }
+    [SerializeField] private CharacterStats charStats;
 
+
+    private void OnEnable()
+    {
+        charStats = GetComponent<CharacterStats>();
+    }
     public override void FixedUpdateNetwork() //executing logic that affects gameplay
     {
         if (GetInput(out NetInputPlayer input)) //gets the input of each client
@@ -60,8 +66,7 @@ public class CharacterMovement : NetworkBehaviour
 
             lastDashTime -= Time.deltaTime;
 
-            if (Input.GetKey(KeyCode.LeftShift) && !isDashing)
-            {
+
                 dashTimer = dashDuration;
                 Debug.Log("Start dash");
 
@@ -88,9 +93,9 @@ public class CharacterMovement : NetworkBehaviour
 
 
 
-            }
+            
 
-            kcc.Move(worldDirection.normalized * speed, jump); //normalizing the wD vector to prevent cheating
+            kcc.Move(worldDirection.normalized * charStats.GetStat(Stat.speed), jump); //normalizing the wD vector to prevent cheating
             PreviousButtons = input.Buttons;
         }
     }
@@ -127,7 +132,7 @@ public class CharacterMovement : NetworkBehaviour
             GameObject proj = Instantiate(projectilePrefab, projectileSpawnPoint.position, Quaternion.LookRotation(direction));
 
             // 🚀 importante: asignar el dueño
-            proj.GetComponentInChildren<Proyectil>().SetOwner(gameObject);
+            proj.GetComponentInChildren<Proyectil>().SetOwner(gameObject, charStats.GetStat(Stat.damage));
 
             Rigidbody rb = proj.GetComponent<Rigidbody>();
             if (rb != null)
