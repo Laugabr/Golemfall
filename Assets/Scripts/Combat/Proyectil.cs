@@ -9,10 +9,11 @@ public class Proyectil : MonoBehaviour
         void Start() => Destroy(gameObject, lifetime);
 
 
-    public void SetOwner(GameObject newOwner)
+    public void SetOwner(GameObject newOwner, int damageSent)
     {
         owner = newOwner;
         Debug.Log("Owner is " + owner.name);
+        damageAmount = damageSent;
     }
     
     void OnTriggerEnter(Collider other)

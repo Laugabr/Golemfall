@@ -32,13 +32,13 @@ public class EnemyAI : MonoBehaviour
         if (Input.GetKey(KeyCode.F))
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-        if (playerObj != null)
-        {
-            player = playerObj.transform;
-            Debug.Log("found plaeyr");
+            if (playerObj != null)
+            {
+                player = playerObj.transform;
+                Debug.Log("found plaeyr");
+            }
         }
-         }
-        
+
         if (player == null)
         {
             agent.isStopped = true;
@@ -65,6 +65,7 @@ public class EnemyAI : MonoBehaviour
             agent.isStopped = true;
         }
     }
+   
 
     private void TryAttack()
     {
@@ -84,7 +85,7 @@ public class EnemyAI : MonoBehaviour
                 GameObject proj = Instantiate(projectilePrefab, projectileSpawnPoint.position, Quaternion.LookRotation(direction));
 
                 // 🚀 importante: asignar el dueño
-                proj.GetComponentInChildren<Proyectil>().SetOwner(gameObject);
+                proj.GetComponentInChildren<Proyectil>().SetOwner(gameObject, attackDamage);
 
                 Rigidbody rb = proj.GetComponent<Rigidbody>();
                 Debug.Log($"{gameObject.name} atacó al jugador");
