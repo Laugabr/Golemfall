@@ -1,40 +1,44 @@
 using UnityEngine;
 using UnityEngine.UI;
+
 /// <summary>
-/// Handles all UI updates, HUD elements, windows, damage, etc.
-/// Local-only for now.
+/// Minimal UI manager focused on player's health bar.
+/// later extend to support multiple players (by playerId).
 /// </summary>
 public class UIManager : MonoBehaviour
 {
-
     public static UIManager Instance { get; private set; }
 
-    [Header("Health Bar")]
-    public Slider HealthBar;
+    [Header("Single-player health")]
+    [SerializeField] private Slider healthBar; // assign in inspector
 
     void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(this.gameObject);
+            Destroy(gameObject);
             return;
         }
+
         Instance = this;
-        DontDestroyOnLoad(this.gameObject);
+        DontDestroyOnLoad(gameObject);
     }
 
     public void SetMaxHealth(int maxHealth)
     {
-        if (HealthBar == null) return;
+        if (healthBar == null) return;
 
-        HealthBar.maxValue = maxHealth;
-        HealthBar.value = maxHealth;
+        healthBar.maxValue = maxHealth;
+        healthBar.value = maxHealth;
     }
 
     public void UpdateHealth(int currentHealth)
     {
-        if (HealthBar == null) return;
+        if (healthBar == null) return;
 
-        HealthBar.value = currentHealth;
+        healthBar.value = currentHealth;
     }
+
+    // Future: overloads to support multiple players:
+    // public void UpdateHealthForPlayer(int playerId, int currentHealth) { ... }
 }
