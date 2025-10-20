@@ -7,11 +7,9 @@ public class PlayerManager : MonoBehaviour
 
     public GameObject LocalPlayer;
 
-    // --- Player Events --- (Example)
-    /* public event Action OnPlayerAttack;
-     public event Action OnPlayerDeath;
-     public event Action OnPlayerHit;
-    */
+    public event Action OnPlayerAttack;
+    public event Action OnPlayerDeath;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -25,6 +23,7 @@ public class PlayerManager : MonoBehaviour
 
     public void SetLocalPlayer(GameObject player) => LocalPlayer = player;
 
-    // --- Event Invokers (these would be called by gameplay logic) ---
-
+    // Called from input (example: pressing attack button)
+    public void TriggerAttack() => OnPlayerAttack?.Invoke();
+    public void InvokePlayerDeath() => OnPlayerDeath?.Invoke();
 }
