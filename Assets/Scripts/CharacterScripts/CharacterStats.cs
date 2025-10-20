@@ -19,6 +19,11 @@ public class CharacterStats : MonoBehaviour
         );
     }
 
+    void Start()
+    {
+        Initialize();
+    }
+
     public int GetStat(Stat stat)
     {
         return localStats.FirstOrDefault(s => s.statType == stat)?.statValue ?? 0;

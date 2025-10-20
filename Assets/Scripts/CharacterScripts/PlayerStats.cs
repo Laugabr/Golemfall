@@ -9,7 +9,7 @@ public class PlayerStats : CharacterStats
     [Header("Events")]
     public UnityEvent OnStatsChanged; //Notifys when a stat is changed
 
-    public List<StatInfo> levelsData = new();
+    public List<Stats> levelsData = new();
 
     private void OnEnable()
     {
@@ -23,18 +23,22 @@ public class PlayerStats : CharacterStats
     {
         var currentLevel = levelsData[levelId - 1];
 
-        foreach (var level in levelsData)
+        foreach (var levelStat in currentLevel.statInfo)
         {
-            var stat = localStats.FirstOrDefault(s => s.statType == level.statType);
+            var stat = localStats.FirstOrDefault(s => s.statType == levelStat.statType);
             if (stat != null)
             {
-                stat.statValue += level.statValue;
+                stat.statValue += levelStat.statValue;
                 if (stat.statValue < 0)
                     stat.statValue = 0;
             }
-        }    }
-
-    private void HandleEquipChange(ItemData itemData, bool isEquiped)
+            else
+            {
+                localStats.Add(new StatInfo(levelStat.statType, levelStat.statValue));
+            }
+        }
+    }    
+private void HandleEquipChange(ItemData itemData, bool isEquiped)
     {
         switch (isEquiped)
         {

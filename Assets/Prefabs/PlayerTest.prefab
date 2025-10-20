@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 8086779716165580698}
   - component: {fileID: 1041969364907043449}
   - component: {fileID: -3514983964872360537}
-  - component: {fileID: -8669180899056666853}
+  - component: {fileID: 2487711422297520130}
   m_Layer: 3
   m_Name: PlayerTest
   m_TagString: Player
@@ -249,7 +249,7 @@ MonoBehaviour:
   OnHealthChanged:
     m_PersistentCalls:
       m_Calls: []
-  charStats: {fileID: -8669180899056666853}
+  charStats: {fileID: 0}
   meshRenderer: {fileID: 8449284307180182827}
 --- !u!114 &-3514983964872360537
 MonoBehaviour:
@@ -291,7 +291,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   kcc: {fileID: 8086779716165580698}
---- !u!114 &-8669180899056666853
+--- !u!114 &2487711422297520130
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -300,11 +300,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 2042440013039451085}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 874c8951faca731439516ec6b102d8d9, type: 3}
+  m_Script: {fileID: 11500000, guid: ed9138715db242241b931665ee5c6080, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stats: {fileID: 11400000, guid: 5f1dc252c01a302448d541b00d45f5fa, type: 2}
+  baseStats: {fileID: 11400000, guid: 5f1dc252c01a302448d541b00d45f5fa, type: 2}
   localStats: []
+  OnStatsChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  levelsData:
+  - {fileID: 11400000, guid: d5d41427d58f6504b9e383cd76095c8a, type: 2}
+  - {fileID: 11400000, guid: b30a9157dbe6c9c4b98351e289d3e79d, type: 2}
+  - {fileID: 11400000, guid: 7c30f9644e4687e47af21adf4217c4b5, type: 2}
+  - {fileID: 11400000, guid: 118d535e24299e24284184f3b0492430, type: 2}
+  - {fileID: 11400000, guid: 9ed809e02cb61824287da2cf4b8f23eb, type: 2}
+  - {fileID: 11400000, guid: 377f31655bab3e646b5f610a460dea1b, type: 2}
 --- !u!1 &6459267549577680078
 GameObject:
   m_ObjectHideFlags: 0

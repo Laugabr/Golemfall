@@ -77,6 +77,10 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
             player
         );
 
+        var playerSpawnedPlayerStats = playerSpawned.GetComponent<PlayerStats>();
+        
+        playerSpawnedPlayerStats.Initialize();
+
         _players.Add(player, playerSpawned);
     }
 

@@ -48,7 +48,7 @@ public class Health : MonoBehaviour
     {
         if (charStats == null)
         {
-            Debug.LogError("character stats component not found");
+            Debug.LogError("character stats component not found in " + gameObject.name);
         }
 
     }
