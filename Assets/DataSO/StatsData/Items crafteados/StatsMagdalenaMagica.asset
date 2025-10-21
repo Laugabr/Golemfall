@@ -12,4 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a8b9c0c20be99d4a8dbff2eb7277f4e, type: 3}
   m_Name: StatsMagdalenaMagica
   m_EditorClassIdentifier: 
-  statInfo: []
+  statInfo:
+  - statType: 0
+    statValue: 30
+  - statType: 2
+    statValue: -5

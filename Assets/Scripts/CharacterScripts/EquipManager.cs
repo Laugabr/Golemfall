@@ -30,24 +30,6 @@ public class EquipManager : MonoBehaviour
 
     void Start()
     {
-        if (playerObject != null)
-        {
-            playerMovementComp = playerObject.GetComponent(typeof(MonoBehaviour));
-            // buscamos el componente PlayerMovement por tipo
-            var pm = playerObject.GetComponent("PlayerMovement");
-            if (pm != null)
-            {
-                playerMovementComp = pm;
-                var type = pm.GetType();
-                moveSpeedField = type.GetField("moveSpeed", BindingFlags.NonPublic | BindingFlags.Instance);
-                jumpHeightField = type.GetField("jumpHeight", BindingFlags.NonPublic | BindingFlags.Instance);
-            }
-            else
-            {
-                Debug.LogWarning("PlayerMovement no encontrado en playerObject. No se aplicarán multiplicadores.");
-            }
-        }
-
         // asegurar tamaños
         if (equipped == null || equipped.Length != slots) equipped = new ItemData[slots];
         if (equipCubes == null || equipCubes.Length != slots)
@@ -56,6 +38,9 @@ public class EquipManager : MonoBehaviour
         // esconder cubos al inicio
         for (int i = 0; i < Mathf.Min(slots, equipCubes.Length); i++)
             if (equipCubes[i] != null) equipCubes[i].SetActive(false);
+
+        // Suscribirse a los cambios de equipamiento
+        OnEquipChanged += HandleEquipChange;
     }
 
     // Equipar item removiéndolo del inventario (inventoryIndex -> equipIndex)
@@ -107,6 +92,39 @@ public class EquipManager : MonoBehaviour
                 }
             }
         }
+    }
+    private void HandleEquipChange(ItemData item, bool equipped)
+    {
+        if (item == null || item.stats == null || item.stats.statInfo == null) return;
+
+        CharacterStats stats = playerObject.GetComponent<CharacterStats>();
+        if (stats == null)
+        {
+            Debug.LogWarning("El jugador no tiene CharacterStats, no se pueden modificar stats.");
+            return;
+        }
+        stats.LogCurrentStats();
+
+        string action = equipped ? "Equipado" : "Desequipado";
+        string debugMsg = $"{action}: {item.displayName}\n";
+
+        foreach (var s in item.stats.statInfo)
+        {
+            var statEntry = stats.localStats.Find(ls => ls.statType == s.statType);
+            if (statEntry != null)
+            {
+                statEntry.statValue += equipped ? s.statValue : -s.statValue;
+                debugMsg += $" → {s.statType} {(equipped ? "+" : "-")}{s.statValue} (nuevo valor: {statEntry.statValue})";
+            }
+            else
+            {
+                // si no existía la stat en localStats, la agregamos (opcional)
+                stats.localStats.Add(new StatInfo(s.statType, s.statValue));
+                debugMsg += $" → {s.statType} {(equipped ? "+" : "-")}{s.statValue} (nueva stat añadida)\n";
+            }
+        }
+        Debug.Log(debugMsg);
+        stats.LogCurrentStats();
     }
 }
 
