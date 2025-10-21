@@ -9,30 +9,50 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Salto")]
     [SerializeField] private float jumpHeight = 1.5f;
-
-    [Header("Física")]
     [SerializeField] private float gravity = -9.81f;
+
+    [Header("Dash")]
+    [SerializeField] private float dashSpeed = 15f;
+    [SerializeField] private float dashDuration = 0.2f;
+    [SerializeField] private float dashCooldown = 1f;
 
     private CharacterController controller;
     private Vector3 velocity;
     private bool isGrounded;
 
-    void Awake()
+    private bool isDashing = false;
+    private float dashTimer = 0f;
+    private float dashCooldownTimer = 0f;
+    private Vector3 dashDirection;
+
+    private void Awake()
     {
         controller = GetComponent<CharacterController>();
     }
 
-
-    void Update()
+    private void Update()
     {
-        Vector3 move = GetMovementInput(); // solo calcula movimiento
+        if (isDashing)
+        {
+            HandleDashMovement();
+            return; // no permitir movimiento normal durante el dash
+        }
+
+        Vector3 move = GetMovementInput();
         HandleJump();
         ApplyGravity();
 
-        // mover todo junto (horizontal + vertical)
         controller.Move((move * moveSpeed + velocity) * Time.deltaTime);
 
-        Debug.DrawRay(transform.position, Vector3.down * (controller.height / 2 + 0.2f), Color.red);
+        // reducir cooldown
+        if (dashCooldownTimer > 0f)
+            dashCooldownTimer -= Time.deltaTime;
+
+        // iniciar dash
+        if (Input.GetKeyDown(KeyCode.LeftShift) && dashCooldownTimer <= 0f && move.magnitude > 0.1f)
+        {
+            StartDash(move);
+        }
     }
 
     private Vector3 GetMovementInput()
@@ -58,27 +78,15 @@ public class PlayerMovement : MonoBehaviour
         return move;
     }
 
-
-    private bool CheckGrounded()
-    {
-        float rayLength = controller.height / 2 + 0.2f;
-        return Physics.Raycast(transform.position, Vector3.down, rayLength);
-    }
-
     private void HandleJump()
     {
-        isGrounded = CheckGrounded();
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, controller.height / 2 + 0.2f);
 
         if (isGrounded && velocity.y < 0)
-        {
             velocity.y = -2f;
-        }
 
         if (Input.GetButtonDown("Jump") && isGrounded)
-        {
-            velocity.y = 0f; // reset vertical velocity before jump
-            velocity.y += Mathf.Sqrt(jumpHeight * -2f * gravity);
-        }
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
     }
 
     private void ApplyGravity()
@@ -86,4 +94,24 @@ public class PlayerMovement : MonoBehaviour
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }
+
+    private void StartDash(Vector3 moveDir)
+    {
+        isDashing = true;
+        dashTimer = dashDuration;
+        dashCooldownTimer = dashCooldown;
+        dashDirection = moveDir.normalized;
+    }
+
+    private void HandleDashMovement()
+    {
+        controller.Move(dashDirection * dashSpeed * Time.deltaTime);
+        dashTimer -= Time.deltaTime;
+
+        if (dashTimer <= 0f)
+        {
+            isDashing = false;
+        }
+    }
 }
+
