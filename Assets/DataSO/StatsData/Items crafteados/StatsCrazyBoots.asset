@@ -10,8 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9a8b9c0c20be99d4a8dbff2eb7277f4e, type: 3}
-  m_Name: BootsStat
+  m_Name: StatsCrazyBoots
   m_EditorClassIdentifier: 
-  stats:
+  statInfo:
   - statType: 2
-    value: 10
+    statValue: 100
+  - statType: 1
+    statValue: -5

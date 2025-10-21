@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3433644155110709716}
   - component: {fileID: 1002589026783615401}
   m_Layer: 0
-  m_Name: ojo
+  m_Name: OjoDeGolem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -121,4 +121,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 886e0c66bf12e9842ae0e23b61d76444, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemData: {fileID: 11400000, guid: 29f0f99925eebbc41bdd02de729f785c, type: 2}
+  itemData: {fileID: 11400000, guid: 3fb73de3de3fd3f47974d714b5b49caf, type: 2}
+  originalPosition: {x: 0, y: 0, z: 0}
