@@ -14,6 +14,9 @@ public class BreakableObject : MonoBehaviour
     {
         if (isBroken) return;
 
+        // Feedback visual de golpe
+        GetComponent<HitFeedback>()?.FlashHit();
+
         currentHits++;
 
         if (currentHits >= hitsToBreak)
@@ -22,11 +25,9 @@ public class BreakableObject : MonoBehaviour
         }
         else
         {
-            //agregar aquí animación o sonido de daño parcial
             Debug.Log($"{gameObject.name} golpeado ({currentHits}/{hitsToBreak})");
         }
     }
-
     private void Break()
     {
         isBroken = true;

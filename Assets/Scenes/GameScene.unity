@@ -4636,6 +4636,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1642225126729232661, guid: ad2f7c1278d80a34eb1939a110794df1, type: 3}
+      propertyPath: breakEffectPrefab
+      value: 
+      objectReference: {fileID: 3565933607220939726, guid: 410beae0467aa344cba93d061e181a0d, type: 3}
     - target: {fileID: 4106156060672307537, guid: ad2f7c1278d80a34eb1939a110794df1, type: 3}
       propertyPath: m_LocalPosition.x
       value: -466.43
@@ -4733,6 +4737,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5255919743067739781, guid: a79e56862b1d18144b76152876f22d47, type: 3}
+      propertyPath: breakEffectPrefab
+      value: 
+      objectReference: {fileID: 3565933607220939726, guid: 410beae0467aa344cba93d061e181a0d, type: 3}
     - target: {fileID: 8364140927958009631, guid: a79e56862b1d18144b76152876f22d47, type: 3}
       propertyPath: m_Name
       value: DropBreakable

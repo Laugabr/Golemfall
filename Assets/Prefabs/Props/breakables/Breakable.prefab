@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2489451491757083080}
   - component: {fileID: 6758902501584502004}
   - component: {fileID: 1642225126729232661}
+  - component: {fileID: 8970408309134569831}
   m_Layer: 7
   m_Name: Breakable
   m_TagString: Untagged
@@ -122,4 +123,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitsToBreak: 1
-  breakEffectPrefab: {fileID: 0}
+  breakEffectPrefab: {fileID: 3565933607220939726, guid: 410beae0467aa344cba93d061e181a0d, type: 3}
+--- !u!114 &8970408309134569831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6663454259497773273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40517947dbfe88d4a9b87aab40f3cfd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hitColor: {r: 0.3773585, g: 0.3773585, b: 0.3773585, a: 1}
+  duration: 0.03
