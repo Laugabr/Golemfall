@@ -14,8 +14,9 @@ GameObject:
   - component: {fileID: 3020137049988100365}
   - component: {fileID: 5793528193811727874}
   - component: {fileID: 46109850013059242}
-  - component: {fileID: 7770531670247594444}
   - component: {fileID: 8785361665552802455}
+  - component: {fileID: 4922974474564529849}
+  - component: {fileID: 922847358454397092}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -158,24 +159,6 @@ NavMeshAgent:
   m_BaseOffset: 0.52
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &7770531670247594444
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6408339784910094688}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08d006d72e86ccc4fad553d2d345ef22, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 4695642118095032319, guid: e678130e0c743684598758290be96f8c, type: 3}
-  projectileSpawnPoint: {fileID: 6025994956559927646}
-  detectionRange: 14.41
-  attackRange: 2
-  attackDamage: 10
-  attackCooldown: 1.5
 --- !u!114 &8785361665552802455
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -188,5 +171,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 874c8951faca731439516ec6b102d8d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stats: {fileID: 11400000, guid: 98be6f086a350c342b8c8dea204cb07d, type: 2}
+  baseStats: {fileID: 0}
   localStats: []
+--- !u!114 &4922974474564529849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6408339784910094688}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08d006d72e86ccc4fad553d2d345ef22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &922847358454397092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6408339784910094688}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed9138715db242241b931665ee5c6080, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseStats: {fileID: 11400000, guid: 98be6f086a350c342b8c8dea204cb07d, type: 2}
+  localStats: []
+  OnStatsChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  levelsData: []

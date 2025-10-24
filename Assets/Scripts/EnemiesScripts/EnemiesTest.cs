@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-[RequireComponent(typeof(NavMeshAgent))]
+/*[RequireComponent(typeof(NavMeshAgent))]
 public class EnemyAI : MonoBehaviour
 {
     [SerializeField] private GameObject projectilePrefab;
@@ -91,7 +91,7 @@ public class EnemyAI : MonoBehaviour
                 Debug.Log($"{gameObject.name} atacó al jugador");
             }
         }
-    }
+    }*/
 
 
 
