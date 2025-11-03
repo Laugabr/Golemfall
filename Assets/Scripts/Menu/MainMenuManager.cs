@@ -13,6 +13,7 @@ public class MainMenuManager : MonoBehaviour
 
     void Start()
     {
+            Debug.Log("MainMenuManager iniciado");
         ShowMainMenu();
     }
 

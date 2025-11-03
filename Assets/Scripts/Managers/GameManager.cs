@@ -44,9 +44,8 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
         CurrentState = GameState.Paused;
 
-        // Avisamos al PanelsManager
         if (PanelsManager.Instance != null)
-            PanelsManager.Instance.ShowPauseMenu(true);
+            PanelsManager.Instance.ShowPanel(PanelType.Pause);
     }
 
     public void ResumeGame()
@@ -55,7 +54,7 @@ public class GameManager : MonoBehaviour
         CurrentState = GameState.Playing;
 
         if (PanelsManager.Instance != null)
-            PanelsManager.Instance.ShowPauseMenu(false);
+            PanelsManager.Instance.OnCloseAllButton();
     }
 
     public void GoToMainMenu()
