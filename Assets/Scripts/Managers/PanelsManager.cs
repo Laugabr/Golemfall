@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public enum PanelType
 {
@@ -30,9 +31,12 @@ public class PanelsManager : MonoBehaviour
         Instance = this;
 
         HideAllPanels();
+
+         // Reset automático al cargar escenas
+        SceneManager.sceneLoaded += (scene, mode) => HideAllPanels();
     }
 
-    // 🔹 Oculta todos los paneles
+    // Oculta todos los paneles
     private void HideAllPanels()
     {
         if (pausePanel != null) pausePanel.SetActive(false);
@@ -42,7 +46,7 @@ public class PanelsManager : MonoBehaviour
         currentPanel = PanelType.None;
     }
 
-    // 🔹 Muestra un panel y oculta los demás
+    // Muestra un panel y oculta los demás
     public void ShowPanel(PanelType panelType)
     {
         HideAllPanels();
@@ -66,7 +70,7 @@ public class PanelsManager : MonoBehaviour
         currentPanel = panelType;
     }
 
-    // 🔹 Alternar panel (abrir si está cerrado, cerrar si está abierto)
+    // Alternar panel (abrir si está cerrado, cerrar si está abierto)
     public void TogglePanel(PanelType panelType)
     {
         if (currentPanel == panelType)

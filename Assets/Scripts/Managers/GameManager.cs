@@ -58,11 +58,15 @@ public class GameManager : MonoBehaviour
     }
 
     public void GoToMainMenu()
-    {
-        Time.timeScale = 1f;
-        CurrentState = GameState.MainMenu;
-        SceneManager.LoadScene(mainMenuSceneName);
-    }
+{
+    Time.timeScale = 1f;
+    CurrentState = GameState.MainMenu;
+
+    if (PanelsManager.Instance != null)
+        PanelsManager.Instance.OnCloseAllButton();
+
+    SceneManager.LoadScene(mainMenuSceneName);
+}
 }
 
 
