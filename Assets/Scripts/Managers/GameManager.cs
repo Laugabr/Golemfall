@@ -1,31 +1,72 @@
 using UnityEngine;
-using Fusion;
+using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Local/offline GameManager singleton.
-/// Always present in scene. Coordinates local systems like UI, Audio, Input and references to gameplay managers.
-/// </summary>
+public enum GameState
+{
+    Playing,
+    Paused,
+    MainMenu
+}
+
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
+    [SerializeField] private string mainMenuSceneName = "Menu";
 
+    public GameState CurrentState { get; private set; } = GameState.Playing;
 
     void Awake()
     {
-        // Singleton setup
         if (Instance != null && Instance != this)
         {
-            Destroy(this.gameObject);
+            Destroy(gameObject);
             return;
         }
 
         Instance = this;
-        DontDestroyOnLoad(this.gameObject);
+        DontDestroyOnLoad(gameObject);
     }
 
-    void Start()
+    void Update()
     {
-
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (CurrentState == GameState.Playing)
+                PauseGame();
+            else if (CurrentState == GameState.Paused)
+                ResumeGame();
+        }
     }
+
+    public void PauseGame()
+    {
+        Time.timeScale = 0f;
+        CurrentState = GameState.Paused;
+
+        if (PanelsManager.Instance != null)
+            PanelsManager.Instance.ShowPanel(PanelType.Pause);
+    }
+
+    public void ResumeGame()
+    {
+        Time.timeScale = 1f;
+        CurrentState = GameState.Playing;
+
+        if (PanelsManager.Instance != null)
+            PanelsManager.Instance.OnCloseAllButton();
+    }
+
+    public void GoToMainMenu()
+{
+    Time.timeScale = 1f;
+    CurrentState = GameState.MainMenu;
+
+    if (PanelsManager.Instance != null)
+        PanelsManager.Instance.OnCloseAllButton();
+
+    SceneManager.LoadScene(mainMenuSceneName);
 }
+}
+
+

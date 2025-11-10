@@ -8,11 +8,15 @@ public class MainMenuManager : MonoBehaviour
     public GameObject creditsPanel;
     public GameObject settingsPanel;
 
+    [Header("Scene Settings")]
+    public string gameSceneName = "GameScene";
+
     [Header("Optional Fade Settings")]
     public float fadeDuration = 0.5f;
 
     void Start()
     {
+            Debug.Log("MainMenuManager iniciado");
         ShowMainMenu();
     }
 
@@ -21,7 +25,14 @@ public class MainMenuManager : MonoBehaviour
     public void OnPlayButton()
     {
         // Cargar la escena del juego
-        SceneManager.LoadScene("GameScene");
+          if (!string.IsNullOrEmpty(gameSceneName))
+        {
+            SceneManager.LoadScene(gameSceneName);
+        }
+        else
+        {
+            Debug.LogError("El nombre de la escena del juego no está configurado en el inspector.");
+        }
     }
 
     public void OnCreditsButton()

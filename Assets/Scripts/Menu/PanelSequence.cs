@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 [System.Serializable]
 public class PanelInfo
@@ -15,6 +16,10 @@ public class PanelSequence : MonoBehaviour
     [Header("Panels")]
     public List<PanelInfo> panels;
     public CanvasGroup blackOverlay;
+
+    [Header("Final Scene")]
+    [Tooltip("Nombre de la escena que se cargará al finalizar la secuencia")]
+    public string finalSceneName;
 
     void Start()
     {
@@ -37,18 +42,26 @@ public class PanelSequence : MonoBehaviour
             PanelInfo currentInfo = panels[i];
             CanvasGroup current = currentInfo.panel;
 
-            // Mostrar panel actual
             SetPanel(current, true);
 
-            // Esperar displayDuration
             yield return new WaitForSeconds(currentInfo.displayDuration);
 
-            // Si hay siguiente panel, hacer fundido
             if (i < panels.Count - 1)
             {
                 PanelInfo nextInfo = panels[i + 1];
                 yield return StartCoroutine(FadeToNextPanel(currentInfo, nextInfo));
             }
+        }
+
+        // Esperar un momento y cargar la escena final
+        yield return new WaitForSeconds(1f);
+        if (!string.IsNullOrEmpty(finalSceneName))
+        {
+            yield return StartCoroutine(FadeToBlackAndLoadScene());
+        }
+        else
+        {
+            Debug.LogWarning("No se asignó una escena final en el Inspector.");
         }
     }
 
@@ -60,7 +73,6 @@ public class PanelSequence : MonoBehaviour
         CanvasGroup from = fromInfo.panel;
         CanvasGroup to = toInfo.panel;
 
-        // Activar panel siguiente (invisible) y overlay
         SetPanel(to, true);
         if (blackOverlay != null)
             blackOverlay.alpha = 1f;
@@ -70,11 +82,9 @@ public class PanelSequence : MonoBehaviour
             t += Time.deltaTime;
             float normalized = t / duration;
 
-            // Fundido directo de panels
             from.alpha = Mathf.Lerp(1f, 0f, normalized * (duration / fromInfo.fadeDuration));
             to.alpha = Mathf.Lerp(0f, 1f, normalized * (duration / toInfo.fadeDuration));
 
-            // Overlay cubre cualquier hueco
             if (blackOverlay != null)
                 blackOverlay.alpha = Mathf.Lerp(1f, 0f, normalized);
 
@@ -88,6 +98,24 @@ public class PanelSequence : MonoBehaviour
 
         if (blackOverlay != null)
             blackOverlay.alpha = 0f;
+    }
+
+    IEnumerator FadeToBlackAndLoadScene()
+    {
+        if (blackOverlay != null)
+        {
+            float t = 0f;
+            float duration = 1.5f;
+
+            while (t < duration)
+            {
+                t += Time.deltaTime;
+                blackOverlay.alpha = Mathf.Lerp(0f, 1f, t / duration);
+                yield return null;
+            }
+        }
+
+        SceneManager.LoadScene(finalSceneName);
     }
 
     void SetPanel(CanvasGroup panel, bool visible)
