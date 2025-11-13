@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class SlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public int slotIndex; // 0..4
+    public int slotIndex;
     private Canvas canvas;
     private GameObject dragIcon;
     private Image dragImage;

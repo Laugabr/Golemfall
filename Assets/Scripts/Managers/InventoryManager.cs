@@ -7,7 +7,7 @@ public class InventoryManager : MonoBehaviour
     public static InventoryManager Instance { get; private set; }
 
     [Header("Configuración")]
-    public int capacity = 5;
+    public int capacity = 12;
     [Tooltip("Transform del jugador (para spawnear items al arrojar)")]
     public Transform playerTransform;
 

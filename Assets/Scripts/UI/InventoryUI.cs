@@ -6,12 +6,10 @@ using UnityEngine.EventSystems;
 public class InventoryUI : MonoBehaviour
 {
     [Header("Panel")]
-    public GameObject inventoryPanel; // panel mayor (por defecto desactivado como dijiste)
-    [Header("Slots UI (5)")]
-    public Image[] slotIcons; // arrastrar 5 Image en inspector
+    public GameObject inventoryPanel;
+    public Image[] slotIcons;
     public Sprite emptySprite;
-    [Header("Equip slots UI (2)")]
-    public Image[] equipSlotIcons; // 2 images para equipados
+    public Image[] equipSlotIcons;
 
     void Start()
     {

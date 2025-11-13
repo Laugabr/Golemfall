@@ -7,7 +7,7 @@ public class EquipManager : MonoBehaviour
     public static EquipManager Instance { get; private set; }
 
     [Header("Slots")]
-    public int slots = 2;
+    public int slots = 3;
     public ItemData[] equipped; // tamaño = slots
 
     [Header("Referencias de jugador")]
@@ -72,6 +72,7 @@ public class EquipManager : MonoBehaviour
         equipped[equipIndex] = null;
         UpdateVisuals();
         OnEquipChanged?.Invoke(it, false);
+        
     }
 
     private void UpdateVisuals()
