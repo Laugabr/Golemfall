@@ -97,6 +97,15 @@ public class InventoryManager : MonoBehaviour
     {
         return items.IndexOf(item);
     }
+    public void ReplaceItemAt(int index, ItemData newItem)
+    {
+        if (index >= 0 && index < items.Count)
+        {
+            items[index] = newItem;
+            OnInventoryChanged?.Invoke();
+        }
+    }
+
 
 }
 

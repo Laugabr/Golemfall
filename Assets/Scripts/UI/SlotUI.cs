@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class SlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class SlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
 {
     public int slotIndex;
     private Canvas canvas;
@@ -71,6 +71,23 @@ public class SlotUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         DragData.sourceSlot = null;
     }
 
+    // Rechaza drops entrantes si el slot está ocupado (no permitimos swaps)
+    public void OnDrop(PointerEventData eventData)
+    {
+        // Si lo que se está soltando viene desde un equip slot, el EquipSlotUI ya lo maneja en su OnEndDrag.
+        // Aquí solo prevenimos que otro sistema ponga algo encima de un slot ocupado.
+        var draggedItem = DragData.item;
+        if (draggedItem == null) return;
+
+        // Si el slot ya tiene item, rechazamos el drop
+        if (InventoryManager.Instance.GetItemAt(slotIndex) != null)
+        {
+            Debug.Log("[SlotUI] Slot ocupado. No se puede soltar aquí.");
+            // Aseguramos que la visual vuelva al origen si existe
+            if (DragData.sourceSlot != null) DragData.sourceSlot.RefreshSlot();
+            return;
+        }
+    }
 
     public void RefreshSlot()
     {

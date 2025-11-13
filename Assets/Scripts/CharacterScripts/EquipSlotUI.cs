@@ -9,12 +9,19 @@ public class EquipSlotUI : MonoBehaviour, IDropHandler, IBeginDragHandler, IDrag
     private Canvas canvas;
     private GameObject dragIcon;
     private Image dragImage;
+    private InventoryUI inventoryUI;
 
     void Awake()
     {
         canvas = GetComponentInParent<Canvas>();
     }
 
+    private void Start()
+    {
+        inventoryUI = FindObjectOfType<InventoryUI>();
+    }
+
+    // Recibir drop desde inventario -> equip (solo si slot equip está vacío)
     public void OnDrop(PointerEventData eventData)
     {
         if (DragData.item != null)
@@ -23,13 +30,27 @@ public class EquipSlotUI : MonoBehaviour, IDropHandler, IBeginDragHandler, IDrag
 
     public void ReceiveDrop(ItemData item)
     {
+        // Si el equip slot ya está ocupado, rechazamos el drop
+        if (EquipManager.Instance == null) return;
+        if (EquipManager.Instance.equipped == null) return;
+        if (equipIndex < 0 || equipIndex >= EquipManager.Instance.equipped.Length) return;
+
+        if (EquipManager.Instance.equipped[equipIndex] != null)
+        {
+            Debug.Log("[EquipSlotUI] Slot de equipamiento ocupado. No se puede equipar aquí.");
+            return;
+        }
+
         // Buscar índice real del item en el inventario y equiparlo
         int inventoryIndex = InventoryManager.Instance.FindIndex(item);
         if (inventoryIndex >= 0)
+        {
             EquipManager.Instance.EquipFromInventory(inventoryIndex, equipIndex);
+            if (inventoryUI != null) inventoryUI.Refresh();
+        }
     }
 
-    // NUEVO: comenzar a arrastrar desde un slot equipado
+    // Comenzar drag desde equip slot
     public void OnBeginDrag(PointerEventData eventData)
     {
         ItemData it = EquipManager.Instance.equipped[equipIndex];
@@ -55,7 +76,7 @@ public class EquipSlotUI : MonoBehaviour, IDropHandler, IBeginDragHandler, IDrag
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        bool droppedOnInventory = false;
+        bool droppedOnInventorySlot = false;
 
         PointerEventData pointerData = new PointerEventData(EventSystem.current) { position = Input.mousePosition };
         List<RaycastResult> results = new List<RaycastResult>();
@@ -63,42 +84,32 @@ public class EquipSlotUI : MonoBehaviour, IDropHandler, IBeginDragHandler, IDrag
 
         foreach (var res in results)
         {
-            // Ver si se soltó sobre un SlotUI del inventario
             var invSlot = res.gameObject.GetComponentInParent<SlotUI>();
             if (invSlot != null)
             {
-                // Si el slot está vacío, desequipamos
+                // Solo permitimos desequipar si el slot del inventario está vacío
                 if (InventoryManager.Instance.GetItemAt(invSlot.slotIndex) == null)
                 {
                     EquipManager.Instance.UnEquipToInventory(equipIndex);
-                    droppedOnInventory = true;
-                    InventoryUI ui = FindObjectOfType<InventoryUI>();
-                    ui.Refresh();       
+                    droppedOnInventorySlot = true;
+
+                    if (inventoryUI != null)
+                        inventoryUI.Refresh();
                 }
                 else
                 {
-                    // Si hay algo, hacemos intercambio
-                    int inventoryIndex = invSlot.slotIndex;
-                    ItemData invItem = InventoryManager.Instance.GetItemAt(inventoryIndex);
-                    if (invItem != null)
-                    {
-                        // swap: equipar el del inventario y desequipar el actual
-                        EquipManager.Instance.EquipFromInventory(inventoryIndex, equipIndex);
-                        InventoryManager.Instance.AddOrSpawn(invItem);
-                        droppedOnInventory = true;
-                    }
+                    // Slot ocupado: rechazamos el drop (no swap)
+                    Debug.Log("[EquipSlotUI] Slot de inventario ocupado. No se puede desequipar aquí.");
                 }
-                break;
+
+                break; // ya procesamos un slot
             }
         }
 
-        if (!droppedOnInventory)
-        {
-            // Si no se soltó en ningún slot de inventario, simplemente cancelamos
-        }
-
+        // Si no se soltó en ningún slot de inventario válido, no hacemos nada: devolvemos el ítem al equip slot (visual intacta)
         if (dragIcon != null) Destroy(dragIcon);
+
+        // Limpiamos datos estáticos
         DragData.item = null;
     }
 }
-
