@@ -10,5 +10,5 @@ public class ItemData : ScriptableObject
     public GameObject worldPrefab;
     public bool isEquipable = true;
 
-    public Stats stats; // 👈 Nuevo campo
+    public Stats stats;
 }
