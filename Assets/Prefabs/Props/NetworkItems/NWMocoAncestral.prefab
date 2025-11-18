@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 1067679732070216289}
   - component: {fileID: 3875361423104981329}
   - component: {fileID: 3314719480869535086}
-  - component: {fileID: 6892116519028425387}
   - component: {fileID: 7434387904531251127}
   m_Layer: 0
   m_Name: NWMocoAncestral
@@ -128,21 +127,8 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 6892116519028425387}
   - {fileID: 7434387904531251127}
   ForceRemoteRenderTimeframe: 0
---- !u!114 &6892116519028425387
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4525569796843408623}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1df5b312670da4d4d973716fd8486bf0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &7434387904531251127
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -156,3 +142,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemData: {fileID: 11400000, guid: 0849075fd34233b479f3be34b5d8b59a, type: 2}
+  netw_obj: {fileID: 3314719480869535086}

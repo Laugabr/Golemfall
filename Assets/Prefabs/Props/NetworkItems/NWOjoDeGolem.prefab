@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 7112516178494246548}
   - component: {fileID: 8283121018417920721}
   - component: {fileID: 2563796090533597668}
-  - component: {fileID: 861640007953966014}
   - component: {fileID: 619180320195026213}
   m_Layer: 0
   m_Name: NWOjoDeGolem
@@ -128,21 +127,8 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 861640007953966014}
   - {fileID: 619180320195026213}
   ForceRemoteRenderTimeframe: 0
---- !u!114 &861640007953966014
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2518974155531196619}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1df5b312670da4d4d973716fd8486bf0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &619180320195026213
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -156,3 +142,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemData: {fileID: 11400000, guid: 3fb73de3de3fd3f47974d714b5b49caf, type: 2}
+  netw_obj: {fileID: 2563796090533597668}

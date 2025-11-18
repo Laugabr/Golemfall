@@ -124,9 +124,10 @@ GameObject:
   - component: {fileID: 2484164803046592085}
   - component: {fileID: 5600933545779710794}
   - component: {fileID: 5967205879656611319}
+  - component: {fileID: 5515375215595783266}
   m_Layer: 0
   m_Name: NetworkingPlayer
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -244,7 +245,8 @@ MonoBehaviour:
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []
-  NetworkedBehaviours: []
+  NetworkedBehaviours:
+  - {fileID: 5515375215595783266}
   ForceRemoteRenderTimeframe: 0
 --- !u!143 &2484164803046592085
 CharacterController:
@@ -308,6 +310,21 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   levelsData: []
+--- !u!114 &5515375215595783266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2483715990737686896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea2d4ea3c0a15934ea88706579a43b59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _IsDirty:
+    _value: 0
+  items: []
 --- !u!1 &2891395344421157551
 GameObject:
   m_ObjectHideFlags: 0

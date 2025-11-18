@@ -6,20 +6,34 @@ public class ItemInteract : NetworkBehaviour
 {
     [SerializeField] private ItemData itemData;
     private readonly KeyCode interactKey = KeyCode.F;
+
+    private NetworkRunner runner;
     private bool localPlayerInRange = false;
+
+    private NetworkObject localPlayerNO;
+    private NetworkInventory localInventory;
+
+    private void Awake()
+    {
+        runner = FindFirstObjectByType<NetworkRunner>();
+        if (runner == null)
+            Debug.LogError("❌ No se encontró un NetworkRunner en la escena.");
+    }
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
 
-        var netw_obj = other.GetComponent<NetworkObject>();
-        if (netw_obj == null) return;
+        var otherNO = other.GetComponent<NetworkObject>();
+        if (otherNO == null) return;
 
-        // Si este collider pertenece al player LOCAL -> mostramos prompt solo localmente
-        if (netw_obj.InputAuthority == Runner.LocalPlayer)
+        if (otherNO.InputAuthority == runner.LocalPlayer)
         {
             localPlayerInRange = true;
-            InteractPrompt.Instance?.Show(transform, interactKey.ToString());
+            localPlayerNO = otherNO;
+            localInventory = otherNO.GetComponent<NetworkInventory>();
+
+            InteractPrompt.Instance?.Show(transform, "F");
         }
     }
 
@@ -27,51 +41,54 @@ public class ItemInteract : NetworkBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        var netw_obj = other.GetComponent<NetworkObject>();
-        if (netw_obj == null) return;
+        var otherNO = other.GetComponent<NetworkObject>();
+        if (otherNO == null) return;
 
-        if (netw_obj.InputAuthority == Runner.LocalPlayer)
+        if (otherNO.InputAuthority == runner.LocalPlayer)
         {
             localPlayerInRange = false;
+            localPlayerNO = null;
+            localInventory = null;
+
             InteractPrompt.Instance?.Hide();
         }
     }
 
     private void Update()
     {
-        // Solo el cliente local chequea la tecla
         if (!localPlayerInRange) return;
+        if (localInventory == null) return;
 
         if (Input.GetKeyDown(interactKey))
         {
-            // Llamamos al RPC que el servidor recibirá (target = StateAuthority)
-            RPC_RequestPickup();
+            Debug.Log("⏺ CLIENTE LOCAL → pidiendo pickup");
+
+            // Enviamos el NetworkObject del inventario
+            RPC_RequestPickup(localInventory.Object);
         }
     }
 
-    // Cliente -> Servidor
-    // Usamos RpcSources.All para permitir que el cliente invoque aun cuando el item NO tenga input authority
+    // CLIENTE → SERVIDOR
     [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private void RPC_RequestPickup(RpcInfo info = default)
+    private void RPC_RequestPickup(NetworkObject playerInventoryNO, RpcInfo info = default)
     {
-        // info.Source es el PlayerRef del que envió el RPC
-        var requestingPlayer = info.Source;
+        Debug.Log("🟩 SERVER: RPC_RequestPickup recibido");
 
-        Debug.Log($"[ItemInteract] RPC_RequestPickup recibido en server. Item: {(itemData != null ? itemData.id : "NO_ID")}, solicitado por {requestingPlayer}");
+        if (playerInventoryNO == null)
+        {
+            Debug.LogError("❌ playerInventoryNO vino NULL");
+            return;
+        }
 
-        // Aquí se valida (distancia, si ya fue tomado, espacio en inventario...) y luego:
-        // - Agregar al inventario server-side
-        // - Runner.Despawn(Object) o Object.SetActive(false)
-        // - Enviar confirmación al cliente  (RPC desde StateAuthority -> InputAuthority)
-    }
+        var inv = playerInventoryNO.GetComponent<NetworkInventory>();
+        if (inv == null)
+        {
+            Debug.LogError("❌ No se encontró NetworkInventory en playerInventoryNO");
+            return;
+        }
 
-    // Opcional: helper para el server cuando confirme
-    [Rpc(sources: RpcSources.StateAuthority, targets: RpcTargets.InputAuthority)]
-    private void RPC_ConfirmPickup(RpcInfo info = default, int pickedItemId = -1)
-    {
-        // Esto correrá SOLO en el cliente que pidió (InputAuthority)
-        Debug.Log($"[ItemInteract] RPC_ConfirmPickup recibido en cliente. ItemId: {pickedItemId}");
-        InteractPrompt.Instance?.Hide();
-        // Aquí el cliente puede actualizar UI local (o llamar a PlayerInventoryLocal.AddItem)
+        inv.Server_AddItem(itemData.id);
+        Runner.Despawn(Object);
     }
 }
+
