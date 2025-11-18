@@ -13,7 +13,13 @@ public class ItemInteract : NetworkBehaviour
     private NetworkObject localPlayerNO;
     private NetworkInventory localInventory;
 
-    private void Awake()
+
+    public override void Spawned()
+    {
+        Debug.Log(name + " Initialized in scene" );
+    }
+
+    private void Awake() 
     {
         runner = FindFirstObjectByType<NetworkRunner>();
         if (runner == null)
