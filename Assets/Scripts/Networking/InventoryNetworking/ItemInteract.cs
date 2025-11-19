@@ -13,7 +13,35 @@ public class ItemInteract : NetworkBehaviour
     private NetworkObject localPlayerNO;
     private NetworkInventory localInventory;
 
+  #region Networking 
 
+    #region Server 
+    // CLIENTE → SERVIDOR
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
+    private void RPC_ServerRequestPickup(NetworkObject playerInventoryNO, RpcInfo info = default)
+    {
+        Debug.Log(" SERVER: RPC_RequestPickup recibido");
+
+        if (playerInventoryNO == null)
+        {
+            Debug.LogError(" playerInventoryNO vino NULL");
+            return;
+        }
+
+        var inv = playerInventoryNO.GetComponent<NetworkInventory>();
+        if (inv == null)
+        {
+            Debug.LogError(" No se encontró NetworkInventory en playerInventoryNO");
+            return;
+        }
+
+        inv.Server_AddItem(itemData.id);
+        Runner.Despawn(Object);
+    }
+
+#endregion
+
+#endregion
     public override void Spawned()
     {
         Debug.Log(name + " Initialized in scene" );
@@ -23,7 +51,7 @@ public class ItemInteract : NetworkBehaviour
     {
         runner = FindFirstObjectByType<NetworkRunner>();
         if (runner == null)
-            Debug.LogError("❌ No se encontró un NetworkRunner en la escena.");
+            Debug.LogError(" No se encontró un NetworkRunner en la escena.");
     }
 
     private void OnTriggerEnter(Collider other)
@@ -67,34 +95,13 @@ public class ItemInteract : NetworkBehaviour
 
         if (Input.GetKeyDown(interactKey))
         {
-            Debug.Log("⏺ CLIENTE LOCAL → pidiendo pickup");
+            Debug.Log(" CLIENTE LOCAL → pidiendo pickup");
 
             // Enviamos el NetworkObject del inventario
-            RPC_RequestPickup(localInventory.Object);
+            RPC_ServerRequestPickup(localInventory.Object);
         }
     }
 
-    // CLIENTE → SERVIDOR
-    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
-    private void RPC_RequestPickup(NetworkObject playerInventoryNO, RpcInfo info = default)
-    {
-        Debug.Log("🟩 SERVER: RPC_RequestPickup recibido");
 
-        if (playerInventoryNO == null)
-        {
-            Debug.LogError("❌ playerInventoryNO vino NULL");
-            return;
-        }
-
-        var inv = playerInventoryNO.GetComponent<NetworkInventory>();
-        if (inv == null)
-        {
-            Debug.LogError("❌ No se encontró NetworkInventory en playerInventoryNO");
-            return;
-        }
-
-        inv.Server_AddItem(itemData.id);
-        Runner.Despawn(Object);
-    }
 }
 

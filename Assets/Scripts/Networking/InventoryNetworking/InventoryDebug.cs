@@ -10,7 +10,7 @@ public class InventoryDebug : MonoBehaviour
         {
             inv.IsDirty = false;
             Debug.Log("📦 INVENTARIO ACTUALIZADO:");
-            foreach (var it in inv.items)
+            foreach (var it in inv.Items)
                 Debug.Log(" - " + it);
         }
     }
