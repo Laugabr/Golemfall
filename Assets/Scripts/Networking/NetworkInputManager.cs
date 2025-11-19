@@ -22,25 +22,6 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
         }
 
         Keyboard keyboard = Keyboard.current;
-/*
-        //To check if enter or escape was input to toggle cursor visibility
-        if (keyboard != null && (keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame || keyboard.escapeKey.wasPressedThisFrame))
-        {
-            if (Cursor.lockState == CursorLockMode.Locked)
-            {
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-            }
-        }
-        // accumulate input if only the cursosr is locked
-        if (Cursor.lockState != CursorLockMode.Locked)
-            return;
-*/
         NetworkButtons buttons = default;
 
         if (keyboard != null)

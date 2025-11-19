@@ -14,7 +14,7 @@ public class NetworkInventory : NetworkBehaviour
     public readonly List<string> Items = new List<string>();
     public readonly List<string> EquipedItems = new List<string>();
 
-    private const string ITEMDATA_PATH = "DataSO/StatsData/ItemsCrafteados/";
+    private const string ITEMDATA_PATH = "DataSO/StatsData/Itemscrafteados/";
 
     #region Networking 
 
@@ -37,6 +37,7 @@ public class NetworkInventory : NetworkBehaviour
         else
         {
             Debug.LogError( itemID + " not found in 'Items crafteados' folder");
+            return;
         }
         IsDirty = true;
 
@@ -101,7 +102,7 @@ public class NetworkInventory : NetworkBehaviour
 
     private bool CheckItemExistence(string itemID)
     {
-        var itemData = Resources.Load<ItemData>(ITEMDATA_PATH + itemID + ".asset");
+        var itemData = Resources.Load<ItemData>(ITEMDATA_PATH + itemID);
         
         var itemStatsData = Resources.Load<Stats>(ITEMDATA_PATH + "Stats_" + itemID);
 
