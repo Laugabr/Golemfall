@@ -2,7 +2,7 @@ using System.Reflection;
 using UnityEngine;
 using System;
 
-public class EquipManager : MonoBehaviour
+public  class EquipManager : MonoBehaviour
 {
     public static EquipManager Instance { get; private set; }
 
