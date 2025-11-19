@@ -23,7 +23,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
     private void Start()
     {
         _createRoomButton.onClick.AddListener(CreateRoom);
-        //_joinRoomButton.onClick.AddListener(JoinRoom);
+        _joinRoomButton.onClick.AddListener(JoinRoom);
     }
 
     private async void CreateRoom()
