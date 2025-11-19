@@ -31,11 +31,9 @@ public class CharacterMovement : NetworkBehaviour
     {
         kcc.SetGravity(Physics.gravity.y * 2f);
 
-        if (HasInputAuthority)
-        {
-            var cineMachine = GetComponentInChildren<CinemachineCamera>();
-            cineMachine.Follow = transform;
-        }
+        if (HasInputAuthority) return;
+
+        DestroyCameraMachine();
     }
 
 
@@ -89,6 +87,11 @@ public class CharacterMovement : NetworkBehaviour
         dashTimer = dashDuration;
         dashCooldownTimer = dashCooldown;
         dashDirection = moveDir.normalized;
+    }
+
+    private void DestroyCameraMachine() {
+        var cineMachine = GetComponentInChildren<CinemachineCamera>();
+        Destroy(cineMachine.gameObject);
     }
 }
 
