@@ -1,25 +1,32 @@
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
+
 public class ItemContainerSlot : MonoBehaviour
 {
-    [SerializeField] private InventorySlotUI currentItem; // <-- Usamos la clase que ya tenés
+    [SerializeField] private ItemSlot currentItem;
 
     public bool IsEmpty => currentItem == null;
 
-    public void AssignItem(InventorySlotUI item)
+    public void AssignItem(ItemSlot item)
     {
         currentItem = item;
+        // Ajustes para UI (RectTransform)
+        var rt = item.transform as RectTransform;
         item.transform.SetParent(transform, false);
-        item.transform.localPosition = Vector3.zero;
+        if (rt != null)
+        {
+            rt.anchoredPosition = Vector2.zero;
+            rt.localScale = Vector3.one;
+        }
     }
 
     public void ClearSlot()
     {
+        if (currentItem != null)
+            Destroy(currentItem.gameObject);
         currentItem = null;
     }
 
-    public InventorySlotUI GetItem()
+    public ItemSlot GetItem()
     {
         return currentItem;
     }

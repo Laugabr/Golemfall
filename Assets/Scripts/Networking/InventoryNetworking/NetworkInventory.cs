@@ -28,16 +28,26 @@ public class NetworkInventory : NetworkBehaviour
             Debug.LogWarning("Server_AddItem llamado sin autoridad (esto no debería pasar)");
             return;
         }
-        
+
         if (CheckItemExistence(itemID))
-        { 
+        {
             Items.Add(itemID);
             Debug.Log("Item " + itemID + " added to items list");
+            ItemData data = Resources.Load<ItemData>("DataSO/StatsData/Itemscrafteados/" + itemID);
+            if (data != null)
+            {
+                InventoryManager.Instance.AddItem(data);
+                Debug.Log("[NetworkInventory] Also forwarded to InventoryManager: " + data.displayName);
+            }
+            else
+            {
+                Debug.LogError("[NetworkInventory] ItemData NOT FOUND for ID: " + itemID);
+            }
 
         }
         else
         {
-            Debug.LogError( itemID + " not found in 'Items crafteados' folder");
+            Debug.LogError(itemID + " not found in 'Items crafteados' folder");
             return;
         }
         IsDirty = true;
@@ -70,7 +80,7 @@ public class NetworkInventory : NetworkBehaviour
             EquipedItems.Add(itemToEquip); //Adds the first found
         }
     }
-    
+
 
     // Gets called by the cient by dragging an item out of an equipment slot
     [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority, Channel = RpcChannel.Reliable)]
@@ -93,16 +103,16 @@ public class NetworkInventory : NetworkBehaviour
             EquipedItems.Remove(itemToUnequip);
         }
     }
-        [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority, Channel = RpcChannel.Reliable)]
+    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority, Channel = RpcChannel.Reliable)]
     public void RPC_ServerUneentRequest(string itemID, RpcInfo info = default)
     {
         //Runner.Spawn()
         //Aca queda por si en algun momento llegamos a hacer que puedas dropear los items 
     }
-#endregion
-#endregion
+    #endregion
+    #endregion
 
-    private void Awake() 
+    private void Awake()
     {
         runner = FindFirstObjectByType<NetworkRunner>();
         if (runner == null)
@@ -111,7 +121,7 @@ public class NetworkInventory : NetworkBehaviour
     private bool CheckItemExistence(string itemID)
     {
         var itemData = Resources.Load<ItemData>(ITEMDATA_PATH + itemID);
-        
+
         var itemStatsData = Resources.Load<Stats>(ITEMDATA_PATH + "Stats_" + itemID);
 
         if (itemData == null)
@@ -123,9 +133,9 @@ public class NetworkInventory : NetworkBehaviour
             return true;
         }
     }
-       
 
-    
+
+
 }
 
 
