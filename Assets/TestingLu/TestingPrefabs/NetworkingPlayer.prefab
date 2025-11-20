@@ -193,6 +193,7 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
+  - {fileID: 5967205879656611319}
   - {fileID: 5515375215595783266}
   - {fileID: 2268338038263311533}
   - {fileID: -461821717541361334}
@@ -211,6 +212,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseStats: {fileID: 11400000, guid: 5f1dc252c01a302448d541b00d45f5fa, type: 2}
   localStats: []
+  _DirtyStats:
+    _value: 0
   OnStatsChanged:
     m_PersistentCalls:
       m_Calls: []
