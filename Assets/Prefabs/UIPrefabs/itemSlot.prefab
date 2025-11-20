@@ -98,7 +98,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -149,6 +149,8 @@ GameObject:
   - component: {fileID: 5055134551740020783}
   - component: {fileID: 1827899481084996264}
   - component: {fileID: 1086707890500092958}
+  - component: {fileID: 4157977198765345655}
+  - component: {fileID: 3894861175164617994}
   m_Layer: 5
   m_Name: itemSlot
   m_TagString: Untagged
@@ -251,6 +253,30 @@ MonoBehaviour:
   icon: {fileID: 3759814254008945629}
   nameText: {fileID: 7027360574651362765}
   statsText: {fileID: 3231371220827397611}
+--- !u!114 &4157977198765345655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2404482117328291837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e8c04ce27060f64dbc960df9f1b5c2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!225 &3894861175164617994
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2404482117328291837}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &5402984280146959843
 GameObject:
   m_ObjectHideFlags: 0
@@ -285,8 +311,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 64, y: 64}
+  m_AnchoredPosition: {x: 0, y: -12}
+  m_SizeDelta: {x: 80, y: 80}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &6818608445383871667
 CanvasRenderer:
@@ -420,8 +446,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 18
+  m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
