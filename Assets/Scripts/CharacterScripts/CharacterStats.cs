@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Fusion;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class CharacterStats : MonoBehaviour
+public class CharacterStats : NetworkBehaviour
 {
     [Header("Base Stats")]
     public Stats baseStats;

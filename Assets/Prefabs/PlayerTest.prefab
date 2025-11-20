@@ -131,17 +131,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 336207e6309dc694e99220aac9f87644, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cameraTransform: {fileID: 0}
   kcc: {fileID: 8086779716165580698}
   speed: 5
   jumpPower: 10
-  camTarget: {fileID: 9019286994899052271}
-  attackCooldown: 0.5
-  projectilePrefab: {fileID: 4695642118095032319, guid: e678130e0c743684598758290be96f8c, type: 3}
-  projectileSpawnPoint: {fileID: 45590896181684198}
-  projectileSpeed: 0
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  charStats: {fileID: 0}
   dashSpeed: 20
   dashDuration: 0.3
   dashCooldown: 1
@@ -164,6 +161,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 2073397818763574885}
   - {fileID: 8086779716165580698}
+  - {fileID: 2487711422297520130}
   ForceRemoteRenderTimeframe: 0
 --- !u!54 &5027730181171396861
 Rigidbody:
@@ -305,6 +303,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseStats: {fileID: 11400000, guid: 5f1dc252c01a302448d541b00d45f5fa, type: 2}
   localStats: []
+  _DirtyStats:
+    _value: 0
   OnStatsChanged:
     m_PersistentCalls:
       m_Calls: []

@@ -9,6 +9,7 @@ public class NetworkInventory : NetworkBehaviour
 {
     [Networked]
     public NetworkBool IsDirty { get; set; }
+    private NetworkRunner runner;
 
     // Inventario REAL del servidor
     public readonly List<string> Items = new List<string>();
@@ -50,6 +51,7 @@ public class NetworkInventory : NetworkBehaviour
     public void RPC_ServerEquipmentRequest(string itemID, RpcInfo info = default)
     {
         if (!Object.HasStateAuthority) return;
+        Debug.LogError("Equipment request made ");
 
         var itemToEquip = Items.FirstOrDefault(item => item == itemID);
 
@@ -61,8 +63,9 @@ public class NetworkInventory : NetworkBehaviour
         }
         else
         {
-            InventoryEventsManager.OnItemEquiped?.Invoke(itemID);
+            runner.GetComponent<PlayerStats>().RPC_EquipItem(itemID);
             //RPC_ClientHUDUpdate(); //borrar el comentario antes de la entrega, luuuu aca iria la parte donde se le actualiza en la ui el inventario te dejo esa parte ;))
+            Debug.LogError("Equipment succesful ");
 
             EquipedItems.Add(itemToEquip); //Adds the first found
         }
@@ -84,7 +87,7 @@ public class NetworkInventory : NetworkBehaviour
         }
         else
         {
-            InventoryEventsManager.OnItemUnequiped?.Invoke(itemID);
+            runner.GetComponent<PlayerStats>().RPC_UnequipItem(itemID);
             //RPC_ClientHUDUpdate(); //borrar el comentario antes de la entrega, luuuu aca iria la parte donde se le actualiza en la ui el inventario te dejo esa parte ;))
 
             EquipedItems.Remove(itemToUnequip);
@@ -99,7 +102,12 @@ public class NetworkInventory : NetworkBehaviour
 #endregion
 #endregion
 
-
+    private void Awake() 
+    {
+        runner = FindFirstObjectByType<NetworkRunner>();
+        if (runner == null)
+            Debug.LogError(" No se encontró un NetworkRunner en la escena.");
+    }
     private bool CheckItemExistence(string itemID)
     {
         var itemData = Resources.Load<ItemData>(ITEMDATA_PATH + itemID);
