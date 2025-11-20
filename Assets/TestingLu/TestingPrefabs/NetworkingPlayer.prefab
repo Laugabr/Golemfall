@@ -124,6 +124,8 @@ GameObject:
   - component: {fileID: 2268338038263311533}
   - component: {fileID: 7492092348020090806}
   - component: {fileID: -461821717541361334}
+  - component: {fileID: -6818287743790417716}
+  - component: {fileID: -506534420305570217}
   m_Layer: 0
   m_Name: NetworkingPlayer
   m_TagString: Player
@@ -193,9 +195,12 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
+  - {fileID: 5967205879656611319}
   - {fileID: 5515375215595783266}
   - {fileID: 2268338038263311533}
   - {fileID: -461821717541361334}
+  - {fileID: -6818287743790417716}
+  - {fileID: -506534420305570217}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &5967205879656611319
 MonoBehaviour:
@@ -211,6 +216,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseStats: {fileID: 11400000, guid: 5f1dc252c01a302448d541b00d45f5fa, type: 2}
   localStats: []
+  _DirtyStats:
+    _value: 0
   OnStatsChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -316,6 +323,40 @@ MonoBehaviour:
     StepRequireGroundTarget: 0
     SnapDistance: 0.25
     SnapSpeed: 4
+--- !u!114 &-6818287743790417716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2483715990737686896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed9138715db242241b931665ee5c6080, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseStats: {fileID: 11400000, guid: 5f1dc252c01a302448d541b00d45f5fa, type: 2}
+  localStats: []
+  _DirtyStats:
+    _value: 0
+  OnStatsChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  levelsData: []
+--- !u!114 &-506534420305570217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2483715990737686896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07cfe503f782b9e47b1662f58a421718, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inv: {fileID: 5515375215595783266}
+  stats: {fileID: -6818287743790417716}
 --- !u!1 &2891395344421157551
 GameObject:
   m_ObjectHideFlags: 0
