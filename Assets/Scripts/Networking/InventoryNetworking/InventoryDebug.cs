@@ -12,7 +12,7 @@ public class InventoryDebug : NetworkBehaviour
         if (inv != null && inv.IsDirty)
         {
             inv.IsDirty = false;
-            Debug.Log("📦 INVENTARIO ACTUALIZADO:");
+            Debug.Log("INVENTARIO ACTUALIZADO:");
             foreach (var it in inv.Items)
                 Debug.Log(" - " + it);
         }
