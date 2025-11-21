@@ -27,7 +27,7 @@ public class PlayerInteractor : MonoBehaviour
         // recoger item si presiona F
         if (canPickup && nearbyItem != null && Input.GetKeyDown(KeyCode.F))
         {
-            nearbyItem.TryPickup();
+            nearbyItem.RequestPickup();
             nearbyItem = null;
             canPickup = false;
         }
