@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class ItemSlotDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     private CanvasGroup canvasGroup;
-    private Transform originalParent;
+    public Transform originalParent {get; set;}
     private Vector2 originalPos;
 
     private void Awake()
@@ -37,6 +37,14 @@ public class ItemSlotDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
             // No cayó en ningún slot válido
             transform.SetParent(originalParent);
             transform.localPosition = originalPos;
+            originalParent = transform.parent;
+
         }
+    }
+    public string GetItemID() 
+    { 
+        var slot = GetComponent<ItemSlot>(); 
+        if (slot == null) return ""; 
+        return slot.GetItemID(); 
     }
 }

@@ -53,7 +53,6 @@ public class InventoryDebug : NetworkBehaviour
 
             Debug_ShowStats();            
 
-            Debug_EquipAll();
             }
     }
 
@@ -72,16 +71,6 @@ public class InventoryDebug : NetworkBehaviour
         Debug.Log(s);
     }
 
-    private void Debug_EquipAll()
-    {
-        foreach (var id in inv.Items)
-        {        
-            Debug.Log(id);
-
-            inv.RPC_ServerEquipmentRequest(id);}
-
-        Debug.Log($"[{Object.InputAuthority}] Equipado TODO");
-    }
 
     private void Debug_UnequipAll()
     {

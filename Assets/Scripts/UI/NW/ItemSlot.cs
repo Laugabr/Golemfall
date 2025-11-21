@@ -8,8 +8,11 @@ public class ItemSlot : MonoBehaviour
     [SerializeField] TMP_Text nameText;
     [SerializeField] TMP_Text statsText;
 
+    private ItemData itemData; 
     public void SetData(ItemData data)
     {
+        itemData = data;
+
         // Icono
         icon.sprite = data.icon;
         icon.color = data.color;
@@ -20,6 +23,17 @@ public class ItemSlot : MonoBehaviour
         // Stats
         statsText.text = FormatStats(data.stats);
     }
+
+    public ItemData GetItemData()
+    {
+        return itemData;
+    }
+
+    public string GetItemID()
+    {
+        return itemData != null ? itemData.id : "";
+    }
+
 
     private string FormatStats(Stats stats)
     {

@@ -6,21 +6,12 @@ using TMPro;
 public class PlayerStatsUI : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private TMP_Text statsText;                // Asignar en inspector (player stats panel)
-    [SerializeField] private NetworkRunner runnerFallback;      // Opcional: si querés forzar con un NetworkRunner (si lo dejás null el script buscará uno en escena)
+    [SerializeField] private TMP_Text statsText;                
+    [SerializeField] private NetworkRunner runnerFallback;      
 
     private NetworkRunner runner;
     private PlayerStats localPlayerStats;
     private bool subscribed = false;
-
-    private void Awake()
-    {
-        // Intento encontrar runner si no fue asignado
-        if (runnerFallback != null)
-            runner = runnerFallback;
-        else
-            runner = FindFirstObjectByType<NetworkRunner>();
-    }
 
     private void Start()
     {

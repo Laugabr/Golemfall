@@ -29,6 +29,7 @@ public class NetworkInventory : NetworkBehaviour
             return;
         }
 
+
         if (CheckItemExistence(itemID))
         {
             Items.Add(itemID);
@@ -61,7 +62,7 @@ public class NetworkInventory : NetworkBehaviour
     public void RPC_ServerEquipmentRequest(string itemID, RpcInfo info = default)
     {
         if (!Object.HasStateAuthority) return;
-        Debug.LogError("Equipment request made ");
+        Debug.Log("Equipment request made ");
 
         var itemToEquip = Items.FirstOrDefault(item => item == itemID);
 
@@ -73,11 +74,16 @@ public class NetworkInventory : NetworkBehaviour
         }
         else
         {
-            runner.GetComponent<PlayerStats>().RPC_EquipItem(itemID);
-            //RPC_ClientHUDUpdate(); //borrar el comentario antes de la entrega, luuuu aca iria la parte donde se le actualiza en la ui el inventario te dejo esa parte ;))
-            Debug.LogError("Equipment succesful ");
+            var playStats = GetComponent<PlayerStats>();
 
-            EquipedItems.Add(itemToEquip); //Adds the first found
+            if(playStats == null)return;
+            else
+            {
+                playStats.RPC_EquipItem(itemID); //Adds it to the stats  SERVER -> SERVER
+                //RPC_ClientHUDUpdate(); //borrar el comentario antes de la entrega, luuuu aca iria la parte donde se le actualiza en la ui el inventario te dejo esa parte ;))
+                Debug.Log("Equipment succesful ");
+                EquipedItems.Add(itemToEquip); //Adds the first found
+            }
         }
     }
 
@@ -97,14 +103,20 @@ public class NetworkInventory : NetworkBehaviour
         }
         else
         {
-            runner.GetComponent<PlayerStats>().RPC_UnequipItem(itemID);
-            //RPC_ClientHUDUpdate(); //borrar el comentario antes de la entrega, luuuu aca iria la parte donde se le actualiza en la ui el inventario te dejo esa parte ;))
+            var playStats = GetComponent<PlayerStats>();
 
-            EquipedItems.Remove(itemToUnequip);
+            if(playStats == null)return;
+            else
+            {
+                playStats.RPC_UnequipItem(itemID); //Removes it from the stats SERVER -> SERVER
+                //RPC_ClientHUDUpdate(); //borrar el comentario antes de la entrega, luuuu aca iria la parte donde se le actualiza en la ui el inventario te dejo esa parte ;)) SERVER -> CLIENT
+                Debug.Log("Equipment succesful ");
+                EquipedItems.Remove(itemToUnequip); //Adds the first found
+            }
         }
     }
     [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority, Channel = RpcChannel.Reliable)]
-    public void RPC_ServerUneentRequest(string itemID, RpcInfo info = default)
+    public void RPC_ServerDropRequest(string itemID, RpcInfo info = default)
     {
         //Runner.Spawn()
         //Aca queda por si en algun momento llegamos a hacer que puedas dropear los items 
@@ -114,10 +126,10 @@ public class NetworkInventory : NetworkBehaviour
 
     private void Awake()
     {
-        runner = FindFirstObjectByType<NetworkRunner>();
-        if (runner == null)
-            Debug.LogError(" No se encontró un NetworkRunner en la escena.");
+
     }
+
+    //Checks in assets if item exist 
     private bool CheckItemExistence(string itemID)
     {
         var itemData = Resources.Load<ItemData>(ITEMDATA_PATH + itemID);
@@ -134,9 +146,45 @@ public class NetworkInventory : NetworkBehaviour
         }
     }
 
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            if (!HasInputAuthority) return;
+            foreach (var id in Items)
+            {   
 
+                Debug.Log(id);
 
+                RPC_ServerEquipmentRequest(id);
+            }
+
+            Debug.Log($"[{Object.InputAuthority}] Equipado TODO");
+        }
+
+        if (Input.GetKeyDown(KeyCode. U))
+        {
+            var playStats = GetComponent<PlayerStats>();
+
+            foreach (var player in runner.ActivePlayers)
+            {   
+                string s = $"[{Object.InputAuthority}] STATS: ";
+                foreach (var st in playStats.localStats)
+                s += $"{st.statType}={st.statValue} ";
+
+                Debug.Log(player.PlayerId + s);
+            }
+        }
+    }
+    //Called when
+    public override void Spawned()
+    {
+            runner = FindFirstObjectByType<NetworkRunner>();
+        if (runner == null)
+            Debug.LogError(" No se encontró un NetworkRunner en la escena.");
+    }
 }
+    
 
 
 // Perdon pero lo pongo en el mismo script jaja

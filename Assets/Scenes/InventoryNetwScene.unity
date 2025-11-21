@@ -1251,12 +1251,12 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 67187821}
   - {fileID: 1528282565}
   - {fileID: 824985047}
   - {fileID: 228360507}
   - {fileID: 1886098106}
   - {fileID: 1396808386}
+  - {fileID: 67187821}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1815,6 +1815,7 @@ GameObject:
   - component: {fileID: 962813256}
   - component: {fileID: 962813255}
   - component: {fileID: 962813257}
+  - component: {fileID: 962813258}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -1925,6 +1926,22 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!114 &962813258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 962813254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d73b0a95be81246699cf0d9ecdc01863, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PreferredRunner: 0
+  Components:
+  - {fileID: 962813255}
+  _guid: 3d6b6c92-b844-401a-
 --- !u!43 &964431863
 Mesh:
   m_ObjectHideFlags: 0
@@ -3087,6 +3104,7 @@ GameObject:
   - component: {fileID: 1473634456}
   - component: {fileID: 1473634455}
   - component: {fileID: 1473634459}
+  - component: {fileID: 1473634460}
   m_Layer: 0
   m_Name: NetworkController
   m_TagString: Untagged
@@ -3148,7 +3166,7 @@ Transform:
   m_GameObject: {fileID: 1473634454}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 500, y: 44.47903, z: 0}
+  m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3166,6 +3184,75 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7fe2c91083c1fb46a6c7fbcc853fd73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1473634460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1473634454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -232609262, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnInput:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInputMissing:
+    m_PersistentCalls:
+      m_Calls: []
+  OnConnectedToServer:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDisconnectedFromServer:
+    m_PersistentCalls:
+      m_Calls: []
+  OnConnectRequest:
+    m_PersistentCalls:
+      m_Calls: []
+  OnConnectFailed:
+    m_PersistentCalls:
+      m_Calls: []
+  PlayerJoined:
+    m_PersistentCalls:
+      m_Calls: []
+  PlayerLeft:
+    m_PersistentCalls:
+      m_Calls: []
+  OnSimulationMessage:
+    m_PersistentCalls:
+      m_Calls: []
+  OnShutdown:
+    m_PersistentCalls:
+      m_Calls: []
+  OnSessionListUpdate:
+    m_PersistentCalls:
+      m_Calls: []
+  OnCustomAuthenticationResponse:
+    m_PersistentCalls:
+      m_Calls: []
+  OnHostMigration:
+    m_PersistentCalls:
+      m_Calls: []
+  OnSceneLoadDone:
+    m_PersistentCalls:
+      m_Calls: []
+  OnSceneLoadStart:
+    m_PersistentCalls:
+      m_Calls: []
+  OnReliableData:
+    m_PersistentCalls:
+      m_Calls: []
+  OnReliableProgress:
+    m_PersistentCalls:
+      m_Calls: []
+  OnObjectEnterAOI:
+    m_PersistentCalls:
+      m_Calls: []
+  OnObjectExitAOI:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!43 &1509146530
 Mesh:
   m_ObjectHideFlags: 0
@@ -3420,6 +3507,7 @@ GameObject:
   - component: {fileID: 1582414005}
   - component: {fileID: 1582414008}
   - component: {fileID: 1582414009}
+  - component: {fileID: 1582414010}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -3577,6 +3665,22 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
   CustomBlends: {fileID: 0}
+--- !u!114 &1582414010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1582414004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d73b0a95be81246699cf0d9ecdc01863, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PreferredRunner: 0
+  Components:
+  - {fileID: 1582414005}
+  _guid: 153d681e-e0f7-4ad9-
 --- !u!1 &1614436380
 GameObject:
   m_ObjectHideFlags: 0
