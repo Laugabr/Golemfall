@@ -10,49 +10,48 @@ public class ItemInteract : NetworkBehaviour
     private NetworkRunner runner;
     private bool localPlayerInRange = false;
 
-    private PlayerRef localPlayerRef;
+    private NetworkObject localPlayerNO;
+    private NetworkInventory localInventory;
 
-    #region RPC SERVER
+  #region Networking 
 
-    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority)]
-    private void RPC_ServerRequestPickup(PlayerRef requestingPlayer, RpcInfo info = default)
+    #region Server 
+    // CLIENTE → SERVIDOR
+    [Rpc(sources: RpcSources.All, targets: RpcTargets.StateAuthority)]
+    private void RPC_ServerRequestPickup(NetworkObject playerInventoryNO, RpcInfo info = default)
     {
-        Debug.Log("SERVER: RPC_ServerRequestPickup recibido");
+        Debug.Log(" SERVER: RPC_RequestPickup recibido");
 
-        // Obtener el NetworkObject del jugador
-        var playerObj = Runner.GetPlayerObject(requestingPlayer);
-        if (playerObj == null)
+        if (playerInventoryNO == null)
         {
-            Debug.LogError("SERVER: No se encontró NetworkObject del jugador");
+            Debug.LogError(" playerInventoryNO vino NULL");
             return;
         }
 
-        var inv = playerObj.GetComponent<NetworkInventory>();
+        var inv = playerInventoryNO.GetComponent<NetworkInventory>();
         if (inv == null)
         {
-            Debug.LogError("SERVER: Este jugador no tiene NetworkInventory");
+            Debug.LogError(" No se encontró NetworkInventory en playerInventoryNO");
             return;
         }
 
-        // Agregar ítem
         inv.Server_AddItem(itemData.id);
-
-        // Despawnear el item
         Runner.Despawn(Object);
     }
 
-    #endregion
+#endregion
 
+#endregion
     public override void Spawned()
     {
-        Debug.Log($"{name} initialized in scene");
+        Debug.Log(name + " Initialized in scene" );
     }
 
-    private void Awake()
+    private void Awake() 
     {
         runner = FindFirstObjectByType<NetworkRunner>();
         if (runner == null)
-            Debug.LogError("No se encontró un NetworkRunner en la escena.");
+            Debug.LogError(" No se encontró un NetworkRunner en la escena.");
     }
 
     private void OnTriggerEnter(Collider other)
@@ -62,11 +61,11 @@ public class ItemInteract : NetworkBehaviour
         var otherNO = other.GetComponent<NetworkObject>();
         if (otherNO == null) return;
 
-        // Sólo si es el jugador local
         if (otherNO.InputAuthority == runner.LocalPlayer)
         {
             localPlayerInRange = true;
-            localPlayerRef = otherNO.InputAuthority;
+            localPlayerNO = otherNO;
+            localInventory = otherNO.GetComponent<NetworkInventory>();
 
             InteractPrompt.Instance?.Show(transform, "F");
         }
@@ -82,6 +81,8 @@ public class ItemInteract : NetworkBehaviour
         if (otherNO.InputAuthority == runner.LocalPlayer)
         {
             localPlayerInRange = false;
+            localPlayerNO = null;
+            localInventory = null;
 
             InteractPrompt.Instance?.Hide();
         }
@@ -90,13 +91,17 @@ public class ItemInteract : NetworkBehaviour
     private void Update()
     {
         if (!localPlayerInRange) return;
+        if (localInventory == null) return;
 
         if (Input.GetKeyDown(interactKey))
         {
-            Debug.Log("CLIENTE LOCAL → enviando pedido de pickup al server");
+            Debug.Log(" CLIENTE LOCAL → pidiendo pickup");
 
-            // 🔥 Ahora sólo mandás PlayerRef
-            RPC_ServerRequestPickup(runner.LocalPlayer);
+            // Enviamos el NetworkObject del inventario
+            RPC_ServerRequestPickup(localInventory.Object);
         }
     }
+
+
 }
+
