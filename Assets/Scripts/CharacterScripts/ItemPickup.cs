@@ -1,9 +1,7 @@
-using Fusion;
 using UnityEngine;
-using UnityEngine.SocialPlatforms;
 
 [RequireComponent(typeof(Collider))]
-public class ItemPickup : NetworkBehaviour
+public class ItemPickup : MonoBehaviour
 {
     public ItemData itemData;
     private bool playerInRange = false;
@@ -25,35 +23,25 @@ public class ItemPickup : NetworkBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            playerInRange = true;
             InteractPrompt.Instance?.Show(transform, "F");
         }
-
-if (other.CompareTag("Player") && other.GetComponent<NetworkObject>().HasInputAuthority)
-{
-    playerInRange = true;
-}
     }
 
     void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
         {
+            playerInRange = false;
             InteractPrompt.Instance?.Hide();
         }
-        
-    if (other.CompareTag("Player") && other.GetComponent<NetworkObject>().HasInputAuthority)
-    {
-        playerInRange = false;
-    }
     }
 
     void Update()
     {
-        if (!Object.HasInputAuthority) return; // <--- IMPORTANTÍSIMO
-
         if (playerInRange && Input.GetKeyDown(KeyCode.F))
         {
-            RequestPickup();
+            TryPickup();
         }
     }
     public void ReturnToOriginalPosition()
@@ -63,17 +51,23 @@ if (other.CompareTag("Player") && other.GetComponent<NetworkObject>().HasInputAu
     }
 
 
-    public void RequestPickup()
+    public void TryPickup()
     {
-        var runner = FindFirstObjectByType<NetworkRunner>();
-        var playerObj = runner.GetPlayerObject(runner.LocalPlayer);
+        if (itemData == null) return;
 
-        PlayerRef localPlayer = Runner.LocalPlayer;
+        if (InventoryManager.Instance == null)
+        {
+            Debug.LogWarning("No InventoryManager in scene.");
+            return;
+        }
 
-
-        var inv = playerObj.GetComponent<NetworkInventory>();
-        //inv.Server_AddItem(itemData.id, localPlayer); // <- HACÉS LA PETICIÓN AL SERVER
-
+        bool added = InventoryManager.Instance.AddItem(itemData);
         InteractPrompt.Instance?.Hide();
+
+        if (added)
+        {
+            MessageManager.Instance?.Show("Item recolectado");
+            Destroy(gameObject);
+        }
     }
 }
