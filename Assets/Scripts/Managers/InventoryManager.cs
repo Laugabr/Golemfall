@@ -2,22 +2,33 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ InventoryManager
+ 
+  Local (non-networked) inventory system that stores ItemData objects.
+  Handles adding, removing, replacing, and spawning items in the world.
+  Supports capacity limits and events for UI updates or external listeners.
+  Implemented as a simple singleton for easy access across the project.
+ */
+
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance { get; private set; }
 
     [Header("Configuración")]
-    public int capacity = 12;
+    public int capacity = 12; // Maximum number of items
     [Tooltip("Transform del jugador (para spawnear items al arrojar)")]
     public Transform playerTransform;
 
-    private List<ItemData> items = new List<ItemData>();
+    private List<ItemData> items = new List<ItemData>(); // Local item storage
 
-    public event Action OnInventoryChanged;
-    public event Action<ItemData> OnItemAdded; // notifica qué item fue agregado
+    public event Action OnInventoryChanged; // Fired whenever inventory contents change
+    public event Action<ItemData> OnItemAdded; // Fired when a specific item is added
 
     void Awake()
     {
+        // Basic singleton pattern
+
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
@@ -27,11 +38,13 @@ public class InventoryManager : MonoBehaviour
 
     public bool AddItem(ItemData item)
     {
+        // Validate item and capacity
+
         if (item == null) return false;
         if (!HasSpace()) return false;
         if (items.Contains(item))
         {
-            //Debug.LogWarning("Intentaron agregar un item que ya está en el inventario: " + item.name);
+            // Prevent duplicates of the same ItemData instance
             return false;
         }
 
@@ -45,13 +58,15 @@ public class InventoryManager : MonoBehaviour
 
     public ItemData GetItemAt(int index)
     {
+        // Safely return item or null if out of range
+
         if (index < 0 || index >= items.Count) return null;
         return items[index];
     }
 
-    public int Count => items.Count;
+    public int Count => items.Count; // Number of stored items
 
-    // Remueve y devuelve el item (útil antes de equipar)
+    // Removes item at index and returns it (useful for equipping logic)
     public ItemData RemoveAndReturn(int index)
     {
         if (index < 0 || index >= items.Count) return null;
@@ -69,7 +84,7 @@ public class InventoryManager : MonoBehaviour
         return true;
     }
 
-    // Arroja el item al mundo (usa playerTransform para posicion)
+    // Spawns the removed item into the world near the player
     public void ThrowItemFromInventory(int inventoryIndex)
     {
         ItemData it = RemoveAndReturn(inventoryIndex);
@@ -81,7 +96,7 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    // Helper: intenta agregar, si no hay espacio, spawnear en world cerca del player
+    // Attempts to add an item; if no space, spawns it into the world instead
     public void AddOrSpawn(ItemData item)
     {
         if (!AddItem(item))
@@ -95,10 +110,14 @@ public class InventoryManager : MonoBehaviour
     }
     public int FindIndex(ItemData item)
     {
+        // Returns index of given item or -1 if not found
+
         return items.IndexOf(item);
     }
     public void ReplaceItemAt(int index, ItemData newItem)
     {
+        // Overwrites item at index and notifies listeners
+
         if (index >= 0 && index < items.Count)
         {
             items[index] = newItem;
