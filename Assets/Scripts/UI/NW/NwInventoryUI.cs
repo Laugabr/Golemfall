@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+// Handles the UI representation of a NetworkInventory or local InventoryManager
 public class NwInventoryUI : MonoBehaviour
 {
     [Header("References")]
@@ -10,6 +11,7 @@ public class NwInventoryUI : MonoBehaviour
     [SerializeField] private GameObject slotPrefab;
     private void Awake()
     {
+        // Auto-assign slots if not set manually
         if (slots == null || slots.Length == 0)
             slots = GetComponentsInChildren<ItemContainerSlot>(true);
         Debug.Log($"[NwInventoryUI] Slots found: {slots.Length}");
@@ -26,14 +28,12 @@ public class NwInventoryUI : MonoBehaviour
         if (targetInventory == null)
             Debug.LogWarning("[NwInventoryUI] targetInventory NO asignado (si estás en modo local usa InventoryManager).");
 
-        // Suscribirse al manager local (si existe)
         if (InventoryManager.Instance != null)
         {
             InventoryManager.Instance.OnItemAdded += AddItemToUI;
             Debug.Log("[NwInventoryUI] Suscrito a InventoryManager.OnItemAdded");
         }
 
-        // Si ya hay items en InventoryManager los renderizo
         if (InventoryManager.Instance != null)
         {
             for (int i = 0; i < InventoryManager.Instance.Count; i++)
@@ -52,7 +52,6 @@ public class NwInventoryUI : MonoBehaviour
 
     private void Update()
     {
-        // Si usás NetworkInventory remoto:
         if (targetInventory == null) return;
         if (targetInventory.Object == null) return;
         if (!targetInventory.Object.IsValid) return;
@@ -65,9 +64,9 @@ public class NwInventoryUI : MonoBehaviour
         }
     }
 
+    // Clears UI and populates from targetInventory.Items
     public void RefreshFromNetworkInventory()
     {
-        // Borra ui y rellena desde targetInventory.Items
         foreach (var s in slots)
             s.ClearSlot();
 
@@ -79,18 +78,17 @@ public class NwInventoryUI : MonoBehaviour
         }
     }
 
-    // CORE: agrega un item a primer slot libre
+    // Core method: adds item to first empty slot
     public void AddItemToUI(ItemData item)
     {
         if (item == null) { Debug.LogWarning("[NwInventoryUI] AddItemToUI recibido NULL"); return; }
 
-        // Buscar slot vacío
         foreach (var s in slots)
         {
             if (s == null) continue;
             if (s.IsEmpty)
             {
-                // Instancio ItemSlot prefab y lo asigno al contenedor
+                // Instantiate ItemSlot prefab and assign it to the container
                 GameObject go = Instantiate(slotPrefab);
                 var itemSlot = go.GetComponent<ItemSlot>();
                 if (itemSlot == null)

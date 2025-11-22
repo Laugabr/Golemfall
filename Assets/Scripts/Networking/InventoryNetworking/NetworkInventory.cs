@@ -5,13 +5,14 @@ using UnityEngine;
 using System.Linq;
 using System;
 
+// Manages player's networked inventory, equipped items, and server-client synchronization
 public class NetworkInventory : NetworkBehaviour
 {
     [Networked]
     public NetworkBool IsDirty { get; set; }
     private NetworkRunner runner;
 
-    // Inventario REAL del servidor
+     // Server-side inventory lists
     public readonly List<string> Items = new List<string>();
     public readonly List<string> EquipedItems = new List<string>();
 
@@ -21,6 +22,7 @@ public class NetworkInventory : NetworkBehaviour
 
     #region Server 
 
+    // Add an item to server inventory and notify InventoryManager
     public void Server_AddItem(string itemID)
     {
         if (!Object.HasStateAuthority)
@@ -57,7 +59,7 @@ public class NetworkInventory : NetworkBehaviour
 
     }
 
-    // Gets called by the cient by dragging an item to an equipment slot
+    // Gets called by the client by dragging an item to an equipment slot
     [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority, Channel = RpcChannel.Reliable)]
     public void RPC_ServerEquipmentRequest(string itemID, RpcInfo info = default)
     {
@@ -80,7 +82,7 @@ public class NetworkInventory : NetworkBehaviour
             else
             {
                 playStats.RPC_EquipItem(itemID); //Adds it to the stats  SERVER -> SERVER
-                //RPC_ClientHUDUpdate(); //borrar el comentario antes de la entrega, luuuu aca iria la parte donde se le actualiza en la ui el inventario te dejo esa parte ;))
+                //RPC_ClientHUDUpdate();
                 Debug.Log("Equipment succesful ");
                 EquipedItems.Add(itemToEquip); //Adds the first found
             }
@@ -109,7 +111,7 @@ public class NetworkInventory : NetworkBehaviour
             else
             {
                 playStats.RPC_UnequipItem(itemID); //Removes it from the stats SERVER -> SERVER
-                //RPC_ClientHUDUpdate(); //borrar el comentario antes de la entrega, luuuu aca iria la parte donde se le actualiza en la ui el inventario te dejo esa parte ;)) SERVER -> CLIENT
+                //RPC_ClientHUDUpdate();SERVER -> CLIENT
                 Debug.Log("Equipment succesful ");
                 EquipedItems.Remove(itemToUnequip); //Adds the first found
             }
@@ -119,15 +121,10 @@ public class NetworkInventory : NetworkBehaviour
     public void RPC_ServerDropRequest(string itemID, RpcInfo info = default)
     {
         //Runner.Spawn()
-        //Aca queda por si en algun momento llegamos a hacer que puedas dropear los items 
     }
     #endregion
     #endregion
 
-    private void Awake()
-    {
-
-    }
 
     //Checks in assets if item exist 
     private bool CheckItemExistence(string itemID)
@@ -176,7 +173,7 @@ public class NetworkInventory : NetworkBehaviour
             }
         }
     }
-    //Called when
+    // Called when object spawns in the network
     public override void Spawned()
     {
             runner = FindFirstObjectByType<NetworkRunner>();
@@ -186,9 +183,7 @@ public class NetworkInventory : NetworkBehaviour
 }
     
 
-
-// Perdon pero lo pongo en el mismo script jaja
-
+// Static event manager for inventory actions
 public static class InventoryEventsManager
 {
     public static Action<string> OnItemEquiped;

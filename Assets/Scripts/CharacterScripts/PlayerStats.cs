@@ -5,6 +5,7 @@ using Fusion;
 using UnityEngine;
 using UnityEngine.Events;
 
+// Manages player's stats, level-ups, and equipment effects with network syncing
 public class PlayerStats : CharacterStats
 {
     [Networked] public NetworkBool DirtyStats { get; set; }
@@ -28,7 +29,7 @@ public class PlayerStats : CharacterStats
             EquipManager.Instance.OnEquipChanged -= HandleEquipChange;
     }
 
-
+    // Handles level-up: adds stats from the levelData
     private void HandleLevelUp(int levelId)
     {
         if (!Object.HasStateAuthority) return;
@@ -64,6 +65,7 @@ public class PlayerStats : CharacterStats
 
     }
 
+    // RPC to equip an item and apply its stats
     [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority)]
     public void RPC_EquipItem(string itemID)
     {
@@ -84,7 +86,7 @@ public class PlayerStats : CharacterStats
         DirtyStats = true;
     }
 
-    //
+    // RPC to unequip an item and remove its stats
     [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority)]
     public void RPC_UnequipItem(string itemID)
     {
@@ -102,7 +104,7 @@ public class PlayerStats : CharacterStats
         DirtyStats = true;
     }
 
-
+    // Applies stats of an equipped item
     public void EquipItem_Server(Stats itemStats)
     {
         if (itemStats == null) return;
@@ -121,6 +123,7 @@ public class PlayerStats : CharacterStats
         Debug.Log($"[SERVER] Item equipado: {itemStats.name}. Stats actualizadas.");
     }
 
+    // Removes stats of an unequipped item
     public void UnequipItem_Server(Stats itemStats)
     {
         if (itemStats == null) return;
@@ -142,7 +145,7 @@ public class PlayerStats : CharacterStats
         Debug.Log($"[SERVER] Item desequipado: {itemStats.name}. Stats actualizadas.");
     }
 
-           
+    // Render called on client: fires event if stats are dirty
     public override void Render()
     {
         if (DirtyStats)
@@ -153,6 +156,8 @@ public class PlayerStats : CharacterStats
 
         }
     }
+    
+    // Debug helper to print current stats
     public void DebugStats(string origin)
     {
         string s = $"[{origin}] {Object.InputAuthority} | Stats: ";
@@ -164,11 +169,13 @@ public class PlayerStats : CharacterStats
 
         Debug.Log(s);
     }
+    
+    // Debug input: press P to print stats
     void Update()
-{
-    if (Input.GetKeyDown(KeyCode.P))
     {
-        DebugStats(Object.HasStateAuthority ? "SERVER" : "CLIENT");
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            DebugStats(Object.HasStateAuthority ? "SERVER" : "CLIENT");
+        }
     }
-}
 }

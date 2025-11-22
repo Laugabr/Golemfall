@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+// Handles dragging UI items between slots
 public class ItemSlotDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     private CanvasGroup canvasGroup;
@@ -10,6 +11,7 @@ public class ItemSlotDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
     private void Awake()
     {
+        // Ensure CanvasGroup exists for controlling raycast blocking
         canvasGroup = GetComponent<CanvasGroup>();
         if (canvasGroup == null) canvasGroup = gameObject.AddComponent<CanvasGroup>();
     }
@@ -19,10 +21,11 @@ public class ItemSlotDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
         originalParent = transform.parent;
         originalPos = transform.localPosition;
 
-        canvasGroup.blocksRaycasts = false; // permitir drop
-        transform.SetParent(UIRoot.Instance.dragLayer); // capa superior para arrastrar
+        canvasGroup.blocksRaycasts = false;
+        transform.SetParent(UIRoot.Instance.dragLayer);
     }
 
+    // Called every frame while dragging
     public void OnDrag(PointerEventData eventData)
     {
         transform.position = eventData.position;
@@ -34,13 +37,15 @@ public class ItemSlotDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
         if (transform.parent == UIRoot.Instance.dragLayer)
         {
-            // No cayó en ningún slot válido
+        // Return to original parent if not dropped on a valid slot
             transform.SetParent(originalParent);
             transform.localPosition = originalPos;
             originalParent = transform.parent;
 
         }
     }
+    
+    // Returns the ID of the item in this slot
     public string GetItemID() 
     { 
         var slot = GetComponent<ItemSlot>(); 

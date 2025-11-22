@@ -7,13 +7,13 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-//simulation behaviour to make it work outside of a networkbehaviour
+//Simulation behaviour to make it work outside of a networkbehaviour
 public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkRunnerCallbacks
 {
     private NetInputPlayer accumulatedInput;
     private bool resetInput;
 
-    void IBeforeUpdate.BeforeUpdate() //same as normal udpate but executed before fusions netwoek loop
+    void IBeforeUpdate.BeforeUpdate() //same as normal udpate but executed before fusions network loop
     {
         if (resetInput)
         {
