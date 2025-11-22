@@ -4,6 +4,14 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem.LowLevel;
 
+/* 
+  CharacterMovement
+ 
+  Handles all player-controlled movement: walking, jumping, and dashing.
+  Integrates with Fusion's network input system and SimpleKCC for physics-based movement.
+  Disables the camera for non-authoritative clients.
+ */
+
 public class CharacterMovement : NetworkBehaviour
 {
     [Header ("Camera Controller")]
@@ -13,15 +21,15 @@ public class CharacterMovement : NetworkBehaviour
     [SerializeField] private SimpleKCC kcc; //kcc: kinematic character controller
     [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpPower = 10f;
-    [Networked] private NetworkButtons PreviousButtons { get; set; }
+    [Networked] private NetworkButtons PreviousButtons { get; set; } // Tracks previous input state for button checks
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private CharacterStats charStats;
 
     [Header("Dash")]
-    private bool isDashing = false;
-    private float dashTimer = 0f;
-    private float dashCooldownTimer = 0f;
-    private Vector3 dashDirection;
+    private bool isDashing = false; // Dash state flag
+    private float dashTimer = 0f; // Remaining dash time
+    private float dashCooldownTimer = 0f; // Cooldown before dash can be used again
+    private Vector3 dashDirection; // Direction of the current dash
     [SerializeField] private float dashSpeed = 15f;
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1f;
@@ -29,7 +37,11 @@ public class CharacterMovement : NetworkBehaviour
     
     public override void Spawned()
     {
+        // Apply stronger gravity for snappier movement
+
         kcc.SetGravity(Physics.gravity.y * 2f);
+
+        // Only the owning player keeps the camera; remote clients don't
 
         if (HasInputAuthority) return;
 
@@ -65,31 +77,35 @@ public class CharacterMovement : NetworkBehaviour
         if (isDashing)
         {
             HandleDashMovement();
-            return; // no permitir movimiento normal durante el dash
+            return; // If dashing, override normal movement
         }
     }
     
-        private void HandleDashMovement()
+    private void HandleDashMovement()
     {
         if (GetInput(out NetInputPlayer input)) //gets the input of each client
 
         kcc.Move(input.Direction * dashSpeed * Time.deltaTime);
         dashTimer -= Time.deltaTime;
 
+         // Stop dash when timer runs out
         if (dashTimer <= 0f)
         {
             isDashing = false;
         }
     }
-        private void StartDash(Vector3 moveDir)
+    private void StartDash(Vector3 moveDir)
     {
         isDashing = true;
         dashTimer = dashDuration;
         dashCooldownTimer = dashCooldown;
-        dashDirection = moveDir.normalized;
+        dashDirection = moveDir.normalized; // Store dash direction
     }
 
-    private void DestroyCameraMachine() {
+    private void DestroyCameraMachine()
+    {
+        // Remove Cinemachine camera for non-authoritative players
+
         var cineMachine = GetComponentInChildren<CinemachineCamera>();
         Destroy(cineMachine.gameObject);
     }

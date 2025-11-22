@@ -2,21 +2,29 @@ using Fusion;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+/*
+  EquipSlotDrop
+ 
+  Handles dropping an item into an equipment slot.
+  Prevents overriding occupied slots, moves the dragged item into the slot UI,
+  and sends an equipment request to the server through the player's NetworkInventory.
+ */
+
 public class EquipSlotDrop : MonoBehaviour, IDropHandler
 {
     public void OnDrop(PointerEventData eventData)
     {
         var dragged = eventData.pointerDrag.GetComponent<ItemSlotDrag>();
-        if (dragged == null) return;
+        if (dragged == null) return; // Invalid drop: no draggable item
 
-        // Evitar reemplazar si ya hay algo
+        // Prevent equipping if slot is already occupied
         if (transform.childCount > 0) return;
 
-        // Mover en la UI
+        // Move the UI element to this equipment slot
         dragged.transform.SetParent(transform);
         dragged.transform.localPosition = Vector3.zero;
 
-        // Obtener ID real
+        // Retrieve the item's unique ID
         string itemID = dragged.GetItemID();
         if (string.IsNullOrEmpty(itemID))
         {
@@ -24,7 +32,7 @@ public class EquipSlotDrop : MonoBehaviour, IDropHandler
             return;
         }
 
-        // Buscar player local (input authority)
+        // Find the player with input authority (the local player)
         var players = FindObjectsOfType<PlayerStats>();
         PlayerStats localPlayer = null;
 
@@ -38,6 +46,8 @@ public class EquipSlotDrop : MonoBehaviour, IDropHandler
             return;
         }
 
+        // Get the player's NetworkInventory component
+
         var inventory = localPlayer.GetComponent<NetworkInventory>();
 
         if (inventory == null)
@@ -46,7 +56,8 @@ public class EquipSlotDrop : MonoBehaviour, IDropHandler
             return;
         }
 
-        // Mandar request al servidor
+        // Request server-side equipment
+
         Debug.Log("[EquipSlotDrop] RPC equip request: " + itemID);
         inventory.RPC_ServerEquipmentRequest(itemID);
     }

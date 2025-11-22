@@ -2,6 +2,16 @@ using System.Linq;
 using Fusion;
 using UnityEngine;
 
+/*
+  InventoryDebug
+
+  Monitors NetworkInventory changes at runtime.
+  Logs updated inventory items whenever the inventory is marked as dirty.
+  Client-side debug helper for inspecting and manipulating a player's inventory.
+  Allows showing items, showing stats, and unequipping all items through hotkeys.
+  Only runs for the object with input authority (the local player).
+ */
+
 public class InventoryDebug : NetworkBehaviour
 {
     [SerializeField] NetworkInventory inv;
@@ -9,6 +19,8 @@ public class InventoryDebug : NetworkBehaviour
 
     private void Update()
     {
+        // Log inventory changes when marked dirty
+
         if (inv != null && inv.IsDirty)
         {
             inv.IsDirty = false;
@@ -25,27 +37,29 @@ public class InventoryDebug : NetworkBehaviour
 
     private void Awake()
     {
+        // Cache inventory and stats references
+
         inv = GetComponent<NetworkInventory>();
         stats = GetComponent<PlayerStats>();
     }
 
     void Update()
     {
-        // Solo el dueño puede debuggear su propio personaje
+        // Only the player with input authority can debug themselves
         if (!Object.HasInputAuthority) return;
 
-        // Mostrar items
+        // Show inventory contents
         if (Input.GetKeyDown(KeyCode.I))
             Debug_ShowInventory();
 
-        // Equipar todo
+        // Debugger(Equip)
         //if (Input.GetKeyDown(KeyCode.G))
 
-        // Desequipar todo
+        // Unequip all equipped items
         if (Input.GetKeyDown(KeyCode.U))
             Debug_UnequipAll();
 
-        // Debug de stats
+        // Show current stats
         if (Input.GetKeyDown(KeyCode.P))
         {           
             
@@ -74,6 +88,8 @@ public class InventoryDebug : NetworkBehaviour
 
     private void Debug_UnequipAll()
     {
+        // Convert to list to avoid modifying the collection while iterating
+
         foreach (var id in inv.EquipedItems.ToList())
             inv.RPC_ServerUnequipmentRequest(id);
 

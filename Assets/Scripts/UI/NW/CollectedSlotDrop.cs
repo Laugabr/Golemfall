@@ -2,26 +2,39 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using Fusion;
 
+/*
+  CollectedSlotDrop
+
+  Handles the logic for dropping an item into a "collected" inventory slot.
+  Prevents dropping into occupied slots, validates equipment origin,
+  and triggers unequip requests when necessary.
+ */
+
 public class CollectedSlotDrop : MonoBehaviour, IDropHandler
 {
     public void OnDrop(PointerEventData eventData)
     {
         var dragged = eventData.pointerDrag.GetComponent<ItemSlotDrag>();
-        if (dragged == null) return;
+        if (dragged == null) return; // Drop is invalid if object has no draggable slot
 
-        // Evitar si el slot ya está ocupado
+
+        // Prevent dropping if this slot already contains an item
+
         if (transform.childCount > 0) return;
+
+        // Check if the dragged item originated from an equipment slot
 
         bool cameFromEquipSlot = dragged.originalParent.GetComponent<EquipSlotDrop>() != null;
         string itemID = dragged.GetItemID();
 
         if (cameFromEquipSlot)
         {
-        var players = FindObjectsOfType<PlayerStats>();
-        PlayerStats localPlayer = null;
+            // Find local player to send unequip RPC
+            var players = FindObjectsOfType<PlayerStats>();
+            PlayerStats localPlayer = null;
 
-        foreach (var p in players)
-            if (p.Object != null && p.Object.HasInputAuthority)
+            foreach (var p in players)
+             if (p.Object != null && p.Object.HasInputAuthority)
                 localPlayer = p;
 
         if (localPlayer == null)
@@ -30,7 +43,7 @@ public class CollectedSlotDrop : MonoBehaviour, IDropHandler
             return;
         }
 
-        var inventory = localPlayer.GetComponent<NetworkInventory>();
+            var inventory = localPlayer.GetComponent<NetworkInventory>();
 
         if (inventory == null)
         {
@@ -38,16 +51,16 @@ public class CollectedSlotDrop : MonoBehaviour, IDropHandler
             return;
         }
 
-        Debug.Log("[EquipSlotDrop] RPC equip request: " + itemID);
-        inventory.RPC_ServerUnequipmentRequest(itemID);
+            Debug.Log("[EquipSlotDrop] RPC equip request: " + itemID);
+            inventory.RPC_ServerUnequipmentRequest(itemID); // Notify server to unequip the item
         }
 
+        // Move dragged item into this collected slot
         dragged.transform.SetParent(transform);
         dragged.transform.localPosition = Vector3.zero;
 
 
-        // Aquí se podría notificar al inventario que ya no está equipado
-        // Ej: EquipManager.Instance.UnequipItem(dragged.GetItemData());
+        // notify inventory or equipment manager here if needed
     }
 }
 
