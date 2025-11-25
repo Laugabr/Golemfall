@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8430939980205689236}
   - component: {fileID: 8396731531636588629}
   - component: {fileID: 7623676200394295704}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: MainSwish (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1366,10 +1366,10 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 0.1857765, g: 0.05103488, b: 0.049401652, a: 0.97354096}
-        key1: {r: 0.6981132, g: 0.04903343, b: 0.042808846, a: 0.9961007}
-        key2: {r: 0.6981132, g: 0.04903343, b: 0.042808846, a: 0}
-        key3: {r: 0.16037738, g: 0.037050236, b: 0.035555363, a: 0}
+        key0: {r: 0.06187065, g: 0.050980385, b: 0.18431373, a: 0.97354096}
+        key1: {r: 0.043137245, g: 0.08431548, b: 0.69803923, a: 0.9961007}
+        key2: {r: 0.043137245, g: 0.29911667, b: 0.69803923, a: 0}
+        key3: {r: 0.07101548, g: 0.035294116, b: 0.16078432, a: 0}
         key4: {r: 0.2264151, g: 0.07341031, b: 0.07155571, a: 0}
         key5: {r: 0.2264151, g: 0.07341031, b: 0.07155571, a: 0}
         key6: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
@@ -1378,7 +1378,7 @@ ParticleSystem:
         ctime1: 11372
         ctime2: 29298
         ctime3: 46838
-        ctime4: 56283
+        ctime4: 56090
         ctime5: 56283
         ctime6: 58403
         ctime7: 58403
@@ -1392,7 +1392,7 @@ ParticleSystem:
         atime7: 0
         m_Mode: 0
         m_ColorSpace: 0
-        m_NumColorKeys: 5
+        m_NumColorKeys: 4
         m_NumAlphaKeys: 3
       minGradient:
         serializedVersion: 2
@@ -4902,7 +4902,7 @@ GameObject:
   - component: {fileID: 4779046194314912825}
   - component: {fileID: 7498318519028231476}
   - component: {fileID: 5603824243899621016}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: MainSwish
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6257,18 +6257,18 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 0.5, g: 0, b: 0, a: 0.97354096}
-        key1: {r: 0.16981131, g: 0.026432894, b: 0.042467006, a: 0.64705884}
-        key2: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
-        key3: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
+        key0: {r: 0, g: 0.23579353, b: 0.8584906, a: 0.97354096}
+        key1: {r: 0.052122533, g: 0.03529411, b: 0.16470589, a: 0.64705884}
+        key2: {r: 0.2869189, g: 0, b: 0.3764706, a: 0}
+        key3: {r: 0.2869189, g: 0, b: 0.3764706, a: 0}
         key4: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
         key5: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
         key6: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
         key7: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
-        ctime0: 21974
-        ctime1: 47995
+        ctime0: 13493
+        ctime1: 47224
         ctime2: 65535
-        ctime3: 58403
+        ctime3: 65535
         ctime4: 58403
         ctime5: 58403
         ctime6: 58403
@@ -9793,7 +9793,7 @@ GameObject:
   - component: {fileID: 5598351832007738610}
   - component: {fileID: 2133576866095785978}
   - component: {fileID: 4858710879477615174}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: MainSwish (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11148,8 +11148,8 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 0.31132078, g: 0.040001076, b: 0.036712352, a: 0.97354096}
-        key1: {r: 0.4056604, g: 0.07859069, b: 0.074626215, a: 0.7881502}
+        key0: {r: 0, g: 0.16969557, b: 0.8396226, a: 0.97354096}
+        key1: {r: 0.22873402, g: 0.0745098, b: 0.40392157, a: 0.7881502}
         key2: {r: 0.09433961, g: 0.025311604, b: 0.0244749, a: 0}
         key3: {r: 0.1792453, g: 0.048092056, b: 0.046502322, a: 0}
         key4: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
@@ -11157,8 +11157,8 @@ ParticleSystem:
         key6: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
         key7: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
         ctime0: 15998
-        ctime1: 24287
-        ctime2: 40092
+        ctime1: 24479
+        ctime2: 39514
         ctime3: 64957
         ctime4: 58403
         ctime5: 58403
@@ -11174,7 +11174,7 @@ ParticleSystem:
         atime7: 0
         m_Mode: 0
         m_ColorSpace: 0
-        m_NumColorKeys: 3
+        m_NumColorKeys: 2
         m_NumAlphaKeys: 3
       minGradient:
         serializedVersion: 2
@@ -14684,7 +14684,7 @@ GameObject:
   - component: {fileID: 3388273728881818541}
   - component: {fileID: 8562697261005185254}
   - component: {fileID: 3630642728424055585}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: TrailDebrie
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16039,8 +16039,8 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 0.14150941, g: 0.0016947233, b: 0, a: 0.43137255}
-        key1: {r: 0.1792453, g: 0.021137415, b: 0.113694765, a: 0.97354096}
+        key0: {r: 0.1283053, g: 0.024296913, b: 0.3962264, a: 0.43137255}
+        key1: {r: 0.27321512, g: 0, b: 0.509434, a: 0.97354096}
         key2: {r: 0.18867922, g: 0.029369881, b: 0.051513795, a: 0.83137256}
         key3: {r: 0.18867922, g: 0.029369881, b: 0.051513795, a: 0}
         key4: {r: 0.18867922, g: 0.029369881, b: 0.051513795, a: 0}
@@ -19575,7 +19575,7 @@ GameObject:
   - component: {fileID: 514808430917310930}
   - component: {fileID: 4542238221845251552}
   - component: {fileID: 8246619253324012113}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: MainSwish (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20930,18 +20930,18 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 0.31132078, g: 0.040001076, b: 0.036712352, a: 0.97354096}
-        key1: {r: 0.20754719, g: 0.03034888, b: 0.06393233, a: 0.8849919}
+        key0: {r: 0.03529411, g: 0.0601524, b: 0.30980393, a: 0.97354096}
+        key1: {r: 0.09433961, g: 0.025311604, b: 0.0244749, a: 0.8849919}
         key2: {r: 0.09433961, g: 0.025311604, b: 0.0244749, a: 0}
-        key3: {r: 0.1792453, g: 0.048092056, b: 0.046502322, a: 0}
+        key3: {r: 0.09433961, g: 0.025311604, b: 0.0244749, a: 0}
         key4: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
         key5: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
         key6: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
         key7: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
         ctime0: 9638
-        ctime1: 18119
+        ctime1: 40092
         ctime2: 40092
-        ctime3: 64957
+        ctime3: 40092
         ctime4: 58403
         ctime5: 58403
         ctime6: 58403
@@ -20956,7 +20956,7 @@ ParticleSystem:
         atime7: 0
         m_Mode: 0
         m_ColorSpace: 0
-        m_NumColorKeys: 3
+        m_NumColorKeys: 2
         m_NumAlphaKeys: 3
       minGradient:
         serializedVersion: 2
@@ -24466,8 +24466,12 @@ GameObject:
   - component: {fileID: 5718345897693066925}
   - component: {fileID: 7879869508232463602}
   - component: {fileID: 1207905951264534395}
-  m_Layer: 0
-  m_Name: MainSwish
+  - component: {fileID: 1687598120294861974}
+  - component: {fileID: 2949625105750849721}
+  - component: {fileID: 1315740864419233331}
+  - component: {fileID: -3904395779510015691}
+  m_Layer: 8
+  m_Name: OWL_SkillPrefab_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -25828,7 +25832,7 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 0.5, g: 0, b: 0, a: 0.97354096}
+        key0: {r: 0, g: 0.8993242, b: 1, a: 0.97354096}
         key1: {r: 0.16981131, g: 0.026432894, b: 0.042467006, a: 0.64705884}
         key2: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
         key3: {r: 0.1485713, g: 0, b: 0.3773585, a: 0}
@@ -29353,6 +29357,83 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &1687598120294861974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4695642118095032319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a384b9411169c6b4fb6da1d659f5ae4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damageAmount: 25
+  lifetime: 3
+  speedModifier: 0
+  HitImpact: {fileID: 0}
+--- !u!54 &2949625105750849721
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4695642118095032319}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!65 &1315740864419233331
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4695642118095032319}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 5.03, y: 0.48, z: 2.46}
+  m_Center: {x: 0, y: 0, z: 1.02}
+--- !u!114 &-3904395779510015691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4695642118095032319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17d2954b7dba4de4fbbd6077b9120f43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lifetime: 1
 --- !u!1 &8261423859712002259
 GameObject:
   m_ObjectHideFlags: 0
@@ -29364,7 +29445,7 @@ GameObject:
   - component: {fileID: 5600905291802869590}
   - component: {fileID: 7146435896855291315}
   - component: {fileID: 3189091347315678782}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: MainSwish (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34256,13 +34337,13 @@ GameObject:
   - component: {fileID: 5811865228768358592}
   - component: {fileID: 5263580111205034032}
   - component: {fileID: 7771750563402191386}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6259097186444778605
 Transform:
   m_ObjectHideFlags: 0

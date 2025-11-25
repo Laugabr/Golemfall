@@ -82,7 +82,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         // Spawn player prefab for this player
         var playerSpawned = _networkRunner.Spawn(
             _playerPrefab,
-            new Vector3(500, 15, -40),
+            new Vector3(0, 15, 0),
             Quaternion.identity,
             player
         );

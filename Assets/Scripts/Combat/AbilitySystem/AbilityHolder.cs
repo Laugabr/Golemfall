@@ -26,6 +26,9 @@ public class AbilityHolder : MonoBehaviour
                     ability.Activate(gameObject);
                     state = AbilityState.Active;
                     activeTime = ability.activeTime;
+
+                    Debug.Log("ability cooldown is " + cooldownTime);
+
                 }
                 break;
             case AbilityState.Active:
@@ -40,7 +43,7 @@ public class AbilityHolder : MonoBehaviour
                 }       
                 break;
             case AbilityState.Cooldown:
-                if (cooldownTime > 0)
+                if (cooldownTime >= 0)
                 {
                     cooldownTime -= Time.deltaTime;
                 }
