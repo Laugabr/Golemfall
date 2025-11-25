@@ -4,7 +4,7 @@ using UnityEngine;
 public class ItemPickup : MonoBehaviour
 {
     public ItemData itemData;
-    private bool playerInRange = false;
+    private bool pickedUp = false;
     [HideInInspector] public Vector3 originalPosition;
 
     void Awake()
@@ -14,52 +14,23 @@ public class ItemPickup : MonoBehaviour
 
     void Reset()
     {
-        // asegurarse que collider sea trigger
         Collider c = GetComponent<Collider>();
         if (c) c.isTrigger = true;
     }
 
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            playerInRange = true;
-            InteractPrompt.Instance?.Show(transform, "F");
-        }
-    }
-
-    void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            playerInRange = false;
-            InteractPrompt.Instance?.Hide();
-        }
-    }
-
-    void Update()
-    {
-        if (playerInRange && Input.GetKeyDown(KeyCode.F))
-        {
-            TryPickup();
-        }
-    }
     public void ReturnToOriginalPosition()
     {
         transform.position = originalPosition;
         gameObject.SetActive(true);
+        pickedUp = false;
     }
-
 
     public void TryPickup()
     {
-        if (itemData == null) return;
+        if (pickedUp) return;
+        pickedUp = true;
 
-        if (InventoryManager.Instance == null)
-        {
-            Debug.LogWarning("No InventoryManager in scene.");
-            return;
-        }
+        if (itemData == null) return;
 
         bool added = InventoryManager.Instance.AddItem(itemData);
         InteractPrompt.Instance?.Hide();

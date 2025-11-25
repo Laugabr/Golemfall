@@ -42,11 +42,7 @@ public class InventoryManager : MonoBehaviour
 
         if (item == null) return false;
         if (!HasSpace()) return false;
-        if (items.Contains(item))
-        {
-            // Prevent duplicates of the same ItemData instance
-            return false;
-        }
+    
 
         items.Add(item);
         Debug.Log("Item agregado al inventario: " + item.name);
