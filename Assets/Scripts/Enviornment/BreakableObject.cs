@@ -14,23 +14,9 @@ public class BreakableObject : MonoBehaviour
 
     public void ReceiveHit()
     {
-        if (isBroken) return;
 
-        // Feedback visual de golpe
-        GetComponent<HitFeedback>()?.FlashHit();
-
-        currentHits++;
-
-        if (currentHits >= hitsToBreak)
-        {
-            Break();
-        }
-        else
-        {
-            Debug.Log($"{gameObject.name} golpeado ({currentHits}/{hitsToBreak})");
-        }
     }
-    private void Break()
+    public void Break()
     {
         isBroken = true;
 

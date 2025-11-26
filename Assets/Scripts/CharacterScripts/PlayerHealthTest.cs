@@ -3,6 +3,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
+[RequireComponent(typeof(CharacterStats))]
 public class Health : MonoBehaviour
 {
     [Header("Health Settings")]
@@ -89,7 +90,7 @@ public class Health : MonoBehaviour
 
     }   
 
-    private void Die()
+    public virtual void Die()
     {
         BasicEventsManager.OnExperienceGain?.Invoke(100);
 

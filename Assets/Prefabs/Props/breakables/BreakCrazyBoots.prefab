@@ -15,6 +15,8 @@ GameObject:
   - component: {fileID: 5255919743067739781}
   - component: {fileID: 1670127970248620137}
   - component: {fileID: -2455949725454062565}
+  - component: {fileID: 3589313872635009074}
+  - component: {fileID: -2672919206018343042}
   m_Layer: 7
   m_Name: BreakCrazyBoots
   m_TagString: Untagged
@@ -154,3 +156,40 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hitColor: {r: 0, g: 0, b: 0, a: 1}
   duration: 0.03
+--- !u!114 &3589313872635009074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8364140927958009631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 874c8951faca731439516ec6b102d8d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseStats: {fileID: 11400000, guid: b0b5087464130f945b3e559587eebf9f, type: 2}
+  localStats: []
+--- !u!114 &-2672919206018343042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8364140927958009631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d01ab903d6d08c24eae5794ce0aa906c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localMaxHealth: 0
+  currentHealth: 0
+  OnDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  OnHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  charStats: {fileID: 0}
+  meshRenderer: {fileID: 0}
+  _breakableObject: {fileID: 0}
