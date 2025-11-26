@@ -1,35 +1,29 @@
-using UnityEngine;
+﻿/*using UnityEngine;
 
 namespace BehaviourTree
 {
-    public class AttackPlayerNode : Node
+    public class AttackPlayer : Node
     {
-        private Transform enemyTransform;
-        private Transform playerTransform;
-        private float attackRange;
+        private EnemyAI _enemyAI;
 
-        public AttackPlayerNode(Transform enemy, Transform player, float attackRange)
+        private float _nextAttackTime;
+
+        public AttackPlayer(EnemyAI enemyAI)
         {
-            this.enemyTransform = enemy;
-            this.playerTransform = player;
-            this.attackRange = attackRange;
+            _enemyAI = enemyAI;
         }
 
         public override NodeState Evaluate()
         {
-            float distance = Vector3.Distance(enemyTransform.position, playerTransform.position);
-
-            if (distance <= attackRange)
+            if (Time.time >= _nextAttackTime)
             {
-                Debug.Log("Atacando al jugador!");
-                state = NodeState.Success;
-            }
-            else
-            {
-                state = NodeState.Failure;
+                _enemyAI.DealDamage();
+                _nextAttackTime = Time.time + _enemyAI.attackCooldown;
             }
 
+            // Ataque instantáneo → Success
+            state = NodeState.Success;
             return state;
         }
     }
-}
+}*/

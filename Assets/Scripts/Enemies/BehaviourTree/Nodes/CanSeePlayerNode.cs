@@ -1,33 +1,33 @@
-using UnityEngine;
-using BehaviourTree;
+/*using UnityEngine;
 
-public class CanSeePlayerNode : Node
+namespace BehaviourTree
 {
-    private Transform enemyTransform;
-    private Transform playerTransform;
-    private float visionRange;
-
-    public CanSeePlayerNode(Transform enemy, Transform player, float visionRange)
+    public class CanSeePlayer : Node
     {
-        this.enemyTransform = enemy;
-        this.playerTransform = player;
-        this.visionRange = visionRange;
-    }
+        private EnemyAI _enemyAI;
 
-    public override NodeState Evaluate()
-    {
-        float distance = Vector3.Distance(enemyTransform.position, playerTransform.position);
-
-        if (distance <= visionRange)
+        public CanSeePlayer(EnemyAI enemyAI)
         {
-            state = NodeState.Success;
+            _enemyAI = enemyAI;
         }
-        else
+
+        public override NodeState Evaluate()
         {
+            float distance = Vector3.Distance(
+                _enemyAI.transform.position,
+                _enemyAI.Player.position
+            );
+
+            if (distance <= _enemyAI.viewRange)
+            {
+                state = NodeState.Success;
+                return state;
+            }
+
             state = NodeState.Failure;
+            return state;
         }
-
-        return state;
     }
-}
+}*/
+
 

@@ -1,37 +1,39 @@
-using UnityEngine;
-using UnityEngine.AI;
+/*using UnityEngine;
 
 namespace BehaviourTree
 {
-    public class PatrolNode : Node
+    public class Patrol : Node
     {
-        private NavMeshAgent agent;
-        private Vector3[] waypoints;
-        private int currentWaypoint = 0;
+        private EnemyAI _enemyAI;
+        private int _currentIndex = 0;
 
-        public PatrolNode(NavMeshAgent agent)
+        public Patrol(EnemyAI enemyAI)
         {
-            this.agent = agent;
-            // Ejemplo simple: cuatro puntos alrededor del enemigo
-            waypoints = new Vector3[]
-            {
-                agent.transform.position + Vector3.forward * 5,
-                agent.transform.position + Vector3.right * 5,
-                agent.transform.position + Vector3.back * 5,
-                agent.transform.position + Vector3.left * 5,
-            };
+            _enemyAI = enemyAI;
         }
 
         public override NodeState Evaluate()
         {
-            if (!agent.pathPending && agent.remainingDistance < 0.5f)
+            if (_enemyAI.patrolPoints.Length == 0)
             {
-                currentWaypoint = (currentWaypoint + 1) % waypoints.Length;
-                agent.SetDestination(waypoints[currentWaypoint]);
+                state = NodeState.Failure;
+                return state;
+            }
+
+            Transform target = _enemyAI.patrolPoints[_currentIndex];
+            _enemyAI.transform.position = Vector3.MoveTowards(
+                _enemyAI.transform.position,
+                target.position,
+                _enemyAI.moveSpeed * Time.deltaTime
+            );
+
+            if (Vector3.Distance(_enemyAI.transform.position, target.position) < 0.1f)
+            {
+                _currentIndex = (_currentIndex + 1) % _enemyAI.patrolPoints.Length;
             }
 
             state = NodeState.Running;
             return state;
         }
     }
-}
+}*/

@@ -1,28 +1,35 @@
-using UnityEngine;
-using UnityEngine.AI;
+/*using UnityEngine;
 
 namespace BehaviourTree
 {
-    public class MoveToPlayerNode : Node
+    public class MoveToPlayer : Node
     {
-        private NavMeshAgent agent;
-        private Transform playerTransform;
+        private EnemyAI _enemyAI;
 
-        public MoveToPlayerNode(NavMeshAgent agent, Transform player)
+        public MoveToPlayer(EnemyAI enemyAI)
         {
-            this.agent = agent;
-            this.playerTransform = player;
+            _enemyAI = enemyAI;
         }
 
         public override NodeState Evaluate()
         {
-            agent.SetDestination(playerTransform.position);
+            Vector3 dir = (_enemyAI.Player.position - _enemyAI.transform.position).normalized;
+            _enemyAI.transform.position += dir * _enemyAI.moveSpeed * Time.deltaTime;
 
-            state = (agent.pathPending || agent.remainingDistance > agent.stoppingDistance)
-                    ? NodeState.Running
-                    : NodeState.Success;
+            float distance = Vector3.Distance(
+                _enemyAI.transform.position,
+                _enemyAI.Player.position
+            );
 
+            if (distance <= _enemyAI.attackRange)
+            {
+                state = NodeState.Success;
+                return state;
+            }
+
+            state = NodeState.Running;
             return state;
         }
     }
-}
+}*/
+
