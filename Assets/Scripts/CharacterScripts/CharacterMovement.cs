@@ -1,44 +1,52 @@
 using Fusion;
 using Fusion.Addons.SimpleKCC;
+using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem.LowLevel;
 
+/* 
+  CharacterMovement
+ 
+  Handles all player-controlled movement: walking, jumping, and dashing.
+  Integrates with Fusion's network input system and SimpleKCC for physics-based movement.
+  Disables the camera for non-authoritative clients.
+ */
+
 public class CharacterMovement : NetworkBehaviour
 {
+    [Header ("Camera Controller")]
+    [SerializeField] private Transform cameraTransform;
+
+    [Header("Movement")]
     [SerializeField] private SimpleKCC kcc; //kcc: kinematic character controller
     [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpPower = 10f;
-
-    [SerializeField] private Transform camTarget; //Cam Holder 
-
-    [Networked] private NetworkButtons PreviousButtons { get; set; }
-    [Header("Attack Settings")]
-    [SerializeField] private float attackCooldown = 0.5f;
-    [SerializeField] private GameObject projectilePrefab;
-    [SerializeField] private Transform projectileSpawnPoint;
-    [SerializeField] private float projectileSpeed = 10f;
+    [Networked] private NetworkButtons PreviousButtons { get; set; } // Tracks previous input state for button checks
     [SerializeField] private LayerMask groundLayer;
-    private float nextAttackTime;
+    [SerializeField] private CharacterStats charStats;
+
     [Header("Dash")]
-    [SerializeField] private float dashSpeed = 20f;
+    private bool isDashing = false; // Dash state flag
+    private float dashTimer = 0f; // Remaining dash time
+    private float dashCooldownTimer = 0f; // Cooldown before dash can be used again
+    private Vector3 dashDirection; // Direction of the current dash
+    [SerializeField] private float dashSpeed = 15f;
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1f;
 
-    private bool canDash = true;
-
-    private bool isDashing = false;
-    private float dashTimer = 0f;
-    private float lastDashTime = 0;
+    
     public override void Spawned()
     {
+        // Apply stronger gravity for snappier movement
+
         kcc.SetGravity(Physics.gravity.y * 2f);
 
-        if (HasInputAuthority)
-        {
-            //            CameraFollow.Instance.SetTarget(camTarget);
-        }
+        // Only the owning player keeps the camera; remote clients don't
+
+        if (HasInputAuthority) return;
+
+        DestroyCameraMachine();
     }
-    [SerializeField] private CharacterStats charStats;
 
 
     private void OnEnable()
@@ -49,13 +57,6 @@ public class CharacterMovement : NetworkBehaviour
     {
         if (GetInput(out NetInputPlayer input)) //gets the input of each client
         {
-
-            if (Input.GetMouseButtonDown(0))
-            {
-                HandleAttack();
-            
-            }
-
             Vector3 worldDirection = kcc.TransformRotation * new Vector3(input.Direction.x, 0f, input.Direction.y); //take the kcc transform rotation and we multiply it by the direction of the input
             float jump = 0f;
 
@@ -63,83 +64,50 @@ public class CharacterMovement : NetworkBehaviour
             {
                 jump = jumpPower;
             }
-
-            lastDashTime -= Time.deltaTime;
-
-
-                dashTimer = dashDuration;
-                Debug.Log("Start dash");
-
-                lastDashTime = dashCooldown;
-
-                while (dashTimer >= 0)
-                {
-                    lastDashTime = dashCooldown;
-
-                    canDash = false;
-                    Debug.Log("Is dash");
-
-                    kcc.Move(worldDirection * dashSpeed);
-
-                    dashTimer -= Time.deltaTime;
-
-                    if (dashTimer <= 0f)
-                    {
-                        isDashing = false;
-                    }
-                    return;
-
-                }
-
-
-
             
-
+        if (Input.GetKeyDown(KeyCode.LeftShift) && dashCooldownTimer <= 0f && input.Direction.magnitude > 0.1f)
+        {
+            StartDash(input.Direction);
+        }
             kcc.Move(worldDirection.normalized * charStats.GetStat(Stat.speed), jump); //normalizing the wD vector to prevent cheating
+
             PreviousButtons = input.Buttons;
         }
-    }
 
-
-    public override void Render()
-    {
-        UpdateCamTarget();
-    }
-
-    private void UpdateCamTarget()
-    {
-        camTarget.localPosition = transform.position;
-    }
-    void HandleAttack()
-    {
-        if (Time.time >= nextAttackTime)
+        if (isDashing)
         {
-        nextAttackTime = Time.time + attackCooldown;
-
-        // Hacemos un raycast desde la cámara al punto clickeado
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f, groundLayer))
-        {
-            Vector3 targetPos = hit.point;
-            Vector3 direction = (targetPos - transform.position);
-            direction.y = 0f;
-            direction.Normalize();
-
-            // Girar al personaje hacia el punto
-            transform.forward = direction;
-
-                    // Lanzar proyectil (si tenés uno)
-            GameObject proj = Instantiate(projectilePrefab, projectileSpawnPoint.position, Quaternion.LookRotation(direction));
-
-            // 🚀 importante: asignar el dueño
-            proj.GetComponentInChildren<Proyectil>().SetOwner(gameObject, charStats.GetStat(Stat.damage));
-
-            Rigidbody rb = proj.GetComponent<Rigidbody>();
-            if (rb != null)
-                rb.linearVelocity = direction * projectileSpeed;
-
-                // También podés agregar animación o sonido de ataque acá
-            }
+            HandleDashMovement();
+            return; // If dashing, override normal movement
         }
     }
+    
+    private void HandleDashMovement()
+    {
+        if (GetInput(out NetInputPlayer input)) //gets the input of each client
+
+        kcc.Move(input.Direction * dashSpeed * Time.deltaTime);
+        dashTimer -= Time.deltaTime;
+
+         // Stop dash when timer runs out
+        if (dashTimer <= 0f)
+        {
+            isDashing = false;
+        }
+    }
+    private void StartDash(Vector3 moveDir)
+    {
+        isDashing = true;
+        dashTimer = dashDuration;
+        dashCooldownTimer = dashCooldown;
+        dashDirection = moveDir.normalized; // Store dash direction
+    }
+
+    private void DestroyCameraMachine()
+    {
+        // Remove Cinemachine camera for non-authoritative players
+
+        var cineMachine = GetComponentInChildren<CinemachineCamera>();
+        Destroy(cineMachine.gameObject);
+    }
 }
+

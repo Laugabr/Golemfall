@@ -2,12 +2,12 @@ using System.Reflection;
 using UnityEngine;
 using System;
 
-public class EquipManager : MonoBehaviour
+public  class EquipManager : MonoBehaviour
 {
     public static EquipManager Instance { get; private set; }
 
     [Header("Slots")]
-    public int slots = 2;
+    public int slots = 3;
     public ItemData[] equipped; // tamaño = slots
 
     [Header("Referencias de jugador")]
@@ -50,16 +50,12 @@ public class EquipManager : MonoBehaviour
         ItemData it = InventoryManager.Instance.RemoveAndReturn(inventoryIndex);
         if (it == null) return;
 
-        // si ya hay item en equip slot, lo devolvemos al inventario
-        if (equipped[equipIndex] != null)
-        {
-            InventoryManager.Instance.AddOrSpawn(equipped[equipIndex]);
-        }
-
+        // Asumimos que el equip slot está vacío (ReceiveDrop lo verificó)
         equipped[equipIndex] = it;
         UpdateVisuals();
         OnEquipChanged?.Invoke(it, true);
     }
+
 
     public void UnEquipToInventory(int equipIndex)
     {
@@ -72,6 +68,7 @@ public class EquipManager : MonoBehaviour
         equipped[equipIndex] = null;
         UpdateVisuals();
         OnEquipChanged?.Invoke(it, false);
+
     }
 
     private void UpdateVisuals()

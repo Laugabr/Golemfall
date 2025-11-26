@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 6758902501584502004}
   - component: {fileID: 1642225126729232661}
   - component: {fileID: 8970408309134569831}
+  - component: {fileID: 8349970675801287222}
+  - component: {fileID: 8536059022651619690}
   m_Layer: 7
   m_Name: Breakable
   m_TagString: Untagged
@@ -30,8 +32,8 @@ Transform:
   m_GameObject: {fileID: 6663454259497773273}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -466.43, y: 88.97, z: -474.4}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -466.43, y: 89.3638, z: -473.937}
+  m_LocalScale: {x: 2, y: 3, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -124,6 +126,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hitsToBreak: 1
   breakEffectPrefab: {fileID: 3565933607220939726, guid: 410beae0467aa344cba93d061e181a0d, type: 3}
+  experienceReward: 2
+  hitFeedback: {fileID: 0}
 --- !u!114 &8970408309134569831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -138,3 +142,40 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hitColor: {r: 0.3773585, g: 0.3773585, b: 0.3773585, a: 1}
   duration: 0.03
+--- !u!114 &8349970675801287222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6663454259497773273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d01ab903d6d08c24eae5794ce0aa906c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  localMaxHealth: 0
+  currentHealth: 0
+  OnDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  OnHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  charStats: {fileID: 0}
+  meshRenderer: {fileID: 0}
+  _breakableObject: {fileID: 0}
+--- !u!114 &8536059022651619690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6663454259497773273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 874c8951faca731439516ec6b102d8d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseStats: {fileID: 11400000, guid: b0b5087464130f945b3e559587eebf9f, type: 2}
+  localStats: []

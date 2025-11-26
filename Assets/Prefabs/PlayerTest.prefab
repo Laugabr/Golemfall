@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 1041969364907043449}
   - component: {fileID: -3514983964872360537}
   - component: {fileID: 2487711422297520130}
+  - component: {fileID: 4328288745026644232}
   m_Layer: 3
   m_Name: PlayerTest
   m_TagString: Player
@@ -131,17 +132,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 336207e6309dc694e99220aac9f87644, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cameraTransform: {fileID: 0}
   kcc: {fileID: 8086779716165580698}
   speed: 5
   jumpPower: 10
-  camTarget: {fileID: 9019286994899052271}
-  attackCooldown: 0.5
-  projectilePrefab: {fileID: 4695642118095032319, guid: e678130e0c743684598758290be96f8c, type: 3}
-  projectileSpawnPoint: {fileID: 45590896181684198}
-  projectileSpeed: 0
   groundLayer:
     serializedVersion: 2
     m_Bits: 64
+  charStats: {fileID: 0}
   dashSpeed: 20
   dashDuration: 0.3
   dashCooldown: 1
@@ -164,6 +162,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 2073397818763574885}
   - {fileID: 8086779716165580698}
+  - {fileID: 2487711422297520130}
   ForceRemoteRenderTimeframe: 0
 --- !u!54 &5027730181171396861
 Rigidbody:
@@ -305,6 +304,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseStats: {fileID: 11400000, guid: 5f1dc252c01a302448d541b00d45f5fa, type: 2}
   localStats: []
+  _DirtyStats:
+    _value: 0
   OnStatsChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -315,6 +316,20 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 118d535e24299e24284184f3b0492430, type: 2}
   - {fileID: 11400000, guid: 9ed809e02cb61824287da2cf4b8f23eb, type: 2}
   - {fileID: 11400000, guid: 377f31655bab3e646b5f610a460dea1b, type: 2}
+--- !u!114 &4328288745026644232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2042440013039451085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec9b6fbdbfcd6cd4b80cd5c97944e6bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ability: {fileID: 11400000, guid: ef252dcb3ef18bb41b299e0f06614d04, type: 2}
+  key: 323
 --- !u!1 &6459267549577680078
 GameObject:
   m_ObjectHideFlags: 0

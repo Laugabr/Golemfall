@@ -6,6 +6,7 @@ using System;
 using Fusion.Sockets;
 using UnityEngine.EventSystems;
 
+// Manages network sessions, player spawning, and lobby UI using Fusion
 public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
 {
     [Header("UI Elements")]
@@ -22,17 +23,21 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
 
     private void Start()
     {
+        // Assign UI button callbacks
         _createRoomButton.onClick.AddListener(CreateRoom);
-        //_joinRoomButton.onClick.AddListener(JoinRoom);
+        _joinRoomButton.onClick.AddListener(JoinRoom);
     }
 
+    // Create a new room as host
     private async void CreateRoom()
     {
         var gameArg = new StartGameArgs()
         {
             GameMode = GameMode.Host,
             SessionName = "Room_01",
-            SceneManager = _networkSceneManagerDefault
+            SceneManager = _networkSceneManagerDefault,
+            Scene = SceneRef.FromIndex(0)
+
         };
 
         var result = await _networkRunner.StartGame(gameArg);
@@ -44,13 +49,16 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
+    // Join an existing room as client
     private async void JoinRoom()
     {
         var gameArg = new StartGameArgs()
         {
             GameMode = GameMode.Client,
             SessionName = "Room_01",
-            SceneManager = _networkSceneManagerDefault
+            SceneManager = _networkSceneManagerDefault,
+            Scene = SceneRef.FromIndex(0)
+
         };
 
         var result = await _networkRunner.StartGame(gameArg);
@@ -63,13 +71,15 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
     }
 
     // ========== Callbacks ==========
+    // Called when a player joins the session
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
         Debug.Log("Player joined: " + player);
         _lobbyPanel.SetActive(false);
 
-        if (!_networkRunner.IsServer) return;
+        if (!_networkRunner.IsServer) return;// Only server spawns players
 
+        // Spawn player prefab for this player
         var playerSpawned = _networkRunner.Spawn(
             _playerPrefab,
             new Vector3(0, 15, 0),
@@ -84,6 +94,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         _players.Add(player, playerSpawned);
     }
 
+    // Called when a player leaves the session
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
         if (!_networkRunner.IsServer) return;
@@ -94,7 +105,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
-    // ========== Callbacks vacíos que no usás, pero necesarios para compilar ==========
+    // ========== Empty Callbacks required==========
     public void OnConnectedToServer(NetworkRunner runner) { }
     public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) { }
     public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) { }

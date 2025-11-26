@@ -7,13 +7,13 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-//simulation behaviour to make it work outside of a networkbehaviour
+//Simulation behaviour to make it work outside of a networkbehaviour
 public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkRunnerCallbacks
 {
     private NetInputPlayer accumulatedInput;
     private bool resetInput;
 
-    void IBeforeUpdate.BeforeUpdate() //same as normal udpate but executed before fusions netwoek loop
+    void IBeforeUpdate.BeforeUpdate() //same as normal udpate but executed before fusions network loop
     {
         if (resetInput)
         {
@@ -22,48 +22,31 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
         }
 
         Keyboard keyboard = Keyboard.current;
-/*
-        //To check if enter or escape was input to toggle cursor visibility
-        if (keyboard != null && (keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame || keyboard.escapeKey.wasPressedThisFrame))
-        {
-            if (Cursor.lockState == CursorLockMode.Locked)
-            {
-                Cursor.lockState = CursorLockMode.None;
-                Cursor.visible = true;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-            }
-        }
-        // accumulate input if only the cursosr is locked
-        if (Cursor.lockState != CursorLockMode.Locked)
-            return;
-*/
         NetworkButtons buttons = default;
 
         if (keyboard != null)
         {
             Vector2 moveDirection = Vector2.zero;
 
-            if (keyboard.wKey.isPressed)
+            if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed)
             {
                 moveDirection += Vector2.up;
             }
 
-            if (keyboard.sKey.isPressed)
+            if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed)
             {
                 moveDirection += Vector2.down;
             }
-            if (keyboard.aKey.isPressed)
+            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed)
             {
                 moveDirection += Vector2.left;
             }
-            if (keyboard.dKey.isPressed)
+            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed)
             {
                 moveDirection += Vector2.right;
             }
+
+
             accumulatedInput.Direction += moveDirection;
             buttons.Set(InputButton.Jump, keyboard.spaceKey.isPressed);
         }
