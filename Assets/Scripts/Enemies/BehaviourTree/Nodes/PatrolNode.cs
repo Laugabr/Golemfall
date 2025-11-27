@@ -1,39 +1,42 @@
-/*using UnityEngine;
+using UnityEngine;
+using UnityEngine.AI;
 
 namespace BehaviourTree
 {
-    public class Patrol : Node
+    public class PatrolNode : Node
     {
-        private EnemyAI _enemyAI;
+        private NavMeshAgent _agent;
+        private Transform[] _points;
         private int _currentIndex = 0;
 
-        public Patrol(EnemyAI enemyAI)
+        public PatrolNode(NavMeshAgent agent, Transform[] patrolPoints)
         {
-            _enemyAI = enemyAI;
+            _agent = agent;
+            _points = patrolPoints;
         }
 
         public override NodeState Evaluate()
         {
-            if (_enemyAI.patrolPoints.Length == 0)
+            if (_points == null || _points.Length == 0)
             {
                 state = NodeState.Failure;
                 return state;
             }
 
-            Transform target = _enemyAI.patrolPoints[_currentIndex];
-            _enemyAI.transform.position = Vector3.MoveTowards(
-                _enemyAI.transform.position,
-                target.position,
-                _enemyAI.moveSpeed * Time.deltaTime
-            );
+            // Definir destino
+            _agent.stoppingDistance = 0; // evita que quede lejos del punto
+            _agent.SetDestination(_points[_currentIndex].position);
 
-            if (Vector3.Distance(_enemyAI.transform.position, target.position) < 0.1f)
+            // Cuando llega al punto, pasa al siguiente
+            if (!_agent.pathPending && _agent.remainingDistance <= 0.2f)
             {
-                _currentIndex = (_currentIndex + 1) % _enemyAI.patrolPoints.Length;
+                _currentIndex = (_currentIndex + 1) % _points.Length;
             }
 
             state = NodeState.Running;
             return state;
         }
     }
-}*/
+}
+
+

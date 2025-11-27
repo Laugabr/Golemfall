@@ -1,4 +1,4 @@
-/*using UnityEngine;
+﻿using UnityEngine;
 
 namespace BehaviourTree
 {
@@ -13,23 +13,28 @@ namespace BehaviourTree
 
         public override NodeState Evaluate()
         {
-            Vector3 dir = (_enemyAI.Player.position - _enemyAI.transform.position).normalized;
-            _enemyAI.transform.position += dir * _enemyAI.moveSpeed * Time.deltaTime;
+            // Ordenar al NavMeshAgent que se mueva al jugador
+            _enemyAI.agent.stoppingDistance = _enemyAI.attackRange * 0.9f;
+            _enemyAI.agent.SetDestination(_enemyAI.player.position);
 
+            // Distancia actual
             float distance = Vector3.Distance(
                 _enemyAI.transform.position,
-                _enemyAI.Player.position
+                _enemyAI.player.position
             );
 
+            // Si llegamos al rango de ataque → éxito
             if (distance <= _enemyAI.attackRange)
             {
                 state = NodeState.Success;
                 return state;
             }
 
+            // Mientras vaya avanzando → Running
             state = NodeState.Running;
             return state;
         }
     }
-}*/
+}
+
 
