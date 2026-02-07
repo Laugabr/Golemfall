@@ -52,7 +52,7 @@ public class CollectedSlotDrop : MonoBehaviour, IDropHandler
         }
 
             Debug.Log("[EquipSlotDrop] RPC equip request: " + itemID);
-            inventory.RPC_ServerUnequipmentRequest(itemID); // Notify server to unequip the item
+            //inventory.RPC_ServerUnequipmentRequest(itemID); // Notify server to unequip the item
         }
 
         // Move dragged item into this collected slot

@@ -59,6 +59,6 @@ public class EquipSlotDrop : MonoBehaviour, IDropHandler
         // Request server-side equipment
 
         Debug.Log("[EquipSlotDrop] RPC equip request: " + itemID);
-        inventory.RPC_ServerEquipmentRequest(itemID);
+        //inventory.RPC_ServerEquipmentRequest(itemID);
     }
 }
