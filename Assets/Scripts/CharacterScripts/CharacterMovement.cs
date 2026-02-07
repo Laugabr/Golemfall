@@ -25,6 +25,9 @@ public class CharacterMovement : NetworkBehaviour
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private CharacterStats charStats;
 
+    [Header ("Inventory")]
+    [SerializeField] private CharacterPickUp charPickUp;
+
     [Header("Dash")]
     private bool isDashing = false; // Dash state flag
     private float dashTimer = 0f; // Remaining dash time
@@ -38,6 +41,15 @@ public class CharacterMovement : NetworkBehaviour
     public override void Spawned()
     {
         // Apply stronger gravity for snappier movement
+
+        if (!GetComponent<CharacterPickUp>())
+        {
+            Debug.LogError("Character Pick Up module not found in player");
+        }
+        else
+        {
+            charPickUp = GetComponent<CharacterPickUp>();
+        }
 
         kcc.SetGravity(Physics.gravity.y * 2f);
 
@@ -55,24 +67,36 @@ public class CharacterMovement : NetworkBehaviour
     }
     public override void FixedUpdateNetwork() //executing logic that affects gameplay
     {
-        if (GetInput(out NetInputPlayer input)) //gets the input of each client
-        {
+        if (!GetInput(out NetInputPlayer input)) //gets the input of each client 
+        return;
+        
             Vector3 worldDirection = kcc.TransformRotation * new Vector3(input.Direction.x, 0f, input.Direction.y); //take the kcc transform rotation and we multiply it by the direction of the input
             float jump = 0f;
-
-            if (input.Buttons.WasPressed(PreviousButtons, InputButton.Jump) && kcc.IsGrounded) //check if player pressed jump button and is grounded
-            {
-                jump = jumpPower;
-            }
+        
+        if (input.Buttons.WasPressed(PreviousButtons, InputButton.Jump) && kcc.IsGrounded) //check if player pressed jump button and is grounded
+        {
+            jump = jumpPower;
+        }
             
-        if (Input.GetKeyDown(KeyCode.LeftShift) && dashCooldownTimer <= 0f && input.Direction.magnitude > 0.1f)
+        if (input.Buttons.WasPressed(PreviousButtons, InputButton.Dash) && dashCooldownTimer <= 0f && input.Direction.magnitude > 0.1f)
         {
             StartDash(input.Direction);
         }
+
+
+        if  (input.Buttons.IsSet(NetInputPlayer.MOUSE_BUTTON_0)) //If is set as true, spawn projectile
+        {
+            
+        }
+        
+        if (input.Buttons.WasPressed(PreviousButtons, InputButton.Interact))
+        {
+            charPickUp.TryPickUp();
+        }
+
             kcc.Move(worldDirection.normalized * charStats.GetStat(Stat.speed), jump); //normalizing the wD vector to prevent cheating
 
             PreviousButtons = input.Buttons;
-        }
 
         if (isDashing)
         {
@@ -109,5 +133,7 @@ public class CharacterMovement : NetworkBehaviour
         var cineMachine = GetComponentInChildren<CinemachineCamera>();
         Destroy(cineMachine.gameObject);
     }
+
+
 }
 
