@@ -5,7 +5,7 @@ public enum InputButton
 {
     Jump,
     Dash,
-    InteractPrompt,
+    Interact,
     
     BasicAttack,
     FirstSkill,

@@ -67,12 +67,20 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
 
             accumulatedInput.Direction += moveDirection;
             
-            buttons.Set(InputButton.Jump, keyboard.spaceKey.isPressed);
-            buttons.Set(InputButton.Dash, keyboard.shiftKey.isPressed);
-            buttons.Set(InputButton.InteractPrompt, keyboard.fKey.isPressed);
-            buttons.Set(InputButton.SecondarySkill, keyboard.eKey.isPressed);
+            if(keyboard != null)
+            {
+                buttons.Set(InputButton.Jump, keyboard.spaceKey.isPressed);
+                buttons.Set(InputButton.Dash, keyboard.shiftKey.isPressed);
+                buttons.Set(InputButton.Interact, keyboard.fKey.isPressed);
+                buttons.Set(InputButton.SecondarySkill, keyboard.eKey.isPressed);
+            }
 
-
+            Mouse mouse = Mouse.current;
+            if(mouse != null)
+            {
+                buttons.Set(InputButton.BasicAttack, mouse.leftButton.isPressed);
+                buttons.Set(InputButton.FirstSkill, mouse.rightButton.isPressed);
+            }
         }
 
         accumulatedInput.Buttons = new NetworkButtons(accumulatedInput.Buttons.Bits | buttons.Bits);
