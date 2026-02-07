@@ -37,7 +37,7 @@ public class ItemInteract : NetworkBehaviour
             return;
         }
         // Add item to player's inventory and despawn item
-        inv.Server_AddItem(itemData.id);
+        //inv.Server_AddItem(itemData.id);
         Runner.Despawn(Object);
     }
 

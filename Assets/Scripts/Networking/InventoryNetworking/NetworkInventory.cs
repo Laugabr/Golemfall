@@ -1,192 +1,123 @@
-using System.Collections.Generic;
 using Fusion;
-using Unity.VisualScripting;
 using UnityEngine;
 using System.Linq;
-using System;
 
-// Manages player's networked inventory, equipped items, and server-client synchronization
 public class NetworkInventory : NetworkBehaviour
 {
-    [Networked]
-    public NetworkBool IsDirty { get; set; }
-    private NetworkRunner runner;
+    [Networked] public NetworkBool IsDirty { get; set; }
 
-     // Server-side inventory lists
-    public readonly List<string> Items = new List<string>();
-    public readonly List<string> EquipedItems = new List<string>();
+    [Networked, Capacity(12)]
+    public NetworkLinkedList<InventorySlot> Items => default;
 
-    private const string ITEMDATA_PATH = "DataSO/StatsData/Itemscrafteados/";
+    [Networked, Capacity(3)]
+    public NetworkLinkedList<short> EquippedItems => default;
 
-    #region Networking 
+    #region SERVER
 
-    #region Server 
-
-    // Add an item to server inventory and notify InventoryManager
-    public void Server_AddItem(string itemID)
+    public bool AddItem_Server(short itemKey)
     {
         if (!Object.HasStateAuthority)
+            return false;
+
+        if (Items.Count >= 12)
         {
-            Debug.LogWarning("Server_AddItem llamado sin autoridad (esto no debería pasar)");
-            return;
-        }
-
-
-        if (CheckItemExistence(itemID))
-        {
-            Items.Add(itemID);
-            Debug.Log("Item " + itemID + " added to items list");
-            ItemData data = Resources.Load<ItemData>("DataSO/StatsData/Itemscrafteados/" + itemID);
-            if (data != null)
-            {
-                InventoryManager.Instance.AddItem(data);
-                Debug.Log("[NetworkInventory] Also forwarded to InventoryManager: " + data.displayName);
-            }
-            else
-            {
-                Debug.LogError("[NetworkInventory] ItemData NOT FOUND for ID: " + itemID);
-            }
-
-        }
-        else
-        {
-            Debug.LogError(itemID + " not found in 'Items crafteados' folder");
-            return;
-        }
-        IsDirty = true;
-
-        Debug.Log($"[SERVER] Item agregado al inventario: {itemID}");
-
-    }
-
-    // Gets called by the client by dragging an item to an equipment slot
-    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority, Channel = RpcChannel.Reliable)]
-    public void RPC_ServerEquipmentRequest(string itemID, RpcInfo info = default)
-    {
-        if (!Object.HasStateAuthority) return;
-        Debug.Log("Equipment request made ");
-
-        var itemToEquip = Items.FirstOrDefault(item => item == itemID);
-
-        if (itemToEquip == null)
-        {
-            Debug.LogError("Item not found in inventory");
-            return;
-
-        }
-        else
-        {
-            var playStats = GetComponent<PlayerStats>();
-
-            if(playStats == null)return;
-            else
-            {
-                playStats.RPC_EquipItem(itemID); //Adds it to the stats  SERVER -> SERVER
-                //RPC_ClientHUDUpdate();
-                Debug.Log("Equipment succesful ");
-                EquipedItems.Add(itemToEquip); //Adds the first found
-            }
-        }
-    }
-
-
-    // Gets called by the cient by dragging an item out of an equipment slot
-    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority, Channel = RpcChannel.Reliable)]
-    public void RPC_ServerUnequipmentRequest(string itemID, RpcInfo info = default)
-    {
-        if (!Object.HasStateAuthority) return;
-
-        var itemToUnequip = EquipedItems.FirstOrDefault(item => item == itemID);
-
-        if (itemToUnequip == null)
-        {
-            Debug.LogError("Item not found in inventory");
-            return;
-        }
-        else
-        {
-            var playStats = GetComponent<PlayerStats>();
-
-            if(playStats == null)return;
-            else
-            {
-                playStats.RPC_UnequipItem(itemID); //Removes it from the stats SERVER -> SERVER
-                //RPC_ClientHUDUpdate();SERVER -> CLIENT
-                Debug.Log("Equipment succesful ");
-                EquipedItems.Remove(itemToUnequip); //Adds the first found
-            }
-        }
-    }
-    [Rpc(sources: RpcSources.InputAuthority, targets: RpcTargets.StateAuthority, Channel = RpcChannel.Reliable)]
-    public void RPC_ServerDropRequest(string itemID, RpcInfo info = default)
-    {
-        //Runner.Spawn()
-    }
-    #endregion
-    #endregion
-
-
-    //Checks in assets if item exist 
-    private bool CheckItemExistence(string itemID)
-    {
-        var itemData = Resources.Load<ItemData>(ITEMDATA_PATH + itemID);
-
-        var itemStatsData = Resources.Load<Stats>(ITEMDATA_PATH + "Stats_" + itemID);
-
-        if (itemData == null)
-        {
+            Debug.Log("[SERVER] full inventory");
             return false;
         }
-        else
+
+        if (ItemData.GetItem(itemKey) == null)
         {
-            return true;
+            Debug.Log("[SERVER] full inv");
+            return false;
         }
+
+        Items.Add(InventorySlot.Create(null, itemKey));
+        IsDirty = true;
+
+        Debug.Log($"[SERVER] Item added ({Items.Count}/12)");
+        return true;
     }
 
-    void Update()
+    #endregion
+
+    #region EQUIP
+
+       [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_RequestEquip(short itemKey)
     {
-        if (Input.GetKeyDown(KeyCode.I))
+        if (!Object.HasStateAuthority) return;
+
+        // 1. Validar si tiene el item
+        if (!Items.Any(s => s.itemKey == itemKey)) return;
+
+        // 2. Equipar
+        if (!EquippedItems.Contains(itemKey))
         {
-            if (!HasInputAuthority) return;
-            foreach (var id in Items)
-            {   
-
-                Debug.Log(id);
-
-                RPC_ServerEquipmentRequest(id);
-            }
-
-            Debug.Log($"[{Object.InputAuthority}] Equipado TODO");
-        }
-
-        if (Input.GetKeyDown(KeyCode. U))
-        {
-            var playStats = GetComponent<PlayerStats>();
-
-            foreach (var player in runner.ActivePlayers)
-            {   
-                string s = $"[{Object.InputAuthority}] STATS: ";
-                foreach (var st in playStats.localStats)
-                s += $"{st.statType}={st.statValue} ";
-
-                Debug.Log(player.PlayerId + s);
-            }
+            EquippedItems.Add(itemKey);
+            
+            // 3. Notificar a las stats
+            GetComponent<PlayerStats>().RefreshStats(); 
+            IsDirty = true;
         }
     }
-    // Called when object spawns in the network
-    public override void Spawned()
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_RequestUnequip(short itemKey)
     {
-            runner = FindFirstObjectByType<NetworkRunner>();
-        if (runner == null)
-            Debug.LogError(" No se encontró un NetworkRunner en la escena.");
+        if (!Object.HasStateAuthority) return;
+
+        if (EquippedItems.Remove(itemKey))
+        {
+            GetComponent<PlayerStats>().RefreshStats();
+            IsDirty = true;
+        }
     }
+
+    #endregion
 }
-    
 
 // Static event manager for inventory actions
 public static class InventoryEventsManager
 {
-    public static Action<string> OnItemEquiped;
-    public static Action<string> OnItemUnequiped;
+    public static System.Action<string> OnItemEquiped;
+    public static System.Action<string> OnItemUnequiped;
 
+}
+
+// Serializable inventory slot to share data through ntwork
+public struct InventorySlot : INetworkStruct
+{
+    public short itemKey;
+
+    public readonly ItemData GetItem() => ItemData.GetItem(itemKey);
+
+    public ItemData GetData()
+    {
+        if (ResourcesManager.instance == null || ResourcesManager.instance.inventoryItemBank == null)
+            return null;
+            
+        return ResourcesManager.instance.inventoryItemBank.GetValue<ItemData>(itemKey);
+    }
+    
+    
+    // Parameter: either the item data or the item id 
+
+    public static InventorySlot Create(ItemData item = null, short id = -1)
+    {
+        short finalKey = id;
+
+        // Si pasamos el objeto, usamos el banco para obtener su ID
+        if (item != null && ResourcesManager.instance != null)
+        {
+            finalKey = ResourcesManager.instance.inventoryItemBank.GetKey(item);
+        }
+
+        return new InventorySlot { itemKey = finalKey };
+    }
+
+
+    public readonly bool IsItem(ItemData item)
+    {
+        return item != null && ItemData.GetKey(item) == itemKey;
+    }
 }
