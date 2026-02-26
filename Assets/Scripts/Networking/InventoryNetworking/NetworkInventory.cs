@@ -1,6 +1,8 @@
 using Fusion;
 using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
+using NUnit.Framework;
 
 public class NetworkInventory : NetworkBehaviour
 {
@@ -9,12 +11,14 @@ public class NetworkInventory : NetworkBehaviour
     [Networked, Capacity(12)]
     public NetworkLinkedList<InventorySlot> Items => default;
 
+    public List<InventorySlot> LocalItems;
+
     [Networked, Capacity(3)]
     public NetworkLinkedList<short> EquippedItems => default;
 
     #region SERVER
 
-    public bool AddItem_Server(short itemKey)
+    public bool AddItem_Server(short itemKey, RpcInfo info = default)
     {
         if (!Object.HasStateAuthority)
             return false;
@@ -27,15 +31,27 @@ public class NetworkInventory : NetworkBehaviour
 
         if (ItemData.GetItem(itemKey) == null)
         {
-            Debug.Log("[SERVER] full inv");
+            Debug.Log("[SERVER] invalid item");
             return false;
         }
 
         Items.Add(InventorySlot.Create(null, itemKey));
         IsDirty = true;
 
+        RPC_UpdateLocalInventory();
+
         Debug.Log($"[SERVER] Item added ({Items.Count}/12)");
         return true;
+    }
+
+    #endregion
+
+    #region CLIENT
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
+    public void RPC_UpdateLocalInventory(RpcInfo info = default)
+    {
+        LocalItems = new List<InventorySlot>(Items);
     }
 
     #endregion
@@ -62,7 +78,7 @@ public class NetworkInventory : NetworkBehaviour
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void RPC_RequestUnequip(short itemKey)
+    public void RPC_RequestUnequip(short itemKey, RpcInfo info = default)
     {
         if (!Object.HasStateAuthority) return;
 
@@ -85,6 +101,7 @@ public static class InventoryEventsManager
 }
 
 // Serializable inventory slot to share data through ntwork
+[System.Serializable]
 public struct InventorySlot : INetworkStruct
 {
     public short itemKey;

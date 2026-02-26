@@ -2,19 +2,30 @@ using UnityEngine;
 using Fusion;
 public class CharacterPickUp : NetworkBehaviour
 {
-    [SerializeField] private float pickupDistance = 2.5f;
-
+    [SerializeField] private float pickupRadius = 2.5f;
+    
     public void TryPickUp()
     {
-        if (!Object.HasInputAuthority) return;
+        if (!Object.HasStateAuthority) return;
 
-        if (Physics.Raycast(transform.position, transform.forward, out var hit, pickupDistance))
+        Debug.Log(Object + " Try PickUp By server");
+
+        Collider[] hits = Physics.OverlapSphere(transform.position, pickupRadius);
+
+        foreach (var hit in hits)
         {
-            var item = hit.collider.GetComponent<PickableItem>();
+            var item = hit.GetComponent<PickableItem>();
             if (item != null)
             {
-                item.Rpc_Collect();
+                Debug.Log(item.name + " tries to be collected");
+                item.Rpc_Collect(Object);
             }
         }
+    }
+    
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, pickupRadius);
     }
 }

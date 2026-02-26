@@ -86,11 +86,12 @@ public class CharacterMovement : NetworkBehaviour
 
         if  (input.Buttons.IsSet(NetInputPlayer.MOUSE_BUTTON_0)) //If is set as true, spawn projectile
         {
-            
+            //attack
         }
         
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.Interact))
         {
+            Debug.Log(Object + " Calls TryPickUp");
             charPickUp.TryPickUp();
         }
 
