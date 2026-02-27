@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using System;
 using System.Collections.Generic;
@@ -14,6 +13,7 @@ public class MissionController : NetworkBehaviour
 
     public void StartNewMission(MissionData missionData)
     {
+        TrackEvents.OnTrackEvent += TrackStep;
         if (_currentMission != null)
         {
             Destroy(_currentMission);
@@ -32,11 +32,11 @@ public class MissionController : NetworkBehaviour
 
         if (isSuccess)
         {
-            //CompleteMission();
+            CompleteMission();
         }
         else
         {
-            //FailureMission();
+            FailureMission();
         }
     }
 
@@ -46,6 +46,7 @@ public class MissionController : NetworkBehaviour
         _currentMission = null;
         //llamar a evento de ui
         //guardar el estado de la mision
+        TrackEvents.OnTrackEvent -= TrackStep;
     }
 
     private void FailureMission()
@@ -53,6 +54,8 @@ public class MissionController : NetworkBehaviour
         Destroy(_currentMission);
         _currentMission = null;
         //llamar a evento de ui
+        TrackEvents.OnTrackEvent -= TrackStep;
+
     }
 
     private void OnDestroy()
@@ -61,6 +64,7 @@ public class MissionController : NetworkBehaviour
         {
             Destroy(_currentMission);
         }
+        TrackEvents.OnTrackEvent -= TrackStep;
     }
 
 
