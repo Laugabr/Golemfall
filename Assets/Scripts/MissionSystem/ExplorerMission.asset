@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c263c045ef8f3a743a149ef9a8e1cfdf, type: 3}
+  m_Name: ExplorerMission
+  m_EditorClassIdentifier: 
+  missionId: ExplorerMission
+  missionName: ExplorerMission
+  description: Break, Talk and Visit
+  xp: 500
+  coins: 500
+  missionSteps:
+  - targetId: Break_Objects
+    amount: 100
+  - targetId: Talk_Npcs
+    amount: 5
+  - targetId: Visit_Village
+    amount: 1
+  failureSteps: []
