@@ -29,7 +29,8 @@ public class MissionData : ScriptableObject
             }
         }
 
-        var allFailure = true;
+        bool allFailure = failureSteps.Count > 0;
+
         foreach (var steps in failureSteps)
         {
             steps.UpdateProgress(id, progress);
@@ -52,5 +53,19 @@ public class MissionData : ScriptableObject
             return true;
         }
         return false;
+    }
+    public void ResetProgress()
+    {
+        foreach (var step in missionSteps)
+        {
+            step.isComplete = false;
+            step.currentAmount = 0;
+        }
+
+        foreach (var step in failureSteps)
+        {
+            step.isComplete = false;
+            step.currentAmount = 0;
+        }
     }
 }

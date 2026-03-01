@@ -6,66 +6,69 @@ using Fusion;
 using System.Net;
 
 
-public class MissionController : NetworkBehaviour
+public class MissionController : MonoBehaviour
 {
-    private MissionData _currentMission; // esto es para una sola mision. si está permitido tener mas de una mision al mismo tiempo entonces esto pasa a ser una lista
-    public MissionData CurrentMission => _currentMission;
+    [SerializeField] private MissionData playgroundMission;
+
+    private List<MissionData> _currentMissions = new List<MissionData>();
+    public IReadOnlyList<MissionData> CurrentMissions => _currentMissions;
+
+    private void OnEnable()
+    {
+        TrackEvents.OnTrackEvent += TrackStep;
+    }
+
+    private void OnDisable()
+    {
+        TrackEvents.OnTrackEvent -= TrackStep;
+    }
+
+    private void Start()
+    {
+        if (playgroundMission != null)
+        {
+            StartNewMission(playgroundMission);
+        }
+    }
 
     public void StartNewMission(MissionData missionData)
     {
-        TrackEvents.OnTrackEvent += TrackStep;
-        if (_currentMission != null)
-        {
-            Destroy(_currentMission);
-        }
-        _currentMission = Instantiate(missionData);
+        var newMission = Instantiate(missionData);
+        newMission.ResetProgress();
+        _currentMissions.Add(newMission);
+
+        Debug.Log($"Mission Started: {newMission.missionId}");
     }
 
-    //Kill_Enemy, 1 ejemplo de parametros
     public void TrackStep(string stepId, int progress)
     {
-        //Verificar que haya una misión en curso
-        if (_currentMission == null) return;
+        if (_currentMissions.Count == 0) return;
 
-        // si no hay condicion de completo o fallo la mision simplemente le hago el return
-        if (!_currentMission.UpdateProgress(stepId, progress, out var isSuccess)) return;
+        //Debug.Log($"TrackStep received: {stepId} | {progress}");
 
-        if (isSuccess)
+        List<MissionData> missionsToRemove = new List<MissionData>();
+
+        foreach (var mission in _currentMissions)
         {
-            CompleteMission();
+            if (!mission.UpdateProgress(stepId, progress, out var isSuccess))
+                continue;
+
+            if (isSuccess)
+            {
+                Debug.Log($"Mission Completed: {mission.missionId}");
+                missionsToRemove.Add(mission);
+            }
+            else
+            {
+                Debug.Log($"Mission Failed: {mission.missionId}");
+                missionsToRemove.Add(mission);
+            }
         }
-        else
+
+        foreach (var mission in missionsToRemove)
         {
-            FailureMission();
+            _currentMissions.Remove(mission);
+            Destroy(mission);
         }
     }
-
-    private void CompleteMission()
-    {
-        Destroy(_currentMission);
-        _currentMission = null;
-        //llamar a evento de ui
-        //guardar el estado de la mision
-        TrackEvents.OnTrackEvent -= TrackStep;
-    }
-
-    private void FailureMission()
-    {
-        Destroy(_currentMission);
-        _currentMission = null;
-        //llamar a evento de ui
-        TrackEvents.OnTrackEvent -= TrackStep;
-
-    }
-
-    private void OnDestroy()
-    {
-        if (_currentMission != null)
-        {
-            Destroy(_currentMission);
-        }
-        TrackEvents.OnTrackEvent -= TrackStep;
-    }
-
-
 }
