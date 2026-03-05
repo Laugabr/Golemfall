@@ -2,16 +2,18 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Fusion;
-using System.Net;
 
 
 public class MissionController : MonoBehaviour
 {
     [SerializeField] private MissionData playgroundMission;
+    [SerializeField] private MissionData caveMission;
 
     private List<MissionData> _currentMissions = new List<MissionData>();
     public IReadOnlyList<MissionData> CurrentMissions => _currentMissions;
+
+    private bool missionsPaused = false;
+    private MissionData pausingMission;
 
     private void OnEnable()
     {
@@ -37,24 +39,49 @@ public class MissionController : MonoBehaviour
         newMission.ResetProgress();
         _currentMissions.Add(newMission);
 
-        Debug.Log($"Mission Started: {newMission.missionId}");
+        if (newMission.pausesOtherMissions)
+        {
+            missionsPaused = true;
+            pausingMission = newMission;
+            Debug.Log("Mission started that pauses other missions");
+        }
+
+        Debug.Log($"Mission Started: {newMission.missionId} | Steps: {newMission.missionSteps.Count}");
     }
 
     public void TrackStep(MissionStepType stepId, int progress)
     {
+        if (stepId == MissionStepType.EnterCave)
+        {
+            if (caveMission != null)
+                StartNewMission(caveMission);
+        }
+
+        if (missionsPaused && pausingMission == null) return;
         if (_currentMissions.Count == 0) return;
 
         List<MissionData> missionsToRemove = new List<MissionData>();
         List<MissionData> missionsToStart = new List<MissionData>();
 
-        foreach (var mission in _currentMissions)
+        foreach (var mission in _currentMissions.ToList())
         {
+            if (missionsPaused && mission != pausingMission)
+                continue;
+
             if (!mission.UpdateProgress(stepId, progress, out var isSuccess))
                 continue;
 
             if (isSuccess)
             {
                 Debug.Log($"Mission Completed: {mission.missionId}");
+
+                if (mission == pausingMission)
+                {
+                    missionsPaused = false;
+                    pausingMission = null;
+                    Debug.Log("Dungeon finished → missions resumed");
+
+                }
 
                 foreach (var next in mission.nextMissions)
                 {

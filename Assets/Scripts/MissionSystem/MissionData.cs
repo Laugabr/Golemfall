@@ -13,6 +13,7 @@ public class MissionData : ScriptableObject
     public List<MissionStep> missionSteps;
     public List<MissionStep> failureSteps;
     public List<MissionData> nextMissions;
+    public bool pausesOtherMissions;
     //public bool allowTeleportParty;
     //public Vector3 teleportDestination;
     //public Scene teleportDestiny;

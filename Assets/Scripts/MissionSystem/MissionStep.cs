@@ -24,5 +24,4 @@ public class MissionStep
             Debug.Log($"Step [{targetId}] COMPLETED");
         }
     }
-
 }

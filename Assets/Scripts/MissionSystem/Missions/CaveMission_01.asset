@@ -18,9 +18,12 @@ MonoBehaviour:
   xp: 1200
   coins: 1200
   missionSteps:
-  - targetId: Kill_Enemy
+  - targetId: 0
     amount: 4
-  - targetId: Collect_Special_Item
+  - targetId: 2
     amount: 1
-  failureSteps: []
+  failureSteps:
+  - targetId: 6
+    amount: 1
   nextMissions: []
+  pausesOtherMissions: 1
