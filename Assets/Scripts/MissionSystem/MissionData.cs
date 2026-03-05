@@ -12,11 +12,12 @@ public class MissionData : ScriptableObject
     public int coins;
     public List<MissionStep> missionSteps;
     public List<MissionStep> failureSteps;
+    public List<MissionData> nextMissions;
     //public bool allowTeleportParty;
     //public Vector3 teleportDestination;
     //public Scene teleportDestiny;
 
-    public bool UpdateProgress(string id, int progress, out bool success)
+    public bool UpdateProgress(MissionStepType id, int progress, out bool success)
     {
         success = false;
         var allComplete = true;

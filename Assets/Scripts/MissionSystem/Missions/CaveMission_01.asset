@@ -10,19 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c263c045ef8f3a743a149ef9a8e1cfdf, type: 3}
-  m_Name: PlaygroundMission
+  m_Name: CaveMission_01
   m_EditorClassIdentifier: 
-  missionId: PlaygroundMission
-  missionName: PlaygroundMission
-  description: Pick and Kill
-  xp: 1000
-  coins: 3000
+  missionId: CaveMission_01
+  missionName: CaveMission_01
+  description: Kill and collect special item
+  xp: 1200
+  coins: 1200
   missionSteps:
-  - targetId: Collect_Item
-    amount: 3
   - targetId: Kill_Enemy
-    amount: 2
+    amount: 4
+  - targetId: Collect_Special_Item
+    amount: 1
   failureSteps: []
-  nextMissions:
-  - {fileID: 11400000, guid: fd74751076871cf40b42d08e4fa8cd8d, type: 2}
-  - {fileID: 11400000, guid: 2e864344f49cd1c4880f4f29352025d9, type: 2}
+  nextMissions: []

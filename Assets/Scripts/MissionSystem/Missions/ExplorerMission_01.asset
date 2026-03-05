@@ -18,10 +18,11 @@ MonoBehaviour:
   xp: 500
   coins: 500
   missionSteps:
-  - targetId: Break_Objects
-    amount: 100
-  - targetId: Talk_Npcs
+  - targetId: Collect_Item
+    amount: 6
+  - targetId: Talk_NPC
     amount: 2
-  - targetId: Visit_Village
+  - targetId: Enter_Cave
     amount: 1
   failureSteps: []
+  nextMissions: []

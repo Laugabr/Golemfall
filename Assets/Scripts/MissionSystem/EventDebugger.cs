@@ -12,7 +12,7 @@ public class EventDebugger : MonoBehaviour
         TrackEvents.OnTrackEvent -= DebugEvent;
     }
 
-    void DebugEvent(string id, int amount)
+    void DebugEvent(MissionStepType id, int amount)
     {
         //Debug.Log($"EVENT RECEIVED → {id} | amount: {amount}");
     }

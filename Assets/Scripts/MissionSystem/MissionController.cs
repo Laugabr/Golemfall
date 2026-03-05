@@ -40,13 +40,12 @@ public class MissionController : MonoBehaviour
         Debug.Log($"Mission Started: {newMission.missionId}");
     }
 
-    public void TrackStep(string stepId, int progress)
+    public void TrackStep(MissionStepType stepId, int progress)
     {
         if (_currentMissions.Count == 0) return;
 
-        //Debug.Log($"TrackStep received: {stepId} | {progress}");
-
         List<MissionData> missionsToRemove = new List<MissionData>();
+        List<MissionData> missionsToStart = new List<MissionData>();
 
         foreach (var mission in _currentMissions)
         {
@@ -56,6 +55,12 @@ public class MissionController : MonoBehaviour
             if (isSuccess)
             {
                 Debug.Log($"Mission Completed: {mission.missionId}");
+
+                foreach (var next in mission.nextMissions)
+                {
+                    missionsToStart.Add(next);
+                }
+
                 missionsToRemove.Add(mission);
             }
             else
@@ -65,10 +70,17 @@ public class MissionController : MonoBehaviour
             }
         }
 
+        // remover misiones
         foreach (var mission in missionsToRemove)
         {
             _currentMissions.Remove(mission);
             Destroy(mission);
+        }
+
+        // iniciar nuevas misiones
+        foreach (var next in missionsToStart)
+        {
+            StartNewMission(next);
         }
     }
 }
