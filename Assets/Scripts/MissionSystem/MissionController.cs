@@ -55,7 +55,7 @@ public class MissionController : MonoBehaviour
         Debug.Log($"Mission Started: {newMission.missionId} | Steps: {newMission.missionSteps.Count}");
     }
 
-    public void TrackStep(MissionStepType stepId, int progress)
+    public void TrackStep(GameEventType stepId, int progress)
     {
         // Start missions that are triggered by this event
         foreach (var mission in allMissions)

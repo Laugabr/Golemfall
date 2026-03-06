@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public enum MissionStepType
+public enum GameEventType
 {
     KillEnemy,
     CollectItem,

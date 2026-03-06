@@ -15,12 +15,12 @@ public class MissionData : ScriptableObject
     public List<MissionData> nextMissions;
     public bool pausesOtherMissions;
     public bool startWithEvent;
-    public MissionStepType startEvent;
+    public GameEventType startEvent;
     //public bool allowTeleportParty;
     //public Vector3 teleportDestination;
     //public Scene teleportDestiny;
 
-    public bool UpdateProgress(MissionStepType id, int progress, out bool success)
+    public bool UpdateProgress(GameEventType id, int progress, out bool success)
     {
         success = false;
         var allComplete = true;
