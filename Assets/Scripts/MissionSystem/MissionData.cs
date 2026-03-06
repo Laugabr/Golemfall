@@ -5,15 +5,17 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "MissionData", menuName = "Scriptable Objects/MissionData")]
 public class MissionData : ScriptableObject
 {
-    public string missionId; //ejemplo Mission_Forest_001
-    public string missionName; //ej Find the special forest item
-    public string description; //explorar el bosque y encontrar el item escondido
+    public string missionId;
+    public string missionName;
+    public string description;
     public int xp;
     public int coins;
     public List<MissionStep> missionSteps;
     public List<MissionStep> failureSteps;
     public List<MissionData> nextMissions;
     public bool pausesOtherMissions;
+    public bool startWithEvent;
+    public MissionStepType startEvent;
     //public bool allowTeleportParty;
     //public Vector3 teleportDestination;
     //public Scene teleportDestiny;
@@ -44,13 +46,11 @@ public class MissionData : ScriptableObject
 
         if (allFailure)
         {
-            //Fallaste la misión
             success = false;
             return true;
         }
         if (allComplete)
         {
-            //Completaste la misión
             success = true;
             return true;
         }
