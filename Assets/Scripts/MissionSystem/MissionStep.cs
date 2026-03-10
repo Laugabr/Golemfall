@@ -4,12 +4,12 @@ using System;
 [System.Serializable]
 public class MissionStep
 {
-    public MissionStepType targetId;
+    public GameEventType targetId;
     public int amount; //cuanta cantidad de enemigos por ej para completar la misión
     [NonSerialized] public bool isComplete;
     [NonSerialized] public int currentAmount; //nonserialized es para que el game designer no lo toque y no lo vea en el inspector
 
-    public void UpdateProgress(MissionStepType id, int progress)
+    public void UpdateProgress(GameEventType id, int progress)
     {
         if (isComplete) return;
         if (id != targetId) return;

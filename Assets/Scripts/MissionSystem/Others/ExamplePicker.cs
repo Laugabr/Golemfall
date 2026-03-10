@@ -6,7 +6,7 @@ public class ExamplePicker : MonoBehaviour
     {
         if (other.TryGetComponent<ExampleItem>(out var item))
         {
-            TrackEvents.OnTrackEvent?.Invoke(MissionStepType.CollectItem, 1);
+            TrackEvents.OnTrackEvent?.Invoke(GameEventType.CollectItem, 1);
         }
     }
 }
