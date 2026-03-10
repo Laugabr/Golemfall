@@ -29,7 +29,7 @@ public class MissionController : MonoBehaviour
     }
 
     private void Start()
-    {   
+    {
         // Optional starting mission used mainly for playground/testing
         if (playgroundMission != null)
         {
@@ -53,6 +53,7 @@ public class MissionController : MonoBehaviour
         }
 
         Debug.Log($"Mission Started: {newMission.missionId} | Steps: {newMission.missionSteps.Count}");
+        MissionEvents.OnMissionStarted?.Invoke(newMission);
     }
 
     public void TrackStep(GameEventType stepId, int progress)
@@ -83,11 +84,15 @@ public class MissionController : MonoBehaviour
                 continue;
 
             if (!mission.UpdateProgress(stepId, progress, out var isSuccess))
+            {
+                MissionEvents.OnMissionProgress?.Invoke(mission);
                 continue;
+            }
 
             if (isSuccess)
             {
                 Debug.Log($"Mission Completed: {mission.missionId}");
+                MissionEvents.OnMissionComplete?.Invoke(mission);
                 // When the pausing mission finishes successfully,
                 // normal mission tracking resumes
 
@@ -103,13 +108,13 @@ public class MissionController : MonoBehaviour
                 {
                     missionsToStart.Add(next);
                 }
-
+                //AQUI algo como MissionEvents.OnMissionComplete?.Invoke(mission.id)
                 missionsToRemove.Add(mission);
             }
             else
             {
                 Debug.Log($"Mission Failed: {mission.missionId}");
-
+                MissionEvents.OnMissionFailed?.Invoke(mission);
                 // DESIGN DECISION:
                 // If the pausing mission fails, other missions also resume.
                 // The dungeon (or special mission) simply ends and the
@@ -131,6 +136,7 @@ public class MissionController : MonoBehaviour
             _currentMissions.Remove(mission);
             Destroy(mission);
         }
+        MissionEvents.OnMissionListChanged?.Invoke();
 
         // iniciar nuevas misiones
         foreach (var next in missionsToStart)
