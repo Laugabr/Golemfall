@@ -26,7 +26,7 @@ public class MissionData : ScriptableObject
         var allComplete = true;
         foreach (var steps in missionSteps)
         {
-            if(steps.UpdateProgress(id, progress))
+            if(steps.TryUpdateProgress(id, progress))
             {
                 status = MissionStatus.kHasProgress;
             }
@@ -41,7 +41,7 @@ public class MissionData : ScriptableObject
 
         foreach (var steps in failureSteps)
         {
-             if(steps.UpdateProgress(id, progress))
+             if(steps.TryUpdateProgress(id, progress))
             {
                 status = MissionStatus.kHasProgress;
             }
