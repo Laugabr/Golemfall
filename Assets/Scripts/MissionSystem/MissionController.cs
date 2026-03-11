@@ -7,7 +7,7 @@ using Fusion;
 // Handles mission lifecycle and progress by listening to gameplay events.
 // Supports missions that can temporarily pause others (e.g., dungeon missions).
 
-public class MissionController : NetworkBehavior
+public class MissionController : NetworkBehaviour
 {
     [SerializeField] private MissionData playgroundMission; // starting mission
     [SerializeField] private List<MissionData> allMissions;
