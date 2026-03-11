@@ -9,10 +9,10 @@ public class MissionStep
     [NonSerialized] public bool isComplete;
     [NonSerialized] public int currentAmount; //nonserialized es para que el game designer no lo toque y no lo vea en el inspector
 
-    public void UpdateProgress(GameEventType id, int progress)
+    public bool UpdateProgress(GameEventType id, int progress)
     {
-        if (isComplete) return;
-        if (id != targetId) return;
+        if (isComplete) return false;
+        if (id != targetId) return false;
 
         currentAmount += progress;
 
@@ -23,5 +23,6 @@ public class MissionStep
             isComplete = true;
             Debug.Log($"Step [{targetId}] COMPLETED");
         }
+        return true;
     }
 }

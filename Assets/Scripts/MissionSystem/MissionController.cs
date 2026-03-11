@@ -2,11 +2,13 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Fusion;
+using System.Diagnostics;
 
 // Handles mission lifecycle and progress by listening to gameplay events.
 // Supports missions that can temporarily pause others (e.g., dungeon missions).
 
-public class MissionController : MonoBehaviour
+public class MissionController : NetworkBehavior
 {
     [SerializeField] private MissionData playgroundMission;//starting mission
     [SerializeField] private List<MissionData> allMissions;
@@ -18,22 +20,107 @@ public class MissionController : MonoBehaviour
     private bool missionsPaused = false;// When true, only the pausing mission can receive progress updates
     private MissionData pausingMission;
 
-    private void OnEnable()
+    private const string MISSION_PATH = "Missions/";//si por alguna razon queremos cambiar 
+                                                    // la ruta de acceso, lo mejor es tenerlo siempre en una constante
+    private bool isTrackingEvents = false;
+
+    #region Networking
+
+    #region Server
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RPC_ServerStartMission(string missionId, RpcInfo info)
     {
-        TrackEvents.OnTrackEvent += TrackStep;
+        if (!Object.HasStateAuthority) return;
+
+        if (string.IsNullOrEmpty(missionId))
+        {
+            RPC_HandlerError("Se recibió un id nulo al intentar iniciar una misión");
+            return;
+        }
+
+        var missionData = Resources.Load<MissionData>($"{MISSION_PATH}{missionId}");
+
+        if (missionData == null)
+        {
+            RPC_HandlerError($"No se encontró la misión {missionId}");
+            return;
+        }
+
+        StartNewMission(missionData);
+
+        if (!isTrackingEvents)
+        {
+            TrackEvents.OnTrackEvent += TrackStep;
+            isTrackingEvents = true;
+        }
+
+        RPC_ClientStartMission(missionId);
     }
 
-    private void OnDisable()
+    #endregion
+
+    #region Client
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
+    private void RPC_HandlerError(string error, RpcInfo info = default)
     {
-        TrackEvents.OnTrackEvent -= TrackStep;
+        //Implementar manejo de errores
     }
 
-    private void Start()
+    [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
+    private void RPC_ClientStartMission(string missionId, RpcInfo info = default)
     {
-        // Optional starting mission used mainly for playground/testing
+        if (!Object.HasInputAuthority) return;
+
+        if (string.IsNullOrEmpty(missionId))
+        {
+            Debug.LogError("Se recibió un id nulo al intentar iniciar una misión");
+            return;
+        }
+
+        var missionData = Resources.Load<MissionData>($"{MISSION_PATH}{missionId}");
+
+        if (missionData == null)
+        {
+            Debug.LogError($"No se encontró la misión {missionId}");
+            return;
+        }
+
+        StartNewMission(missionData);
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
+    private void RPC_ClientUpdateProgress(string id, int progress, RpcInfo info = default)
+    {
+        TrackStep(id, progress);
+    }
+    #endregion
+
+    #endregion
+
+    public void Start()
+    {
+        if (!Object.HasStateAuthority) return;
+
         if (playgroundMission != null)
         {
             StartNewMission(playgroundMission);
+
+            if (!isTrackingEvents)
+            {
+                TrackEvents.OnTrackEvent += TrackStep;
+                isTrackingEvents = true;
+            }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (isTrackingEvents)
+        {
+            TrackEvents.OnTrackEvent -= TrackStep;
+            isTrackingEvents = false;
         }
     }
 
@@ -56,8 +143,37 @@ public class MissionController : MonoBehaviour
         MissionEvents.OnMissionStarted?.Invoke(newMission);
     }
 
-    public void TrackStep(GameEventType stepId, int progress)
+    private void ServerTrackStep(GameEventType stepId, int progress)
     {
+        if (!Object.HasStateAuthority) return;
+
+        var status = TrackStep(stepId, progress);
+
+
+        //RPC_ClientUpdateProgress(stepId, progress)
+        switch (status)
+        {
+            case MissionStatus.kFailed:
+                //RPC_FailedCurrentMission();
+                break;
+            case MissionStatus.kComplete:
+                //RPC_CompleteCurrentMission();
+                break;
+            case MissionStatus.kHasProgress:
+                RPC_ClientUpdateProgress(stepId, progress);
+                break;
+            default:
+        }
+
+    }
+
+    public MissionStatus TrackStep(GameEventType stepId, int progress)
+    {
+        if (!Object.HasStateAuthority) return;
+
+        //Aca el profe hace para una sola mision, nuestro diseño es lista de misiones
+        if (_currentMission == null) return MissionStatus.kNone;
+
         // Start missions that are triggered by this event
         foreach (var mission in allMissions)
         {
@@ -143,5 +259,27 @@ public class MissionController : MonoBehaviour
         {
             StartNewMission(next);
         }
+
+
+        //Aqui el profe puso para una mision, habria que adaptarlo a nuestro sistema
+        // que está hecho para soportar misiones simultaneas
+        //Ademas borro varias lineas anteriores
+        _currentMission.UpdateProgress(stepId, progress, out var status);
+
+        switch (status)
+        {
+            case MissionStatus.kFailed:
+                FailureMission();
+                break;
+            case MissionStatus.kComplete:
+                CompleteMission();
+                break;
+            case MissionStatus.kHasProgress:
+                //Actualizar HUD
+                MissionEvents.OnUpdateProgress?.Invoke(_currentMission);
+                break;
+            default:
+        }
+        return status;
     }
 }
