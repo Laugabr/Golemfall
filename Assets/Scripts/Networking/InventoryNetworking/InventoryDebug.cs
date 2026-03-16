@@ -10,7 +10,7 @@ using UnityEngine;
   Client-side debug helper for inspecting and manipulating a player's inventory.
   Allows showing items, showing stats, and unequipping all items through hotkeys.
   Only runs for the object with input authority (the local player).
- */
+
 
 public class InventoryDebug : NetworkBehaviour
 {
@@ -97,3 +97,5 @@ public class InventoryDebug : NetworkBehaviour
     }
 }
 
+
+*/

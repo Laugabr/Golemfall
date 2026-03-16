@@ -36,9 +36,14 @@ public class ItemInteract : NetworkBehaviour
             Debug.LogError(" No se encontró NetworkInventory en playerInventoryNO");
             return;
         }
+
         // Add item to player's inventory and despawn item
-        inv.Server_AddItem(itemData.id);
-        Runner.Despawn(Object);
+        short itemKey = ItemData.GetKey(itemData);
+        
+        if(inv.AddItem_Server(itemKey))
+        {
+            Runner.Despawn(Object);
+        }
     }
 
 #endregion
