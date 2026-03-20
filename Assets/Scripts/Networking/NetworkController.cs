@@ -42,8 +42,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
             GameMode = GameMode.Host,
             SessionName = "Room_01",
             SceneManager = _networkSceneManagerDefault,
-            Scene = SceneRef.FromIndex(0)
-
+            Scene = SceneRef.FromIndex(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex)
         };
 
         var result = await _networkRunner.StartGame(gameArg);
@@ -63,8 +62,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
             GameMode = GameMode.Client,
             SessionName = "Room_01",
             SceneManager = _networkSceneManagerDefault,
-            Scene = SceneRef.FromIndex(0)
-
+            Scene = SceneRef.FromIndex(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex)
         };
 
         var result = await _networkRunner.StartGame(gameArg);

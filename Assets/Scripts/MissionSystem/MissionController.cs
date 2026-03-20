@@ -96,12 +96,17 @@ public class MissionController : NetworkBehaviour
 
     #endregion
 
-    private void Start()
+    public override void Spawned()
     {
+        Debug.Log("MissionController Spawned correctamente");
+        Debug.Log("StateAuthority: " + Object.HasStateAuthority);
+
         if (!Object.HasStateAuthority) return;
 
         if (playgroundMission != null)
         {
+            Debug.Log("Iniciando playground mission");
+
             StartNewMission(playgroundMission);
 
             if (!isTrackingEvents)
@@ -109,6 +114,10 @@ public class MissionController : NetworkBehaviour
                 TrackEvents.OnTrackEvent += ServerTrackStep;
                 isTrackingEvents = true;
             }
+        }
+        else
+        {
+            Debug.LogError("playgroundMission es NULL");
         }
     }
 
