@@ -7,7 +7,6 @@ public class BreakableObject : MonoBehaviour
     [SerializeField] private int hitsToBreak = 3;
     [SerializeField] private GameObject breakEffectPrefab;
     [SerializeField] private int experienceReward = 1;
-    [SerializeField] private HitFeedback hitFeedback;
 
     private int currentHits = 0;
     private bool isBroken = false;
