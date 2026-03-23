@@ -103,21 +103,8 @@ public class NetworkInventory : NetworkBehaviour
 
     #endregion
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            RPC_RequestEquip(1); // Equip item with key 1
-            RPC_RequestEquip(2); // Equip item with key 2
-            RPC_RequestEquip(3); // Equip item with key 3
-            RPC_RequestEquip(4); // Try to equip item with key 4 (should fail if not in inventory)
-        }
-        else if (Input.GetKeyDown(KeyCode.U))
-        {
-            RPC_RequestUnequip(2); // Unequip item with key 2
-            RPC_RequestUnequip(1); // Try to equip item with key 4 again (should succeed if it was in inventory)
-        }
-    }
+
+
 }
 
 // Static event manager for inventory actions

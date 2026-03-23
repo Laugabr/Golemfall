@@ -15,7 +15,8 @@ public class PlayerStats : CharacterStats
     private List<StatInfo> baseLevelStats = new();
 
     private void OnEnable() => BasicEventsManager.OnLevelUp += HandleLevelUp;
-
+    
+    private void OnDisable() => BasicEventsManager.OnLevelUp -= HandleLevelUp;
     private void HandleLevelUp(int levelId)
     {
         if (!Object.HasStateAuthority) return;
@@ -31,14 +32,26 @@ public class PlayerStats : CharacterStats
         RefreshStats(); // Recalcular todo con el nuevo nivel
     }
 
-    // EL CORAZÓN DEL SISTEMA: Recalcula todo basándose en el inventario
+    // Recalcula stats base + equipo
     public void RefreshStats()
     {
         if (!Object.HasStateAuthority) return;
 
+        baseLevelStats = baseStats.statInfo.Select(s => new StatInfo(s.statType, s.statValue)).ToList();
+
+        Debug.Log("[SERVER] Refreshing stats...");
+        Debug.Log(localStats.FirstOrDefault(s => s.statType == Stat.speed));
+
         localStats.Clear();
         foreach (var bs in baseLevelStats) 
+        {
+             var existing = localStats.FirstOrDefault(s => s.statType == bs.statType);
+             if (existing != null) existing.statValue += bs.statValue;
+             else
             localStats.Add(new StatInfo(bs.statType, bs.statValue));
+        }
+
+        Debug.Log(localStats.FirstOrDefault(s => s.statType == Stat.speed));
 
         var inv = GetComponent<NetworkInventory>();
         foreach (short key in inv.EquippedItems)
@@ -50,16 +63,19 @@ public class PlayerStats : CharacterStats
                 ApplyModifier(data.stats);
             }
         }
+        Debug.Log(localStats.FirstOrDefault(s => s.statType == Stat.speed));
 
         DirtyStats = true;
     }
 
     private void ApplyModifier(Stats modifier)
     {
+        if (!Object.HasStateAuthority) return;
+
         foreach (var mod in modifier.statInfo)
         {
             var stat = localStats.FirstOrDefault(s => s.statType == mod.statType);
-            if (stat != null) stat.statValue += mod.statValue;
+            if (stat != null) stat.statValue += mod.statValue; 
             else localStats.Add(new StatInfo(mod.statType, mod.statValue));
         }
     }
@@ -77,7 +93,7 @@ public class PlayerStats : CharacterStats
 
     // --- Helpers de Debug ---
     public void DebugStats(string origin)
-    {
+    { 
         string s = $"[{origin}] Stats Actuales: ";
         foreach (var stat in localStats) s += $"{stat.statType}:{stat.statValue} | ";
         Debug.Log(s);

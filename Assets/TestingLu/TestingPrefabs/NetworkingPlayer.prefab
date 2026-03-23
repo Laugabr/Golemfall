@@ -124,7 +124,6 @@ GameObject:
   - component: {fileID: 2268338038263311533}
   - component: {fileID: 7492092348020090806}
   - component: {fileID: -461821717541361334}
-  - component: {fileID: -6818287743790417716}
   - component: {fileID: 1370004718390460943}
   m_Layer: 0
   m_Name: NetworkingPlayer
@@ -199,7 +198,6 @@ MonoBehaviour:
   - {fileID: 5515375215595783266}
   - {fileID: 2268338038263311533}
   - {fileID: -461821717541361334}
-  - {fileID: -6818287743790417716}
   - {fileID: 1370004718390460943}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &5967205879656611319
@@ -221,7 +219,12 @@ MonoBehaviour:
   OnStatsChanged:
     m_PersistentCalls:
       m_Calls: []
-  levelsData: []
+  levelsData:
+  - {fileID: 11400000, guid: d5d41427d58f6504b9e383cd76095c8a, type: 2}
+  - {fileID: 11400000, guid: b30a9157dbe6c9c4b98351e289d3e79d, type: 2}
+  - {fileID: 11400000, guid: 7c30f9644e4687e47af21adf4217c4b5, type: 2}
+  - {fileID: 11400000, guid: 118d535e24299e24284184f3b0492430, type: 2}
+  - {fileID: 11400000, guid: 9ed809e02cb61824287da2cf4b8f23eb, type: 2}
 --- !u!114 &5515375215595783266
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236,7 +239,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _IsDirty:
     _value: 0
+  _Items: []
   _EquippedItems: 
+  LocalItems: []
 --- !u!114 &2268338038263311533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -325,26 +330,6 @@ MonoBehaviour:
     StepRequireGroundTarget: 0
     SnapDistance: 0.25
     SnapSpeed: 4
---- !u!114 &-6818287743790417716
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2483715990737686896}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ed9138715db242241b931665ee5c6080, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  baseStats: {fileID: 11400000, guid: 5f1dc252c01a302448d541b00d45f5fa, type: 2}
-  localStats: []
-  _DirtyStats:
-    _value: 0
-  OnStatsChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  levelsData: []
 --- !u!114 &1370004718390460943
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -357,7 +342,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: feef8b97966f735408db96c67b04040b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupDistance: 3
+  pickupRadius: 2.5
 --- !u!1 &2891395344421157551
 GameObject:
   m_ObjectHideFlags: 0
