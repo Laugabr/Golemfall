@@ -12,7 +12,7 @@ using UnityEngine.InputSystem.LowLevel;
   Disables the camera for non-authoritative clients.
  */
 
-public class CharacterControleler : NetworkBehaviour
+public class CharacterController : NetworkBehaviour
 {
     [Header ("Camera Controller")]
     [SerializeField] private Transform cameraTransform;
@@ -27,6 +27,10 @@ public class CharacterControleler : NetworkBehaviour
 
     [Header ("Inventory")]
     [SerializeField] private CharacterPickUp charPickUp;
+    
+    [Header ("Abilities")]
+    [SerializeField] private AbilityHolder charAbilities;
+
 
     [Header("Dash")]
     private bool isDashing = false; // Dash state flag
@@ -104,9 +108,6 @@ public class CharacterControleler : NetworkBehaviour
             HandleDashMovement();
             return; // If dashing, override normal movement
         }
-
-        if(input.Buttons.WasPressed())
-
     }
     
     private void HandleDashMovement()
