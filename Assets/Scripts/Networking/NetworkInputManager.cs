@@ -3,15 +3,19 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Fusion;
 using Fusion.Sockets;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 //Simulation behaviour to make it work outside of a networkbehaviour
 public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkRunnerCallbacks
 {
     private NetInputPlayer accumulatedInput;
     private bool resetInput;
+    private bool _mouseLButtonPressed;
+    private bool _mouseRButtonPressed;
 
     void IBeforeUpdate.BeforeUpdate() //same as normal udpate but executed before fusions network loop
     {
@@ -23,6 +27,18 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
 
         Keyboard keyboard = Keyboard.current;
         NetworkButtons buttons = default;
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            _mouseLButtonPressed = true;
+        }
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            _mouseRButtonPressed = true;
+        }
+
+
 
         if (keyboard != null)
         {
@@ -46,9 +62,25 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
                 moveDirection += Vector2.right;
             }
 
+            accumulatedInput.Buttons.Set(NetInputPlayer.MOUSE_BUTTON_0, _mouseLButtonPressed);
+            accumulatedInput.Buttons.Set(NetInputPlayer.MOUSE_BUTTON_1, _mouseRButtonPressed);
 
             accumulatedInput.Direction += moveDirection;
-            buttons.Set(InputButton.Jump, keyboard.spaceKey.isPressed);
+            
+            if(keyboard != null)
+            {
+                buttons.Set(InputButton.Jump, keyboard.spaceKey.isPressed);
+                buttons.Set(InputButton.Dash, keyboard.shiftKey.isPressed);
+                buttons.Set(InputButton.Interact, keyboard.fKey.isPressed);
+                buttons.Set(InputButton.SecondarySkill, keyboard.eKey.isPressed);
+            }
+
+            Mouse mouse = Mouse.current;
+            if(mouse != null)
+            {
+                buttons.Set(InputButton.BasicAttack, mouse.leftButton.isPressed);
+                buttons.Set(InputButton.FirstSkill, mouse.rightButton.isPressed);
+            }
         }
 
         accumulatedInput.Buttons = new NetworkButtons(accumulatedInput.Buttons.Bits | buttons.Bits);
@@ -58,6 +90,9 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
         accumulatedInput.Direction.Normalize();
         input.Set(accumulatedInput);
         resetInput = true;
+        _mouseRButtonPressed = false;
+        _mouseLButtonPressed = false;
+
     }
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {

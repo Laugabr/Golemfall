@@ -28,6 +28,12 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         _joinRoomButton.onClick.AddListener(JoinRoom);
     }
 
+    //Gets called On Destroy to debug 
+    void OnDestroy()
+    {
+        Debug.Log("Network runner destroyed " + this);
+    }
+
     // Create a new room as host
     private async void CreateRoom()
     {
@@ -77,12 +83,15 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         Debug.Log("Player joined: " + player);
         _lobbyPanel.SetActive(false);
 
-        if (!_networkRunner.IsServer) return;// Only server spawns players
+        if (!_networkRunner.IsServer) {
+        Debug.Log(runner.name + " is not server");
+        return;}
+        // Only server spawns players
 
         // Spawn player prefab for this player
         var playerSpawned = _networkRunner.Spawn(
             _playerPrefab,
-            new Vector3(0, 15, 0),
+            new Vector3(500, 2, -40),
             Quaternion.identity,
             player
         );
