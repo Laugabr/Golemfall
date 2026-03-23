@@ -1,117 +1,164 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
+using Fusion;
 using BehaviourTree;
 using System.Collections.Generic;
 
-public class EnemyAI : MonoBehaviour
+public class EnemyAI : NetworkBehaviour
 {
-    [Header("General References")]
-    public Transform player;
-    public NavMeshAgent agent;
+    public enum EnemyType { Melee, Ranged }
 
-    [Header("General Settings")]
-    public float visionRange = 8f;
-    public float moveSpeed = 3.5f;
+    [Header("Type")]
+    [SerializeField] private EnemyType _enemyType;
 
-    [Header("Melee Settings")]
-    public bool isRanged = false;     // false = melee, true = ranged/archer
-    public float attackRange = 2f;    // usado por AttackPlayer (melee)
+    [Header("References")]
+    [SerializeField] private NavMeshAgent _agent;
+    [SerializeField] private Transform _shootPoint;
 
-    [Header("Ranged Settings")]
-    public float shootDistance = 8f;  // distancia ideal para disparar
-    public float minDistance = 4f;    // si el jugador está < minDistance, alejarse
-    public float attackCooldown = 1.5f; // cooldown común (melee o ranged)
+    [Header("Players")]
+    private List<Transform> players = new List<Transform>();
+    public Transform CurrentTarget { get; private set; }
+
+    [Header("Settings")]
+    [SerializeField] private float _visionRange = 8f;
+    [SerializeField] private float _attackRange = 2f;
+    [SerializeField] private float _shootDistance = 8f;
+    [SerializeField] private float _minDistance = 4f;
+    [SerializeField] private float _moveSpeed = 3.5f;
+    [SerializeField] private float _attackCooldown = 1f;
 
     [Header("Patrol")]
-    public Transform[] patrolPoints;
+    [SerializeField] private Transform[] _patrolPoints;
 
-    // Behaviour Tree
+    [Header("Projectile")]
+    [SerializeField] private NetworkPrefabRef _projectilePrefab;
+
+    // Solo lectura para nodos
+    public float VisionRange => _visionRange;
+    public float AttackRange => _attackRange;
+    public float ShootDistance => _shootDistance;
+    public float MinDistance => _minDistance;
+    public float AttackCooldown => _attackCooldown;
+    public NavMeshAgent Agent => _agent;
+
     private Node rootNode;
 
     private void Awake()
     {
-        // Si el agente no está asignado por inspector, lo buscamos
-        if (agent == null)
-            agent = GetComponent<NavMeshAgent>();
+        if (_agent == null)
+            _agent = GetComponent<NavMeshAgent>();
     }
 
     private void Start()
     {
-        // Aseguramos velocidad del agent
-        if (agent != null)
-            agent.speed = moveSpeed;
-
+        _agent.speed = _moveSpeed;
         BuildTree();
     }
 
-    private void Update()
+    public override void FixedUpdateNetwork()
     {
-        // Actual: protegemos rootNode nulo
+        if (!Object.HasStateAuthority) return;
+
+        UpdateTarget();
         rootNode?.Evaluate();
     }
 
-    private void BuildTree()
+    void BuildTree()
     {
-        // Nodos comunes
-        var canSee = new CanSeePlayer(this);      // debe usar this.player y this.visionRange
-        var patrol = new PatrolNode(agent, patrolPoints); // usa NavMeshAgent + patrolPoints
+        var canSee = new CanSeePlayer(this);
+        var patrol = new PatrolNode(_agent, _patrolPoints);
 
-        if (isRanged)
+        if (_enemyType == EnemyType.Melee)
         {
-            // Nodos para arquero (Keep distance, mover a distancia de disparo, atacar a distancia)
-            var keepDistance = new KeepDistanceNode(this);         // usa minDistance
-            var moveToShoot = new MoveToShootDistance(this);      // usa shootDistance y agent
-            var rangedAttack = new RangedAttackNode(this);        // usa shootDistance y attackCooldown + RangedAttack()
+            var moveTo = new MoveToPlayer(this);
+            var attack = new AttackPlayer(this);
 
-            var attackSeq = new Sequence(new List<Node>
-            {
-                canSee,
-                moveToShoot,
-                rangedAttack
-            });
-
-            // Prioridad: primero alejar si está demasiado cerca, luego atacar si puede, sino patrulla
-            rootNode = new Selector(new List<Node> { keepDistance, attackSeq, patrol });
-        }
-        else
-        {
-            // Nodos para melee (ver → acercarse → atacar)
-            var moveTo = new MoveToPlayer(this);      // usa agent and attackRange
-            var attack = new AttackPlayer(this);      // usa attackRange, attackCooldown, DealDamage()
-
-            var attackSeq = new Sequence(new List<Node>
+            var attackSequence = new Sequence(new List<Node>
             {
                 canSee,
                 moveTo,
                 attack
             });
 
-            rootNode = new Selector(new List<Node> { attackSeq, patrol });
+            rootNode = new Selector(new List<Node>
+            {
+                attackSequence,
+                patrol
+            });
+        }
+        else
+        {
+            var keepDistance = new KeepDistanceNode(this);
+            var moveToShoot = new MoveToShootDistance(this);
+            var rangedAttack = new RangedAttackNode(this);
+
+            var attackSequence = new Sequence(new List<Node>
+            {
+                canSee,
+                moveToShoot,
+                rangedAttack
+            });
+
+            rootNode = new Selector(new List<Node>
+            {
+                keepDistance,
+                attackSequence,
+                patrol
+            });
         }
     }
 
-    
-    // Métodos que los nodos esperan
-    
+    void UpdateTarget()
+    {
+        float minDist = float.MaxValue;
+        Transform closest = null;
 
-    // Método llamado por AttackPlayer (melee)
+        foreach (var p in players)
+        {
+            if (p == null) continue;
+
+            float dist = Vector3.Distance(transform.position, p.position);
+
+            if (dist < minDist)
+            {
+                minDist = dist;
+                closest = p;
+            }
+        }
+
+        CurrentTarget = closest;
+    }
+
+    // Melee
     public void DealDamage()
     {
-        Debug.Log($"{name}: DealDamage called");
-        // IMPLEMENTAR: daño real al player (ej. player.GetComponent<Health>().TakeDamage(...))
+        if (!Object.HasStateAuthority) return;
+
+        Debug.Log("⚔️ Melee hit");
     }
 
-    // Método llamado por RangedAttackNode (archer)
+    // Ranged
     public void RangedAttack()
     {
-        Debug.Log($"{name}: RangedAttack called");
-        // IMPLEMENTAR: instanciar proyectil, setear dirección, velocidad y daño
+        if (!Object.HasStateAuthority) return;
+
+        Runner.Spawn(
+            _projectilePrefab,
+            _shootPoint.position,
+            _shootPoint.rotation
+        );
     }
 
-    // helper: comprobar si player está dentro de visionRange
-    public bool PlayerInVision()
+    //  Métodos controlados para modificar players
+    public void RegisterPlayer(Transform player)
     {
-        if (player == null) return false;
-        return Vector3.Distance(transform.position, player.position) <= visionRange;
+        if (!players.Contains(player))
+            players.Add(player);
+    }
+
+    public void UnregisterPlayer(Transform player)
+    {
+        if (players.Contains(player))
+            players.Remove(player);
     }
 }

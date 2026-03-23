@@ -1,14 +1,14 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace BehaviourTree
 {
-    public class CanSeePlayer : Node
+    public class IsPlayerInMeleeRange : Node
     {
-        private EnemyAI ai;
+        private BossAI ai;
 
-        public CanSeePlayer(EnemyAI enemyAI)
+        public IsPlayerInMeleeRange(BossAI boss)
         {
-            ai = enemyAI;
+            ai = boss;
         }
 
         public override NodeState Evaluate()
@@ -21,13 +21,9 @@ namespace BehaviourTree
                 ai.CurrentTarget.position
             );
 
-            if (distance <= ai.VisionRange)
-                return state = NodeState.Success;
-
-            return state = NodeState.Failure;
+            return distance <= ai.AttackRange
+                ? state = NodeState.Success
+                : state = NodeState.Failure;
         }
     }
 }
-
-
-

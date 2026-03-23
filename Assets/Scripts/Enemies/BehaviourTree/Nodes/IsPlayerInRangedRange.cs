@@ -1,14 +1,14 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace BehaviourTree
 {
-    public class MoveToPlayer : Node
+    public class IsPlayerInRangedRange : Node
     {
-        private EnemyAI ai;
+        private BossAI ai;
 
-        public MoveToPlayer(EnemyAI enemyAI)
+        public IsPlayerInRangedRange(BossAI boss)
         {
-            ai = enemyAI;
+            ai = boss;
         }
 
         public override NodeState Evaluate()
@@ -16,19 +16,15 @@ namespace BehaviourTree
             if (ai.CurrentTarget == null)
                 return state = NodeState.Failure;
 
-            ai.Agent.SetDestination(ai.CurrentTarget.position);
-
             float distance = Vector3.Distance(
                 ai.transform.position,
                 ai.CurrentTarget.position
             );
 
-            if (distance <= ai.AttackRange)
+            if (distance <= ai.ShootDistance)
                 return state = NodeState.Success;
 
-            return state = NodeState.Running;
+            return state = NodeState.Failure;
         }
     }
 }
-
-

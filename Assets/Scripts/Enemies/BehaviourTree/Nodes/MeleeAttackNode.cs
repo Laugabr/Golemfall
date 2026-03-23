@@ -2,14 +2,14 @@ using UnityEngine;
 
 namespace BehaviourTree
 {
-    public class RangedAttackNode : Node
+    public class MeleeAttackNode : Node
     {
-        private EnemyAI ai;
+        private BossAI ai;
         private float lastAttackTime;
 
-        public RangedAttackNode(EnemyAI enemy)
+        public MeleeAttackNode(BossAI boss)
         {
-            ai = enemy;
+            ai = boss;
         }
 
         public override NodeState Evaluate()
@@ -22,12 +22,14 @@ namespace BehaviourTree
                 ai.CurrentTarget.position
             );
 
-            if (distance > ai.ShootDistance)
+            // Si no está en rango, falla
+            if (distance > ai.AttackRange)
                 return state = NodeState.Failure;
 
+            // Cooldown
             if (Time.time >= lastAttackTime + ai.AttackCooldown)
             {
-                ai.RangedAttack();
+                ai.DealDamage();
                 lastAttackTime = Time.time;
             }
 

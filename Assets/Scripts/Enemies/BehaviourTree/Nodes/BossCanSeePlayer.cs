@@ -2,13 +2,13 @@
 
 namespace BehaviourTree
 {
-    public class MoveToPlayer : Node
+    public class BossCanSeePlayer : Node
     {
-        private EnemyAI ai;
+        private BossAI ai;
 
-        public MoveToPlayer(EnemyAI enemyAI)
+        public BossCanSeePlayer(BossAI boss)
         {
-            ai = enemyAI;
+            ai = boss;
         }
 
         public override NodeState Evaluate()
@@ -16,19 +16,17 @@ namespace BehaviourTree
             if (ai.CurrentTarget == null)
                 return state = NodeState.Failure;
 
-            ai.Agent.SetDestination(ai.CurrentTarget.position);
-
             float distance = Vector3.Distance(
                 ai.transform.position,
                 ai.CurrentTarget.position
             );
 
-            if (distance <= ai.AttackRange)
-                return state = NodeState.Success;
-
-            return state = NodeState.Running;
+            return distance <= ai.VisionRange
+                ? state = NodeState.Success
+                : state = NodeState.Failure;
         }
     }
 }
+
 
 

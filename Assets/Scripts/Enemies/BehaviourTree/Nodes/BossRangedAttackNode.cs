@@ -2,13 +2,14 @@ using UnityEngine;
 
 namespace BehaviourTree
 {
-    public class MoveToShootDistance : Node
+    public class BossRangedAttackNode : Node
     {
-        private EnemyAI ai;
+        private BossAI ai;
+        private float lastAttackTime;
 
-        public MoveToShootDistance(EnemyAI enemy)
+        public BossRangedAttackNode(BossAI boss)
         {
-            ai = enemy;
+            ai = boss;
         }
 
         public override NodeState Evaluate()
@@ -22,12 +23,14 @@ namespace BehaviourTree
             );
 
             if (distance > ai.ShootDistance)
+                return state = NodeState.Failure;
+
+            if (Time.time >= lastAttackTime + ai.AttackCooldown)
             {
-                ai.Agent.SetDestination(ai.CurrentTarget.position);
-                return state = NodeState.Running;
+                ai.RangedAttack();
+                lastAttackTime = Time.time;
             }
 
-            ai.Agent.ResetPath();
             return state = NodeState.Success;
         }
     }

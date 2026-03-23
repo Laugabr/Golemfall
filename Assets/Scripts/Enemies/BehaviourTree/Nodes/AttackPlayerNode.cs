@@ -4,39 +4,34 @@ namespace BehaviourTree
 {
     public class AttackPlayer : Node
     {
-        private EnemyAI _enemyAI;
-        private float _nextAttackTime;
+        private EnemyAI ai;
+        private float lastAttackTime;
 
         public AttackPlayer(EnemyAI enemyAI)
         {
-            _enemyAI = enemyAI;
+            ai = enemyAI;
         }
 
         public override NodeState Evaluate()
         {
-            // Distancia al jugador
-            float dist = Vector3.Distance(_enemyAI.transform.position, _enemyAI.player.position);
+            if (ai.CurrentTarget == null)
+                return state = NodeState.Failure;
 
-            // Si estoy fuera de rango → falla y la secuencia vuelve a MoveToPlayer
-            if (dist > _enemyAI.attackRange)
+            float distance = Vector3.Distance(
+                ai.transform.position,
+                ai.CurrentTarget.position
+            );
+
+            if (distance > ai.AttackRange)
+                return state = NodeState.Failure;
+
+            if (Time.time >= lastAttackTime + ai.AttackCooldown)
             {
-                state = NodeState.Failure;
-                return state;
+                ai.DealDamage();
+                lastAttackTime = Time.time;
             }
 
-            // Todavía no toca atacar → Running
-            if (Time.time < _nextAttackTime)
-            {
-                state = NodeState.Running;
-                return state;
-            }
-
-            // Ataca
-            _enemyAI.DealDamage();
-            _nextAttackTime = Time.time + _enemyAI.attackCooldown;
-
-            state = NodeState.Success;
-            return state;
+            return state = NodeState.Success;
         }
     }
 }
