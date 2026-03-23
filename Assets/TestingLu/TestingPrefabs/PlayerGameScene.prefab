@@ -235,6 +235,7 @@ GameObject:
   - component: {fileID: 7417517106885261198}
   - component: {fileID: 2923933063360723632}
   - component: {fileID: 1841762303368160734}
+  - component: {fileID: -5434237174864623190}
   m_Layer: 3
   m_Name: PlayerGameScene
   m_TagString: Player
@@ -459,6 +460,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ability: {fileID: 11400000, guid: 4284d1078c756d14ab88cabc45805dde, type: 2}
   key: 324
+--- !u!114 &-5434237174864623190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4968113891619647321}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed9138715db242241b931665ee5c6080, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseStats: {fileID: 0}
+  localStats: []
+  _DirtyStats:
+    _value: 0
+  OnStatsChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  levelsData: []
 --- !u!1 &5522191905423377646
 GameObject:
   m_ObjectHideFlags: 0
