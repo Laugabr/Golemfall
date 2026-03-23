@@ -9,7 +9,7 @@ public class PlayerInteractor : MonoBehaviour
     [SerializeField] private Camera mainCamera;
 
     private bool canPickup = false;
-    private PickableItem nearbyItem;
+    private ItemPickup nearbyItem;
 
     void Start()
     {
@@ -27,6 +27,7 @@ public class PlayerInteractor : MonoBehaviour
         // recoger item si presiona F
         if (canPickup && nearbyItem != null && Input.GetKeyDown(KeyCode.F))
         {
+            nearbyItem.TryPickup();
             nearbyItem = null;
             canPickup = false;
         }
@@ -34,7 +35,7 @@ public class PlayerInteractor : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent(out PickableItem pickup))
+        if (other.TryGetComponent(out ItemPickup pickup))
         {
             canPickup = true;
             nearbyItem = pickup;
@@ -44,7 +45,7 @@ public class PlayerInteractor : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.TryGetComponent(out PickableItem pickup) && pickup == nearbyItem)
+        if (other.TryGetComponent(out ItemPickup pickup) && pickup == nearbyItem)
         {
             canPickup = false;
             nearbyItem = null;
