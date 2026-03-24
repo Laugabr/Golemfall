@@ -12,7 +12,7 @@ using UnityEngine.InputSystem.LowLevel;
   Disables the camera for non-authoritative clients.
  */
 
-public class CharacterController : NetworkBehaviour
+public class NetCharacterController : NetworkBehaviour
 {
     [Header ("Camera Controller")]
     [SerializeField] private Transform cameraTransform;
