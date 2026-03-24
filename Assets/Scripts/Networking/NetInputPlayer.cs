@@ -6,7 +6,6 @@ public enum InputButton
     Jump,
     Dash,
     Interact,
-    
     BasicAttack,
     FirstSkill,
     SecondarySkill

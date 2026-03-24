@@ -73,7 +73,7 @@ public class NetCharacterController : NetworkBehaviour
     {
         if (!GetInput(out NetInputPlayer input)) //gets the input of each client 
         return;
-        
+            
             Vector3 worldDirection = kcc.TransformRotation * new Vector3(input.Direction.x, 0f, input.Direction.y); //take the kcc transform rotation and we multiply it by the direction of the input
             float jump = 0f;
         
@@ -86,15 +86,41 @@ public class NetCharacterController : NetworkBehaviour
         {
             StartDash(input.Direction);
         }
+                                         
 
-
-        if  (input.Buttons.IsSet(NetInputPlayer.MOUSE_BUTTON_0)) //If is set as true, spawn projectile
+        if(input.Buttons.WasPressed(PreviousButtons, InputButton.BasicAttack))
         {
-            //attack
+            Debug.Log(Object + " Calls Basic Attack");
+            Vector3 dir = GetMouseDirection();
+            charAbilities.RPC_RequestUseAbility(0, dir);            
+        }
+
+        if(input.Buttons.WasPressed(PreviousButtons, InputButton.FirstSkill))
+        {
+            if (!Object.HasInputAuthority) return;
+            
+            Debug.Log(Object + " Calls First Skill");
+            Vector3 dir = GetMouseDirection();
+
+            charAbilities.RPC_RequestUseAbility(1, dir);
+            
         }
         
+        if(input.Buttons.WasPressed(PreviousButtons, InputButton.SecondarySkill))
+        {
+            if (!Object.HasInputAuthority) return;
+
+            Debug.Log(Object + " Calls Secondary Skill");
+            Vector3 dir = GetMouseDirection();
+
+            charAbilities.RPC_RequestUseAbility(2, dir);
+        }
+
+
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.Interact))
         {
+            if (!Object.HasInputAuthority) return;
+            
             Debug.Log(Object + " Calls TryPickUp");
             charPickUp.TryPickUp();
         }
@@ -102,6 +128,8 @@ public class NetCharacterController : NetworkBehaviour
             kcc.Move(worldDirection.normalized * charStats.GetStat(Stat.speed), jump); //normalizing the wD vector to prevent cheating
 
             PreviousButtons = input.Buttons;
+
+
 
         if (isDashing)
         {
@@ -133,12 +161,24 @@ public class NetCharacterController : NetworkBehaviour
 
     private void DestroyCameraMachine()
     {
-        // Remove Cinemachine camera for non-authoritative players
-
         var cineMachine = GetComponentInChildren<CinemachineCamera>();
         Destroy(cineMachine.gameObject);
     }
+    private Vector3 GetMouseDirection()
+    {
+        Plane plane = new Plane(Vector3.up, transform.position);
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
+        if (plane.Raycast(ray, out float dist))
+        {
+            Vector3 target = ray.GetPoint(dist);
+            Vector3 dir = target - transform.position;
+            dir.y = 0;
+            return dir.normalized;
+        }
+
+        return transform.forward;
+    }
 
 }
 

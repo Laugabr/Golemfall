@@ -125,6 +125,7 @@ GameObject:
   - component: {fileID: 7492092348020090806}
   - component: {fileID: -461821717541361334}
   - component: {fileID: 1370004718390460943}
+  - component: {fileID: 6207068115463936097}
   m_Layer: 0
   m_Name: NetworkingPlayer
   m_TagString: Player
@@ -199,6 +200,7 @@ MonoBehaviour:
   - {fileID: 2268338038263311533}
   - {fileID: -461821717541361334}
   - {fileID: 1370004718390460943}
+  - {fileID: 6207068115463936097}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &5967205879656611319
 MonoBehaviour:
@@ -263,6 +265,7 @@ MonoBehaviour:
     m_Bits: 64
   charStats: {fileID: 0}
   charPickUp: {fileID: 0}
+  charAbilities: {fileID: 6207068115463936097}
   dashSpeed: 20
   dashDuration: 0.2
   dashCooldown: 1
@@ -343,6 +346,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pickupRadius: 2.5
+--- !u!114 &6207068115463936097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2483715990737686896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec9b6fbdbfcd6cd4b80cd5c97944e6bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  abilities:
+  - {fileID: 11400000, guid: ef252dcb3ef18bb41b299e0f06614d04, type: 2}
+  - {fileID: 11400000, guid: 4284d1078c756d14ab88cabc45805dde, type: 2}
 --- !u!1 &2891395344421157551
 GameObject:
   m_ObjectHideFlags: 0

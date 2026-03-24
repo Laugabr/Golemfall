@@ -14,6 +14,8 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] private Button _createRoomButton;
     [SerializeField] private Button _joinRoomButton;
 
+    //private NetworkProjectConfigAsset _networkConfig;
+
     [Header("Network")]
     [SerializeField] private NetworkRunner _networkRunner;
     [SerializeField] private NetworkSceneManagerDefault _networkSceneManagerDefault;
@@ -26,6 +28,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         // Assign UI button callbacks
         _createRoomButton.onClick.AddListener(CreateRoom);
         _joinRoomButton.onClick.AddListener(JoinRoom);
+
     }
 
     //Gets called On Destroy to debug 
