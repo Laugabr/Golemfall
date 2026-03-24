@@ -105,7 +105,7 @@ public class CharacterControleler : NetworkBehaviour
             return; // If dashing, override normal movement
         }
 
-        if(input.Buttons.WasPressed())
+        //if(input.Buttons.WasPressed())
 
     }
     
