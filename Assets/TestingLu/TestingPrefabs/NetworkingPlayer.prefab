@@ -236,7 +236,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _IsDirty:
     _value: 0
+  _Items: []
   _EquippedItems: 
+  LocalItems: []
 --- !u!114 &2268338038263311533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,7 +253,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraTransform: {fileID: 0}
   kcc: {fileID: -461821717541361334}
-  speed: 5
+  speed: 10
   jumpPower: 10
   groundLayer:
     serializedVersion: 2
@@ -357,7 +359,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: feef8b97966f735408db96c67b04040b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupDistance: 3
+  pickupRadius: 2.5
 --- !u!1 &2891395344421157551
 GameObject:
   m_ObjectHideFlags: 0

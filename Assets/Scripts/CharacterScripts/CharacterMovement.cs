@@ -19,7 +19,7 @@ public class CharacterMovement : NetworkBehaviour
 
     [Header("Movement")]
     [SerializeField] private SimpleKCC kcc; //kcc: kinematic character controller
-    [SerializeField] private float speed = 5f;
+    [SerializeField] private float speed = 20f;
     [SerializeField] private float jumpPower = 10f;
     [Networked] private NetworkButtons PreviousButtons { get; set; } // Tracks previous input state for button checks
     [SerializeField] private LayerMask groundLayer;
