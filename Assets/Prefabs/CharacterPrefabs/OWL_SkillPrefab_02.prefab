@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4779046194314912825}
   - component: {fileID: 7498318519028231476}
   - component: {fileID: 5603824243899621016}
-  m_Layer: 8
+  m_Layer: 3
   m_Name: MainSwish
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4902,7 +4902,9 @@ GameObject:
   - component: {fileID: 3250072531289643313}
   - component: {fileID: 1605022318800810227}
   - component: {fileID: -7830566259726997780}
-  m_Layer: 8
+  - component: {fileID: -166465162631183935}
+  - component: {fileID: 641263649067273509}
+  m_Layer: 3
   m_Name: OWL_SkillPrefab_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9804,7 +9806,7 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
@@ -9824,11 +9826,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a384b9411169c6b4fb6da1d659f5ae4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageAmount: 25
-  lifetime: 10
-  diesOnTouch: 1
-  speedModifier: 0
-  HitImpact: {fileID: 3586716701908448013, guid: 5e825d2608f9cc346aba35e1df513bd5, type: 3}
 --- !u!135 &1605022318800810227
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -9842,7 +9839,7 @@ SphereCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
@@ -9857,12 +9854,49 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4695642118095032319}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 17d2954b7dba4de4fbbd6077b9120f43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   lifetime: 15
+--- !u!114 &-166465162631183935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4695642118095032319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 204283677
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 3250072531289643313}
+  - {fileID: 641263649067273509}
+  ForceRemoteRenderTimeframe: 0
+--- !u!114 &641263649067273509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4695642118095032319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _stateAuthorityChangeErrorCorrectionDelta: 0
+  SyncScale: 0
+  SyncParent: 0
+  _autoAOIOverride: 1
+  DisableSharedModeInterpolation: 0
 --- !u!1 &7232132189824536324
 GameObject:
   m_ObjectHideFlags: 0
@@ -9874,7 +9908,7 @@ GameObject:
   - component: {fileID: 30561582914070835}
   - component: {fileID: 866602635689420010}
   - component: {fileID: 1241799006548764408}
-  m_Layer: 8
+  m_Layer: 3
   m_Name: DropsStars
   m_TagString: Untagged
   m_Icon: {fileID: 0}

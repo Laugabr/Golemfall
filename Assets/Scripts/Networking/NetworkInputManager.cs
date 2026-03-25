@@ -67,13 +67,11 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
 
             accumulatedInput.Direction += moveDirection;
             
-            if(keyboard != null)
-            {
                 buttons.Set(InputButton.Jump, keyboard.spaceKey.isPressed);
                 buttons.Set(InputButton.Dash, keyboard.shiftKey.isPressed);
                 buttons.Set(InputButton.Interact, keyboard.fKey.isPressed);
                 buttons.Set(InputButton.SecondarySkill, keyboard.eKey.isPressed);
-            }
+        }
 
             Mouse mouse = Mouse.current;
             if(mouse != null)
@@ -81,8 +79,7 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
                 buttons.Set(InputButton.BasicAttack, mouse.leftButton.isPressed);
                 buttons.Set(InputButton.FirstSkill, mouse.rightButton.isPressed);
             }
-        }
-
+            
         accumulatedInput.Buttons = new NetworkButtons(accumulatedInput.Buttons.Bits | buttons.Bits);
     }
     public void OnInput(NetworkRunner runner, NetworkInput input)

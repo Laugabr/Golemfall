@@ -1,97 +1,47 @@
+using Fusion;
 using UnityEngine;
 
-public class Projectile : MonoBehaviour
+public class Projectile : NetworkBehaviour
 {
-    [SerializeField] private int damageAmount = 25;
-    [SerializeField] private float lifetime = 3f;
-    
-    [SerializeField] private bool diesOnTouch;
+    [Networked] private Vector3 Direction { get; set; }
+    [Networked] private float Speed { get; set; }
+    [Networked] private int Damage { get; set; }
 
-    private Collider _collider;
     private GameObject owner;
-    private float _speed;
-    private Vector3 _direction;
 
-    private Rigidbody _rb;
-
-    [Range(0f, 1f)] // Sets the slider range from 0 to 100
-    public float speedModifier; 
-    [SerializeField] private GameObject HitImpact;
-
-    void Start() => Destroy(gameObject, lifetime);
-
-    public void Initialize(GameObject newOwner, int damageSent, float speed, Vector3 direction)
+    public void Initialize(GameObject caster, int damage, float speed, Vector3 dir)
     {
-        owner = newOwner;
-        damageAmount = damageSent;
-        _speed = speed;
-        _direction = direction.normalized;
-        
-        Debug.Log(gameObject.name + " direction is " + _direction);
-        
-        _collider = GetComponent<Collider>();
-
-        _rb = GetComponent<Rigidbody>();
-        
-        // Rotar el proyectil para que mire hacia la dirección
-        if (_direction != Vector3.zero)
-            transform.forward = _direction;
+        owner = caster;
+        Damage = damage;
+        Speed = speed;
+        Direction = dir.normalized;
     }
-
-    void Update()
+    public override void Spawned()
     {
-        // Movimiento sobre el plano XZ
-        transform.position += _direction * _speed * Time.deltaTime;
+            Debug.Log($"SPAWNED en player: {Runner.LocalPlayer}");
+    }
+    public override void FixedUpdateNetwork()
+    {
+        if (!Object.HasStateAuthority) return;
 
+        transform.position += Direction * Speed * Runner.DeltaTime;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Evitar dañar al dueño
-        if (owner != null && other.gameObject == owner)
-            return;
+        //if (!Object.HasStateAuthority) return;
 
-        // Punto de impacto más cercano
-        Vector3 impactPoint = other.ClosestPoint(transform.position);
+            //evitar pegarse a sí mismo
+        //if (other.gameObject == owner) return;
 
-        // Si tiene vida → dañar y destruir / modificar
-        if (other.TryGetComponent(out Health health))
-        {
-            health.TakeDamage(damageAmount);
+        //var stats = other.GetComponent<CharacterStats>();
 
-            // Spawn de impacto en el punto exacto
-            if (HitImpact != null)
-                Instantiate(HitImpact, impactPoint, Quaternion.identity);
+        //if (stats != null)
+       // {
+        //    //stats.TakeDamage(Damage);
+         //   Debug.Log($"[SERVER] Hit a {other.name} for {Damage}");
+        //}
 
-            if (!diesOnTouch)
-            {
-                _collider.enabled = false;
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
-
-            _speed *= speedModifier;
-            return;
-        }
-
-        // Impacto sin daño
-        if (HitImpact != null)
-            Instantiate(HitImpact, impactPoint, Quaternion.identity);
-
-        if (!diesOnTouch)
-        {
-            _collider.enabled = false;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-
-        _speed *= speedModifier;
-
-        Debug.Log("Projectile collided with " + other.name);
+        //Runner.Despawn(Object);
     }
 }
-    

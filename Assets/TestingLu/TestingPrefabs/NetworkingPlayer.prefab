@@ -236,7 +236,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _IsDirty:
     _value: 0
+  _Items: []
   _EquippedItems: 
+  LocalItems: []
 --- !u!114 &2268338038263311533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258,6 +260,7 @@ MonoBehaviour:
     m_Bits: 64
   charStats: {fileID: 0}
   charPickUp: {fileID: 0}
+  charAbilities: {fileID: 0}
   dashSpeed: 20
   dashDuration: 0.2
   dashCooldown: 1
@@ -357,7 +360,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: feef8b97966f735408db96c67b04040b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupDistance: 3
+  pickupRadius: 3
 --- !u!1 &2891395344421157551
 GameObject:
   m_ObjectHideFlags: 0

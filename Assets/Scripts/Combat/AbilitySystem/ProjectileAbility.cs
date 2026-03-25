@@ -1,16 +1,10 @@
 using UnityEngine;
+using Fusion;
 
-
-[CreateAssetMenu(menuName = "Ability/Projectile Ability")]
+[CreateAssetMenu(menuName = "Abilities/Projectile Ability")]
 public class ProjectileAbility : Ability
 {
-    public GameObject projectilePrefab;
+    public NetworkObject projectilePrefab;
     public float projectileSpeed = 10f;
     public float damageMultiplier = 1f;
-    [SerializeField] LayerMask groundLayer;
-    public override void Activate(GameObject caster)
-    {
-        // En lugar de instanciar directamente, devolvemos los datos necesarios
-        ProjectileRuntime.Execute(this, caster, groundLayer);
-    }
 }

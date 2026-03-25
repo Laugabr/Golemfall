@@ -14,6 +14,8 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] private Button _createRoomButton;
     [SerializeField] private Button _joinRoomButton;
 
+    //private NetworkProjectConfigAsset _networkConfig;
+
     [Header("Network")]
     [SerializeField] private NetworkRunner _networkRunner;
     [SerializeField] private NetworkSceneManagerDefault _networkSceneManagerDefault;
@@ -26,6 +28,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         // Assign UI button callbacks
         _createRoomButton.onClick.AddListener(CreateRoom);
         _joinRoomButton.onClick.AddListener(JoinRoom);
+
     }
 
     //Gets called On Destroy to debug 
@@ -42,8 +45,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
             GameMode = GameMode.Host,
             SessionName = "Room_01",
             SceneManager = _networkSceneManagerDefault,
-            Scene = SceneRef.FromIndex(0)
-
+            Scene = SceneRef.FromIndex(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex),
         };
 
         var result = await _networkRunner.StartGame(gameArg);
@@ -63,8 +65,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
             GameMode = GameMode.Client,
             SessionName = "Room_01",
             SceneManager = _networkSceneManagerDefault,
-            Scene = SceneRef.FromIndex(0)
-
+            Scene = SceneRef.FromIndex(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex),
         };
 
         var result = await _networkRunner.StartGame(gameArg);
@@ -81,23 +82,33 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
         Debug.Log("Player joined: " + player);
-        _lobbyPanel.SetActive(false);
+        if (_lobbyPanel)
+        {
+            Debug.Log("LobbyPanel encontrado, ocultándolo");
+            _lobbyPanel.SetActive(false);
+        }
+        else
+        {
+            Debug.LogWarning("LobbyPanel destruido o no asignado");
+        }
 
-        if (!_networkRunner.IsServer) {
-        Debug.Log(runner.name + " is not server");
-        return;}
+        if (!_networkRunner.IsServer)
+        {
+            Debug.Log(runner.name + " is not server");
+            return;
+        }
         // Only server spawns players
 
         // Spawn player prefab for this player
         var playerSpawned = _networkRunner.Spawn(
             _playerPrefab,
-            new Vector3(500, 2, -40),
+            new Vector3(0, 5, 0),
             Quaternion.identity,
             player
         );
 
         var playerSpawnedPlayerStats = playerSpawned.GetComponent<PlayerStats>();
-        
+
         playerSpawnedPlayerStats.Initialize();
 
         _players.Add(player, playerSpawned);
