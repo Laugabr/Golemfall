@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8430939980205689236}
   - component: {fileID: 8396731531636588629}
   - component: {fileID: 7623676200394295704}
-  m_Layer: 8
+  m_Layer: 3
   m_Name: MainSwish (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4902,7 +4902,7 @@ GameObject:
   - component: {fileID: 4779046194314912825}
   - component: {fileID: 7498318519028231476}
   - component: {fileID: 5603824243899621016}
-  m_Layer: 8
+  m_Layer: 3
   m_Name: MainSwish
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9793,7 +9793,7 @@ GameObject:
   - component: {fileID: 5598351832007738610}
   - component: {fileID: 2133576866095785978}
   - component: {fileID: 4858710879477615174}
-  m_Layer: 8
+  m_Layer: 3
   m_Name: MainSwish (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14684,7 +14684,7 @@ GameObject:
   - component: {fileID: 3388273728881818541}
   - component: {fileID: 8562697261005185254}
   - component: {fileID: 3630642728424055585}
-  m_Layer: 8
+  m_Layer: 3
   m_Name: TrailDebrie
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19575,7 +19575,7 @@ GameObject:
   - component: {fileID: 514808430917310930}
   - component: {fileID: 4542238221845251552}
   - component: {fileID: 8246619253324012113}
-  m_Layer: 8
+  m_Layer: 3
   m_Name: MainSwish (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24470,7 +24470,9 @@ GameObject:
   - component: {fileID: 2949625105750849721}
   - component: {fileID: 1315740864419233331}
   - component: {fileID: -3904395779510015691}
-  m_Layer: 8
+  - component: {fileID: 1675199986379086463}
+  - component: {fileID: 1009992665799927410}
+  m_Layer: 3
   m_Name: OWL_SkillPrefab_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29369,10 +29371,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a384b9411169c6b4fb6da1d659f5ae4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageAmount: 25
-  lifetime: 3
-  speedModifier: 0
-  HitImpact: {fileID: 0}
 --- !u!54 &2949625105750849721
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -29392,7 +29390,7 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
@@ -29413,7 +29411,7 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
@@ -29428,12 +29426,49 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4695642118095032319}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 17d2954b7dba4de4fbbd6077b9120f43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   lifetime: 1
+--- !u!114 &1675199986379086463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4695642118095032319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 1443897737
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 1687598120294861974}
+  - {fileID: 1009992665799927410}
+  ForceRemoteRenderTimeframe: 0
+--- !u!114 &1009992665799927410
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4695642118095032319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _stateAuthorityChangeErrorCorrectionDelta: 0
+  SyncScale: 0
+  SyncParent: 0
+  _autoAOIOverride: 1
+  DisableSharedModeInterpolation: 0
 --- !u!1 &8261423859712002259
 GameObject:
   m_ObjectHideFlags: 0
@@ -29445,7 +29480,7 @@ GameObject:
   - component: {fileID: 5600905291802869590}
   - component: {fileID: 7146435896855291315}
   - component: {fileID: 3189091347315678782}
-  m_Layer: 8
+  m_Layer: 3
   m_Name: MainSwish (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34337,7 +34372,7 @@ GameObject:
   - component: {fileID: 5811865228768358592}
   - component: {fileID: 5263580111205034032}
   - component: {fileID: 7771750563402191386}
-  m_Layer: 8
+  m_Layer: 3
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}

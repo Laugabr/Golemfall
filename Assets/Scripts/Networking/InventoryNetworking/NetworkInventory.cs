@@ -58,22 +58,28 @@ public class NetworkInventory : NetworkBehaviour
 
     #region EQUIP
 
-       [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_RequestEquip(short itemKey)
     {
         if (!Object.HasStateAuthority) return;
 
-        // 1. Validar si tiene el item
+        // See if has item
         if (!Items.Any(s => s.itemKey == itemKey)) return;
 
-        // 2. Equipar
+        // Equip it
         if (!EquippedItems.Contains(itemKey))
         {
+            Debug.Log($"[SERVER] Item equipped: {itemKey}");
+
             EquippedItems.Add(itemKey);
             
-            // 3. Notificar a las stats
+            // Refresh stats
             GetComponent<PlayerStats>().RefreshStats(); 
             IsDirty = true;
+        }
+        else
+        {
+            Debug.Log($"[SERVER] Item already equipped: {itemKey}");
         }
     }
 
@@ -84,12 +90,21 @@ public class NetworkInventory : NetworkBehaviour
 
         if (EquippedItems.Remove(itemKey))
         {
+            Debug.Log($"[SERVER] Item unequipped: {itemKey}");
+
             GetComponent<PlayerStats>().RefreshStats();
             IsDirty = true;
+        }
+        else
+        {
+            Debug.Log($"[SERVER] Item not equipped: {itemKey}");
         }
     }
 
     #endregion
+
+
+
 }
 
 // Static event manager for inventory actions
@@ -106,6 +121,7 @@ public struct InventorySlot : INetworkStruct
 {
     public short itemKey;
 
+    //Gets ItemData using the itemKey, using ResourceManager's inventoryItemBank
     public readonly ItemData GetItem() => ItemData.GetItem(itemKey);
 
     public ItemData GetData()
@@ -118,12 +134,11 @@ public struct InventorySlot : INetworkStruct
     
     
     // Parameter: either the item data or the item id 
-
     public static InventorySlot Create(ItemData item = null, short id = -1)
     {
         short finalKey = id;
 
-        // Si pasamos el objeto, usamos el banco para obtener su ID
+        // if parameter is ItemData, get key using GetKey()
         if (item != null && ResourcesManager.instance != null)
         {
             finalKey = ResourcesManager.instance.inventoryItemBank.GetKey(item);
@@ -131,7 +146,6 @@ public struct InventorySlot : INetworkStruct
 
         return new InventorySlot { itemKey = finalKey };
     }
-
 
     public readonly bool IsItem(ItemData item)
     {
