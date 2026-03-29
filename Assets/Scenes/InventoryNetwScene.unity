@@ -403,10 +403,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 188790302}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f51405f8008e9254ea08c23b9ab838cb, type: 3}
+  m_Script: {fileID: 11500000, guid: 6977421616886314db8b3bc979e67c5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dragLayer: {fileID: 1886098106}
+  inventoryItemBank: {fileID: 11400000, guid: 2f5db876484be424cbd2b0ae8c3c1ee2, type: 2}
 --- !u!224 &228360507 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4050841605440887594, guid: a771f48fbc7574542b69ef234373e7ba, type: 3}
@@ -1261,7 +1261,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02a90896706a117408fbf6fe4a9ae612, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventoryPanel: {fileID: 763347488}
+  inventoryPanel: {fileID: 0}
 --- !u!43 &864714821
 Mesh:
   m_ObjectHideFlags: 0
@@ -3036,6 +3036,7 @@ GameObject:
   - component: {fileID: 1473634455}
   - component: {fileID: 1473634459}
   - component: {fileID: 1473634460}
+  - component: {fileID: 1473634461}
   m_Layer: 0
   m_Name: NetworkController
   m_TagString: Untagged
@@ -3184,6 +3185,18 @@ MonoBehaviour:
   OnObjectExitAOI:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1473634461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1473634454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8edbe7108d8a43ab838cf8b8d9453df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!43 &1509146530
 Mesh:
   m_ObjectHideFlags: 0

@@ -5,21 +5,21 @@ using UnityEngine;
 using UnityEngine.InputSystem.LowLevel;
 
 /* 
-  CharacterMovement
+  CharacterControleler
  
   Handles all player-controlled movement: walking, jumping, and dashing.
   Integrates with Fusion's network input system and SimpleKCC for physics-based movement.
   Disables the camera for non-authoritative clients.
  */
 
-public class CharacterMovement : NetworkBehaviour
+public class CharacterControleler : NetworkBehaviour
 {
     [Header ("Camera Controller")]
     [SerializeField] private Transform cameraTransform;
 
     [Header("Movement")]
     [SerializeField] private SimpleKCC kcc; //kcc: kinematic character controller
-    [SerializeField] private float speed = 5f;
+    [SerializeField] private float speed = 20f;
     [SerializeField] private float jumpPower = 10f;
     [Networked] private NetworkButtons PreviousButtons { get; set; } // Tracks previous input state for button checks
     [SerializeField] private LayerMask groundLayer;
@@ -104,6 +104,9 @@ public class CharacterMovement : NetworkBehaviour
             HandleDashMovement();
             return; // If dashing, override normal movement
         }
+
+        //if(input.Buttons.WasPressed())
+
     }
     
     private void HandleDashMovement()

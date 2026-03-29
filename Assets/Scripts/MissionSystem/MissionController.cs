@@ -20,7 +20,7 @@ public class MissionController : NetworkBehaviour
     private bool missionsPaused = false;
     private MissionData pausingMission;
 
-    private const string MISSION_PATH = "Missions/";
+    private const string MISSION_PATH = "DataSO/Missions/";
     private bool isTrackingEvents = false;
 
     #region Networking
@@ -47,15 +47,13 @@ public class MissionController : NetworkBehaviour
         }
 
         StartNewMission(missionData);
+        RPC_AllClientsStartMission(missionId);
 
-        // Start listening to gameplay events only once
         if (!isTrackingEvents)
         {
             TrackEvents.OnTrackEvent += ServerTrackStep;
             isTrackingEvents = true;
         }
-
-        RPC_ClientStartMission(missionId);
     }
 
     #endregion
@@ -68,47 +66,116 @@ public class MissionController : NetworkBehaviour
         Debug.LogError(error);
     }
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
-    private void RPC_ClientStartMission(string missionId, RpcInfo info = default)
+    // Llega a TODOS los clientes (no solo al dueño)
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_AllClientsStartMission(string missionId, RpcInfo info = default)
     {
-        if (!Object.HasInputAuthority) return;
+        // El servidor ya la inició arriba, no la repite
+        if (Object.HasStateAuthority) return;
 
         var missionData = Resources.Load<MissionData>($"{MISSION_PATH}{missionId}");
-
         if (missionData == null)
         {
-            Debug.LogError($"Mission {missionId} not found");
+            Debug.LogError($"Mission {missionId} not found on client");
             return;
         }
 
         StartNewMission(missionData);
     }
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
-    private void RPC_ClientUpdateProgress(GameEventType id, int progress, RpcInfo info = default)
+    // El servidor avisa a TODOS que hubo progreso
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_AllClientsUpdateProgress(GameEventType id, int progress, RpcInfo info = default)
     {
-        if (!Object.HasInputAuthority) return;
+        // El servidor ya procesó la lógica en TrackStep, solo actualiza UI
+        if (Object.HasStateAuthority) return;
 
         ClientTrackStep(id, progress);
     }
 
+    // Cualquier cliente puede mandar un evento de juego al servidor
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_ServerReceiveEvent(GameEventType stepId, int progress, RpcInfo info = default)
+    {
+        if (!Object.HasStateAuthority) return;
+
+        var status = TrackStep(stepId, progress);
+
+        if (status != MissionStatus.kNone)
+        {
+            RPC_AllClientsUpdateProgress(stepId, progress);
+        }
+    }
+
+    // El cliente recién unido pide sincronizarse con el estado actual
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_RequestSync(RpcInfo info = default)
+    {
+        if (!Object.HasStateAuthority) return;
+
+        // Mandar todas las misiones activas al cliente que pidió sync
+
+        foreach (var mission in _currentMissions)
+        {
+            RPC_AllClientsStartMission(mission.missionId);
+
+            // Mandar el progreso de cada step
+            for (int i = 0; i < mission.missionSteps.Count; i++)
+            {
+                var step = mission.missionSteps[i];
+                if (step.currentAmount > 0)
+                {
+                    RPC_SyncMissionProgress(mission.missionId, i, step.currentAmount);
+                }
+            }
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_SyncMissionProgress(string missionId, int stepIndex, int currentAmount, RpcInfo info = default)
+    {
+        if (Object.HasStateAuthority) return;
+
+        var mission = _currentMissions.FirstOrDefault(m => m.missionId == missionId);
+        if (mission == null) return;
+        if (stepIndex < 0 || stepIndex >= mission.missionSteps.Count) return;
+
+        mission.missionSteps[stepIndex].currentAmount = currentAmount;
+        mission.missionSteps[stepIndex].isComplete = currentAmount >= mission.missionSteps[stepIndex].amount;
+
+        MissionEvents.OnMissionProgress?.Invoke(mission);
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_AllClientsRemoveMission(string missionId, RpcInfo info = default)
+    {
+        if (Object.HasStateAuthority) return;
+
+        var mission = _currentMissions.FirstOrDefault(m => m.missionId == missionId);
+        if (mission == null) return;
+
+        _currentMissions.Remove(mission);
+        Destroy(mission);
+        MissionEvents.OnMissionListChanged?.Invoke();
+    }
     #endregion
 
     #endregion
 
-    private void Start()
+    public override void Spawned()
     {
         if (!Object.HasStateAuthority) return;
 
         if (playgroundMission != null)
         {
             StartNewMission(playgroundMission);
+            RPC_AllClientsStartMission(playgroundMission.missionId);
+        }
 
-            if (!isTrackingEvents)
-            {
-                TrackEvents.OnTrackEvent += ServerTrackStep;
-                isTrackingEvents = true;
-            }
+        if (!isTrackingEvents)
+        {
+            TrackEvents.OnTrackEvent += ServerTrackStep;
+            isTrackingEvents = true;
         }
     }
 
@@ -146,10 +213,9 @@ public class MissionController : NetworkBehaviour
 
         var status = TrackStep(stepId, progress);
 
-        // Only notify clients if something actually changed
         if (status != MissionStatus.kNone)
         {
-            RPC_ClientUpdateProgress(stepId, progress);
+            RPC_AllClientsUpdateProgress(stepId, progress);
         }
     }
 
@@ -169,7 +235,10 @@ public class MissionController : NetworkBehaviour
                 bool alreadyRunning = _currentMissions.Any(m => m.missionId == mission.missionId);
 
                 if (!alreadyRunning)
+                {
                     StartNewMission(mission);
+                    RPC_AllClientsStartMission(mission.missionId);
+                }
             }
         }
 
@@ -200,16 +269,15 @@ public class MissionController : NetworkBehaviour
                     break;
 
                 case MissionStatus.kHasProgress:
-
                     MissionEvents.OnMissionProgress?.Invoke(mission);
                     globalStatus = MissionStatus.kHasProgress;
                     break;
 
                 case MissionStatus.kComplete:
-
                     Debug.Log($"Mission Completed: {mission.missionId}");
                     MissionEvents.OnMissionComplete?.Invoke(mission);
                     globalStatus = MissionStatus.kComplete;
+                    RPC_AllClientsRemoveMission(mission.missionId);
 
                     if (mission == pausingMission)
                     {
@@ -225,10 +293,10 @@ public class MissionController : NetworkBehaviour
                     break;
 
                 case MissionStatus.kFailed:
-
                     Debug.Log($"Mission Failed: {mission.missionId}");
                     MissionEvents.OnMissionFailed?.Invoke(mission);
                     globalStatus = MissionStatus.kFailed;
+                    RPC_AllClientsRemoveMission(mission.missionId);
 
                     if (mission == pausingMission)
                     {
@@ -255,6 +323,7 @@ public class MissionController : NetworkBehaviour
         foreach (var next in missionsToStart)
         {
             StartNewMission(next);
+            RPC_AllClientsStartMission(next.missionId);
         }
 
         return globalStatus;
@@ -267,9 +336,19 @@ public class MissionController : NetworkBehaviour
         {
             mission.UpdateProgress(stepId, progress, out var status);
 
-            if (status == MissionStatus.kHasProgress)
+            switch (status)
             {
-                MissionEvents.OnMissionProgress?.Invoke(mission);
+                case MissionStatus.kHasProgress:
+                    MissionEvents.OnMissionProgress?.Invoke(mission);
+                    break;
+
+                case MissionStatus.kComplete:
+                    MissionEvents.OnMissionComplete?.Invoke(mission);
+                    break;
+
+                case MissionStatus.kFailed:
+                    MissionEvents.OnMissionFailed?.Invoke(mission);
+                    break;
             }
         }
     }

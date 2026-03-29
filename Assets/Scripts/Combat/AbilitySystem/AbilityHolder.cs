@@ -1,61 +1,85 @@
+using Fusion;
 using UnityEngine;
 
-public class AbilityHolder : MonoBehaviour
+public class AbilityHolder : NetworkBehaviour
 {
-    public Ability ability;
-    private float cooldownTime;
-    private float activeTime;
+    [SerializeField] private Ability[] abilities;
 
-    AbilityState state = AbilityState.Ready;
+    [Networked, Capacity(4)]
+    private NetworkArray<float> cooldowns => default;
 
-    public KeyCode key;
+    [Networked, Capacity(4)]
+    private NetworkArray<float> activeTimers => default;
 
-    void Update()
+    [Networked, Capacity(4)]
+    private NetworkArray<AbilityState> states => default;
+
+    public override void FixedUpdateNetwork()
     {
-        switch (state)
+        if (!Object.HasStateAuthority) return;
+
+        for (int i = 0; i < abilities.Length; i++)
         {
-            case AbilityState.Ready:
-                if (Input.GetKey(key))
-                {
-                    if (ability == null)
+            switch (states[i])
+            {
+                case AbilityState.Active:
+
+                    float active = activeTimers[i];
+                    active -= Runner.DeltaTime;
+                    activeTimers.Set(i, active);
+
+                    if (active <= 0)
                     {
-                        Debug.LogError("No ability assigned to " + gameObject.name);
-                        return;
+                        states.Set(i, AbilityState.Cooldown);
+                        cooldowns.Set(i, abilities[i].cooldownTime);
                     }
+                    break;
 
-                    ability.Activate(gameObject);
-                    state = AbilityState.Active;
-                    activeTime = ability.activeTime;
+                case AbilityState.Cooldown:
 
-                    Debug.Log("ability cooldown is " + cooldownTime);
+                    float cd = cooldowns[i];  //Read the array
+                    cd -= Runner.DeltaTime;   //Modify the value
+                    cooldowns.Set(i, cd);     // Set it again
 
-                }
-                break;
-            case AbilityState.Active:
-                if (activeTime > 0)
-                {
-                    activeTime -= Time.deltaTime;
-                } 
-                else
-                {
-                    state = AbilityState.Cooldown;
-                    cooldownTime = ability.cooldownTime;
-                }       
-                break;
-            case AbilityState.Cooldown:
-                if (cooldownTime >= 0)
-                {
-                    cooldownTime -= Time.deltaTime;
-                }
-                else
-                {
-                    state = AbilityState.Ready;
-                }
-                break;
+                    if (cd <= 0)
+                        states.Set(i, AbilityState.Ready);
+                    break;
+            }
+        }
+    }
+    
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RPC_RequestUseAbility(int index, Vector3 direction, RpcInfo info = default)
+    {
+        if (!Object.HasStateAuthority) return;
+
+        if (index < 0 || index >= abilities.Length) return;
+
+        if (states.Get(index) != AbilityState.Ready)
+        {
+            Debug.Log($"[SERVER] Skill {index} en cooldown");
+            return;
         }
 
-    }
+        var ability = abilities[index];
 
+        if (ability == null)
+        {
+            Debug.LogError("Ability null");
+            return;
+        }
+
+        Debug.Log($"[SERVER] Player {info.Source} usa skill {index}");
+
+        if (ability is ProjectileAbility proj)
+        {
+            ProjectileRuntime.Execute(proj, Runner, gameObject, direction);
+        }
+
+        states.Set(index, AbilityState.Active);
+        activeTimers.Set(index, ability.activeTime);
+    }
+    
 }
 enum AbilityState
 {

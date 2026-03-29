@@ -126,6 +126,7 @@ GameObject:
   - component: {fileID: -461821717541361334}
   - component: {fileID: -6818287743790417716}
   - component: {fileID: 1370004718390460943}
+  - component: {fileID: 502509860146224339}
   m_Layer: 0
   m_Name: NetworkingPlayer
   m_TagString: Player
@@ -201,6 +202,7 @@ MonoBehaviour:
   - {fileID: -461821717541361334}
   - {fileID: -6818287743790417716}
   - {fileID: 1370004718390460943}
+  - {fileID: 502509860146224339}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &5967205879656611319
 MonoBehaviour:
@@ -236,7 +238,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _IsDirty:
     _value: 0
+  _Items: []
   _EquippedItems: 
+  LocalItems: []
 --- !u!114 &2268338038263311533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -357,7 +361,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: feef8b97966f735408db96c67b04040b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupDistance: 3
+  pickupRadius: 2.5
+--- !u!114 &502509860146224339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2483715990737686896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f529c782cbf75e4eb45bd8b28ae1942, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2891395344421157551
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,73 +1,41 @@
+using Fusion;
 using UnityEngine;
 
 public static class ProjectileRuntime
 {
-    public static void Execute(ProjectileAbility data, GameObject caster, LayerMask groundMask)
+    public static void Execute(
+        ProjectileAbility data,
+        NetworkRunner runner,
+        GameObject caster,
+        Vector3 direction)
     {
-        // 1) RAY DEL MOUSE
-        Plane plane = new Plane(Vector3.up, caster.transform.position);
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Debug.Log("EXECUTE PROJECTILE");
 
-        Vector3 targetPoint;
+        Vector3 spawnPos = caster.transform.position + Vector3.up * 1f;
+        Quaternion rot = Quaternion.LookRotation(direction);
 
-        if (plane.Raycast(ray, out float distance))
-        {
-            targetPoint = ray.GetPoint(distance);
-        }
-        else
-        {
-            // fallback raro pero seguro
-            targetPoint = caster.transform.position + caster.transform.forward * 5f;
-        }
-
-        // 4) POSICIÓN DE DISPARO (levantar un poco del piso)
-        Vector3 positionShooting = caster.transform.position + Vector3.up * 1f;
-
-        // 5) DIRECCIÓN
-        Vector3 direction = targetPoint - positionShooting;
-
-        // si querés top-down puro → ignorar altura
-        direction.y = 0f;
-        direction.Normalize();
-
-        // 6) ROTACIÓN CORRECTA DEL PROYECTIL
-        Quaternion rotation = Quaternion.LookRotation(direction);
-
-        // 7) INSTANCIAR PROYECTIL
-        GameObject obj = Object.Instantiate(
+        runner.Spawn(
             data.projectilePrefab,
-            positionShooting,
-            rotation
+            spawnPos,
+            rot,
+            inputAuthority: null,
+            (runner, obj) =>
+            {
+                var proj = obj.GetComponent<Projectile>();
+
+                var stats = caster.GetComponent<CharacterStats>();
+                float damage = stats.GetStat(Stat.damage) * data.damageMultiplier;
+
+                proj.Initialize(
+                    caster,
+                    Mathf.FloorToInt(damage),
+                    data.projectileSpeed,
+                    direction
+                );
+            }
         );
 
-        // 8) OBTENER STATS
-        CharacterStats stats = caster.GetComponent<CharacterStats>();
-        if (stats == null)
-        {
-            Debug.LogError("No CharacterStats on " + caster.name);
-            return;
-        }
-
-        // 9) INICIALIZAR EL PROYECTIL
-        Projectile projectile = obj.GetComponent<Projectile>();
-        if (projectile != null)
-        {
-            float finalDamage = stats.GetStat(Stat.damage) * data.damageMultiplier;
-
-            projectile.Initialize(
-                caster,
-                Mathf.FloorToInt(finalDamage),
-                data.projectileSpeed,
-                direction
-            );
-
-            Debug.Log("Caster is " + caster.name);
-
-
-        }
-        else
-        {
-            Debug.LogError("Projectile component missing on " + obj.name);
-        }
+        Debug.Log("[SERVER] Projectile spawned");
     }
 }
+
