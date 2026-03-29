@@ -61,10 +61,29 @@ public class AuthManager : MonoBehaviour
             statusText.text = "Error: " + e.Message;
         }
     }
-    
+
     public void OnLogoutButton()
     {
         AuthenticationService.Instance.SignOut();
         statusText.text = "Sesión cerrada.";
+    }
+
+    private bool passwordVisible = false;
+
+    public void OnTogglePasswordButton()
+    {
+        passwordVisible = !passwordVisible;
+
+        if (passwordVisible)
+        {
+            passwordInput.contentType = TMP_InputField.ContentType.Standard;
+            passwordInput.textComponent.text = passwordInput.text;
+        }
+        else
+        {
+            passwordInput.contentType = TMP_InputField.ContentType.Password;
+        }
+
+        passwordInput.ForceLabelUpdate();
     }
 }
