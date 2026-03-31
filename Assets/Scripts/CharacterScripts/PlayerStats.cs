@@ -37,7 +37,7 @@ public class PlayerStats : CharacterStats
     {
         if (!Object.HasStateAuthority) return;
 
-        baseLevelStats = baseStats.statInfo.Select(s => new StatInfo(s.statType, s.statValue)).ToList();
+        //baseLevelStats = baseStats.statInfo.Select(s => new StatInfo(s.statType, s.statValue)).ToList();// sobreescribe desde cero
 
         Debug.Log("[SERVER] Refreshing stats...");
         Debug.Log(localStats.FirstOrDefault(s => s.statType == Stat.speed));
