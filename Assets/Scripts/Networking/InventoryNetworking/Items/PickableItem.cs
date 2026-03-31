@@ -46,6 +46,4 @@ public class PickableItem : NetworkBehaviour
         if (runner == null)
             Debug.LogError(" No se encontró un NetworkRunner en la escena.");
     }
-    
-
 }
