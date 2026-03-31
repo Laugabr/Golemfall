@@ -10,12 +10,12 @@ public class PlayerStats : CharacterStats
     [Networked] public NetworkBool DirtyStats { get; set; }
     public UnityEvent OnStatsChanged;
     public List<Stats> levelsData = new();
-    
+
     // Lista para guardar los puntos ganados por subir de nivel
     private List<StatInfo> baseLevelStats = new();
 
     private void OnEnable() => BasicEventsManager.OnLevelUp += HandleLevelUp;
-    
+
     private void OnDisable() => BasicEventsManager.OnLevelUp -= HandleLevelUp;
     private void HandleLevelUp(int levelId)
     {
@@ -43,12 +43,12 @@ public class PlayerStats : CharacterStats
         Debug.Log(localStats.FirstOrDefault(s => s.statType == Stat.speed));
 
         localStats.Clear();
-        foreach (var bs in baseLevelStats) 
+        foreach (var bs in baseLevelStats)
         {
-             var existing = localStats.FirstOrDefault(s => s.statType == bs.statType);
-             if (existing != null) existing.statValue += bs.statValue;
-             else
-            localStats.Add(new StatInfo(bs.statType, bs.statValue));
+            var existing = localStats.FirstOrDefault(s => s.statType == bs.statType);
+            if (existing != null) existing.statValue += bs.statValue;
+            else
+                localStats.Add(new StatInfo(bs.statType, bs.statValue));
         }
 
         Debug.Log(localStats.FirstOrDefault(s => s.statType == Stat.speed));
@@ -75,7 +75,7 @@ public class PlayerStats : CharacterStats
         foreach (var mod in modifier.statInfo)
         {
             var stat = localStats.FirstOrDefault(s => s.statType == mod.statType);
-            if (stat != null) stat.statValue += mod.statValue; 
+            if (stat != null) stat.statValue += mod.statValue;
             else localStats.Add(new StatInfo(mod.statType, mod.statValue));
         }
     }
@@ -91,15 +91,22 @@ public class PlayerStats : CharacterStats
         }
     }
 
+    public override void Spawned()
+    {
+        if (Object.HasStateAuthority)
+            Initialize();
+    }
+
     // --- Helpers de Debug ---
     public void DebugStats(string origin)
-    { 
+    {
         string s = $"[{origin}] Stats Actuales: ";
         foreach (var stat in localStats) s += $"{stat.statType}:{stat.statValue} | ";
         Debug.Log(s);
     }
 
-    void Update() {
+    void Update()
+    {
         if (Input.GetKeyDown(KeyCode.P)) DebugStats(Object.HasStateAuthority ? "SERVER" : "CLIENT");
     }
 }

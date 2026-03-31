@@ -2,27 +2,18 @@ using Fusion;
 using Fusion.Addons.SimpleKCC;
 using Unity.Cinemachine;
 using UnityEngine;
-using UnityEngine.InputSystem.LowLevel;
-
-/* 
-  CharacterControleler
- 
-  Handles all player-controlled movement: walking, jumping, and dashing.
-  Integrates with Fusion's network input system and SimpleKCC for physics-based movement.
-  Disables the camera for non-authoritative clients.
- */
 
 public class NetCharacterController : NetworkBehaviour
 {
-    [Header("Camera Controller")]
+    [Header("Camera")]
     [SerializeField] private Transform cameraTransform;
 
+    [Header("Visuals")]
+    [SerializeField] private Transform bodyVisuals;
+
     [Header("Movement")]
-    [SerializeField] private SimpleKCC kcc; //kcc: kinematic character controller
-    [SerializeField] private float speed = 5f;
+    [SerializeField] private SimpleKCC kcc;
     [SerializeField] private float jumpPower = 10f;
-    [Networked] private NetworkButtons PreviousButtons { get; set; } // Tracks previous input state for button checks
-    [SerializeField] private LayerMask groundLayer;
     [SerializeField] private CharacterStats charStats;
 
     [Header("Inventory")]
@@ -31,15 +22,16 @@ public class NetCharacterController : NetworkBehaviour
     [Header("Abilities")]
     [SerializeField] private AbilityHolder charAbilities;
 
-
     [Header("Dash")]
-    private bool isDashing = false; // Dash state flag
-    private float dashTimer = 0f; // Remaining dash time
-    private float dashCooldownTimer = 0f; // Cooldown before dash can be used again
-    private Vector3 dashDirection; // Direction of the current dash
-    [SerializeField] private float dashSpeed = 15f;
+    [SerializeField] private float dashSpeed = 20f;
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1f;
+
+    private NetworkButtons previousButtons;
+    private bool isDashing;
+    private float dashTimer;
+    private float dashCooldownTimer;
+    private Vector3 dashDirection;
 
     private void Awake()
     {
@@ -48,142 +40,93 @@ public class NetCharacterController : NetworkBehaviour
         charAbilities = GetComponent<AbilityHolder>();
     }
 
-
     public override void Spawned()
     {
-        // Apply stronger gravity for snappier movement
+        kcc.SetGravity(Physics.gravity.y * 3f);
+        if (!HasInputAuthority)
+            DestroyCameraMachine();
+    }
 
-        if (!GetComponent<CharacterPickUp>())
+    public override void FixedUpdateNetwork()
+    {
+        if (!GetInput(out NetInputPlayer input)) return;
+        if (charStats == null || charStats.localStats.Count == 0) return;
+
+        // cooldown
+        if (dashCooldownTimer > 0f)
+            dashCooldownTimer -= Runner.DeltaTime;
+
+        // dash start
+        if (input.Buttons.WasPressed(previousButtons, InputButton.Dash)
+            && dashCooldownTimer <= 0f
+            && input.Direction.magnitude > 0.1f)
         {
-            Debug.LogError("Character Pick Up module not found in player");
+            isDashing = true;
+            dashTimer = dashDuration;
+            dashCooldownTimer = dashCooldown;
+            dashDirection = (kcc.TransformRotation * new Vector3(
+                input.Direction.x, 0f, input.Direction.y)).normalized;
+        }
+
+        // jump
+        float jump = 0f;
+        if (input.Buttons.WasPressed(previousButtons, InputButton.Jump) && kcc.IsGrounded)
+            jump = jumpPower;
+
+        // abilities / interact
+        if (input.Buttons.WasPressed(previousButtons, InputButton.BasicAttack))
+            charAbilities?.RPC_RequestUseAbility(0, GetMouseDirection());
+
+        if (input.Buttons.WasPressed(previousButtons, InputButton.FirstSkill) && HasInputAuthority)
+            charAbilities?.RPC_RequestUseAbility(1, GetMouseDirection());
+
+        if (input.Buttons.WasPressed(previousButtons, InputButton.SecondarySkill) && HasInputAuthority)
+            charAbilities?.RPC_RequestUseAbility(2, GetMouseDirection());
+
+        if (input.Buttons.WasPressed(previousButtons, InputButton.Interact) && HasInputAuthority)
+            charPickUp?.TryPickUp();
+
+        // movement
+        if (isDashing)
+        {
+            kcc.Move(dashDirection * dashSpeed);
+            dashTimer -= Runner.DeltaTime;
+            if (dashTimer <= 0f) isDashing = false;
         }
         else
         {
-            charPickUp = GetComponent<CharacterPickUp>();
+            Vector3 worldDir = kcc.TransformRotation
+                * new Vector3(input.Direction.x, 0f, input.Direction.y);
+
+            kcc.Move(worldDir.normalized * charStats.GetStat(Stat.speed), jump);
+
+            if (worldDir.sqrMagnitude > 0.01f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(worldDir);
+                bodyVisuals.rotation = Quaternion.Slerp(bodyVisuals.rotation, targetRotation, 15f * Runner.DeltaTime);
+            }
         }
 
-        kcc.SetGravity(Physics.gravity.y * 2f);
-
-        // Only the owning player keeps the camera; remote clients don't
-
-        if (HasInputAuthority) return;
-
-        DestroyCameraMachine();
-    }
-
-    public override void FixedUpdateNetwork() //executing logic that affects gameplay
-    {
-        if (!GetInput(out NetInputPlayer input)) //gets the input of each client 
-            return;
-
-        Vector3 worldDirection = kcc.TransformRotation * new Vector3(input.Direction.x, 0f, input.Direction.y); //take the kcc transform rotation and we multiply it by the direction of the input
-        float jump = 0f;
-
-        if (input.Buttons.WasPressed(PreviousButtons, InputButton.Jump) && kcc.IsGrounded) //check if player pressed jump button and is grounded
-        {
-            jump = jumpPower;
-        }
-
-        if (input.Buttons.WasPressed(PreviousButtons, InputButton.Dash) && dashCooldownTimer <= 0f && input.Direction.magnitude > 0.1f)
-        {
-            Debug.Log($"Dash! cooldown:{dashCooldownTimer} dir:{input.Direction}");
-            StartDash(input.Direction);
-        }
-        else if (input.Buttons.WasPressed(PreviousButtons, InputButton.Dash))
-        {
-            Debug.Log($"Dash bloqueado — cooldown:{dashCooldownTimer} dir magnitude:{input.Direction.magnitude}");
-        }
-
-
-        if (input.Buttons.WasPressed(PreviousButtons, InputButton.BasicAttack))
-        {
-            Debug.Log(Object + " Calls Basic Attack");
-            Vector3 dir = GetMouseDirection();
-            charAbilities.RPC_RequestUseAbility(0, dir);
-        }
-
-        if (input.Buttons.WasPressed(PreviousButtons, InputButton.FirstSkill))
-        {
-            if (!Object.HasInputAuthority) return;
-
-            Debug.Log(Object + " Calls First Skill");
-            Vector3 dir = GetMouseDirection();
-
-            charAbilities.RPC_RequestUseAbility(1, dir);
-
-        }
-
-        if (input.Buttons.WasPressed(PreviousButtons, InputButton.SecondarySkill))
-        {
-            if (!Object.HasInputAuthority) return;
-
-            Debug.Log(Object + " Calls Secondary Skill");
-            Vector3 dir = GetMouseDirection();
-
-            charAbilities.RPC_RequestUseAbility(2, dir);
-        }
-
-
-        if (input.Buttons.WasPressed(PreviousButtons, InputButton.Interact))
-        {
-            if (!Object.HasInputAuthority) return;
-
-            Debug.Log(Object + " Calls TryPickUp");
-            charPickUp.TryPickUp();
-        }
-
-        kcc.Move(worldDirection.normalized * charStats.GetStat(Stat.speed), jump); //normalizing the wD vector to prevent cheating
-
-        PreviousButtons = input.Buttons;
-
-        if (isDashing)
-        {
-            HandleDashMovement();
-            return; // If dashing, override normal movement
-        }
-
-        if (dashCooldownTimer > 0f)
-            dashCooldownTimer -= Runner.DeltaTime;
-    }
-
-    private void HandleDashMovement()
-    {
-        if (GetInput(out NetInputPlayer input))
-            kcc.Move(input.Direction * dashSpeed * Runner.DeltaTime);
-        dashTimer -= Runner.DeltaTime;
-
-        if (dashTimer <= 0f)
-            isDashing = false;
-    }
-
-    private void StartDash(Vector3 moveDir)
-    {
-        isDashing = true;
-        dashTimer = dashDuration;
-        dashCooldownTimer = dashCooldown;
-        dashDirection = moveDir.normalized; // Store dash direction
+        previousButtons = input.Buttons;
     }
 
     private void DestroyCameraMachine()
     {
-        var cineMachine = GetComponentInChildren<CinemachineCamera>();
-        Destroy(cineMachine.gameObject);
+        var cam = GetComponentInChildren<CinemachineCamera>();
+        if (cam != null) Destroy(cam.gameObject);
     }
+
     private Vector3 GetMouseDirection()
     {
+        if (Camera.main == null) return transform.forward;
         Plane plane = new Plane(Vector3.up, transform.position);
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
         if (plane.Raycast(ray, out float dist))
         {
-            Vector3 target = ray.GetPoint(dist);
-            Vector3 dir = target - transform.position;
+            Vector3 dir = ray.GetPoint(dist) - transform.position;
             dir.y = 0;
             return dir.normalized;
         }
-
         return transform.forward;
     }
-
 }
-
