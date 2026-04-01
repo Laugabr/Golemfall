@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class AuthManager : MonoBehaviour
@@ -11,11 +12,30 @@ public class AuthManager : MonoBehaviour
     [SerializeField] private TMP_Text statusText;
     [SerializeField] private TMP_Text togglePasswordText;
 
+    // >>> NUEVO: referencias a los botones para habilitarlos/deshabilitarlos
+    [SerializeField] private Button registerButton;
+    [SerializeField] private Button loginButton;
+    [SerializeField] private Button anonymousLoginButton;
+
     async void Start()
     {
-        await UnityServices.InitializeAsync();
-        statusText.text = "Listo para iniciar sesión.";
+        // >>> NUEVO: deshabilitar botones mientras inicializa (consejo del profe)
+        registerButton.enabled = false;
+        loginButton.enabled = false;
+        anonymousLoginButton.enabled = false;
+
+        statusText.text = "Inicializando...";
         togglePasswordText.text = "(-)";
+
+        await UnityServices.InitializeAsync();
+
+        // >>> NUEVO: habilitar recién cuando UGS está listo
+        registerButton.enabled = true;
+        loginButton.enabled = true;
+        anonymousLoginButton.enabled = true;
+
+        statusText.text = "Listo para iniciar sesión.";
+        Debug.Log("UnityServices inicializado correctamente."); // >>> NUEVO
     }
 
     public async void OnRegisterButton()
@@ -30,14 +50,17 @@ public class AuthManager : MonoBehaviour
 
             statusText.text = "Registro exitoso! Player ID: "
                               + AuthenticationService.Instance.PlayerId;
+            Debug.Log("Registro exitoso. Player ID: " + AuthenticationService.Instance.PlayerId); // >>> NUEVO
         }
         catch (AuthenticationException e)
         {
             statusText.text = "Error: " + e.Message;
+            Debug.LogException(e); // >>> NUEVO
         }
         catch (RequestFailedException e)
         {
             statusText.text = "Error: " + e.Message;
+            Debug.LogException(e); // >>> NUEVO
         }
     }
 
@@ -53,14 +76,17 @@ public class AuthManager : MonoBehaviour
 
             statusText.text = "Login exitoso! Player ID: "
                               + AuthenticationService.Instance.PlayerId;
+            Debug.Log("Login exitoso. Player ID: " + AuthenticationService.Instance.PlayerId); // >>> NUEVO
         }
         catch (AuthenticationException e)
         {
             statusText.text = "Error: " + e.Message;
+            Debug.LogException(e); // >>> NUEVO
         }
         catch (RequestFailedException e)
         {
             statusText.text = "Error: " + e.Message;
+            Debug.LogException(e); // >>> NUEVO
         }
     }
 
@@ -68,9 +94,9 @@ public class AuthManager : MonoBehaviour
     {
         AuthenticationService.Instance.SignOut();
         statusText.text = "Sesión cerrada.";
-        // Limpia los campos de texto al cerrar sesión
         usernameInput.text = "";
         passwordInput.text = "";
+        Debug.Log("Sesión cerrada."); // >>> NUEVO
     }
 
     private bool passwordVisible = false;
@@ -94,11 +120,8 @@ public class AuthManager : MonoBehaviour
         passwordInput.ForceLabelUpdate();
     }
 
-    // Inicia sesión de forma anónima, sin usuario ni contraseña
-    // El sistema genera un Player ID automáticamente
     public async void OnAnonymousLoginButton()
     {
-        // Si ya hay una sesión activa, avisamos y salimos
         if (AuthenticationService.Instance.IsSignedIn)
         {
             statusText.text = "Ya hay una sesión activa. Hacé Logout primero.";
@@ -110,14 +133,17 @@ public class AuthManager : MonoBehaviour
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
             statusText.text = "Login anónimo exitoso! Player ID: "
                               + AuthenticationService.Instance.PlayerId;
+            Debug.Log("Login anónimo exitoso. Player ID: " + AuthenticationService.Instance.PlayerId); // >>> NUEVO
         }
         catch (AuthenticationException e)
         {
             statusText.text = "Error: " + e.Message;
+            Debug.LogException(e); // >>> NUEVO
         }
         catch (RequestFailedException e)
         {
             statusText.text = "Error: " + e.Message;
+            Debug.LogException(e); // >>> NUEVO
         }
     }
 }
