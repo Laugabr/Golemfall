@@ -4,38 +4,41 @@ using Unity.Services.Core;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class AuthManager : MonoBehaviour
 {
+    [Header("UI References")]
     [SerializeField] private TMP_InputField usernameInput;
     [SerializeField] private TMP_InputField passwordInput;
     [SerializeField] private TMP_Text statusText;
     [SerializeField] private TMP_Text togglePasswordText;
 
-    // >>> NUEVO: referencias a los botones para habilitarlos/deshabilitarlos
+    [Header("Buttons")]
     [SerializeField] private Button registerButton;
     [SerializeField] private Button loginButton;
     [SerializeField] private Button anonymousLoginButton;
 
+    [Header("Config")]
+    [SerializeField] private string sceneToLoad = "Integration";
+
     async void Start()
     {
-        // >>> NUEVO: deshabilitar botones mientras inicializa (consejo del profe)
-        registerButton.enabled = false;
-        loginButton.enabled = false;
-        anonymousLoginButton.enabled = false;
-
+        SetButtonsInteractable(false);
         statusText.text = "Inicializando...";
         togglePasswordText.text = "(-)";
 
-        await UnityServices.InitializeAsync();
-
-        // >>> NUEVO: habilitar recién cuando UGS está listo
-        registerButton.enabled = true;
-        loginButton.enabled = true;
-        anonymousLoginButton.enabled = true;
-
-        statusText.text = "Listo para iniciar sesión.";
-        Debug.Log("UnityServices inicializado correctamente."); // >>> NUEVO
+        try
+        {
+            await UnityServices.InitializeAsync();
+            SetButtonsInteractable(true);
+            statusText.text = "Listo para iniciar sesión.";
+        }
+        catch (System.Exception e)
+        {
+            statusText.text = "Error al inicializar servicios.";
+            Debug.LogException(e);
+        }
     }
 
     public async void OnRegisterButton()
@@ -45,23 +48,14 @@ public class AuthManager : MonoBehaviour
 
         try
         {
-            await AuthenticationService.Instance
-                  .SignUpWithUsernamePasswordAsync(username, password);
+            await AuthenticationService.Instance.SignUpWithUsernamePasswordAsync(username, password);
+            statusText.text = "¡Registro exitoso!";
 
-            statusText.text = "Registro exitoso! Player ID: "
-                              + AuthenticationService.Instance.PlayerId;
-            Debug.Log("Registro exitoso. Player ID: " + AuthenticationService.Instance.PlayerId); // >>> NUEVO
+            // Opcional: loguearlo automáticamente acá o esperar a que pulse Login?
+            EnterGame();
         }
-        catch (AuthenticationException e)
-        {
-            statusText.text = "Error: " + e.Message;
-            Debug.LogException(e); // >>> NUEVO
-        }
-        catch (RequestFailedException e)
-        {
-            statusText.text = "Error: " + e.Message;
-            Debug.LogException(e); // >>> NUEVO
-        }
+        catch (AuthenticationException e) { HandleError(e); }
+        catch (RequestFailedException e) { HandleError(e); }
     }
 
     public async void OnLoginButton()
@@ -71,79 +65,57 @@ public class AuthManager : MonoBehaviour
 
         try
         {
-            await AuthenticationService.Instance
-                  .SignInWithUsernamePasswordAsync(username, password);
-
-            statusText.text = "Login exitoso! Player ID: "
-                              + AuthenticationService.Instance.PlayerId;
-            Debug.Log("Login exitoso. Player ID: " + AuthenticationService.Instance.PlayerId); // >>> NUEVO
+            await AuthenticationService.Instance.SignInWithUsernamePasswordAsync(username, password);
+            EnterGame();
         }
-        catch (AuthenticationException e)
-        {
-            statusText.text = "Error: " + e.Message;
-            Debug.LogException(e); // >>> NUEVO
-        }
-        catch (RequestFailedException e)
-        {
-            statusText.text = "Error: " + e.Message;
-            Debug.LogException(e); // >>> NUEVO
-        }
-    }
-
-    public void OnLogoutButton()
-    {
-        AuthenticationService.Instance.SignOut();
-        statusText.text = "Sesión cerrada.";
-        usernameInput.text = "";
-        passwordInput.text = "";
-        Debug.Log("Sesión cerrada."); // >>> NUEVO
-    }
-
-    private bool passwordVisible = false;
-
-    public void OnTogglePasswordButton()
-    {
-        passwordVisible = !passwordVisible;
-
-        if (passwordVisible)
-        {
-            passwordInput.contentType = TMP_InputField.ContentType.Standard;
-            passwordInput.textComponent.text = passwordInput.text;
-            togglePasswordText.text = "(o)";
-        }
-        else
-        {
-            passwordInput.contentType = TMP_InputField.ContentType.Password;
-            togglePasswordText.text = "(-)";
-        }
-
-        passwordInput.ForceLabelUpdate();
+        catch (AuthenticationException e) { HandleError(e); }
+        catch (RequestFailedException e) { HandleError(e); }
     }
 
     public async void OnAnonymousLoginButton()
     {
         if (AuthenticationService.Instance.IsSignedIn)
         {
-            statusText.text = "Ya hay una sesión activa. Hacé Logout primero.";
+            EnterGame();
             return;
         }
 
         try
         {
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
-            statusText.text = "Login anónimo exitoso! Player ID: "
-                              + AuthenticationService.Instance.PlayerId;
-            Debug.Log("Login anónimo exitoso. Player ID: " + AuthenticationService.Instance.PlayerId); // >>> NUEVO
+            EnterGame();
         }
-        catch (AuthenticationException e)
-        {
-            statusText.text = "Error: " + e.Message;
-            Debug.LogException(e); // >>> NUEVO
-        }
-        catch (RequestFailedException e)
-        {
-            statusText.text = "Error: " + e.Message;
-            Debug.LogException(e); // >>> NUEVO
-        }
+        catch (AuthenticationException e) { HandleError(e); }
+        catch (RequestFailedException e) { HandleError(e); }
+    }
+
+    private void EnterGame()
+    {
+        Debug.Log("Login exitoso. Player ID: " + AuthenticationService.Instance.PlayerId);
+        // Cambia a la escena del juego
+        SceneManager.LoadScene(sceneToLoad);
+    }
+
+    private void HandleError(System.Exception e)
+    {
+        statusText.text = "Error: " + e.Message;
+        Debug.LogException(e);
+    }
+
+    private void SetButtonsInteractable(bool state)
+    {
+        registerButton.interactable = state;
+        loginButton.interactable = state;
+        anonymousLoginButton.interactable = state;
+    }
+
+    // --- Toggle Password Logic ---
+    private bool passwordVisible = false;
+    public void OnTogglePasswordButton()
+    {
+        passwordVisible = !passwordVisible;
+        passwordInput.contentType = passwordVisible ? TMP_InputField.ContentType.Standard : TMP_InputField.ContentType.Password;
+        togglePasswordText.text = passwordVisible ? "(o)" : "(-)";
+        passwordInput.ForceLabelUpdate();
     }
 }
