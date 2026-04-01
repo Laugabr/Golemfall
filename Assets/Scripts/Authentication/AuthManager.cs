@@ -17,10 +17,13 @@ public class AuthManager : MonoBehaviour
     [Header("Buttons")]
     [SerializeField] private Button registerButton;
     [SerializeField] private Button loginButton;
+
     [SerializeField] private Button anonymousLoginButton;
 
     [Header("Config")]
     [SerializeField] private string sceneToLoad = "Integration";
+    [SerializeField] private string sceneToSignIn = "Authentication";
+
 
     async void Start()
     {
@@ -70,6 +73,7 @@ public class AuthManager : MonoBehaviour
         }
         catch (AuthenticationException e) { HandleError(e); }
         catch (RequestFailedException e) { HandleError(e); }
+
     }
 
     public async void OnAnonymousLoginButton()
@@ -91,6 +95,9 @@ public class AuthManager : MonoBehaviour
 
     private void EnterGame()
     {
+        usernameInput.text = "";
+        usernameInput.text = "";
+
         Debug.Log("Login exitoso. Player ID: " + AuthenticationService.Instance.PlayerId);
         // Cambia a la escena del juego
         SceneManager.LoadScene(sceneToLoad);
@@ -111,6 +118,7 @@ public class AuthManager : MonoBehaviour
 
     // --- Toggle Password Logic ---
     private bool passwordVisible = false;
+
     public void OnTogglePasswordButton()
     {
         passwordVisible = !passwordVisible;
@@ -118,4 +126,5 @@ public class AuthManager : MonoBehaviour
         togglePasswordText.text = passwordVisible ? "(o)" : "(-)";
         passwordInput.ForceLabelUpdate();
     }
+
 }
