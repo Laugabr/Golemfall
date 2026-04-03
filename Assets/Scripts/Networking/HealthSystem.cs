@@ -15,13 +15,25 @@ public class HealthSystem : NetworkBehaviour, IDamageable
     public int CurrentHealth { get; set; }
 
 
-    private int localMaxHealth;
+    [SerializeField] private int localCurrentHealth;
+    [SerializeField] private int localMaxHealth;
+
 
     public override void Spawned()
     {
-        localMaxHealth = MaxHealth;
-
+        if(!Object.HasStateAuthority) return;
         stats = GetComponent<CharacterStats>();
+        if(stats == null)
+        {
+            Debug.LogError($"HealthSystem requires CharacterStats on {gameObject.name}");
+        }
+        else
+        {
+            MaxHealth = stats.GetStat(Stat.maxHealth);
+            CurrentHealth = MaxHealth;
+            localMaxHealth = MaxHealth;
+        }
+
     }
 
     public virtual void MaxHealthChanged()
@@ -30,18 +42,21 @@ public class HealthSystem : NetworkBehaviour, IDamageable
     }
     public virtual void CurrentHealthChanged()
     {
-        
+        localCurrentHealth = CurrentHealth;
+
     }
 
 
     private void OnMaxHealthChanged()
     {
-        localMaxHealth = MaxHealth;
+        localCurrentHealth = MaxHealth;
         MaxHealthChanged();
     }
 
     private void OnCurrentHealthChanged()
     {
+        localCurrentHealth = CurrentHealth;
+
         CurrentHealthChanged();
     }
     public virtual void TakeDamage(int amount, GameObject source)
@@ -63,6 +78,15 @@ public class HealthSystem : NetworkBehaviour, IDamageable
             CurrentHealth = 0;
             Die();
         }
+    }
+
+    private void Heal(int amount)
+    {
+        if (!Object.HasStateAuthority) return;
+    
+        CurrentHealth += amount;
+        if (CurrentHealth > MaxHealth)
+            CurrentHealth = MaxHealth;
     }
 
     public virtual int GetArmor() //Tries to get armor, but if not player stats, returns 0

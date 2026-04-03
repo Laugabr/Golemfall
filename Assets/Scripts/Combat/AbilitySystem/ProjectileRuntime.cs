@@ -26,12 +26,15 @@ public static class ProjectileRuntime
                 var stats = caster.GetComponent<CharacterStats>();
                 float damage = stats.GetStat(Stat.damage) * data.damageMultiplier;
 
+                var casterNet = caster.GetComponent<NetworkObject>();
+
                 proj.Initialize(
-                    caster,
+                    casterNet,
                     Mathf.FloorToInt(damage),
                     data.projectileSpeed,
                     direction,
-                    activeTime: data.activeTime
+                    data.activeTime,
+                    data.destroyOnHit
                 );
             }
         );

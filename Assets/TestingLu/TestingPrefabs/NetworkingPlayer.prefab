@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3691251953771373400}
   - component: {fileID: 604294937791142219}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: attackOrigin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -65,7 +65,7 @@ GameObject:
   - component: {fileID: 6255397501235473802}
   - component: {fileID: 8964672359644783084}
   - component: {fileID: 1121571335797350069}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: equip2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -396,7 +396,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec9b6fbdbfcd6cd4b80cd5c97944e6bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: ef252dcb3ef18bb41b299e0f06614d04, type: 2}
+  - {fileID: 11400000, guid: 4284d1078c756d14ab88cabc45805dde, type: 2}
 --- !u!114 &4349561832895872446
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -462,7 +464,7 @@ GameObject:
   - component: {fileID: 8832934078688774849}
   - component: {fileID: 6315651747110671962}
   - component: {fileID: 200355229724894558}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: CinemachineCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -587,7 +589,7 @@ GameObject:
   - component: {fileID: 3077414544766672720}
   - component: {fileID: 3673485408855778022}
   - component: {fileID: 3583410059189667726}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: equip3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -695,7 +697,7 @@ GameObject:
   - component: {fileID: 2001945528701603478}
   - component: {fileID: 5170325541951230986}
   - component: {fileID: 902469190685150602}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: eye2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -803,7 +805,7 @@ GameObject:
   - component: {fileID: 1767996263970888022}
   - component: {fileID: 3180119774138121373}
   - component: {fileID: 4148833923090745717}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: eye1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -911,7 +913,7 @@ GameObject:
   - component: {fileID: 5839947538576571580}
   - component: {fileID: 427225283084008240}
   - component: {fileID: 2955636414462864936}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: equip1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1018,7 +1020,7 @@ GameObject:
   - component: {fileID: 6315990241650637208}
   - component: {fileID: 7827937768433703400}
   - component: {fileID: 8613957767848630643}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: BodyVisuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
