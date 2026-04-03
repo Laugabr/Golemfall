@@ -6,15 +6,19 @@ public class Projectile : NetworkBehaviour
     [Networked] private Vector3 Direction { get; set; }
     [Networked] private float Speed { get; set; }
     [Networked] private int Damage { get; set; }
+    [Networked] private float ActiveTime { get; set; }
 
-    private GameObject owner;
+    [Networked] private bool hasHit { get; set; }
+    [Networked] private NetworkObject Owner { get; set; }
 
-    public void Initialize(GameObject caster, int damage, float speed, Vector3 dir)
+    public void Initialize(NetworkObject caster, int damage, float speed, Vector3 dir, float activeTime)
     {
-        owner = caster;
+        Owner = caster;
         Damage = damage;
         Speed = speed;
         Direction = dir.normalized;
+        ActiveTime = activeTime;
+
     }
     public override void Spawned()
     {
@@ -24,24 +28,33 @@ public class Projectile : NetworkBehaviour
     {
         if (!Object.HasStateAuthority) return;
 
+        ActiveTime = ActiveTime - Runner.DeltaTime;
         transform.position += Direction * Speed * Runner.DeltaTime;
+
+        if (ActiveTime <= 0)
+        {
+            Runner.Despawn(Object);
+            Destroy(gameObject);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        //if (!Object.HasStateAuthority) return;
+        if (!Object.HasStateAuthority) return;
+        if (hasHit) return;
 
-            //evitar pegarse a sí mismo
-        //if (other.gameObject == owner) return;
+        var player = other.GetComponent<NetCharacterController>();
+        if (player != null) return;
 
-        //var stats = other.GetComponent<CharacterStats>();
+        if (other.GetComponent<NetworkObject>() == Owner) return;
 
-        //if (stats != null)
-       // {
-        //    //stats.TakeDamage(Damage);
-         //   Debug.Log($"[SERVER] Hit a {other.name} for {Damage}");
-        //}
+        var damageable = other.GetComponent<IDamageable>();
+        if (damageable != null)
+        {
+            damageable.TakeDamage(Damage, Owner.gameObject);
+            hasHit = true;
+        }
 
-        //Runner.Despawn(Object);
+        Runner.Despawn(Object);
     }
 }
