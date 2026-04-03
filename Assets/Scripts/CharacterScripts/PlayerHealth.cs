@@ -1,60 +1,61 @@
 using UnityEngine;
 
-/// <summary>
-/// Passive health container. Does not perform network communication.
-/// Host is expected to be authoritative: CombatManager will call SetHealth on host
-/// and the host will call RPC_SyncHealth to propagate the value to clients.
-/// </summary>
-public class PlayerHealth : MonoBehaviour
+public class PlayerHealth : HealthSystem
 {
-    [SerializeField] private int maxHealth = 100;
-    public int MaxHealth => maxHealth;
 
-    public int CurrentHealth { get; private set; }
 
-    // Optional stable player id assigned externally (used for lookups in CombatManager)
-    public int PlayerId { get; private set; } = -1;
-
-    void Start()
+    public override int GetArmor()
     {
-        CurrentHealth = maxHealth;
+        return stats.GetStat(Stat.armor);
+    }
+    private void Awake()
+    {
+        if (stats != null && Object.HasStateAuthority && stats is PlayerStats playerStats)
+            playerStats.OnStatsChanged.AddListener(RecalculateMaxHealth);
+            
+    }
 
-        // Initialize UI for local player if present
-        if (UIManager.Instance != null)
+    public override void Spawned()
+    {
+        base.Spawned();
+
+        // inicializar con stats
+        if (Object.HasStateAuthority)
         {
-            UIManager.Instance.SetMaxHealth(maxHealth);
-            UIManager.Instance.UpdateHealth(CurrentHealth);
+            RecalculateMaxHealth();
+            CurrentHealth = MaxHealth;
         }
     }
 
-    /// <summary>
-    /// Assign a stable player id used by CombatManager
-    /// Call this when the player is created / registered.
-    /// </summary>
-    public void SetPlayerId(int id)
+    private void OnDestroy()
     {
-        PlayerId = id;
+        if (stats != null && Object.HasStateAuthority && stats is PlayerStats playerStats)
+            playerStats.OnStatsChanged.RemoveListener(RecalculateMaxHealth);
     }
 
-    /// <summary>
-    /// Set health to an authoritative value (called by host or after sync).
-    /// This method also updates local UI and triggers player death event when necessary.
-    /// </summary>
-    public void SetHealth(int value)
+    public void RecalculateMaxHealth()
     {
-        CurrentHealth = Mathf.Clamp(value, 0, maxHealth);
+        if (!Object.HasStateAuthority) return;
 
-        // Update UI locally (safe to call on clients and host)
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.UpdateHealth(CurrentHealth);
-        }
+        int newMax = stats.GetStat(Stat.maxHealth);
 
-        if (CurrentHealth <= 0)
-        {
-            // Inform PlayerManager of death (PlayerManager remains local dispatcher)
-            if (PlayerManager.Instance != null)
-                PlayerManager.Instance.InvokePlayerDeath();
-        }
+        MaxHealth = newMax;
+
+        CurrentHealth = Mathf.Min(CurrentHealth, MaxHealth);
+    }
+
+    public override void MaxHealthChanged()
+    {
+       Debug.Log($"MaxHealth changed to {MaxHealth}");
+    }
+    public override void CurrentHealthChanged()
+    {
+        Debug.Log($"CurrentHealth changed to {CurrentHealth}");
+    }
+
+    public override void Die()
+    {
+        Debug.Log($"Player {gameObject.name} ha muerto.");
+
     }
 }

@@ -27,8 +27,9 @@ public class PlayerStats : CharacterStats
             var existing = baseLevelStats.FirstOrDefault(s => s.statType == info.statType);
             if (existing != null) existing.statValue += info.statValue;
             else baseLevelStats.Add(new StatInfo(info.statType, info.statValue));
+            OnStatsChanged?.Invoke();
         }
-
+        
         RefreshStats(); // Recalcular todo con el nuevo nivel
     }
 
@@ -64,7 +65,7 @@ public class PlayerStats : CharacterStats
             }
         }
         Debug.Log(localStats.FirstOrDefault(s => s.statType == Stat.speed));
-
+        OnStatsChanged?.Invoke();
         DirtyStats = true;
     }
 
@@ -78,6 +79,7 @@ public class PlayerStats : CharacterStats
             if (stat != null) stat.statValue += mod.statValue;
             else localStats.Add(new StatInfo(mod.statType, mod.statValue));
         }
+        OnStatsChanged?.Invoke();
     }
 
     public override void Render()
