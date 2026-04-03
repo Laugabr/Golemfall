@@ -20,6 +20,8 @@ public class HealthSystem : NetworkBehaviour, IDamageable
     public override void Spawned()
     {
         localMaxHealth = MaxHealth;
+
+        stats = GetComponent<CharacterStats>();
     }
 
     public virtual void MaxHealthChanged()
