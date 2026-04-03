@@ -73,7 +73,7 @@ public class AbilityHolder : NetworkBehaviour
 
         if (ability is ProjectileAbility proj)
         {
-            ProjectileRuntime.Execute(proj, Runner, gameObject, direction);
+            ProjectileRuntime.Execute(proj, Runner, Object, direction);
         }
 
         states.Set(index, AbilityState.Active);

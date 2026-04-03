@@ -2,20 +2,46 @@ using System.Threading.Tasks;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class AuthManager : MonoBehaviour
 {
+    [Header("UI References")]
     [SerializeField] private TMP_InputField usernameInput;
     [SerializeField] private TMP_InputField passwordInput;
     [SerializeField] private TMP_Text statusText;
     [SerializeField] private TMP_Text togglePasswordText;
 
+    [Header("Buttons")]
+    [SerializeField] private Button registerButton;
+    [SerializeField] private Button loginButton;
+
+    [SerializeField] private Button anonymousLoginButton;
+
+    [Header("Config")]
+    [SerializeField] private string sceneToLoad = "Integration";
+    [SerializeField] private string sceneToSignIn = "Authentication";
+
+
     async void Start()
     {
-        await UnityServices.InitializeAsync();
-        statusText.text = "Listo para iniciar sesión.";
+        SetButtonsInteractable(false);
+        statusText.text = "Inicializando...";
         togglePasswordText.text = "(-)";
+
+        try
+        {
+            await UnityServices.InitializeAsync();
+            SetButtonsInteractable(true);
+            statusText.text = "Listo para iniciar sesión.";
+        }
+        catch (System.Exception e)
+        {
+            statusText.text = "Error al inicializar servicios.";
+            Debug.LogException(e);
+        }
     }
 
     public async void OnRegisterButton()
@@ -25,20 +51,14 @@ public class AuthManager : MonoBehaviour
 
         try
         {
-            await AuthenticationService.Instance
-                  .SignUpWithUsernamePasswordAsync(username, password);
+            await AuthenticationService.Instance.SignUpWithUsernamePasswordAsync(username, password);
+            statusText.text = "¡Registro exitoso!";
 
-            statusText.text = "Registro exitoso! Player ID: "
-                              + AuthenticationService.Instance.PlayerId;
+            // Opcional: loguearlo automáticamente acá o esperar a que pulse Login?
+            EnterGame();
         }
-        catch (AuthenticationException e)
-        {
-            statusText.text = "Error: " + e.Message;
-        }
-        catch (RequestFailedException e)
-        {
-            statusText.text = "Error: " + e.Message;
-        }
+        catch (AuthenticationException e) { HandleError(e); }
+        catch (RequestFailedException e) { HandleError(e); }
     }
 
     public async void OnLoginButton()
@@ -48,76 +68,63 @@ public class AuthManager : MonoBehaviour
 
         try
         {
-            await AuthenticationService.Instance
-                  .SignInWithUsernamePasswordAsync(username, password);
+            await AuthenticationService.Instance.SignInWithUsernamePasswordAsync(username, password);
+            EnterGame();
+        }
+        catch (AuthenticationException e) { HandleError(e); }
+        catch (RequestFailedException e) { HandleError(e); }
 
-            statusText.text = "Login exitoso! Player ID: "
-                              + AuthenticationService.Instance.PlayerId;
-        }
-        catch (AuthenticationException e)
-        {
-            statusText.text = "Error: " + e.Message;
-        }
-        catch (RequestFailedException e)
-        {
-            statusText.text = "Error: " + e.Message;
-        }
     }
 
-    public void OnLogoutButton()
-    {
-        AuthenticationService.Instance.SignOut();
-        statusText.text = "Sesión cerrada.";
-        // Limpia los campos de texto al cerrar sesión
-        usernameInput.text = "";
-        passwordInput.text = "";
-    }
-
-    private bool passwordVisible = false;
-
-    public void OnTogglePasswordButton()
-    {
-        passwordVisible = !passwordVisible;
-
-        if (passwordVisible)
-        {
-            passwordInput.contentType = TMP_InputField.ContentType.Standard;
-            passwordInput.textComponent.text = passwordInput.text;
-            togglePasswordText.text = "(o)";
-        }
-        else
-        {
-            passwordInput.contentType = TMP_InputField.ContentType.Password;
-            togglePasswordText.text = "(-)";
-        }
-
-        passwordInput.ForceLabelUpdate();
-    }
-
-    // Inicia sesión de forma anónima, sin usuario ni contraseña
-    // El sistema genera un Player ID automáticamente
     public async void OnAnonymousLoginButton()
     {
-        // Si ya hay una sesión activa, avisamos y salimos
         if (AuthenticationService.Instance.IsSignedIn)
         {
-            statusText.text = "Ya hay una sesión activa. Hacé Logout primero.";
+            EnterGame();
             return;
         }
 
         try
         {
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
-            statusText.text = "Login anónimo exitoso! Player ID: "
-                              + AuthenticationService.Instance.PlayerId;
+            EnterGame();
         }
-        catch (AuthenticationException e)
-        {
-            statusText.text = "Error: " + e.Message;
-        }
-        catch (RequestFailedException e)
-        {
-            statusText.text = "Error: " + e.Message;
-        }
+        catch (AuthenticationException e) { HandleError(e); }
+        catch (RequestFailedException e) { HandleError(e); }
     }
+
+    private void EnterGame()
+    {
+        usernameInput.text = "";
+        usernameInput.text = "";
+
+        Debug.Log("Login exitoso. Player ID: " + AuthenticationService.Instance.PlayerId);
+        // Cambia a la escena del juego
+        SceneManager.LoadScene(sceneToLoad);
+    }
+
+    private void HandleError(System.Exception e)
+    {
+        statusText.text = "Error: " + e.Message;
+        Debug.LogException(e);
+    }
+
+    private void SetButtonsInteractable(bool state)
+    {
+        registerButton.interactable = state;
+        loginButton.interactable = state;
+        anonymousLoginButton.interactable = state;
+    }
+
+    // --- Toggle Password Logic ---
+    private bool passwordVisible = false;
+
+    public void OnTogglePasswordButton()
+    {
+        passwordVisible = !passwordVisible;
+        passwordInput.contentType = passwordVisible ? TMP_InputField.ContentType.Standard : TMP_InputField.ContentType.Password;
+        togglePasswordText.text = passwordVisible ? "(o)" : "(-)";
+        passwordInput.ForceLabelUpdate();
+    }
+
 }
