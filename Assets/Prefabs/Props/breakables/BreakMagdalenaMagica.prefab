@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 4259518630916670418}
   - component: {fileID: 3600842113473255719}
   - component: {fileID: 2655732231344502270}
+  - component: {fileID: 6225985665620732748}
   m_Layer: 7
   m_Name: BreakMagdalenaMagica
   m_TagString: Untagged
@@ -100,7 +101,7 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -109,8 +110,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.9154053, y: 1.2467556, z: 1.7641907}
+  m_Center: {x: -0.03579712, y: 0.015919685, z: -0.015914917}
 --- !u!114 &4259518630916670418
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,7 +127,7 @@ MonoBehaviour:
   hitsToBreak: 3
   breakEffectPrefab: {fileID: 3565933607220939726, guid: 410beae0467aa344cba93d061e181a0d, type: 3}
   experienceReward: 5
-  hitFeedback: {fileID: 0}
+  hitFeedback: {fileID: 2655732231344502270}
 --- !u!114 &3600842113473255719
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -139,7 +140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f10b993956dd7484896a8d5f91356b9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemPrefab: {fileID: 7689558688763194078, guid: 4bd2b7276d9337f40a5356dfe636032e, type: 3}
+  itemPrefab: {fileID: 7004122242501581431, guid: 61fac8860fb2c8d4c90dc607331fefad, type: 3}
 --- !u!114 &2655732231344502270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,3 +155,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hitColor: {r: 0, g: 0, b: 0, a: 1}
   duration: 0.03
+--- !u!114 &6225985665620732748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7081202088321387110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 3170231215
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 4259518630916670418}
+  - {fileID: 3600842113473255719}
+  ForceRemoteRenderTimeframe: 0

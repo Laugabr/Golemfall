@@ -1,15 +1,23 @@
+using Fusion;
 using UnityEngine;
 
 [System.Serializable]
-public class BreakableDrop : MonoBehaviour
+public class BreakableDrop : NetworkBehaviour
 {
     [Header("Drop de ítem")]
-    [SerializeField] private GameObject itemPrefab; // Prefab del ItemPickup
+    [SerializeField] private NetworkObject itemPrefab;
 
     public void SpawnDrop(Vector3 position)
     {
-        if (itemPrefab)
-            Instantiate(itemPrefab, position + Vector3.up * 0.2f, Quaternion.identity);
+        Debug.Log($"SpawnDrop llamado — HasStateAuthority:{Object.HasStateAuthority} prefab:{itemPrefab}");
+        if (!Object.HasStateAuthority) return;
+        if (itemPrefab == null) return;
+
+        Runner.Spawn(
+            itemPrefab,
+            position + Vector3.up * 0.5f,
+            Quaternion.identity
+        );
     }
 }
 

@@ -2,34 +2,23 @@ using UnityEngine;
 
 public class PlayerHealth : HealthSystem
 {
-
-
-    public override int GetArmor()
-    {
-        return stats.GetStat(Stat.armor);
-    }
-    private void Awake()
-    {
-        if (stats != null && Object.HasStateAuthority && stats is PlayerStats playerStats)
-            playerStats.OnStatsChanged.AddListener(RecalculateMaxHealth);
-            
-    }
-
     public override void Spawned()
     {
         base.Spawned();
 
-        // inicializar con stats
-        if (Object.HasStateAuthority)
-        {
-            RecalculateMaxHealth();
-            CurrentHealth = MaxHealth;
-        }
+        if (!Object.HasStateAuthority) return;
+
+        // Suscribirse a cambios de stats
+        if (stats is PlayerStats playerStats)
+            playerStats.OnStatsChanged.AddListener(RecalculateMaxHealth);
+
+        RecalculateMaxHealth();
+        CurrentHealth = MaxHealth;
     }
 
     private void OnDestroy()
     {
-        if (stats != null && Object.HasStateAuthority && stats is PlayerStats playerStats)
+        if (stats != null && stats is PlayerStats playerStats)
             playerStats.OnStatsChanged.RemoveListener(RecalculateMaxHealth);
     }
 
@@ -38,16 +27,20 @@ public class PlayerHealth : HealthSystem
         if (!Object.HasStateAuthority) return;
 
         int newMax = stats.GetStat(Stat.maxHealth);
-
         MaxHealth = newMax;
-
         CurrentHealth = Mathf.Min(CurrentHealth, MaxHealth);
+    }
+
+    public override int GetArmor()
+    {
+        return stats.GetStat(Stat.armor);
     }
 
     public override void MaxHealthChanged()
     {
-       Debug.Log($"MaxHealth changed to {MaxHealth}");
+        Debug.Log($"MaxHealth changed to {MaxHealth}");
     }
+
     public override void CurrentHealthChanged()
     {
         Debug.Log($"CurrentHealth changed to {CurrentHealth}");
@@ -56,6 +49,5 @@ public class PlayerHealth : HealthSystem
     public override void Die()
     {
         Debug.Log($"Player {gameObject.name} ha muerto.");
-
     }
 }

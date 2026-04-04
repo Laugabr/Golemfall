@@ -15,8 +15,7 @@ GameObject:
   - component: {fileID: 5255919743067739781}
   - component: {fileID: 1670127970248620137}
   - component: {fileID: -2455949725454062565}
-  - component: {fileID: 3589313872635009074}
-  - component: {fileID: -2672919206018343042}
+  - component: {fileID: 2619206615306508724}
   m_Layer: 7
   m_Name: BreakCrazyBoots
   m_TagString: Untagged
@@ -102,7 +101,7 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -111,8 +110,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.7186584, y: 1.157198, z: 1.7036438}
+  m_Center: {x: -0.029953003, y: 0.0037431717, z: -0.052383423}
 --- !u!114 &5255919743067739781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,7 +127,7 @@ MonoBehaviour:
   hitsToBreak: 3
   breakEffectPrefab: {fileID: 3565933607220939726, guid: 410beae0467aa344cba93d061e181a0d, type: 3}
   experienceReward: 5
-  hitFeedback: {fileID: 0}
+  hitFeedback: {fileID: -2455949725454062565}
 --- !u!114 &1670127970248620137
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,7 +140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f10b993956dd7484896a8d5f91356b9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemPrefab: {fileID: 4760848001611887951, guid: f0ea87dc1759d464d835b9b1678ce068, type: 3}
+  itemPrefab: {fileID: 5035733282658560826, guid: 306cb83156a7f6e43828c1ce178c91bc, type: 3}
 --- !u!114 &-2455949725454062565
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -156,7 +155,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hitColor: {r: 0, g: 0, b: 0, a: 1}
   duration: 0.03
---- !u!114 &3589313872635009074
+--- !u!114 &2619206615306508724
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -165,31 +164,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 8364140927958009631}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 874c8951faca731439516ec6b102d8d9, type: 3}
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseStats: {fileID: 11400000, guid: b0b5087464130f945b3e559587eebf9f, type: 2}
-  localStats: []
---- !u!114 &-2672919206018343042
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8364140927958009631}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d01ab903d6d08c24eae5794ce0aa906c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  localMaxHealth: 0
-  currentHealth: 0
-  OnDeath:
-    m_PersistentCalls:
-      m_Calls: []
-  OnHealthChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  charStats: {fileID: 0}
-  meshRenderer: {fileID: 0}
-  _breakableObject: {fileID: 0}
+  SortKey: 3968673365
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 5255919743067739781}
+  - {fileID: 1670127970248620137}
+  ForceRemoteRenderTimeframe: 0

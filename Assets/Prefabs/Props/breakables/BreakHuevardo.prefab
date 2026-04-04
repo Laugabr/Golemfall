@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 521446849153657689}
   - component: {fileID: 3709509845855602539}
   - component: {fileID: 7944198330262425335}
+  - component: {fileID: -3441595451686584826}
   m_Layer: 7
   m_Name: BreakHuevardo
   m_TagString: Untagged
@@ -100,7 +101,7 @@ BoxCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -109,8 +110,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1.8052673, y: 1.1689644, z: 1.8484192}
+  m_Center: {x: 0.014389038, y: 0.016176224, z: 0.021591187}
 --- !u!114 &521446849153657689
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,7 +127,7 @@ MonoBehaviour:
   hitsToBreak: 3
   breakEffectPrefab: {fileID: 3565933607220939726, guid: 410beae0467aa344cba93d061e181a0d, type: 3}
   experienceReward: 5
-  hitFeedback: {fileID: 0}
+  hitFeedback: {fileID: 7944198330262425335}
 --- !u!114 &3709509845855602539
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -139,7 +140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f10b993956dd7484896a8d5f91356b9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemPrefab: {fileID: 1171643790682984135, guid: d3883b3de5012824bae11c11c405df40, type: 3}
+  itemPrefab: {fileID: 3182851674345511992, guid: 943eb4f4ddd5c564dadcffa40724c0e0, type: 3}
 --- !u!114 &7944198330262425335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,3 +155,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hitColor: {r: 0, g: 0, b: 0, a: 1}
   duration: 0.03
+--- !u!114 &-3441595451686584826
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4271360419292300968}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 3495132334
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 521446849153657689}
+  - {fileID: 3709509845855602539}
+  ForceRemoteRenderTimeframe: 0

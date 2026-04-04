@@ -6,16 +6,9 @@ public class PlayerBreaker : MonoBehaviour
     [SerializeField] private float attackRange = 1.5f;
     [SerializeField] private float attackRadius = 0.7f;
     [SerializeField] private LayerMask breakableLayer;
-    [SerializeField] private Transform attackOrigin; // un punto al frente del jugador 
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            TryBreakObject();
-        }
-    }
+    [SerializeField] private Transform attackOrigin;
 
-    private void TryBreakObject()
+    public void TryBreak()
     {
         Collider[] hits = Physics.OverlapSphere(attackOrigin.position, attackRadius, breakableLayer);
 
@@ -25,7 +18,7 @@ public class PlayerBreaker : MonoBehaviour
             {
                 breakable.ReceiveHit();
                 Debug.Log($"Golpeaste a {hit.name}");
-                return; // solo golpea uno por clic
+                return;
             }
         }
     }
