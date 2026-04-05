@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Fusion;
 using UnityEngine;
 
@@ -12,6 +13,8 @@ public class NwInventoryUI : MonoBehaviour
 
     private NetworkInventory targetInventory;
     private NetworkRunner runner;
+    private List<short> visualOrder = new List<short>();
+    private bool suppressRefresh = false;
 
     private void Start()
     {
@@ -56,9 +59,23 @@ public class NwInventoryUI : MonoBehaviour
 
         if (targetInventory.IsDirty)
         {
+            if (ItemSlotDrag.IsDragging) return;
+
+            if (suppressRefresh)
+            {
+                suppressRefresh = false;
+                targetInventory.IsDirty = false;
+                return;
+            }
+
             targetInventory.IsDirty = false;
             Refresh();
         }
+    }
+
+    public void SuppressNextRefresh()
+    {
+        suppressRefresh = true;
     }
 
     public void TogglePanel()
@@ -71,38 +88,32 @@ public class NwInventoryUI : MonoBehaviour
     {
         if (targetInventory == null) return;
 
-        // Limpiar slots de inventario
-        foreach (var s in inventorySlots)
-            s.ClearSlot();
+        var currentKeys = targetInventory.LocalItems
+            .Select(s => s.itemKey)
+            .Where(k => !targetInventory.EquippedItems.Contains(k))
+            .ToList();
 
-        // Limpiar slots de equip
-        foreach (var s in equipSlots)
-            s.ClearSlot();
+        foreach (var key in currentKeys)
+            if (!visualOrder.Contains(key))
+                visualOrder.Add(key);
 
-        // Llenar inventario
-        int i = 0;
-        foreach (var slot in targetInventory.LocalItems)
+        visualOrder.RemoveAll(k => !currentKeys.Contains(k));
+
+        foreach (var s in inventorySlots) s.ClearSlot();
+        foreach (var s in equipSlots) s.ClearSlot();
+
+        for (int i = 0; i < visualOrder.Count && i < inventorySlots.Length; i++)
         {
-            if (i >= inventorySlots.Length) break;
-            ItemData data = ItemData.GetItem(slot.itemKey);
-            if (data == null) { i++; continue; }
-
-            bool isEquipped = targetInventory.EquippedItems.Contains(slot.itemKey);
-            if (!isEquipped)
-            {
-                AddItemToSlot(inventorySlots[i], data);
-                i++;
-            }
+            ItemData data = ItemData.GetItem(visualOrder[i]);
+            if (data != null) AddItemToSlot(inventorySlots[i], data);
         }
 
-        // Llenar equip slots
         int e = 0;
         foreach (var key in targetInventory.EquippedItems)
         {
             if (e >= equipSlots.Length) break;
             ItemData data = ItemData.GetItem(key);
-            if (data != null)
-                AddItemToSlot(equipSlots[e], data);
+            if (data != null) AddItemToSlot(equipSlots[e], data);
             e++;
         }
     }

@@ -80,7 +80,7 @@ public class NetCharacterController : NetworkBehaviour
         // abilities / interact
         if (input.Buttons.WasPressed(previousButtons, InputButton.BasicAttack))
         {
-            if (HasInputAuthority)
+            if (HasInputAuthority && !IsInventoryOpen())
             {
                 playerBreaker?.TryBreak();
                 charAbilities?.RPC_RequestUseAbility(0, GetMouseDirection());
@@ -138,5 +138,11 @@ public class NetCharacterController : NetworkBehaviour
             return dir.normalized;
         }
         return transform.forward;
+    }
+
+    private bool IsInventoryOpen()
+    {
+        var toggle = FindFirstObjectByType<InventoryToggle>();
+        return toggle != null && toggle.IsInventoryOpen;
     }
 }

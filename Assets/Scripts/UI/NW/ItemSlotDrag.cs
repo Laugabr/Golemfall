@@ -6,8 +6,10 @@ using UnityEngine.UI;
 public class ItemSlotDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     private CanvasGroup canvasGroup;
-    public Transform originalParent {get; set;}
+    public Transform originalParent { get; set; }
     private Vector2 originalPos;
+    public static bool IsDragging { get; private set; }
+
 
     private void Awake()
     {
@@ -18,6 +20,8 @@ public class ItemSlotDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        IsDragging = true;
+        Debug.Log($"OnBeginDrag — UIRoot:{UIRoot.Instance != null} dragLayer:{UIRoot.Instance?.dragLayer != null}");
         if (UIRoot.Instance == null) return;
         originalParent = transform.parent;
         originalPos = transform.localPosition;
@@ -34,23 +38,28 @@ public class ItemSlotDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        IsDragging = false;
         canvasGroup.blocksRaycasts = true;
+
+        Debug.Log($"OnEndDrag — parent:{transform.parent?.name} dragLayer:{UIRoot.Instance.dragLayer?.name}");
+        Debug.Log($"OnEndDrag — parentIsDragLayer:{transform.parent == UIRoot.Instance.dragLayer}");
+
 
         if (transform.parent == UIRoot.Instance.dragLayer)
         {
-        // Return to original parent if not dropped on a valid slot
+            // Return to original parent if not dropped on a valid slot
             transform.SetParent(originalParent);
             transform.localPosition = originalPos;
             originalParent = transform.parent;
 
         }
     }
-    
+
     // Returns the ID of the item in this slot
-    public string GetItemID() 
-    { 
-        var slot = GetComponent<ItemSlot>(); 
-        if (slot == null) return ""; 
-        return slot.GetItemID(); 
+    public string GetItemID()
+    {
+        var slot = GetComponent<ItemSlot>();
+        if (slot == null) return "";
+        return slot.GetItemID();
     }
 }

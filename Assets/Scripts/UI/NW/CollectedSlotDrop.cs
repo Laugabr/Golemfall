@@ -6,7 +6,10 @@ public class CollectedSlotDrop : MonoBehaviour, IDropHandler
     public void OnDrop(PointerEventData eventData)
     {
         var dragged = eventData.pointerDrag?.GetComponent<ItemSlotDrag>();
+        Debug.Log($"OnDrop — dragged:{dragged != null}");
         if (dragged == null) return;
+
+        Debug.Log($"OnDrop — childCount:{transform.childCount}");
         if (transform.childCount > 0) return;
 
         bool cameFromEquip = dragged.originalParent.GetComponent<EquipSlotDrop>() != null;
@@ -29,5 +32,11 @@ public class CollectedSlotDrop : MonoBehaviour, IDropHandler
         dragged.transform.localPosition = Vector3.zero;
 
         UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
+
+        if (!cameFromEquip)
+        {
+            var ui = FindFirstObjectByType<NwInventoryUI>();
+            ui?.SuppressNextRefresh();
+        }
     }
 }

@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class InventoryToggle : MonoBehaviour
 {
     [SerializeField] private GameObject inventoryPanel;
+    public bool IsInventoryOpen => inventoryPanel != null && inventoryPanel.activeSelf;
 
     private void Update()
     {
