@@ -18,6 +18,7 @@ public class ItemSlotDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if (UIRoot.Instance == null) return;
         originalParent = transform.parent;
         originalPos = transform.localPosition;
 

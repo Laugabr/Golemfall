@@ -7,20 +7,22 @@ public class PlayerBreaker : MonoBehaviour
     [SerializeField] private float attackRadius = 0.7f;
     [SerializeField] private LayerMask breakableLayer;
     [SerializeField] private Transform attackOrigin;
+    
+    private BreakableHitRequester hitRequester;
+
+    private void Awake()
+    {
+        hitRequester = GetComponent<BreakableHitRequester>();
+    }
 
     public void TryBreak()
     {
-        Collider[] hits = Physics.OverlapSphere(attackOrigin.position, attackRadius, breakableLayer);
-
-        foreach (Collider hit in hits)
-        {
-            if (hit.TryGetComponent(out BreakableObject breakable))
-            {
-                breakable.ReceiveHit();
-                Debug.Log($"Golpeaste a {hit.name}");
-                return;
-            }
-        }
+        if (hitRequester == null) return;
+        hitRequester.RPC_RequestHit(
+            attackOrigin.position,
+            attackRadius,
+            breakableLayer.value
+        );
     }
 
     private void OnDrawGizmosSelected()
@@ -30,4 +32,3 @@ public class PlayerBreaker : MonoBehaviour
         Gizmos.DrawWireSphere(attackOrigin.position, attackRadius);
     }
 }
-

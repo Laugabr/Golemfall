@@ -1,8 +1,7 @@
-using Fusion;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
-public class BreakableObject : NetworkBehaviour
+public class BreakableObject : MonoBehaviour
 {
     [Header("Configuración")]
     [SerializeField] private int hitsToBreak = 3;
@@ -28,19 +27,18 @@ public class BreakableObject : NetworkBehaviour
 
     public void Break()
     {
-        if (!Object.HasStateAuthority) return;
         isBroken = true;
 
         if (breakEffectPrefab)
             Instantiate(breakEffectPrefab, transform.position, Quaternion.identity);
 
-        // Drop ANTES del despawn
         BreakableDrop drop = GetComponent<BreakableDrop>();
         if (drop != null) drop.SpawnDrop(transform.position);
 
         BasicEventsManager.OnExperienceGain?.Invoke(experienceReward);
+        TrackEvents.OnTrackEvent?.Invoke(GameEventType.BreakBreakable, 1);
         Debug.Log($"{gameObject.name} se rompió. +{experienceReward} EXP");
-
-        Runner.Despawn(Object);
+        
+        Destroy(gameObject);
     }
 }

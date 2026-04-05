@@ -80,8 +80,11 @@ public class NetCharacterController : NetworkBehaviour
         // abilities / interact
         if (input.Buttons.WasPressed(previousButtons, InputButton.BasicAttack))
         {
-            playerBreaker?.TryBreak();
-            charAbilities?.RPC_RequestUseAbility(0, GetMouseDirection());
+            if (HasInputAuthority)
+            {
+                playerBreaker?.TryBreak();
+                charAbilities?.RPC_RequestUseAbility(0, GetMouseDirection());
+            }
         }
 
         if (input.Buttons.WasPressed(previousButtons, InputButton.FirstSkill) && HasInputAuthority)

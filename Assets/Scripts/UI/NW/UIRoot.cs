@@ -3,8 +3,7 @@ using UnityEngine;
 public class UIRoot : MonoBehaviour
 {
     public static UIRoot Instance;
-
-    public Transform dragLayer; // un panel vacio por encima de todo
+    public Transform dragLayer;
 
     private void Awake()
     {
