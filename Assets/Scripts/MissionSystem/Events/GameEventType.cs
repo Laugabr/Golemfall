@@ -8,5 +8,6 @@ public enum GameEventType
     TalkNPC,
     KillNPC,
     EnterCave,
-    PlayerDied
+    PlayerDied,
+    BreakBreakable
 }

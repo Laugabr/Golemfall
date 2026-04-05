@@ -213,10 +213,13 @@ public class MissionController : NetworkBehaviour
 
         var status = TrackStep(stepId, progress);
 
-        if (status != MissionStatus.kNone)
+        // Solo sincronizar progreso parcial, no el evento que completa la misión
+        if (status == MissionStatus.kHasProgress)
         {
             RPC_AllClientsUpdateProgress(stepId, progress);
         }
+        // kComplete y kFailed no necesitan sync aquí
+        // porque RPC_AllClientsRemoveMission y RPC_AllClientsStartMission ya lo manejan
     }
 
     // SERVER LOGIC
@@ -332,8 +335,10 @@ public class MissionController : NetworkBehaviour
     // CLIENT ONLY: update mission UI
     private void ClientTrackStep(GameEventType stepId, int progress)
     {
-        foreach (var mission in _currentMissions)
+        foreach (var mission in _currentMissions.ToList())
         {
+            // Solo procesar misiones que ya existían antes de este evento
+            // ignorar misiones que acaban de empezar en este mismo tick
             mission.UpdateProgress(stepId, progress, out var status);
 
             switch (status)
@@ -341,11 +346,9 @@ public class MissionController : NetworkBehaviour
                 case MissionStatus.kHasProgress:
                     MissionEvents.OnMissionProgress?.Invoke(mission);
                     break;
-
                 case MissionStatus.kComplete:
                     MissionEvents.OnMissionComplete?.Invoke(mission);
                     break;
-
                 case MissionStatus.kFailed:
                     MissionEvents.OnMissionFailed?.Invoke(mission);
                     break;
