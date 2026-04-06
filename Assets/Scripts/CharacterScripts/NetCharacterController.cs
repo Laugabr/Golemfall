@@ -22,6 +22,9 @@ public class NetCharacterController : NetworkBehaviour
     [Header("Abilities")]
     [SerializeField] private AbilityHolder charAbilities;
 
+    [Header("Combat")]
+    [SerializeField] private PlayerBreaker playerBreaker;
+
     [Header("Dash")]
     [SerializeField] private float dashSpeed = 20f;
     [SerializeField] private float dashDuration = 0.2f;
@@ -38,6 +41,7 @@ public class NetCharacterController : NetworkBehaviour
         charStats = GetComponent<CharacterStats>();
         charPickUp = GetComponent<CharacterPickUp>();
         charAbilities = GetComponent<AbilityHolder>();
+        playerBreaker = GetComponent<PlayerBreaker>();
     }
 
     public override void Spawned()
@@ -75,7 +79,13 @@ public class NetCharacterController : NetworkBehaviour
 
         // abilities / interact
         if (input.Buttons.WasPressed(previousButtons, InputButton.BasicAttack))
-            charAbilities?.RPC_RequestUseAbility(0, GetMouseDirection());
+        {
+            if (HasInputAuthority && !IsInventoryOpen())
+            {
+                playerBreaker?.TryBreak();
+                charAbilities?.RPC_RequestUseAbility(0, GetMouseDirection());
+            }
+        }
 
         if (input.Buttons.WasPressed(previousButtons, InputButton.FirstSkill) && HasInputAuthority)
             charAbilities?.RPC_RequestUseAbility(1, GetMouseDirection());
@@ -128,5 +138,11 @@ public class NetCharacterController : NetworkBehaviour
             return dir.normalized;
         }
         return transform.forward;
+    }
+
+    private bool IsInventoryOpen()
+    {
+        var toggle = FindFirstObjectByType<InventoryToggle>();
+        return toggle != null && toggle.IsInventoryOpen;
     }
 }

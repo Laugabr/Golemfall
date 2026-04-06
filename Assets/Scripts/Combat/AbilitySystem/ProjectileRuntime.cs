@@ -6,7 +6,7 @@ public static class ProjectileRuntime
     public static void Execute(
         ProjectileAbility data,
         NetworkRunner runner,
-        GameObject caster,
+        NetworkObject caster,
         Vector3 direction)
     {
         Debug.Log("EXECUTE PROJECTILE");
@@ -26,11 +26,15 @@ public static class ProjectileRuntime
                 var stats = caster.GetComponent<CharacterStats>();
                 float damage = stats.GetStat(Stat.damage) * data.damageMultiplier;
 
+                var casterNet = caster.GetComponent<NetworkObject>();
+
                 proj.Initialize(
-                    caster,
+                    casterNet,
                     Mathf.FloorToInt(damage),
                     data.projectileSpeed,
-                    direction
+                    direction,
+                    data.activeTime,
+                    data.destroyOnHit
                 );
             }
         );

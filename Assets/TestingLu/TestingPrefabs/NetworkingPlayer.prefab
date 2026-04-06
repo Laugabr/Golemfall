@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3691251953771373400}
   - component: {fileID: 604294937791142219}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: attackOrigin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -65,7 +65,7 @@ GameObject:
   - component: {fileID: 6255397501235473802}
   - component: {fileID: 8964672359644783084}
   - component: {fileID: 1121571335797350069}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: equip2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -181,6 +181,8 @@ GameObject:
   - component: {fileID: 6449719640617588220}
   - component: {fileID: 4349561832895872446}
   - component: {fileID: 8401534272914521562}
+  - component: {fileID: 6387982667878599669}
+  - component: {fileID: 4155055958953932453}
   m_Layer: 0
   m_Name: NetworkingPlayer
   m_TagString: Player
@@ -253,6 +255,8 @@ MonoBehaviour:
   - {fileID: 502509860146224339}
   - {fileID: 6449719640617588220}
   - {fileID: 8401534272914521562}
+  - {fileID: 6387982667878599669}
+  - {fileID: 4155055958953932453}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &5515375215595783266
 MonoBehaviour:
@@ -290,6 +294,7 @@ MonoBehaviour:
   charStats: {fileID: 8401534272914521562}
   charPickUp: {fileID: 1370004718390460943}
   charAbilities: {fileID: 6449719640617588220}
+  playerBreaker: {fileID: 0}
   dashSpeed: 40
   dashDuration: 0.15
   dashCooldown: 1
@@ -347,7 +352,7 @@ MonoBehaviour:
     MaxPenetrationSteps: 8
     CCDRadiusMultiplier: 0.75
     AntiJitterDistance: {x: 0.025, y: 0.01}
-    CompressNetworkPosition: 0
+    CompressNetworkPosition: 1
     ForcePredictedLookRotation: 0
     StepHeight: 0.5
     StepDepth: 0.2
@@ -369,7 +374,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: feef8b97966f735408db96c67b04040b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupRadius: 2.5
 --- !u!114 &502509860146224339
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -394,7 +398,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec9b6fbdbfcd6cd4b80cd5c97944e6bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  abilities: []
+  abilities:
+  - {fileID: 11400000, guid: ef252dcb3ef18bb41b299e0f06614d04, type: 2}
+  - {fileID: 11400000, guid: 4284d1078c756d14ab88cabc45805dde, type: 2}
 --- !u!114 &4349561832895872446
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -426,13 +432,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseStats: {fileID: 11400000, guid: 5f1dc252c01a302448d541b00d45f5fa, type: 2}
-  localStats: []
+  localStats:
+  - statType: 0
+    statValue: 100
+  - statType: 1
+    statValue: 10
+  - statType: 2
+    statValue: 10
+  - statType: 3
+    statValue: 10
   _DirtyStats:
     _value: 0
   OnStatsChanged:
     m_PersistentCalls:
       m_Calls: []
   levelsData: []
+--- !u!114 &6387982667878599669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2483715990737686896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87e6fa54749b2594eb1cfa177af21031, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stats: {fileID: 8401534272914521562}
+  _MaxHealth: 100
+  _CurrentHealth: 100
+  localCurrentHealth: 100
+  localMaxHealth: 100
+--- !u!114 &4155055958953932453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2483715990737686896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 86274464c5058184db7ef1c487b6c065, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2891395344421157551
 GameObject:
   m_ObjectHideFlags: 0
@@ -445,7 +488,7 @@ GameObject:
   - component: {fileID: 8832934078688774849}
   - component: {fileID: 6315651747110671962}
   - component: {fileID: 200355229724894558}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: CinemachineCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -460,13 +503,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2891395344421157551}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.28978416, y: -0, z: -0, w: 0.95709205}
-  m_LocalPosition: {x: 0, y: 10, z: -15}
+  m_LocalRotation: {x: 0.34666902, y: -0, z: -0, w: 0.93798757}
+  m_LocalPosition: {x: 0, y: 14.3, z: -16.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 971608320303219546}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 40.567, y: 0, z: 0}
 --- !u!114 &8832934078688774849
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -570,7 +613,7 @@ GameObject:
   - component: {fileID: 3077414544766672720}
   - component: {fileID: 3673485408855778022}
   - component: {fileID: 3583410059189667726}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: equip3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -678,7 +721,7 @@ GameObject:
   - component: {fileID: 2001945528701603478}
   - component: {fileID: 5170325541951230986}
   - component: {fileID: 902469190685150602}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: eye2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -786,7 +829,7 @@ GameObject:
   - component: {fileID: 1767996263970888022}
   - component: {fileID: 3180119774138121373}
   - component: {fileID: 4148833923090745717}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: eye1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -894,7 +937,7 @@ GameObject:
   - component: {fileID: 5839947538576571580}
   - component: {fileID: 427225283084008240}
   - component: {fileID: 2955636414462864936}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: equip1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1001,7 +1044,7 @@ GameObject:
   - component: {fileID: 6315990241650637208}
   - component: {fileID: 7827937768433703400}
   - component: {fileID: 8613957767848630643}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: BodyVisuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}

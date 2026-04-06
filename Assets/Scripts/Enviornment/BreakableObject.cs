@@ -14,21 +14,32 @@ public class BreakableObject : MonoBehaviour
 
     public void ReceiveHit()
     {
+        if (isBroken) return;
+        currentHits++;
+        Debug.Log($"ReceiveHit llamado — {currentHits}/{hitsToBreak}");
 
+        if (hitFeedback != null)
+            hitFeedback.FlashHit();
+
+        if (currentHits >= hitsToBreak)
+            Break();
     }
+
     public void Break()
     {
         isBroken = true;
+        Debug.Log($"Break — transform.position: {transform.position}");
 
-        if (breakEffectPrefab) Instantiate(breakEffectPrefab, transform.position, Quaternion.identity);
+        if (breakEffectPrefab)
+            Instantiate(breakEffectPrefab, transform.position, Quaternion.identity);
 
-        // Buscar automáticamente BreakableDrop en el mismo objeto
         BreakableDrop drop = GetComponent<BreakableDrop>();
         if (drop != null) drop.SpawnDrop(transform.position);
 
         BasicEventsManager.OnExperienceGain?.Invoke(experienceReward);
+        TrackEvents.OnTrackEvent?.Invoke(GameEventType.BreakBreakable, 1);
         Debug.Log($"{gameObject.name} se rompió. +{experienceReward} EXP");
-        Destroy(gameObject);
 
+        Destroy(gameObject);
     }
 }

@@ -27,6 +27,8 @@ public class CharacterStats : NetworkBehaviour
             baseStats.statInfo.Select(s => new StatInfo(s.statType, s.statValue))
         );
     }
+
+
     void Start()
     {
         // Initialize stats when the character spawns

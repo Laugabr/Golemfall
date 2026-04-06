@@ -27,43 +27,34 @@ public class PlayerStats : CharacterStats
             var existing = baseLevelStats.FirstOrDefault(s => s.statType == info.statType);
             if (existing != null) existing.statValue += info.statValue;
             else baseLevelStats.Add(new StatInfo(info.statType, info.statValue));
+            OnStatsChanged?.Invoke();
         }
 
         RefreshStats(); // Recalcular todo con el nuevo nivel
     }
 
-    // Recalcula stats base + equipo
     public void RefreshStats()
     {
         if (!Object.HasStateAuthority) return;
 
-        //baseLevelStats = baseStats.statInfo.Select(s => new StatInfo(s.statType, s.statValue)).ToList();// sobreescribe desde cero
-
-        Debug.Log("[SERVER] Refreshing stats...");
-        Debug.Log(localStats.FirstOrDefault(s => s.statType == Stat.speed));
+        if (baseLevelStats.Count == 0)
+            baseLevelStats = baseStats.statInfo.Select(s => new StatInfo(s.statType, s.statValue)).ToList();
 
         localStats.Clear();
         foreach (var bs in baseLevelStats)
         {
             var existing = localStats.FirstOrDefault(s => s.statType == bs.statType);
             if (existing != null) existing.statValue += bs.statValue;
-            else
-                localStats.Add(new StatInfo(bs.statType, bs.statValue));
+            else localStats.Add(new StatInfo(bs.statType, bs.statValue));
         }
-
-        Debug.Log(localStats.FirstOrDefault(s => s.statType == Stat.speed));
 
         var inv = GetComponent<NetworkInventory>();
         foreach (short key in inv.EquippedItems)
         {
-            // Usamos tu ResourceBank para obtener el ItemData
             ItemData data = ResourcesManager.instance.inventoryItemBank.GetValue(key) as ItemData;
             if (data != null && data.stats != null)
-            {
                 ApplyModifier(data.stats);
-            }
         }
-        Debug.Log(localStats.FirstOrDefault(s => s.statType == Stat.speed));
 
         DirtyStats = true;
     }
@@ -82,11 +73,10 @@ public class PlayerStats : CharacterStats
 
     public override void Render()
     {
-        // Client detects changes in stats and updates infp
         if (DirtyStats)
         {
+            DirtyStats = false;
             OnStatsChanged?.Invoke();
-            DirtyStats = false; // True when inventory equipment changes 
             DebugStats("CLIENT UPDATE");
         }
     }
