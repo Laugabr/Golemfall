@@ -14,10 +14,9 @@ public class LogOutManager : MonoBehaviour
 
 
     [Header("Config")]
-    [SerializeField] private string sceneToLoad = "Integration";
-    [SerializeField] private string sceneToSignIn = "Authentication";
+    [SerializeField] private string sceneToSignIn = "AuthenticationScene";
 
-    public async void OnLogOut()
+    public void OnLogOut()
     {
 
         AuthenticationService.Instance.SignOut();
