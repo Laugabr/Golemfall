@@ -1,16 +1,29 @@
 using Fusion;
 using UnityEngine;
 
-//Wrapper for the item itself
 public class PickableItem : NetworkBehaviour
 {
     [SerializeField] private ItemData itemData;
     [Networked] public int Count { get; set; } = 1;
+    [Networked] private Vector3 SpawnedPosition { get; set; }
+    
     private NetworkRunner runner;
     private bool localPlayerInRange = false;
-
     private NetworkObject localPlayerNO;
+    
     public ItemData Item => itemData;
+
+    public override void Spawned()
+    {
+        if (Object.HasStateAuthority)
+        {
+            SpawnedPosition = transform.position;
+        }
+        else
+        {
+            transform.position = SpawnedPosition;
+        }
+    }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void Rpc_Collect(NetworkObject playerInventoryNO, RpcInfo info = default)
@@ -23,7 +36,6 @@ public class PickableItem : NetworkBehaviour
             return;
         }
 
-        // Get player's NetworkInventory component
         var inv = playerInventoryNO.GetComponent<NetworkInventory>();
         if (inv == null)
         {
@@ -31,7 +43,6 @@ public class PickableItem : NetworkBehaviour
             return;
         }
 
-        // Add item to player's inventory and despawn item
         short itemKey = ItemData.GetKey(itemData);
         
         if(inv.AddItem_Server(itemKey))

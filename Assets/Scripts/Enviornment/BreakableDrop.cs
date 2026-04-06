@@ -9,7 +9,8 @@ public class BreakableDrop : NetworkBehaviour
 
     public void SpawnDrop(Vector3 position)
     {
-        Debug.Log($"SpawnDrop — HasStateAuthority:{Object.HasStateAuthority} Runner null:{Runner == null} prefab:{itemPrefab?.name}");
+        Debug.Log($"SpawnDrop — position recibida: {position}");
+        Debug.Log($"SpawnDrop — HasStateAuthority:{Object.HasStateAuthority} prefab:{itemPrefab?.name}");
         if (!Object.HasStateAuthority) return;
         if (itemPrefab == null) return;
         Runner.Spawn(itemPrefab, position + Vector3.up * 0.5f, Quaternion.identity);

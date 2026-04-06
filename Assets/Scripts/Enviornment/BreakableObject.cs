@@ -28,6 +28,7 @@ public class BreakableObject : MonoBehaviour
     public void Break()
     {
         isBroken = true;
+        Debug.Log($"Break — transform.position: {transform.position}");
 
         if (breakEffectPrefab)
             Instantiate(breakEffectPrefab, transform.position, Quaternion.identity);
@@ -38,7 +39,7 @@ public class BreakableObject : MonoBehaviour
         BasicEventsManager.OnExperienceGain?.Invoke(experienceReward);
         TrackEvents.OnTrackEvent?.Invoke(GameEventType.BreakBreakable, 1);
         Debug.Log($"{gameObject.name} se rompió. +{experienceReward} EXP");
-        
+
         Destroy(gameObject);
     }
 }
