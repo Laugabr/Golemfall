@@ -6,28 +6,21 @@ using System.Collections.Generic;
 public class BossAI : NetworkBehaviour
 {
     [Header("References")]
-    [SerializeField] private Transform shootPoint;
-    [SerializeField] private Transform attackPoint;
+    [SerializeField] private BossAttackHandler attackHandler;
 
-    [Header("Players")]
-    private List<Transform> players = new List<Transform>();
+    [Header("Aggro System")]
+    private Dictionary<Transform, float> aggroTable = new();
     public Transform CurrentTarget { get; private set; }
 
     [Header("Settings")]
     [SerializeField] private float visionRange = 10f;
     [SerializeField] private float attackRange = 2f;
     [SerializeField] private float shootDistance = 8f;
-    [SerializeField] private float attackCooldown = 1.5f;
 
-    [Header("Prefabs")]
-    [SerializeField] private NetworkPrefabRef projectilePrefab;
-    [SerializeField] private NetworkPrefabRef burnAreaPrefab;
-
-    // ?? SOLO LECTURA para nodos
     public float VisionRange => visionRange;
     public float AttackRange => attackRange;
     public float ShootDistance => shootDistance;
-    public float AttackCooldown => attackCooldown;
+    public BossAttackHandler AttackHandler => attackHandler;
 
     private Node rootNode;
 
@@ -48,92 +41,58 @@ public class BossAI : NetworkBehaviour
     {
         var canSee = new BossCanSeePlayer(this);
 
-        var meleeRange = new IsPlayerInMeleeRange(this);
-        var meleeAttack = new MeleeAttackNode(this);
+        var meleeCooldown = new CooldownNode(2f);
+        var rangedCooldown = new CooldownNode(3f);
 
-        var rangedRange = new IsPlayerInRangedRange(this);
-        var rangedAttack = new BossRangedAttackNode(this);
+        var smartSelector = new SmartSelectorNode(this, meleeCooldown, rangedCooldown);
 
-        var meleeSequence = new Sequence(new List<Node>
+        rootNode = new Sequence(new List<Node>
         {
             canSee,
-            meleeRange,
-            meleeAttack
-        });
-
-        var rangedSequence = new Sequence(new List<Node>
-        {
-            canSee,
-            rangedRange,
-            rangedAttack
-        });
-
-        rootNode = new Selector(new List<Node>
-        {
-            meleeSequence,
-            rangedSequence
+            smartSelector
         });
     }
 
     void UpdateTarget()
     {
-        float minDist = float.MaxValue;
-        Transform closest = null;
+        float maxAggro = -1f;
+        Transform bestTarget = null;
 
-        foreach (var p in players)
+        foreach (var pair in aggroTable)
         {
-            if (p == null) continue;
+            if (pair.Key == null) continue;
 
-            float dist = Vector3.Distance(transform.position, p.position);
-
-            if (dist < minDist)
+            if (pair.Value > maxAggro)
             {
-                minDist = dist;
-                closest = p;
+                maxAggro = pair.Value;
+                bestTarget = pair.Key;
             }
         }
 
-        CurrentTarget = closest;
+        CurrentTarget = bestTarget;
     }
 
-    // ??? Melee
-    public void DealDamage()
+    // AGGRO METHODS
+
+    public void AddAggro(Transform player, float amount)
     {
         if (!Object.HasStateAuthority) return;
 
-        Debug.Log("??? Boss melee!");
+        if (!aggroTable.ContainsKey(player))
+            aggroTable[player] = 0;
 
-        Runner.Spawn(
-            burnAreaPrefab,
-            attackPoint.position,
-            Quaternion.identity
-        );
+        aggroTable[player] += amount;
     }
 
-    // ?? Ranged
-    public void RangedAttack()
-    {
-        if (!Object.HasStateAuthority) return;
-
-        Debug.Log("?? Boss ranged!");
-
-        Runner.Spawn(
-            projectilePrefab,
-            shootPoint.position,
-            shootPoint.rotation
-        );
-    }
-
-    // ?? Registro controlado de jugadores
     public void RegisterPlayer(Transform player)
     {
-        if (!players.Contains(player))
-            players.Add(player);
+        if (!aggroTable.ContainsKey(player))
+            aggroTable[player] = 0;
     }
 
     public void UnregisterPlayer(Transform player)
     {
-        if (players.Contains(player))
-            players.Remove(player);
+        if (aggroTable.ContainsKey(player))
+            aggroTable.Remove(player);
     }
 }
