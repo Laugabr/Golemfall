@@ -15,9 +15,11 @@ public class BossAttackHandler : NetworkBehaviour
 
         if (ability == null)
         {
-            Debug.LogError("Ability null");
+            Debug.LogError("[AttackHandler] Ability null");
             return;
         }
+
+        Debug.Log($"[AttackHandler] Ejecutando habilidad {index} ({ability.name})");
 
         ability.Execute(this);
     }

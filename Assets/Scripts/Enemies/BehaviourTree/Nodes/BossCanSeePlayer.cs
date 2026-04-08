@@ -21,9 +21,11 @@ namespace BehaviourTree
                 ai.CurrentTarget.position
             );
 
-            return distance <= ai.VisionRange
-                ? state = NodeState.Success
-                : state = NodeState.Failure;
+            bool canSee = distance <= ai.VisionRange;
+
+            Debug.Log($"[BT] CanSeePlayer: {canSee}");
+
+            return canSee ? NodeState.Success : NodeState.Failure;
         }
     }
 }

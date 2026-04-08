@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Fusion;
 using BehaviourTree;
 using System.Collections.Generic;
@@ -27,6 +27,13 @@ public class BossAI : NetworkBehaviour
     private void Start()
     {
         BuildTree();
+
+        var player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            RegisterPlayer(player.transform);
+            Debug.Log("[Test] Player registrado automáticamente");
+        }
     }
 
     public override void FixedUpdateNetwork()
@@ -34,6 +41,10 @@ public class BossAI : NetworkBehaviour
         if (!Object.HasStateAuthority) return;
 
         UpdateTarget();
+
+        if (CurrentTarget != null)
+            Debug.Log($"[BossAI] Target actual: {CurrentTarget.name}");
+
         rootNode?.Evaluate();
     }
 
@@ -69,10 +80,13 @@ public class BossAI : NetworkBehaviour
             }
         }
 
+        if (CurrentTarget != bestTarget)
+        {
+            Debug.Log($"[BossAI] Cambio de target → {bestTarget?.name}");
+        }
+
         CurrentTarget = bestTarget;
     }
-
-    // AGGRO METHODS
 
     public void AddAggro(Transform player, float amount)
     {
@@ -82,17 +96,25 @@ public class BossAI : NetworkBehaviour
             aggroTable[player] = 0;
 
         aggroTable[player] += amount;
+
+        Debug.Log($"[Aggro] {player.name} gana {amount} → Total: {aggroTable[player]}");
     }
 
     public void RegisterPlayer(Transform player)
     {
         if (!aggroTable.ContainsKey(player))
+        {
             aggroTable[player] = 0;
+            Debug.Log($"[BossAI] Player registrado: {player.name}");
+        }
     }
 
     public void UnregisterPlayer(Transform player)
     {
         if (aggroTable.ContainsKey(player))
+        {
             aggroTable.Remove(player);
+            Debug.Log($"[BossAI] Player removido: {player.name}");
+        }
     }
 }
