@@ -35,7 +35,7 @@ public class NwInventoryUI : MonoBehaviour
             return;
         }
 
-        var allStats = FindObjectsOfType<PlayerStats>();
+        var allStats = FindObjectsByType<PlayerStats>(FindObjectsSortMode.None);
         foreach (var ps in allStats)
         {
             if (ps.Object == null || !ps.Object.IsValid) continue;

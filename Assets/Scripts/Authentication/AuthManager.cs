@@ -22,8 +22,6 @@ public class AuthManager : MonoBehaviour
 
     [Header("Config")]
     [SerializeField] private string sceneToLoad = "Integration";
-    [SerializeField] private string sceneToSignIn = "Authentication";
-
 
     async void Start()
     {
