@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 284551309981695199}
   - component: {fileID: 3621034962770575110}
   - component: {fileID: 521446849153657689}
-  - component: {fileID: 3709509845855602539}
   - component: {fileID: 7944198330262425335}
   - component: {fileID: -3441595451686584826}
   m_Layer: 7
@@ -121,26 +120,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 4271360419292300968}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67aef4c813bd762458130cb146893882, type: 3}
+  m_Script: {fileID: 11500000, guid: a32994d3c7baab54e8115227a496a3d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitsToBreak: 3
-  breakEffectPrefab: {fileID: 3565933607220939726, guid: 410beae0467aa344cba93d061e181a0d, type: 3}
-  experienceReward: 5
-  hitFeedback: {fileID: 7944198330262425335}
---- !u!114 &3709509845855602539
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4271360419292300968}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f10b993956dd7484896a8d5f91356b9b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemPrefab: {fileID: 3182851674345511992, guid: 943eb4f4ddd5c564dadcffa40724c0e0, type: 3}
 --- !u!114 &7944198330262425335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172,5 +154,5 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 3709509845855602539}
+  - {fileID: 521446849153657689}
   ForceRemoteRenderTimeframe: 0

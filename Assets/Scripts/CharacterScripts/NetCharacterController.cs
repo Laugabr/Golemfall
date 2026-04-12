@@ -22,9 +22,6 @@ public class NetCharacterController : NetworkBehaviour
     [Header("Abilities")]
     [SerializeField] private AbilityHolder charAbilities;
 
-    [Header("Combat")]
-    [SerializeField] private PlayerBreaker playerBreaker;
-
     [Header("Dash")]
     [SerializeField] private float dashSpeed = 20f;
     [SerializeField] private float dashDuration = 0.2f;
@@ -41,7 +38,6 @@ public class NetCharacterController : NetworkBehaviour
         charStats = GetComponent<CharacterStats>();
         charPickUp = GetComponent<CharacterPickUp>();
         charAbilities = GetComponent<AbilityHolder>();
-        playerBreaker = GetComponent<PlayerBreaker>();
     }
 
     public override void Spawned()
@@ -82,7 +78,6 @@ public class NetCharacterController : NetworkBehaviour
         {
             if (HasInputAuthority && !IsInventoryOpen())
             {
-                playerBreaker?.TryBreak();
                 charAbilities?.RPC_RequestUseAbility(0, GetMouseDirection());
             }
         }

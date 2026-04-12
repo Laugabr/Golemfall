@@ -120,13 +120,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 6663454259497773273}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67aef4c813bd762458130cb146893882, type: 3}
+  m_Script: {fileID: 11500000, guid: a32994d3c7baab54e8115227a496a3d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitsToBreak: 1
-  breakEffectPrefab: {fileID: 3565933607220939726, guid: 410beae0467aa344cba93d061e181a0d, type: 3}
-  experienceReward: 2
-  hitFeedback: {fileID: 8970408309134569831}
 --- !u!114 &8970408309134569831
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157,5 +153,6 @@ MonoBehaviour:
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []
-  NetworkedBehaviours: []
+  NetworkedBehaviours:
+  - {fileID: 1642225126729232661}
   ForceRemoteRenderTimeframe: 0
