@@ -123,6 +123,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a32994d3c7baab54e8115227a496a3d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitFeedback: {fileID: -2455949725454062565}
+  breakEffectPrefab: {fileID: 0}
+  dropPrefab: {fileID: 5035733282658560826, guid: 306cb83156a7f6e43828c1ce178c91bc, type: 3}
+  experienceReward: 20
+  trackEvent: 7
 --- !u!114 &-2455949725454062565
 MonoBehaviour:
   m_ObjectHideFlags: 0
