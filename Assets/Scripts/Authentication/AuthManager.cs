@@ -94,7 +94,7 @@ public class AuthManager : MonoBehaviour
     private void EnterGame()
     {
         usernameInput.text = "";
-        usernameInput.text = "";
+        passwordInput.text = "";
 
         Debug.Log("Login exitoso. Player ID: " + AuthenticationService.Instance.PlayerId);
         // Cambia a la escena del juego
