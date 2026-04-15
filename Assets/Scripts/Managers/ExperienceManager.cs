@@ -1,8 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Fusion;
 
-public class ExperienceManager : MonoBehaviour
+
+//Hacer que solo el server escuche y cambie la experiencia 
+
+public class ExperienceManager : NetworkBehaviour
 {
     [Header("Experience")]
     [SerializeField] private AnimationCurve experienceCurve;
@@ -68,6 +72,7 @@ public class ExperienceManager : MonoBehaviour
         UpdateInterface();
     }
 
+    //Hacer rpc server -) a todos 
     private void UpdateInterface()
     {
         // XP dentro del nivel actual
