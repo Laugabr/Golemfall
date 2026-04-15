@@ -44,7 +44,7 @@ public class PlayerStats : CharacterStats
         Debug.Log(localStats.FirstOrDefault(s => s.statType == Stat.speed));
 
         localStats.Clear();
-        foreach (var bs in baseLevelStats)
+        foreach (var bs in baseStats.statInfo)
         {
             var existing = localStats.FirstOrDefault(s => s.statType == bs.statType);
             if (existing != null) existing.statValue += bs.statValue;

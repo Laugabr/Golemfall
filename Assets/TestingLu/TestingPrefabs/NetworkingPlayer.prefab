@@ -181,7 +181,6 @@ GameObject:
   - component: {fileID: 6449719640617588220}
   - component: {fileID: 4349561832895872446}
   - component: {fileID: 8401534272914521562}
-  - component: {fileID: 6387982667878599669}
   m_Layer: 0
   m_Name: NetworkingPlayer
   m_TagString: Player
@@ -254,7 +253,6 @@ MonoBehaviour:
   - {fileID: 502509860146224339}
   - {fileID: 6449719640617588220}
   - {fileID: 8401534272914521562}
-  - {fileID: 6387982667878599669}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &5515375215595783266
 MonoBehaviour:
@@ -436,22 +434,11 @@ MonoBehaviour:
   OnStatsChanged:
     m_PersistentCalls:
       m_Calls: []
-  levelsData: []
---- !u!114 &6387982667878599669
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2483715990737686896}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87e6fa54749b2594eb1cfa177af21031, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  stats: {fileID: 8401534272914521562}
-  _MaxHealth: 0
-  _CurrentHealth: 0
+  levelsData:
+  - {fileID: 11400000, guid: 5f1dc252c01a302448d541b00d45f5fa, type: 2}
+  - {fileID: 11400000, guid: 5f1dc252c01a302448d541b00d45f5fa, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &2891395344421157551
 GameObject:
   m_ObjectHideFlags: 0
