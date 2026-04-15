@@ -1,15 +1,9 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Services.CloudSave;
 using UnityEngine;
 
-/// <summary>
-/// Guarda la vida del jugador en Cloud Save.
-/// - Guardado manual con botón
-/// - Autoguardado cada 60 segundos
-/// - Guarda automáticamente al hacer logout
-/// - Carga datos al iniciar la partida
-/// </summary>
 public class CloudSaveGame : MonoBehaviour
 {
     public static CloudSaveGame Instance { get; private set; }
@@ -20,6 +14,9 @@ public class CloudSaveGame : MonoBehaviour
     private bool gameStarted = false;
 
     private const string KEY_HEALTH = "game_health";
+
+    // Vida pendiente de aplicar (cuando se carga antes de que el player exista)
+    private int pendingHealth = -1;
 
     /// <summary>GameHUD escucha este evento para mostrar el estado del guardado.</summary>
     public System.Action<string> OnSaveStatusChanged;
@@ -39,6 +36,11 @@ public class CloudSaveGame : MonoBehaviour
     {
         if (!gameStarted) return;
 
+        // Si hay vida pendiente de aplicar, intentar cada frame
+        if (pendingHealth > 0)
+            TryApplyPendingHealth();
+
+        // Autoguardado periódico
         autoSaveTimer += Time.deltaTime;
         if (autoSaveTimer >= autoSaveInterval)
         {
@@ -109,9 +111,20 @@ public class CloudSaveGame : MonoBehaviour
             if (results.TryGetValue(KEY_HEALTH, out var healthItem))
             {
                 int health = healthItem.Value.GetAs<int>();
-                ApplyPlayerHealth(health);
-                OnSaveStatusChanged?.Invoke($"Partida cargada — Vida: {health}");
-                Debug.Log($"[CloudSaveGame] Cargado: Vida={health}");
+                Debug.Log($"[CloudSaveGame] Datos cargados de la nube: Vida={health}");
+
+                // Intentar aplicar inmediatamente
+                if (!TryApplyHealth(health))
+                {
+                    // Si no se pudo (player no existe todavía), guardar como pendiente
+                    pendingHealth = health;
+                    Debug.Log("[CloudSaveGame] PlayerHealth no encontrado aún, esperando spawn...");
+                    OnSaveStatusChanged?.Invoke($"Cargado — Vida: {health} (aplicando...)");
+                }
+                else
+                {
+                    OnSaveStatusChanged?.Invoke($"Partida cargada — Vida: {health}");
+                }
             }
             else
             {
@@ -126,6 +139,34 @@ public class CloudSaveGame : MonoBehaviour
         }
     }
 
+    // ── APLICAR VIDA ─────────────────────────────
+
+    /// <summary>Intenta aplicar la vida. Retorna true si encontró al player.</summary>
+    private bool TryApplyHealth(int health)
+    {
+        var healthSystems = FindObjectsByType<PlayerHealth>(FindObjectsSortMode.None);
+        foreach (var hs in healthSystems)
+        {
+            if (hs.Object != null && hs.Object.HasStateAuthority)
+            {
+                hs.CurrentHealth = Mathf.Min(health, hs.MaxHealth);
+                Debug.Log($"[CloudSaveGame] Vida aplicada: {hs.CurrentHealth}/{hs.MaxHealth}");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>Llamado cada frame mientras haya vida pendiente.</summary>
+    private void TryApplyPendingHealth()
+    {
+        if (TryApplyHealth(pendingHealth))
+        {
+            OnSaveStatusChanged?.Invoke($"Partida cargada — Vida: {pendingHealth}");
+            pendingHealth = -1; // Ya se aplicó, no reintentar
+        }
+    }
+
     // ── HELPERS ───────────────────────────────────
 
     private int GetPlayerHealth()
@@ -137,18 +178,5 @@ public class CloudSaveGame : MonoBehaviour
                 return hs.CurrentHealth;
         }
         return -1;
-    }
-
-    private void ApplyPlayerHealth(int health)
-    {
-        var healthSystems = FindObjectsByType<PlayerHealth>(FindObjectsSortMode.None);
-        foreach (var hs in healthSystems)
-        {
-            if (hs.Object != null && hs.Object.HasStateAuthority)
-            {
-                hs.CurrentHealth = Mathf.Min(health, hs.MaxHealth);
-                Debug.Log($"[CloudSaveGame] Vida aplicada: {hs.CurrentHealth}");
-            }
-        }
     }
 }
