@@ -75,7 +75,12 @@ public class NetCharacterController : NetworkBehaviour
 
         // abilities / interact
         if (input.Buttons.WasPressed(previousButtons, InputButton.BasicAttack))
-            charAbilities?.RPC_RequestUseAbility(0, GetMouseDirection());
+        {
+            if (HasInputAuthority && !IsInventoryOpen())
+            {
+                charAbilities?.RPC_RequestUseAbility(0, GetMouseDirection());
+            }
+        }
 
         if (input.Buttons.WasPressed(previousButtons, InputButton.FirstSkill) && HasInputAuthority)
             charAbilities?.RPC_RequestUseAbility(1, GetMouseDirection());
@@ -128,5 +133,11 @@ public class NetCharacterController : NetworkBehaviour
             return dir.normalized;
         }
         return transform.forward;
+    }
+
+    private bool IsInventoryOpen()
+    {
+        var toggle = FindFirstObjectByType<InventoryToggle>();
+        return toggle != null && toggle.IsInventoryOpen;
     }
 }

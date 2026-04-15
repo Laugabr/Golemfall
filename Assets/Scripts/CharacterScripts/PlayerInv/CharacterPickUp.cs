@@ -1,31 +1,45 @@
-using UnityEngine;
 using Fusion;
+using UnityEngine;
+
 public class CharacterPickUp : NetworkBehaviour
 {
-    [SerializeField] private float pickupRadius = 2.5f;
-    
+    private ProximityInteractor currentInteractor;
+
+    private void OnEnable()
+    {
+        ProximityInteractor.OnPlayerEntered += HandleEntered;
+        ProximityInteractor.OnPlayerExited += HandleExited;
+    }
+
+    private void OnDisable()
+    {
+        ProximityInteractor.OnPlayerEntered -= HandleEntered;
+        ProximityInteractor.OnPlayerExited -= HandleExited;
+    }
+
+    private void HandleEntered(ProximityInteractor interactor)
+    {
+        currentInteractor = interactor;
+    }
+
+    private void HandleExited(ProximityInteractor interactor)
+    {
+        if (currentInteractor == interactor)
+            currentInteractor = null;
+    }
+
     public void TryPickUp()
     {
-        if (!Object.HasStateAuthority) return;
+        if (currentInteractor == null) return;
 
-        Debug.Log(Object + " Try PickUp By server");
+        var item = currentInteractor.GetComponent<PickableItem>();
+        if (item == null) return;
 
-        Collider[] hits = Physics.OverlapSphere(transform.position, pickupRadius);
+        Debug.Log($"{Object} tries to collect {item.Item.displayName}");
+        item.Rpc_Collect(Object);
 
-        foreach (var hit in hits)
-        {
-            var item = hit.GetComponent<PickableItem>();
-            if (item != null)
-            {
-                Debug.Log(item.name + " tries to be collected");
-                item.Rpc_Collect(Object);
-            }
-        }
-    }
-    
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, pickupRadius);
+        InteractPrompt.Instance?.Hide();
+        MessageManager.Instance?.Show("Item recolectado");
+        currentInteractor = null;
     }
 }

@@ -31,7 +31,7 @@ public class PlayerStatsUI : MonoBehaviour
         }
 
         // Busco todos los PlayerStats en escena y elijo aquel cuyo NetworkObject coincida con el LocalPlayer
-        var all = FindObjectsOfType<PlayerStats>();
+        var all = FindObjectsByType<PlayerStats>(FindObjectsSortMode.None);
         foreach (var ps in all)
         {
             // algunos objetos pueden no tener el NetworkObject inicializado aún

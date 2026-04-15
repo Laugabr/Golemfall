@@ -1,111 +1,137 @@
+using System.Collections.Generic;
+using System.Linq;
+using Fusion;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 
-// Handles the UI representation of a NetworkInventory or local InventoryManager
 public class NwInventoryUI : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private NetworkInventory targetInventory;
-    [SerializeField] private ItemContainerSlot[] slots;       
+    [SerializeField] private ItemContainerSlot[] inventorySlots;
+    [SerializeField] private ItemContainerSlot[] equipSlots;
     [SerializeField] private GameObject slotPrefab;
-    private void Awake()
-    {
-        // Auto-assign slots if not set manually
-        if (slots == null || slots.Length == 0)
-            slots = GetComponentsInChildren<ItemContainerSlot>(true);
-        Debug.Log($"[NwInventoryUI] Slots found: {slots.Length}");
-    }
+    [SerializeField] private GameObject inventoryPanel;
+
+    private NetworkInventory targetInventory;
+    private NetworkRunner runner;
+    private List<short> visualOrder = new List<short>();
+    private bool suppressRefresh = false;
 
     private void Start()
     {
-        if (InventoryManager.Instance == null)
-            Debug.LogError("[NwInventoryUI] InventoryManager.Instance es NULL.");
-
-        if (slotPrefab == null)
-            Debug.LogError("[NwInventoryUI] slotPrefab NO asignado.");
-
-        if (targetInventory == null)
-            Debug.LogWarning("[NwInventoryUI] targetInventory NO asignado (si estás en modo local usa InventoryManager).");
-
-        if (InventoryManager.Instance != null)
+        runner = FindFirstObjectByType<NetworkRunner>();
+        if (runner == null)
         {
-            InventoryManager.Instance.OnItemAdded += AddItemToUI;
-            Debug.Log("[NwInventoryUI] Suscrito a InventoryManager.OnItemAdded");
+            Debug.LogError("[NwInventoryUI] No se encontró NetworkRunner.");
+            return;
         }
-
-        if (InventoryManager.Instance != null)
-        {
-            for (int i = 0; i < InventoryManager.Instance.Count; i++)
-            {
-                var it = InventoryManager.Instance.GetItemAt(i);
-                if (it != null) AddItemToUI(it);
-            }
-        }
+        InvokeRepeating(nameof(TryBindToLocalPlayer), 0.5f, 0.5f);
     }
 
-    private void OnDestroy()
+    private void TryBindToLocalPlayer()
     {
-        if (InventoryManager.Instance != null)
-            InventoryManager.Instance.OnItemAdded -= AddItemToUI;
+        if (targetInventory != null)
+        {
+            CancelInvoke(nameof(TryBindToLocalPlayer));
+            return;
+        }
+
+        var allStats = FindObjectsByType<PlayerStats>(FindObjectsSortMode.None);
+        foreach (var ps in allStats)
+        {
+            if (ps.Object == null || !ps.Object.IsValid) continue;
+            if (ps.Object.InputAuthority != runner.LocalPlayer) continue;
+
+            targetInventory = ps.GetComponent<NetworkInventory>();
+            if (targetInventory != null)
+            {
+                Debug.Log("[NwInventoryUI] Vinculado al inventario local.");
+                CancelInvoke(nameof(TryBindToLocalPlayer));
+                Refresh();
+            }
+            return;
+        }
     }
 
     private void Update()
     {
         if (targetInventory == null) return;
-        if (targetInventory.Object == null) return;
         if (!targetInventory.Object.IsValid) return;
 
         if (targetInventory.IsDirty)
         {
-            Debug.Log("[NwInventoryUI] targetInventory.IsDirty -> RefreshFromNetworkInventory");
-            targetInventory.IsDirty = false;
-            RefreshFromNetworkInventory();
-        }
-    }
+            if (ItemSlotDrag.IsDragging) return;
 
-    // Clears UI and populates from targetInventory.Items
-    public void RefreshFromNetworkInventory()
-    {
-        foreach (var s in slots)
-            s.ClearSlot();
-
-        foreach (var itemID in targetInventory.Items)
-        {
-            ItemData data = Resources.Load<ItemData>("DataSO/StatsData/Itemscrafteados/" + itemID);
-            if (data == null) { Debug.LogError("[NwInventoryUI] No encontro ItemData for " + itemID); continue; }
-            AddItemToUI(data);
-        }
-    }
-
-    // Core method: adds item to first empty slot
-    public void AddItemToUI(ItemData item)
-    {
-        if (item == null) { Debug.LogWarning("[NwInventoryUI] AddItemToUI recibido NULL"); return; }
-
-        foreach (var s in slots)
-        {
-            if (s == null) continue;
-            if (s.IsEmpty)
+            if (suppressRefresh)
             {
-                // Instantiate ItemSlot prefab and assign it to the container
-                GameObject go = Instantiate(slotPrefab);
-                var itemSlot = go.GetComponent<ItemSlot>();
-                if (itemSlot == null)
-                {
-                    Debug.LogError("[NwInventoryUI] slotPrefab NO tiene ItemSlot componente.");
-                    Destroy(go);
-                    return;
-                }
-
-                itemSlot.SetData(item);
-                s.AssignItem(itemSlot);
-                Debug.Log($"[NwInventoryUI] Item '{item.displayName}' asignado al slot {s.name}");
+                suppressRefresh = false;
+                targetInventory.IsDirty = false;
                 return;
             }
+
+            targetInventory.IsDirty = false;
+            Refresh();
+        }
+    }
+
+    public void SuppressNextRefresh()
+    {
+        suppressRefresh = true;
+    }
+
+    public void TogglePanel()
+    {
+        if (inventoryPanel != null)
+            inventoryPanel.SetActive(!inventoryPanel.activeSelf);
+    }
+
+    public void Refresh()
+    {
+        if (targetInventory == null) return;
+
+        var currentKeys = targetInventory.LocalItems
+            .Select(s => s.itemKey)
+            .Where(k => !targetInventory.EquippedItems.Contains(k))
+            .ToList();
+
+        foreach (var key in currentKeys)
+            if (!visualOrder.Contains(key))
+                visualOrder.Add(key);
+
+        visualOrder.RemoveAll(k => !currentKeys.Contains(k));
+
+        foreach (var s in inventorySlots) s.ClearSlot();
+        foreach (var s in equipSlots) s.ClearSlot();
+
+        for (int i = 0; i < visualOrder.Count && i < inventorySlots.Length; i++)
+        {
+            ItemData data = ItemData.GetItem(visualOrder[i]);
+            if (data != null) AddItemToSlot(inventorySlots[i], data);
         }
 
-        Debug.LogWarning("[NwInventoryUI] No hay slots libres para: " + item.displayName);
+        int e = 0;
+        foreach (var key in targetInventory.EquippedItems)
+        {
+            if (e >= equipSlots.Length) break;
+            ItemData data = ItemData.GetItem(key);
+            if (data != null) AddItemToSlot(equipSlots[e], data);
+            e++;
+        }
     }
-}
 
+    private void AddItemToSlot(ItemContainerSlot container, ItemData data)
+    {
+        if (container == null || !container.IsEmpty) return;
+
+        GameObject go = Instantiate(slotPrefab);
+        var itemSlot = go.GetComponent<ItemSlot>();
+        if (itemSlot == null)
+        {
+            Destroy(go);
+            return;
+        }
+        itemSlot.SetData(data);
+        container.AssignItem(itemSlot);
+    }
+
+    public NetworkInventory GetTargetInventory() => targetInventory;
+}

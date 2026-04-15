@@ -6,7 +6,7 @@ public class InteractPrompt : MonoBehaviour
 {
     public static InteractPrompt Instance { get; private set; }
 
-    [SerializeField] private GameObject promptGO;    
+    [SerializeField] private GameObject interactPromptPanel;
     [SerializeField] private TMP_Text promptText;
     [SerializeField] private TMP_Text messageText;
 
@@ -23,15 +23,15 @@ public class InteractPrompt : MonoBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        rect = promptGO?.GetComponent<RectTransform>();
-        if (promptGO != null) promptGO.SetActive(false);
+        rect = interactPromptPanel?.GetComponent<RectTransform>();
+        if (interactPromptPanel != null) interactPromptPanel.SetActive(false);
 
         mainCam = Camera.main;
     }
 
     void LateUpdate()
     {
-        if (tracked != null && rect != null && promptGO.activeSelf)
+        if (tracked != null && rect != null && interactPromptPanel.activeSelf)
         {
             Vector3 screen = mainCam.WorldToScreenPoint(tracked.position + Vector3.up * 0.6f);
             rect.position = screen;
@@ -42,7 +42,7 @@ public class InteractPrompt : MonoBehaviour
     {
         tracked = t;
         promptText.text = text;
-        promptGO.SetActive(true);
+        interactPromptPanel.SetActive(true);
 
         // Reiniciar el temporizador si ya estaba mostrando otro prompt
         if (hideCoroutine != null)
@@ -60,12 +60,25 @@ public class InteractPrompt : MonoBehaviour
     public void Hide()
     {
         tracked = null;
-        promptGO.SetActive(false);
+        interactPromptPanel.SetActive(false);
 
         if (hideCoroutine != null)
             StopCoroutine(hideCoroutine);
 
         hideCoroutine = null;
+    }
+
+    public void ShowPersistent(Transform t, string text = "F")
+    {
+        tracked = t;
+        promptText.text = text;
+        interactPromptPanel.SetActive(true);
+
+        if (hideCoroutine != null)
+        {
+            StopCoroutine(hideCoroutine);
+            hideCoroutine = null;
+        }
     }
 }
 

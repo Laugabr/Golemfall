@@ -22,7 +22,12 @@ MonoBehaviour:
     amount: 3
   - targetId: 0
     amount: 2
+  - targetId: 7
+    amount: 6
   failureSteps: []
   nextMissions:
   - {fileID: 11400000, guid: fd74751076871cf40b42d08e4fa8cd8d, type: 2}
   - {fileID: 11400000, guid: 2e864344f49cd1c4880f4f29352025d9, type: 2}
+  pausesOtherMissions: 0
+  startWithEvent: 0
+  startEvent: 0
