@@ -8,4 +8,11 @@ public class ProjectileAbility : Ability
     public float projectileSpeed = 10f;
     public float damageMultiplier = 1f;
     public bool destroyOnHit = true;
+    public ProjectileType projectileType;
+}
+
+public enum ProjectileType
+{
+    Player,
+    Enemy
 }

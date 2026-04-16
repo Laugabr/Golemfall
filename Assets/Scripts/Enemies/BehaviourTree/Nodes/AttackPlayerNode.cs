@@ -27,7 +27,7 @@ namespace BehaviourTree
 
             if (Time.time >= lastAttackTime + ai.AttackCooldown)
             {
-                ai.DealDamage();
+                ai.RangedAttack();
                 lastAttackTime = Time.time;
             }
 

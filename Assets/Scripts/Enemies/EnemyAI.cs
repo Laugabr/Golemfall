@@ -14,6 +14,7 @@ public class EnemyAI : NetworkBehaviour
     [Header("References")]
     [SerializeField] private NavMeshAgent _agent;
     [SerializeField] private Transform _shootPoint;
+    [SerializeField] private AbilityHolder _abilityHolder;
 
     [Header("Players")]
     private List<Transform> players = new List<Transform>();
@@ -26,6 +27,7 @@ public class EnemyAI : NetworkBehaviour
     [SerializeField] private float _minDistance = 4f;
     [SerializeField] private float _moveSpeed = 3.5f;
     [SerializeField] private float _attackCooldown = 1f;
+    
 
     [Header("Patrol")]
     [SerializeField] private Transform[] _patrolPoints;
@@ -47,6 +49,9 @@ public class EnemyAI : NetworkBehaviour
     {
         if (_agent == null)
             _agent = GetComponent<NavMeshAgent>();
+
+        if (_abilityHolder == null)
+            _abilityHolder = GetComponent<AbilityHolder>();
     }
 
     private void Start()
@@ -110,19 +115,23 @@ public class EnemyAI : NetworkBehaviour
 
     void UpdateTarget()
     {
+        if (NetworkController.Instance == null) return;
+
         float minDist = float.MaxValue;
         Transform closest = null;
 
-        foreach (var p in players)
+        foreach (var kvp in NetworkController.Instance._players)
         {
-            if (p == null) continue;
+            var playerObj = kvp.Value;
 
-            float dist = Vector3.Distance(transform.position, p.position);
+            if (playerObj == null) continue;
+
+            float dist = Vector3.Distance(transform.position, playerObj.transform.position);
 
             if (dist < minDist)
             {
                 minDist = dist;
-                closest = p;
+                closest = playerObj.transform;
             }
         }
 
@@ -130,23 +139,26 @@ public class EnemyAI : NetworkBehaviour
     }
 
     // Melee
-    public void DealDamage()
-    {
-        if (!Object.HasStateAuthority) return;
-
-        Debug.Log("⚔️ Melee hit");
-    }
+  //  public void DealDamage()
+  //  {
+//
+    //    Debug.Log("⚔️ Melee hit");
+    ////}
 
     // Ranged
     public void RangedAttack()
     {
         if (!Object.HasStateAuthority) return;
 
-        Runner.Spawn(
-            _projectilePrefab,
-            _shootPoint.position,
-            _shootPoint.rotation
-        );
+        if(_enemyType == EnemyType.Ranged)
+        {
+            _abilityHolder.UseAbility(0, CurrentTarget.position - transform.position); 
+        }  
+
+        if(_enemyType == EnemyType.Melee)
+        {
+            _abilityHolder.UseAbility(0, CurrentTarget.position - transform.position); 
+        }
     }
 
     //  Métodos controlados para modificar players
