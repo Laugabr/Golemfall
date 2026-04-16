@@ -41,7 +41,7 @@ public class PlayerStats : CharacterStats
             baseLevelStats = baseStats.statInfo.Select(s => new StatInfo(s.statType, s.statValue)).ToList();
 
         localStats.Clear();
-        foreach (var bs in baseLevelStats)
+        foreach (var bs in baseStats.statInfo)
         {
             var existing = localStats.FirstOrDefault(s => s.statType == bs.statType);
             if (existing != null) existing.statValue += bs.statValue;

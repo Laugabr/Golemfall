@@ -18,6 +18,6 @@ public class StatsManager : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    // TODO: Implement stat formulas
+    
 
 }

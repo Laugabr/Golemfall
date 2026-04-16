@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 2786568472510830177}
   - component: {fileID: 3604234039369734561}
   - component: {fileID: 4456674237592317151}
-  - component: {fileID: 6898820431742848742}
   - component: {fileID: 7232596883669562635}
   - component: {fileID: 3065192983911512520}
   m_Layer: 7
@@ -121,26 +120,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 2029570772104471094}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67aef4c813bd762458130cb146893882, type: 3}
+  m_Script: {fileID: 11500000, guid: a32994d3c7baab54e8115227a496a3d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitsToBreak: 3
-  breakEffectPrefab: {fileID: 3565933607220939726, guid: 410beae0467aa344cba93d061e181a0d, type: 3}
-  experienceReward: 5
   hitFeedback: {fileID: 7232596883669562635}
---- !u!114 &6898820431742848742
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2029570772104471094}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f10b993956dd7484896a8d5f91356b9b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemPrefab: {fileID: 8557273632057897540, guid: a3fbbfcfa23f67d4eb5cacce12c304f7, type: 3}
+  breakEffectPrefab: {fileID: 0}
+  dropPrefab: {fileID: 8557273632057897540, guid: a3fbbfcfa23f67d4eb5cacce12c304f7, type: 3}
+  experienceReward: 20
+  trackEvent: 7
 --- !u!114 &7232596883669562635
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172,5 +159,5 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 6898820431742848742}
+  - {fileID: 4456674237592317151}
   ForceRemoteRenderTimeframe: 0
