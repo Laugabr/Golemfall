@@ -11,10 +11,21 @@ public class BossMeleeAbility : BossAbility
     {
         Debug.Log("[Ability] MELEE → Spawn Burn Area");
 
-        handler.Runner.Spawn(
+        var obj = handler.Runner.Spawn(
             burnAreaPrefab,
             handler.transform.position + offset,
             Quaternion.identity
         );
+
+        //  Setear attacker para aggro
+        var damage = obj.GetComponent<DealDamage>();
+        if (damage != null)
+        {
+            damage.SetAttacker(handler.transform);
+        }
+        else
+        {
+            Debug.LogWarning("[Ability] BurnArea sin DealDamage");
+        }
     }
 }

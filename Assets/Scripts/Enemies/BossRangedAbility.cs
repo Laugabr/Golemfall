@@ -8,12 +8,23 @@ public class BossRangedAbility : BossAbility
 
     public override void Execute(BossAttackHandler handler)
     {
-        Debug.Log("[Ability] RANGED → Spawn Projectile");
+        Debug.Log("[Ability] RANGED → Spawn SplitProjectile");
 
-        handler.Runner.Spawn(
+        var obj = handler.Runner.Spawn(
             projectilePrefab,
             handler.transform.position,
             handler.transform.rotation
         );
+
+        //  Setear attacker
+        var damage = obj.GetComponent<DealDamage>();
+        if (damage != null)
+        {
+            damage.SetAttacker(handler.transform);
+        }
+        else
+        {
+            Debug.LogWarning("[Ability] Projectile sin DealDamage");
+        }
     }
 }

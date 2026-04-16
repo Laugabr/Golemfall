@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 1455752664454944759}
   - component: {fileID: 3643028093304006366}
   - component: {fileID: 6549574129945551804}
-  - component: {fileID: 1342891786352750058}
+  - component: {fileID: 8010545378176659561}
   m_Layer: 0
-  m_Name: SimpleProjectile
+  m_Name: SplitProjectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -104,7 +104,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -127,9 +127,9 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
-  - {fileID: 1342891786352750058}
+  - {fileID: 8010545378176659561}
   ForceRemoteRenderTimeframe: 0
---- !u!114 &1342891786352750058
+--- !u!114 &8010545378176659561
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -138,7 +138,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6930489062806036338}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0b200defdee84f4ba38c0b9a74d8674, type: 3}
+  m_Script: {fileID: 11500000, guid: 70a7ebfed78be0941a4a66fe6fb4a45f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
+  damage: 10
