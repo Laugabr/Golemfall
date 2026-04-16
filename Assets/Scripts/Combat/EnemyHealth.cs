@@ -37,9 +37,7 @@ public class EnemyHealth : HealthSystem
     public override void Die()
     {
         Debug.Log($"Enemy {gameObject.name} murió");
-
-        // 🔥 acá podés meter lógica de enemigo
-        // animación, loot, etc.
+ 
 
         if (Object.HasStateAuthority)
         {
