@@ -34,7 +34,9 @@ public static class ProjectileRuntime
                     data.projectileSpeed,
                     direction,
                     data.activeTime,
-                    data.destroyOnHit
+                    data.destroyOnHit,
+                    data.projectileType
+                    
                 );
             }
         );

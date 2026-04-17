@@ -79,8 +79,27 @@ public class AbilityHolder : NetworkBehaviour
         states.Set(index, AbilityState.Active);
         activeTimers.Set(index, ability.activeTime);
     }
-    
+        public void UseAbility(int index, Vector3 direction)
+    {
+        if (!Object.HasStateAuthority) return;
+
+        if (index < 0 || index >= abilities.Length) return;
+
+        if (states.Get(index) != AbilityState.Ready)
+            return;
+
+        var ability = abilities[index];
+
+        if (ability is ProjectileAbility proj)
+        {
+            ProjectileRuntime.Execute(proj, Runner, Object, direction);
+        }
+
+        states.Set(index, AbilityState.Active);
+        activeTimers.Set(index, ability.activeTime);
+    }
 }
+
 enum AbilityState
 {
     Ready,
