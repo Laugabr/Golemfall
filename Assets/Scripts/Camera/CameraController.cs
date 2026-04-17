@@ -229,10 +229,10 @@ namespace Game.CameraSystem
             float desiredX = focusPoint.x;
             float desiredZ = focusPoint.z;
 
-            if (dx > deadZoneHalfWidth)      desiredX = targetPos.x - deadZoneHalfWidth;
+            if (dx > deadZoneHalfWidth) desiredX = targetPos.x - deadZoneHalfWidth;
             else if (dx < -deadZoneHalfWidth) desiredX = targetPos.x + deadZoneHalfWidth;
 
-            if (dz > deadZoneHalfLength)      desiredZ = targetPos.z - deadZoneHalfLength;
+            if (dz > deadZoneHalfLength) desiredZ = targetPos.z - deadZoneHalfLength;
             else if (dz < -deadZoneHalfLength) desiredZ = targetPos.z + deadZoneHalfLength;
 
             // Mantenemos la Y del focus point al nivel del target (útil si el terreno tiene altura).
@@ -256,20 +256,17 @@ namespace Game.CameraSystem
         {
             float dt = Time.deltaTime;
 
-            // Reset con '0': dispara una corrutina que interpola ambos offsets a cero.
-            // Usamos KeyCode.Keypad0 (numpad). Si preferís también la '0' normal, agregá || Input.GetKeyDown(KeyCode.Alpha0).
-            if (Input.GetKeyDown(KeyCode.Keypad0))
+            if (Input.GetKeyDown(KeyCode.End))
             {
                 if (manualResetRoutine != null) StopCoroutine(manualResetRoutine);
                 manualResetRoutine = StartCoroutine(ResetManualOffsetsRoutine());
-                return; // no procesamos otras teclas en el mismo frame que el reset
+                return;
             }
 
-            // Si alguna tecla de rotación está presionada, cancelamos un reset en curso
-            // (prioridad al input del usuario).
+            // Si alguna flecha está presionada, cancelamos un reset en curso.
             bool anyKey =
-                Input.GetKey(KeyCode.Keypad8) || Input.GetKey(KeyCode.Keypad2) ||
-                Input.GetKey(KeyCode.Keypad4) || Input.GetKey(KeyCode.Keypad6);
+                Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow) ||
+                Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow);
 
             if (anyKey && manualResetRoutine != null)
             {
@@ -277,15 +274,14 @@ namespace Game.CameraSystem
                 manualResetRoutine = null;
             }
 
-            // Pitch: 8 sube la cámara (mira más desde arriba), 2 la baja.
-            if (Input.GetKey(KeyCode.Keypad8)) manualPitchOffset += manualRotationSpeed * dt;
-            if (Input.GetKey(KeyCode.Keypad2)) manualPitchOffset -= manualRotationSpeed * dt;
+            // Pitch: flecha arriba sube la cámara, flecha abajo la baja.
+            if (Input.GetKey(KeyCode.UpArrow)) manualPitchOffset += manualRotationSpeed * dt;
+            if (Input.GetKey(KeyCode.DownArrow)) manualPitchOffset -= manualRotationSpeed * dt;
 
-            // Yaw: 4 rota a la izquierda, 6 a la derecha.
-            if (Input.GetKey(KeyCode.Keypad4)) manualYawOffset -= manualRotationSpeed * dt;
-            if (Input.GetKey(KeyCode.Keypad6)) manualYawOffset += manualRotationSpeed * dt;
+            // Yaw: flecha izquierda rota a la izquierda, derecha a la derecha.
+            if (Input.GetKey(KeyCode.LeftArrow)) manualYawOffset -= manualRotationSpeed * dt;
+            if (Input.GetKey(KeyCode.RightArrow)) manualYawOffset += manualRotationSpeed * dt;
 
-            // Clamp a los rangos configurados.
             manualPitchOffset = Mathf.Clamp(manualPitchOffset, manualPitchRange.x, manualPitchRange.y);
             manualYawOffset = Mathf.Clamp(manualYawOffset, manualYawRange.x, manualYawRange.y);
         }
