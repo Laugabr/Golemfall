@@ -11,6 +11,7 @@ public class Projectile : NetworkBehaviour
 
     [Networked] private bool hasHit { get; set; }
     [Networked] private NetworkObject Owner { get; set; }
+    [Networked] private ProjectileType Type { get; set; }
 
     private HashSet<NetworkObject> hitTargets = new HashSet<NetworkObject>();
     private Collider col;
@@ -19,7 +20,7 @@ public class Projectile : NetworkBehaviour
         col = GetComponent<Collider>();
         col.enabled = false; // desactivar al inicio
     }
-    public void Initialize(NetworkObject caster, int damage, float speed, Vector3 dir, float activeTime, bool destroyOnHit)
+    public void Initialize(NetworkObject caster, int damage, float speed, Vector3 dir, float activeTime, bool destroyOnHit, ProjectileType type)
     {
         Owner = caster;
         Damage = damage;
@@ -27,6 +28,7 @@ public class Projectile : NetworkBehaviour
         Direction = dir.normalized;
         ActiveTime = activeTime;
         DestroyOnHit = destroyOnHit;
+        Type = type;
 
         if (col == null)
             col = GetComponent<Collider>();
@@ -54,36 +56,48 @@ public class Projectile : NetworkBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log($"[SERVER] Projectile colisionó con {other.gameObject.name}");
-
-        if (Object == null) return;
-        if (!Object.HasStateAuthority) return;
+        // Validaciones básicas de red
+        if (Object == null || !Object.HasStateAuthority) return;
         if (hasHit) return;
         if (Owner == null) return;
 
-        var player = other.GetComponent<NetCharacterController>();
-        if (player != null) return;
-
+        // Evitar pegarle al propio caster
         var otherNet = other.GetComponent<NetworkObject>();
         if (otherNet != null && otherNet == Owner) return;
 
+        // Obtener damageable
         var damageable = other.GetComponent<IDamageable>();
-        
-        if (damageable != null)
+        if (damageable == null) return;
+
+        // --- FILTRO PvE ---
+        // Player projectile → solo daña enemigos
+        if (Type == ProjectileType.Player && !other.CompareTag("Enemy"))
+            return;
+
+        // Enemy projectile → solo daña player
+        if (Type == ProjectileType.Enemy && !other.CompareTag("Player"))
+            return;
+
+        // Evitar múltiples hits al mismo target
+        if (otherNet != null)
         {
-            if (otherNet != null && hitTargets.Contains(otherNet))
+            if (hitTargets.Contains(otherNet))
                 return;
 
-            if (otherNet != null)
-                hitTargets.Add(otherNet);
+            hitTargets.Add(otherNet);
+        }
 
-            damageable.TakeDamage(Damage, Owner.gameObject);
+        // Aplicar daño
+        damageable.TakeDamage(Damage, Owner.gameObject);
 
-            if (DestroyOnHit)
-            {
-                col.enabled = false;
-                Runner.Despawn(Object);
-            }
+        // Marcar impacto (por si querés usarlo después)
+        hasHit = true;
+
+        // Destruir si corresponde
+        if (DestroyOnHit)
+        {
+            col.enabled = false;
+            Runner.Despawn(Object);
         }
     }
 }
