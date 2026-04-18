@@ -10,6 +10,8 @@ public class NwInventoryUI : MonoBehaviour
     [SerializeField] private ItemContainerSlot[] equipSlots;
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] private GameObject inventoryPanel;
+    [SerializeField] private CraftingSystem targetCraftingSystem;
+    private int lastCount;
 
     private NetworkInventory targetInventory;
     private NetworkRunner runner;
@@ -27,6 +29,19 @@ public class NwInventoryUI : MonoBehaviour
         InvokeRepeating(nameof(TryBindToLocalPlayer), 0.5f, 0.5f);
     }
 
+    public void RequestCraft(short a, short b)
+    {
+        if (targetCraftingSystem == null)
+        {
+            Debug.LogError("No hay CraftingSystem");
+            return;
+        }
+
+        targetCraftingSystem.RPC_RequestCraft(a, b);
+
+        // Evita refresh visual raro mientras arrastrás
+        SuppressNextRefresh();
+    }
     private void TryBindToLocalPlayer()
     {
         if (targetInventory != null)
@@ -41,6 +56,20 @@ public class NwInventoryUI : MonoBehaviour
             if (ps.Object == null || !ps.Object.IsValid) continue;
             if (ps.Object.InputAuthority != runner.LocalPlayer) continue;
 
+            else Debug.LogWarning("No CraftingUI found in NwInventoryUI.");
+
+
+            targetCraftingSystem = ps.GetComponent<CraftingSystem>();
+            if (targetCraftingSystem != null)
+            {
+                Debug.Log("[CraftingSystem] Vinculado al inventario local.");
+
+                CraftingUI craftingUI = GetComponent<CraftingUI>();
+                if(craftingUI != null)  craftingUI.SetCraftingSystem(targetCraftingSystem);
+
+                Refresh();
+            }
+
             targetInventory = ps.GetComponent<NetworkInventory>();
             if (targetInventory != null)
             {
@@ -48,8 +77,17 @@ public class NwInventoryUI : MonoBehaviour
                 CancelInvoke(nameof(TryBindToLocalPlayer));
                 Refresh();
             }
+
+
+            
             return;
         }
+    }
+
+    public void ForceRefresh()
+    {
+        suppressRefresh = false;
+        Refresh();
     }
 
     private void Update()
@@ -57,10 +95,13 @@ public class NwInventoryUI : MonoBehaviour
         if (targetInventory == null) return;
         if (!targetInventory.Object.IsValid) return;
 
-        if (targetInventory.IsDirty)
-        {
-            if (ItemSlotDrag.IsDragging) return;
+            if (targetInventory.IsDirty || targetInventory.LocalItems.Count != lastCount)        
+            {
 
+            if (ItemSlotDrag.IsDragging)
+            {
+                SuppressNextRefresh();
+            }
             if (suppressRefresh)
             {
                 suppressRefresh = false;
@@ -80,13 +121,28 @@ public class NwInventoryUI : MonoBehaviour
 
     public void TogglePanel()
     {
-        if (inventoryPanel != null)
-            inventoryPanel.SetActive(!inventoryPanel.activeSelf);
+    if (inventoryPanel != null)
+    {
+        bool nowActive = !inventoryPanel.activeSelf;
+        inventoryPanel.SetActive(nowActive);
+
+        if (nowActive)
+        {
+            Refresh(); 
+        }
+    }
+    }
+
+        private void OnEnable()
+    {
+        Refresh();
     }
 
     public void Refresh()
     {
         if (targetInventory == null) return;
+
+         visualOrder.Clear(); 
 
         var currentKeys = targetInventory.LocalItems
             .Select(s => s.itemKey)
@@ -116,6 +172,7 @@ public class NwInventoryUI : MonoBehaviour
             if (data != null) AddItemToSlot(equipSlots[e], data);
             e++;
         }
+        lastCount = targetInventory.LocalItems.Count;
     }
 
     private void AddItemToSlot(ItemContainerSlot container, ItemData data)

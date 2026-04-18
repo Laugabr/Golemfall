@@ -46,16 +46,18 @@ public class NetworkInventory : NetworkBehaviour
 
     #region CLIENT
 
-    [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
-    public void RPC_UpdateLocalInventory(RpcInfo info = default)
-    {
-        LocalItems = new List<InventorySlot>(Items);
-    }
+        [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
+        public void RPC_UpdateLocalInventory(RpcInfo info = default)
+        {
+            Debug.Log($"[RPC] UpdateLocalInventory recibido — {Items.Count} items");
+            LocalItems = new List<InventorySlot>(Items);
+        }
 
     // Notifica al cliente que el inventario cambió — se setea una sola vez, no en loop
     [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
     public void RPC_NotifyInventoryChanged(RpcInfo info = default)
     {
+        Debug.Log("[CLIENT] IsDirty = true");
         IsDirty = true;
     }
 
@@ -99,6 +101,7 @@ public class NetworkInventory : NetworkBehaviour
             Debug.Log($"[SERVER] Item not equipped: {itemKey}");
         }
     }
+
 
     #endregion
 }
