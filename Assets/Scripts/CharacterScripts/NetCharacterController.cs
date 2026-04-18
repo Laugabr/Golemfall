@@ -1,13 +1,10 @@
 using Fusion;
 using Fusion.Addons.SimpleKCC;
-using Unity.Cinemachine;
+using Game.CameraSystem;
 using UnityEngine;
 
 public class NetCharacterController : NetworkBehaviour
 {
-    [Header("Camera")]
-    [SerializeField] private Transform cameraTransform;
-
     [Header("Visuals")]
     [SerializeField] private Transform bodyVisuals;
 
@@ -33,6 +30,10 @@ public class NetCharacterController : NetworkBehaviour
     private float dashCooldownTimer;
     private Vector3 dashDirection;
 
+    // Cache local (solo relevante para el cliente con input authority).
+    private InventoryToggle cachedInventoryToggle;
+    private Camera cachedMainCamera;
+
     private void Awake()
     {
         charStats = GetComponent<CharacterStats>();
@@ -43,8 +44,27 @@ public class NetCharacterController : NetworkBehaviour
     public override void Spawned()
     {
         kcc.SetGravity(Physics.gravity.y * 3f);
-        if (!HasInputAuthority)
-            DestroyCameraMachine();
+
+        if (HasInputAuthority)
+        {
+            // Cacheamos la Main Camera y el toggle de inventario una sola vez (evita FindFirstObjectByType en cada tick).
+            cachedMainCamera = Camera.main;
+            cachedInventoryToggle = FindFirstObjectByType<InventoryToggle>();
+
+            // Engancha la cámara isométrica de la escena al jugador local.
+            if (cachedMainCamera != null)
+            {
+                var cam = cachedMainCamera.GetComponent<CameraController>();
+                if (cam != null)
+                {
+                    cam.SetTarget(transform);
+                }
+                else
+                {
+                    Debug.LogWarning("[NetCharacterController] Main Camera no tiene CameraController. Agregalo en la escena.");
+                }
+            }
+        }
     }
 
     public override void FixedUpdateNetwork()
@@ -115,17 +135,14 @@ public class NetCharacterController : NetworkBehaviour
         previousButtons = input.Buttons;
     }
 
-    private void DestroyCameraMachine()
-    {
-        var cam = GetComponentInChildren<CinemachineCamera>();
-        if (cam != null) Destroy(cam.gameObject);
-    }
-
     private Vector3 GetMouseDirection()
     {
-        if (Camera.main == null) return transform.forward;
+        // Usamos la cámara cacheada; si por algún motivo se perdió, caemos a Camera.main como fallback.
+        Camera cam = cachedMainCamera != null ? cachedMainCamera : Camera.main;
+        if (cam == null) return transform.forward;
+
         Plane plane = new Plane(Vector3.up, transform.position);
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
         if (plane.Raycast(ray, out float dist))
         {
             Vector3 dir = ray.GetPoint(dist) - transform.position;
@@ -137,7 +154,10 @@ public class NetCharacterController : NetworkBehaviour
 
     private bool IsInventoryOpen()
     {
-        var toggle = FindFirstObjectByType<InventoryToggle>();
-        return toggle != null && toggle.IsInventoryOpen;
+        // Lazy cache por si el toggle se creó después del Spawned().
+        if (cachedInventoryToggle == null)
+            cachedInventoryToggle = FindFirstObjectByType<InventoryToggle>();
+
+        return cachedInventoryToggle != null && cachedInventoryToggle.IsInventoryOpen;
     }
 }
