@@ -44,43 +44,31 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
         {
             Vector2 moveDirection = Vector2.zero;
 
-            if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed)
-            {
-                moveDirection += Vector2.up;
-            }
-
-            if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed)
-            {
-                moveDirection += Vector2.down;
-            }
-            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed)
-            {
-                moveDirection += Vector2.left;
-            }
-            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed)
-            {
-                moveDirection += Vector2.right;
-            }
+            if (keyboard.wKey.isPressed) moveDirection += Vector2.up;
+            if (keyboard.sKey.isPressed) moveDirection += Vector2.down;
+            if (keyboard.aKey.isPressed) moveDirection += Vector2.left;
+            if (keyboard.dKey.isPressed) moveDirection += Vector2.right;
 
             accumulatedInput.Buttons.Set(NetInputPlayer.MOUSE_BUTTON_0, _mouseLButtonPressed);
             accumulatedInput.Buttons.Set(NetInputPlayer.MOUSE_BUTTON_1, _mouseRButtonPressed);
 
             accumulatedInput.Direction += moveDirection;
-            
+
             accumulatedInput.Buttons.Set(InputButton.Jump, keyboard.spaceKey.isPressed);
             accumulatedInput.Buttons.Set(InputButton.Dash, keyboard.shiftKey.isPressed);
             accumulatedInput.Buttons.Set(InputButton.Interact, keyboard.fKey.isPressed);
             accumulatedInput.Buttons.Set(InputButton.SecondarySkill, keyboard.eKey.isPressed);
         }
 
-            Mouse mouse = Mouse.current;
-            if(mouse != null)
-            {
-                 accumulatedInput.Buttons.Set(InputButton.BasicAttack, mouse.leftButton.isPressed);
-                accumulatedInput.Buttons.Set(InputButton.FirstSkill, mouse.rightButton.isPressed);
-            }
-            
-        accumulatedInput.Buttons = new NetworkButtons(accumulatedInput.Buttons.Bits | buttons.Bits);    }
+        Mouse mouse = Mouse.current;
+        if (mouse != null)
+        {
+            accumulatedInput.Buttons.Set(InputButton.BasicAttack, mouse.leftButton.isPressed);
+            accumulatedInput.Buttons.Set(InputButton.FirstSkill, mouse.rightButton.isPressed);
+        }
+
+        accumulatedInput.Buttons = new NetworkButtons(accumulatedInput.Buttons.Bits | buttons.Bits);
+    }
     public void OnInput(NetworkRunner runner, NetworkInput input)
     {
         accumulatedInput.Direction.Normalize();
