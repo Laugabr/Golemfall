@@ -13,6 +13,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] private GameObject _lobbyPanel;
     [SerializeField] private Button _createRoomButton;
     [SerializeField] private Button _joinRoomButton;
+    [SerializeField] private Transform _spawnPoint;
 
     //private NetworkProjectConfigAsset _networkConfig;
 
@@ -107,7 +108,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         // Spawn player prefab for this player
         var playerSpawned = _networkRunner.Spawn(
             _playerPrefab,
-            new Vector3(0, 25, 0),
+            _spawnPoint.position,
             Quaternion.identity,
             player
         );
