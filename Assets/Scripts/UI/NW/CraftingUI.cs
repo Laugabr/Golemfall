@@ -27,6 +27,10 @@ public class CraftingUI : MonoBehaviour
 
         short keyA = ItemData.GetKey(itemA.GetItemData());
         short keyB = ItemData.GetKey(itemB.GetItemData());
+        Debug.Log($"[CRAFT UI] itemA name: {itemA.GetItemData()?.name}, keyA: {keyA}");
+        Debug.Log($"[CRAFT UI] itemB name: {itemB.GetItemData()?.name}, keyB: {keyB}");
+        Debug.Log($"[CRAFT UI] Intentando craftear: keyA={keyA}, keyB={keyB}");
+        Debug.Log($"[CRAFT UI] craftingSystem es null? {craftingSystem == null}");
 
         if (craftingSystem == null)
         {
@@ -53,8 +57,8 @@ public class CraftingUI : MonoBehaviour
 
         crafting.RPC_RequestCraft(a, b);
     }
-        //ClearSlots();
-    
+    //ClearSlots();
+
 
     void ClearSlots()
     {

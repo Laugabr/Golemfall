@@ -7,17 +7,17 @@ using System.Linq;
 
 public class CraftingSystem : NetworkBehaviour
 {
-    [SerializeField] private CraftingDatabase database;       
-    
+    [SerializeField] private CraftingDatabase database;
+
     public void TryCraft(short itemA, short itemB)
     {
         if (!Object.HasStateAuthority) return;
         if (database == null) { Debug.LogError("No CraftingDatabase"); return; }
-        
+
         var inv = GetComponent<NetworkInventory>();
 
         var recipe = database.Find(itemA, itemB);
-        if (recipe == null)if (recipe == null)
+        if (recipe == null) if (recipe == null)
         {
             Debug.Log("No existe receta");
 
@@ -59,9 +59,10 @@ public class CraftingSystem : NetworkBehaviour
         inv.RPC_UpdateLocalInventory();
         inv.RPC_NotifyInventoryChanged();
         Debug.Log("[CRAFT] NotifyInventoryChanged enviado");
-
+        var resultData = ItemData.GetItem(recipe.resultItemKey);
+        Debug.Log($"[CRAFT] Resultado obtenido: {resultData?.name ?? "item desconocido"} (key={recipe.resultItemKey})");
         Debug.Log("[CRAFT] Exitoso");
-    }   
+    }
     private bool HasMaterials(NetworkInventory inv, CraftingRecipe recipe)
     {
         if (recipe.itemA == recipe.itemB)
@@ -84,7 +85,7 @@ public class CraftingSystem : NetworkBehaviour
             }
         }
     }
-    
+
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     public void RPC_RequestCraft(short itemA, short itemB, RpcInfo info = default)
     {

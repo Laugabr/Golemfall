@@ -12,10 +12,15 @@ public class CraftingDatabase : ScriptableObject
     {
         foreach (var r in recipes)
         {
+            Debug.Log($"[DB] Comparando receta: {r.itemA}+{r.itemB} vs {a}+{b}");
             if ((r.itemA == a && r.itemB == b) ||
                 (r.itemA == b && r.itemB == a))
+            {
+                Debug.Log($"[DB] Match encontrado! Resultado: {r.resultItemKey}");
                 return r;
+            }
         }
+        Debug.LogWarning($"[DB] No hay receta para {a}+{b}");
         return null;
     }
 }
