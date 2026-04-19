@@ -114,6 +114,12 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         );
 
         _players.Add(player, playerSpawned);
+
+        if (player == _networkRunner.LocalPlayer)
+        {
+            if (CloudSaveGame.Instance != null)
+                CloudSaveGame.Instance.StartGameSave();
+        }
     }
 
     // Called when a player leaves the session
