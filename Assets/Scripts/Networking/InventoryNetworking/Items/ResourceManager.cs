@@ -49,4 +49,6 @@ public class ResourcesManager : MonoBehaviour
 
     [Header("------ Items -----")]
     public ResourceBank inventoryItemBank;
+
+    public CraftingDatabase craftingDatabase;
 }
