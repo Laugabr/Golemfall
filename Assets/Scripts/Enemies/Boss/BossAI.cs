@@ -48,7 +48,7 @@ public class BossAI : NetworkBehaviour
     {
         if (!Object.HasStateAuthority) return;
 
-        if (!isActive) return; // 🔴 CLAVE
+        if (!isActive) return; //  CLAVE
 
         UpdateTarget();
 
@@ -172,6 +172,18 @@ public class BossAI : NetworkBehaviour
             aggroTable.Remove(player);
             Debug.Log($"[BossAI] Player removido: {player.name}");
         }
+    }
+
+    // Trigger de Spikes en el suelo
+    public void TriggerGroundSpikes()
+    {
+        if (!Object.HasStateAuthority) return;
+
+        if (!isActive) return;
+
+        Debug.Log("[BossAI] Trigger manual de Ground Spikes");
+
+        AttackHandler.SpawnGroundSpikes();
     }
 
     public void DisableBoss()
