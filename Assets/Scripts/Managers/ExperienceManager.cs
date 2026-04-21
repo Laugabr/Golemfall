@@ -1,118 +1,145 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using Fusion;
 
-/// <summary>
-/// Maneja la experiencia y el nivel del jugador.
-/// NO toca la UI directamente — dispara OnExperienceChanged para que GameHUD actualice las barras.
-/// 
-/// SETUP:
-/// 1. Este script ya debería estar en un GameObject de tu escena (ej: "Managers" o el player)
-/// 2. Asegurate de que tenga asignada la AnimationCurve de experiencia
-/// 3. Asegurate de que tenga la lista de niveles configurada
-/// 4. NO necesita referencias a UI — eso lo maneja GameHUD
-/// 
-/// TESTING:
-/// - Mantené apretada la tecla G para ganar 4 XP por frame (para probar rápido)
-/// </summary>
-public class ExperienceManager : MonoBehaviour
+// Lives on the player prefab alongside PlayerHealth and PlayerStats.
+// Only the server modifies TotalExperience and CurrentLevel.
+// UI updates locally via OnChangedRender, visible only to the InputAuthority.
+
+public class ExperienceManager : NetworkBehaviour
 {
-    [Header("Experience")]
+    [Header("Experience Curve")]
     [SerializeField] private AnimationCurve experienceCurve;
-    private int currentLevel = 1;
     [SerializeField] private int maxLevel = 10;
 
-    private int totalExperience = 0;
-    private int previousLevelsExperience = 0;
-    private int nextLevelsExperience = 0;
+    [Header("XP per GameEvent (individual)")]
+    [SerializeField] private int xpPerKillEnemy      = 20;
+    [SerializeField] private int xpPerBreakBreakable = 3;
+    [SerializeField] private int xpPerCollectItem    = 5;
+    [SerializeField] private int xpPerCollectSpecial = 10;
 
-    /// <summary>Se dispara cada vez que cambia XP o nivel. GameHUD escucha esto.</summary>
-    public System.Action OnExperienceChanged;
+    // Networked state — only the server writes these
+    [Networked, OnChangedRender(nameof(OnExperienceChanged))]
+    public int TotalExperience { get; set; }
 
-    private void Awake()
+    [Networked, OnChangedRender(nameof(OnLevelChanged))]
+    public int CurrentLevel { get; set; }
+
+    //  Lifecycle 
+
+    public override void Spawned()
     {
-        BasicEventsManager.OnExperienceGain += AddExperience;
+        if (!Object.HasStateAuthority) return;
+
+        CurrentLevel = 1;
+        TotalExperience = 0;
+
+        // Only the server listens to gameplay events for THIS player
+        TrackEvents.OnTrackEvent += ServerHandleEvent;
     }
 
     private void OnDestroy()
     {
-        BasicEventsManager.OnExperienceGain -= AddExperience;
+        TrackEvents.OnTrackEvent -= ServerHandleEvent;
     }
 
-    private void Start()
+    // Server: individual XP from gameplay events 
+
+    // Called on the server when a gameplay event fires on this machine.
+    // Because MissionEventBridge already routes client events to the server,
+    // we only need to handle it here on the host/server side.
+    private void ServerHandleEvent(GameEventType eventType, int amount)
     {
-        UpdateLevel();
+        if (!Object.HasStateAuthority) return;
+
+        // Only grant XP to the LOCAL player on the server (the host's own character).
+        // Clients send their events via MissionEventBridge → RPC_ServerAddExperience.
+        if (!Object.HasInputAuthority) return;
+
+        int xp = GetXpForEvent(eventType) * amount;
+        if (xp > 0) AddExperience(xp);
     }
 
-    private void Update()
+    private int GetXpForEvent(GameEventType eventType)
     {
-        // TEST: mantener G para ganar XP rápido
-        if (Input.GetKey(KeyCode.G))
+        return eventType switch
         {
-            BasicEventsManager.OnExperienceGain?.Invoke(4);
+            GameEventType.KillEnemy       => xpPerKillEnemy,
+            GameEventType.BreakBreakable  => xpPerBreakBreakable,
+            GameEventType.CollectItem     => xpPerCollectItem,
+            GameEventType.CollectSpecialItem => xpPerCollectSpecial,
+            _                             => 0
+        };
+    }
+
+    // Server: add XP (called from MissionController for group XP too)
+
+    public void AddExperience(int amount)
+    {
+        if (!Object.HasStateAuthority) return;
+        if (CurrentLevel >= maxLevel) return;
+
+        TotalExperience += amount;
+        CheckLevelUp();
+    }
+
+    // RPC so clients can request XP gain for individual events
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RPC_ServerAddExperience(int amount, RpcInfo info = default)
+    {
+        AddExperience(amount);
+    }
+
+    // Server: level-up logic 
+
+    private void CheckLevelUp()
+    {
+        if (!Object.HasStateAuthority) return;
+        if (CurrentLevel >= maxLevel) return;
+
+        int xpForNext = GetXpForLevel(CurrentLevel + 1);
+
+        if (TotalExperience >= xpForNext)
+        {
+            CurrentLevel++;
+            Debug.Log($"[SERVER] {gameObject.name} subió al nivel {CurrentLevel}");
+
+            // Notify PlayerStats so it can apply level bonuses
+            BasicEventsManager.OnLevelUp?.Invoke(CurrentLevel);
+
+            // Recurse in case multiple levels were gained at once
+            CheckLevelUp();
         }
     }
 
-    private void AddExperience(int amount)
+    // Returns cumulative XP needed to reach a given level
+    private int GetXpForLevel(int level)
     {
-        totalExperience += amount;
-        CheckForLevelUp();
-        OnExperienceChanged?.Invoke();
+        return (int)experienceCurve.Evaluate(level);
     }
 
-    private void CheckForLevelUp()
+    // Render callbacks (run on all clients when networked values change)
+
+    private void OnExperienceChanged()
     {
-        if (currentLevel >= maxLevel) return;
-        if (totalExperience >= nextLevelsExperience)
-        {
-            currentLevel++;
-            UpdateLevel();
-        }
+        // Only update UI for the local player
+        if (!Object.HasInputAuthority) return;
+        ExperienceUI.Instance?.UpdateXP(TotalExperience, CurrentLevel, GetXpForLevel(CurrentLevel), GetXpForLevel(CurrentLevel + 1));
     }
 
-    private void UpdateLevel()
+    private void OnLevelChanged()
     {
-        previousLevelsExperience = (int)experienceCurve.Evaluate(currentLevel);
-        nextLevelsExperience = (int)experienceCurve.Evaluate(currentLevel + 1);
-
-        BasicEventsManager.OnLevelUp?.Invoke(currentLevel);
-        OnExperienceChanged?.Invoke();
+        if (!Object.HasInputAuthority) return;
+        ExperienceUI.Instance?.UpdateLevel(CurrentLevel);
     }
 
-    // ──────────────────────────────────────────────
-    //  GETTERS PÚBLICOS (para GameHUD y CloudSaveGame)
-    // ──────────────────────────────────────────────
+    // Public helpers 
 
-    /// <summary>Nivel actual.</summary>
-    public int GetCurrentLevel() => currentLevel;
-
-    /// <summary>XP total acumulada (para guardar en Cloud Save).</summary>
-    public int GetTotalExperience() => totalExperience;
-
-    /// <summary>XP ganada dentro del nivel actual (para texto del HUD).</summary>
-    public int GetCurrentLevelXP() => totalExperience - previousLevelsExperience;
-
-    /// <summary>XP necesaria para pasar al siguiente nivel (para texto del HUD).</summary>
-    public int GetXPToNextLevel() => nextLevelsExperience - previousLevelsExperience;
-
-    /// <summary>Porcentaje de llenado de la barra de XP (0.0 a 1.0).</summary>
-    public float GetXPFillAmount()
+    // Called by MissionController when a group mission completes
+    public static void GrantMissionXpToAll(int xpAmount)
     {
-        int xpToNext = GetXPToNextLevel();
-        if (xpToNext <= 0) return 1f;
-        return (float)GetCurrentLevelXP() / xpToNext;
-    }
-
-    /// <summary>Restaura nivel y XP desde Cloud Save.</summary>
-    public void SetSavedData(int savedLevel, int savedXP)
-    {
-        currentLevel = Mathf.Clamp(savedLevel, 1, maxLevel);
-        totalExperience = savedXP;
-
-        previousLevelsExperience = (int)experienceCurve.Evaluate(currentLevel);
-        nextLevelsExperience = (int)experienceCurve.Evaluate(currentLevel + 1);
-
-        BasicEventsManager.OnLevelUp?.Invoke(currentLevel);
-        OnExperienceChanged?.Invoke();
-
-        Debug.Log($"[ExperienceManager] Restaurado: Nivel={currentLevel}, XP={totalExperience}");
+        // MissionController iterates all ExperienceManagers and calls AddExperience directly
+        // This helper is here for documentation purposes
     }
 }

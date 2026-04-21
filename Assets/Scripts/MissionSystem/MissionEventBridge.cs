@@ -43,6 +43,13 @@ public class MissionEventBridge : NetworkBehaviour
 
         // Mandar el evento al servidor para que procese la misión grupal
         _missionController.RPC_ServerReceiveEvent(stepId, progress);
+
+        int xp = GetXpForEvent(stepId) * progress;
+        if (xp > 0)
+        {
+            var expManager = GetComponent<ExperienceManager>();
+            expManager?.RPC_ServerAddExperience(xp);
+        }
     }
 
 }

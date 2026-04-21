@@ -282,6 +282,16 @@ public class MissionController : NetworkBehaviour
                     globalStatus = MissionStatus.kComplete;
                     RPC_AllClientsRemoveMission(mission.missionId);
 
+                    if (mission.xp > 0)
+                    {
+                        var allExpManagers = FindObjectsByType<ExperienceManager>(FindObjectsSortMode.None);
+                        foreach (var em in allExpManagers)
+                        {
+                            em.AddExperience(mission.xp);
+                        }
+                        Debug.Log($"[MISSION] XP grupal otorgada: {mission.xp} a {allExpManagers.Length} players");
+                    }
+                    
                     if (mission == pausingMission)
                     {
                         missionsPaused = false;
