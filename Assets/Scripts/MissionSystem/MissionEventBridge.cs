@@ -1,8 +1,8 @@
 using Fusion;
 using UnityEngine;
 
-// Va en el prefab del jugador.
-// Escucha eventos locales y los reenvía al MissionController global.
+// Lives on the player prefab.
+// Listens to local gameplay events and forwards them to the global MissionController.
 public class MissionEventBridge : NetworkBehaviour
 {
     private MissionController _missionController;
@@ -15,17 +15,17 @@ public class MissionEventBridge : NetworkBehaviour
 
         if (_missionController == null)
         {
-            Debug.LogError("MissionEventBridge: MissionController no encontrado");
+            Debug.LogError("MissionEventBridge: MissionController not found");
             return;
         }
 
         TrackEvents.OnTrackEvent += OnLocalEvent;
 
-        // Si soy cliente (no host), pido el estado actual de las misiones
+        // If we are a client (not host), request current mission state from server
         if (!Runner.IsServer)
         {
             _missionController.RPC_RequestSync();
-            Debug.Log("MissionEventBridge: sync pedido al servidor");
+            Debug.Log("MissionEventBridge: sync requested from server");
         }
     }
 
@@ -38,12 +38,13 @@ public class MissionEventBridge : NetworkBehaviour
     {
         if (_missionController == null) return;
 
-        // El host ya procesa los eventos via ServerTrackStep, no necesita el RPC
+        // Host already processes events via ServerTrackStep, no RPC needed
         if (Runner.IsServer) return;
 
-        // Mandar el evento al servidor para que procese la misión grupal
+        // Send event to server so it can process group mission progress
         _missionController.RPC_ServerReceiveEvent(stepId, progress);
 
+        // Individual XP: send to server for this player only
         int xp = GetXpForEvent(stepId) * progress;
         if (xp > 0)
         {
@@ -52,4 +53,16 @@ public class MissionEventBridge : NetworkBehaviour
         }
     }
 
+    // Returns the XP reward for a given gameplay event type
+    private int GetXpForEvent(GameEventType eventType)
+    {
+        return eventType switch
+        {
+            GameEventType.KillEnemy          => 20,
+            GameEventType.BreakBreakable     => 3,
+            GameEventType.CollectItem        => 5,
+            GameEventType.CollectSpecialItem => 10,
+            _                                => 0
+        };
+    }
 }

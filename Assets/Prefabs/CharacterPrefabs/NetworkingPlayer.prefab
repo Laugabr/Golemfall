@@ -76,6 +76,7 @@ GameObject:
   - component: {fileID: 6456957767660994922}
   - component: {fileID: 7656503128217257916}
   - component: {fileID: 4413521301328092896}
+  - component: {fileID: 2340674292946175067}
   m_Layer: 0
   m_Name: NetworkingPlayer
   m_TagString: Player
@@ -150,6 +151,7 @@ MonoBehaviour:
   - {fileID: 6387982667878599669}
   - {fileID: 7656503128217257916}
   - {fileID: 4413521301328092896}
+  - {fileID: 2340674292946175067}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &5515375215595783266
 MonoBehaviour:
@@ -384,6 +386,130 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   database: {fileID: 11400000, guid: 2306e4ff864317147a48b104e0e710db, type: 2}
+--- !u!114 &2340674292946175067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2483715990737686896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7eda85a02cb4fa84e8ec5570376a6a5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  experienceCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 64.96105
+      outSlope: 64.96105
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.71721804
+      value: 46.591236
+      inSlope: 68.447525
+      outSlope: 68.447525
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1.6745166
+      value: 115.45355
+      inSlope: 86.72073
+      outSlope: 86.72073
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 3
+      value: 250
+      inSlope: 150.75372
+      outSlope: 150.75372
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 4
+      value: 450
+      inSlope: 225
+      outSlope: 225
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 5
+      value: 700
+      inSlope: 275
+      outSlope: 275
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 6
+      value: 1000
+      inSlope: 325
+      outSlope: 325
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 7
+      value: 1350
+      inSlope: 375
+      outSlope: 375
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 8
+      value: 1750
+      inSlope: 425
+      outSlope: 425
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 9
+      value: 2200
+      inSlope: 475
+      outSlope: 475
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 10
+      value: 2700
+      inSlope: 500
+      outSlope: 500
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxLevel: 10
+  xpPerKillEnemy: 20
+  xpPerBreakBreakable: 3
+  xpPerCollectItem: 5
+  xpPerCollectSpecial: 10
+  _TotalExperience: 0
+  _CurrentLevel: 0
 --- !u!1 &8269205730414287776
 GameObject:
   m_ObjectHideFlags: 0
