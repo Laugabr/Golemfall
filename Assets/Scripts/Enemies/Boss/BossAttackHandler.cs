@@ -1,26 +1,75 @@
-using Fusion;
 using UnityEngine;
+using Fusion;
 
 public class BossAttackHandler : NetworkBehaviour
 {
-    [SerializeField] private BossAbility[] abilities;
+    [Header("Prefabs")]
+    [SerializeField] private NetworkObject groundSpikePrefab;
+    [SerializeField] private NetworkObject fallingToothPrefab;
 
-    public void ExecuteAbility(int index)
+    [Header("Spawn Points")]
+    [SerializeField] private Transform[] groundPoints;
+    [SerializeField] private Transform[] ceilingPoints;
+    [SerializeField] private NetworkObject telegraphPrefab;
+    [SerializeField] private float telegraphTime = 1.5f;
+
+    // =============================
+    //  SUELO
+    // =============================
+    public void SpawnGroundSpikes()
     {
         if (!Object.HasStateAuthority) return;
 
-        if (index < 0 || index >= abilities.Length) return;
-
-        var ability = abilities[index];
-
-        if (ability == null)
+        foreach (var point in groundPoints)
         {
-            Debug.LogError("[AttackHandler] Ability null");
-            return;
+            if (point == null) continue;
+
+            var telegraph = Runner.Spawn(
+                telegraphPrefab,
+                point.position,
+                Quaternion.identity
+            );
+
+            var telegraphComp = telegraph.GetComponent<TelegraphZone>();
+
+            telegraphComp.Init(telegraphTime, () =>
+            {
+                Runner.Spawn(
+                    groundSpikePrefab,
+                    point.position,
+                    Quaternion.identity
+                );
+            });
         }
+    }
 
-        Debug.Log($"[AttackHandler] Ejecutando habilidad {index} ({ability.name})");
+    // =============================
+    //  TECHO
+    // =============================
+    public void SpawnFallingTeeth()
+    {
+        if (!Object.HasStateAuthority) return;
 
-        ability.Execute(this);
+        foreach (var point in ceilingPoints)
+        {
+            if (point == null) continue;
+
+            var telegraph = Runner.Spawn(
+                telegraphPrefab,
+                point.position,
+                Quaternion.identity
+            );
+
+            var telegraphComp = telegraph.GetComponent<TelegraphZone>();
+
+            telegraphComp.Init(telegraphTime, () =>
+            {
+                Runner.Spawn(
+                    fallingToothPrefab,
+                    point.position,
+                    Quaternion.identity
+                );
+            });
+        }
     }
 }

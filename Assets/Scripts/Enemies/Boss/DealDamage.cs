@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Fusion;
 
 public class DealDamage : NetworkBehaviour
@@ -18,11 +18,28 @@ public class DealDamage : NetworkBehaviour
 
         Debug.Log($"[Damage] {attacker?.name} golpea a {target.name}");
 
-        var bossHealth = target.GetComponent<BossHealth>();
+        // =============================
+        //  WEAK POINT 
+        // =============================
+        var weakPoint = target.GetComponent<BossWeakPoint>();
+        if (weakPoint != null)
+        {
+            Debug.Log("[Damage] Hit WeakPoint");
 
+            weakPoint.TakeDamage(damage, attacker);
+            return;
+        }
+
+        // =============================
+        //  BOSS DIRECTO 
+        // =============================
+        var bossHealth = target.GetComponent<BossHealth>();
         if (bossHealth != null)
         {
+            Debug.Log("[Damage] Hit Boss directamente");
+
             bossHealth.TakeDamage(damage, attacker);
+            return;
         }
     }
 }

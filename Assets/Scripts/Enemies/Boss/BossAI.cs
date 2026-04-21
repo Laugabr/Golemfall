@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 public class BossAI : NetworkBehaviour
 {
+    [Header("State")]
+    [SerializeField] private bool isActive = false;
+
     [Header("References")]
     [SerializeField] private BossAttackHandler attackHandler;
 
@@ -24,21 +27,28 @@ public class BossAI : NetworkBehaviour
 
     private Node rootNode;
 
+    // =============================
+    // INIT
+    // =============================
+
     private void Start()
     {
+        if (!Object.HasStateAuthority) return;
+
         BuildTree();
 
-        var player = GameObject.FindWithTag("Player");
-        if (player != null)
-        {
-            RegisterPlayer(player.transform);
-            Debug.Log("[Test] Player registrado automáticamente");
-        }
+        Debug.Log("[BossAI] Inicializado - esperando activación");
     }
+
+    // =============================
+    // MAIN LOOP
+    // =============================
 
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority) return;
+
+        if (!isActive) return; // 🔴 CLAVE
 
         UpdateTarget();
 
@@ -48,21 +58,63 @@ public class BossAI : NetworkBehaviour
         rootNode?.Evaluate();
     }
 
+    // =============================
+    // ACTIVACIÓN DESDE ARENA
+    // =============================
+
+    public void ActivateBoss()
+    {
+        if (!Object.HasStateAuthority) return;
+        if (isActive) return;
+
+        Debug.Log("[BossAI] ACTIVADO");
+
+        isActive = true;
+
+        RegisterAllPlayers();
+    }
+
+    // =============================
+    // REGISTRO DE PLAYERS
+    // =============================
+
+    void RegisterAllPlayers()
+    {
+        foreach (var player in PlayerRegistry.Players)
+        {
+            RegisterPlayer(player);
+        }
+
+        Debug.Log($"[BossAI] Players registrados: {aggroTable.Count}");
+    }
+
+    // =============================
+    // BEHAVIOUR TREE
+    // =============================
+
     void BuildTree()
     {
-        var canSee = new BossCanSeePlayer(this);
+        var hasTarget = new BossHasTargetNode(this);
 
-        var meleeCooldown = new CooldownNode(2f);
-        var rangedCooldown = new CooldownNode(3f);
+        var groundAttack = new GroundSpikesAttackNode(this, 3f);
+        var fallingAttack = new FallingTeethAttackNode(this, 5f);
 
-        var smartSelector = new SmartSelectorNode(this, meleeCooldown, rangedCooldown);
+        var attackSelector = new Selector(new List<Node>
+    {
+        groundAttack,
+        fallingAttack
+    });
 
         rootNode = new Sequence(new List<Node>
-        {
-            canSee,
-            smartSelector
-        });
+    {
+        hasTarget,
+        attackSelector
+    });
     }
+
+    // =============================
+    // TARGET SYSTEM
+    // =============================
 
     void UpdateTarget()
     {
@@ -87,6 +139,10 @@ public class BossAI : NetworkBehaviour
 
         CurrentTarget = bestTarget;
     }
+
+    // =============================
+    // AGGRO
+    // =============================
 
     public void AddAggro(Transform player, float amount)
     {
@@ -116,5 +172,18 @@ public class BossAI : NetworkBehaviour
             aggroTable.Remove(player);
             Debug.Log($"[BossAI] Player removido: {player.name}");
         }
+    }
+
+    public void DisableBoss()
+    {
+        if (!Object.HasStateAuthority) return;
+
+        Debug.Log("[BossAI] DESACTIVADO");
+
+        //  deja de pensar
+        enabled = false;
+
+        // opcional: limpiar target
+        CurrentTarget = null;
     }
 }
