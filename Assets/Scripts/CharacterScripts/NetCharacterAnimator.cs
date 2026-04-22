@@ -1,6 +1,7 @@
 using Fusion;
 using Fusion.Addons.SimpleKCC;
 using UnityEngine;
+using UnityEngine.Windows;
 
 /// <summary>
 /// Handles animation state for the networked character.
@@ -27,15 +28,22 @@ public class NetCharacterAnimator : NetworkBehaviour
     private static readonly int IdleTypeHash = Animator.StringToHash("idleType");
 
     // Cached parameter hashes (faster than string lookup every tick)
-    private static readonly int IsWalking = Animator.StringToHash("isWalking");
-    private static readonly int IsDashing = Animator.StringToHash("isDashing");
-    private static readonly int IsGrounded = Animator.StringToHash("isGrounded");
+    private static readonly int IsWalkingHash = Animator.StringToHash("isWalking");
+    private static readonly int IsDashingHash = Animator.StringToHash("isDashing");
+    private static readonly int IsGroundedHash = Animator.StringToHash("isGrounded");
     private static readonly int JumpTrigger = Animator.StringToHash("jumpTrigger");
     private static readonly int MeleeTrigger = Animator.StringToHash("meleeTrigger");
     private static readonly int RangeTrigger = Animator.StringToHash("rangeTrigger");
 
+    [Networked] public bool IsDashing { get; set; }
+    [Networked] public bool IsWalking { get; set; }
+    [Networked] public bool IsGrounded { get; set; }
+    [Networked] public bool IsJumping { get; set; }
+    [Networked] public bool IsMelee { get; set; }
+    [Networked] public bool IsRange { get; set; }
+
+
     private NetworkButtons _previousButtons;
-    private bool _isDashing;
     private float _dashTimer;
 
     // Keep these in sync with NetCharacterController values
@@ -52,7 +60,7 @@ public class NetCharacterAnimator : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
-        if (!HasInputAuthority) return;
+        if (!Object.HasInputAuthority) return;
         if (animator == null) return;
 
         if (!GetInput(out NetInputPlayer input)) return;
@@ -65,51 +73,86 @@ public class NetCharacterAnimator : NetworkBehaviour
 
         if (dashPressed && hasDirection)
         {
-            _isDashing = true;
+            IsDashing = true;
             _dashTimer = DashDuration;
             ResetIdleSystem();
         }
 
-        if (_isDashing)
+        if (IsDashing)
         {
             _dashTimer -= Runner.DeltaTime;
             if (_dashTimer <= 0f)
-                _isDashing = false;
+                IsDashing = false;
         }
 
         //  Jump 
         bool jumpPressed = input.Buttons.WasPressed(_previousButtons, InputButton.Jump);
         if (jumpPressed && kcc.IsGrounded)
         {
-            animator.SetTrigger(JumpTrigger);
-            ResetIdleSystem();
+            IsJumping = true;   
+        }
+        else
+        {
+            IsJumping = false;
         }
 
         //  Attacks 
         if (input.Buttons.WasPressed(_previousButtons, InputButton.BasicAttack))
         {
+            IsMelee = true;
+        }
+        else
+        {
+            IsMelee = false;
+        }
+
+        if (input.Buttons.WasPressed(_previousButtons, InputButton.FirstSkill))
+        {
+            IsRange = true;
+        }
+        else{
+            IsRange = false;
+        }
+
+        // Set all bool parameters 
+
+
+        _previousButtons = input.Buttons;
+        IsWalking = hasDirection && !IsDashing;
+
+        SetAnimations();
+    }
+
+    private void SetAnimations()
+    {
+        if (IsJumping)
+        {
+            animator.SetTrigger(JumpTrigger);
+            ResetIdleSystem();
+        }
+
+        //  Attacks 
+        if (IsMelee)
+        {
             animator.SetTrigger(MeleeTrigger);
             ResetIdleSystem();
         }
 
-        if (input.Buttons.WasPressed(_previousButtons, InputButton.FirstSkill))
+        if (IsRange)
         {
             animator.SetTrigger(RangeTrigger);
             ResetIdleSystem();
         }
 
-        // Set all bool parameters 
-        animator.SetBool(IsWalking, hasDirection && !_isDashing);
-        animator.SetBool(IsDashing, _isDashing);
-        animator.SetBool(IsGrounded, kcc.IsGrounded);
-
-        _previousButtons = input.Buttons;
-
+        animator.SetBool(IsWalkingHash, IsWalking);
+        animator.SetBool(IsDashingHash, IsDashing);
+        animator.SetBool(IsGroundedHash, kcc.IsGrounded);
     }
+
     private void UpdateIdleRandomizer()
     {
         // 1. Si se mueve, salta o está en dash, cancelamos variantes
-        if (!kcc.IsGrounded || kcc.RealVelocity.sqrMagnitude > 0.5f || _isDashing)
+        if (!kcc.IsGrounded || kcc.RealVelocity.sqrMagnitude > 0.5f || IsDashing)
         {
             ResetIdleSystem();
             return;
@@ -161,4 +204,10 @@ public class NetCharacterAnimator : NetworkBehaviour
         _isInVariant = false;
         _idleTimer = 2f; // Bloqueo de seguridad de 2 segundos
     }
+
+    public override void Render()
+    {
+        SetAnimations();
+    }
+
 }
