@@ -115,6 +115,12 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
 
         _players.Add(player, playerSpawned);
 
+        //Register players on Registry
+
+        PlayerRegistry.Register(playerSpawned.transform);
+
+        Debug.Log ($"[NetworkController] Player Registrado en registry. Total: {PlayerRegistry.Players.Count}");
+
         if (player == _networkRunner.LocalPlayer)
         {
             if (CloudSaveGame.Instance != null)

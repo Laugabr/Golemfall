@@ -8,12 +8,10 @@ public class BossHealth : NetworkBehaviour
 
     [Networked] private float currentHealth { get; set; }
 
-    private BossAI bossAI;
+    [Header("References")]
+    [SerializeField] private BossAI bossAI;
 
-    private void Awake()
-    {
-        bossAI = GetComponent<BossAI>();
-    }
+    private bool isDead = false;
 
     public override void Spawned()
     {
@@ -27,16 +25,16 @@ public class BossHealth : NetworkBehaviour
     public void TakeDamage(float amount, Transform attacker)
     {
         if (!Object.HasStateAuthority) return;
+        if (isDead) return;
 
         currentHealth -= amount;
 
         Debug.Log($"[BossHealth] Recibe {amount} daño → HP: {currentHealth}");
 
-        //  AGGRO AQUI
+        //  AGGRO
         if (bossAI != null && attacker != null)
         {
             bossAI.AddAggro(attacker, amount);
-            Debug.Log($"[BossHealth] Agregando aggro a {attacker.name}");
         }
 
         if (currentHealth <= 0)
@@ -47,8 +45,18 @@ public class BossHealth : NetworkBehaviour
 
     void Die()
     {
+        if (isDead) return;
+
+        isDead = true;
+
         Debug.Log("[BossHealth] Boss muerto");
 
-        // lógica de muerte futura
+        //  detener IA
+        if (bossAI != null)
+        {
+            bossAI.DisableBoss();
+        }
+
+        
     }
 }
