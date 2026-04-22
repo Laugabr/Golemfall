@@ -338,7 +338,7 @@ MonoBehaviour:
   _lobbyPanel: {fileID: 1939311905}
   _createRoomButton: {fileID: 962770311}
   _joinRoomButton: {fileID: 785423943}
-  _spawnPoint: {fileID: 1236907750}
+  _spawnPoint: {fileID: 0}
   _networkRunner: {fileID: 22420848}
   _networkSceneManagerDefault: {fileID: 22420847}
   _playerPrefab: {fileID: 5404860756821982459, guid: 1b491d839b2dc6249916b81af5964b48, type: 3}
@@ -4561,37 +4561,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a66b9143bd7805640a70b6c813f7858f, type: 3}
---- !u!1 &1236907749
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1236907750}
-  m_Layer: 0
-  m_Name: SpawnPoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1236907750
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1236907749}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.83432, y: -25.879608, z: -7.423404}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1247381029
 GameObject:
   m_ObjectHideFlags: 0
@@ -8261,4 +8230,3 @@ SceneRoots:
   - {fileID: 102291732}
   - {fileID: 2114180297}
   - {fileID: 1375239292}
-  - {fileID: 1236907750}

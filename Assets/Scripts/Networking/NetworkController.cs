@@ -54,8 +54,6 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
             Scene = SceneRef.FromIndex(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex),
         };
 
-        _networkRunner.ProvideInput = true;
-
         var result = await _networkRunner.StartGame(gameArg);
 
         if (!result.Ok)
@@ -76,7 +74,6 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
             Scene = SceneRef.FromIndex(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex),
         };
 
-        _networkRunner.ProvideInput = true; 
         var result = await _networkRunner.StartGame(gameArg);
 
         if (!result.Ok)
