@@ -29,6 +29,7 @@ public class NetCharacterController : NetworkBehaviour
     private float dashTimer;
     private float dashCooldownTimer;
     private Vector3 dashDirection;
+    private bool pendingJump;
 
     // Cache local (solo relevante para el cliente con input authority).
     private InventoryToggle cachedInventoryToggle;
@@ -89,9 +90,17 @@ public class NetCharacterController : NetworkBehaviour
         }
 
         // jump
-        float jump = 0f;
+
+        float jumpImpulse = 0f;
+        if (pendingJump)
+        {
+            jumpImpulse = jumpPower;
+            pendingJump = false; // Consumimos el salto
+        }
+
+        /*float jump = 0f;
         if (input.Buttons.WasPressed(previousButtons, InputButton.Jump) && kcc.IsGrounded)
-            jump = jumpPower;
+            jump = jumpPower;*/
 
         // abilities / interact
         if (input.Buttons.WasPressed(previousButtons, InputButton.BasicAttack))
@@ -123,7 +132,7 @@ public class NetCharacterController : NetworkBehaviour
             Vector3 worldDir = kcc.TransformRotation
                 * new Vector3(input.Direction.x, 0f, input.Direction.y);
 
-            kcc.Move(worldDir.normalized * charStats.GetStat(Stat.speed), jump);
+            kcc.Move(worldDir.normalized * charStats.GetStat(Stat.speed), jumpImpulse);
 
             if (worldDir.sqrMagnitude > 0.01f)
             {
@@ -159,5 +168,11 @@ public class NetCharacterController : NetworkBehaviour
             cachedInventoryToggle = FindFirstObjectByType<InventoryToggle>();
 
         return cachedInventoryToggle != null && cachedInventoryToggle.IsInventoryOpen;
+    }
+
+    // Esta función la llamará la animación en el frame 7
+    public void FinalizeJump()
+    {
+        pendingJump = true;
     }
 }
