@@ -37,6 +37,7 @@ public class CharacterPickUp : NetworkBehaviour
 
         Debug.Log($"{Object} tries to collect {item.Item.displayName}");
         item.Rpc_Collect(Object);
+        TrackEvents.OnTrackEvent?.Invoke(GameEventType.CollectItem, 1);
 
         InteractPrompt.Instance?.Hide();
         MessageManager.Instance?.Show("Item recolectado");
