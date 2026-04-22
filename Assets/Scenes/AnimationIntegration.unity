@@ -338,6 +338,7 @@ MonoBehaviour:
   _lobbyPanel: {fileID: 1939311905}
   _createRoomButton: {fileID: 962770311}
   _joinRoomButton: {fileID: 785423943}
+  _spawnPoint: {fileID: 0}
   _networkRunner: {fileID: 22420848}
   _networkSceneManagerDefault: {fileID: 22420847}
   _playerPrefab: {fileID: 5404860756821982459, guid: 1b491d839b2dc6249916b81af5964b48, type: 3}
@@ -3330,6 +3331,7 @@ MonoBehaviour:
   - {fileID: 829926565}
   slotPrefab: {fileID: 2404482117328291837, guid: 5f691b56bf870854695bd090cd6eb40b, type: 3}
   inventoryPanel: {fileID: 947378545}
+  targetCraftingSystem: {fileID: 0}
 --- !u!114 &947378549
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4593,6 +4595,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventoryItemBank: {fileID: 11400000, guid: 2f5db876484be424cbd2b0ae8c3c1ee2, type: 2}
+  craftingDatabase: {fileID: 0}
 --- !u!4 &1247381031
 Transform:
   m_ObjectHideFlags: 0
@@ -5219,7 +5222,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1375239292}
   m_Layer: 0
-  m_Name: EnvironmentPrefab
+  m_Name: EnvironmentObjects
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
