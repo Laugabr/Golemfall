@@ -5,6 +5,10 @@ public class EnemyHealth : HealthSystem
 
     public override void Spawned()
     {
+        var charStats = GetComponent<CharacterStats>();
+        if (charStats != null)
+            charStats.Initialize();
+
         base.Spawned();
 
         if (Object.HasStateAuthority)
@@ -37,7 +41,6 @@ public class EnemyHealth : HealthSystem
     public override void Die()
     {
         Debug.Log($"Enemy {gameObject.name} murió");
- 
 
         if (Object.HasStateAuthority)
         {
