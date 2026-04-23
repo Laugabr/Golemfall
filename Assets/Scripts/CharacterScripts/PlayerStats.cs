@@ -17,11 +17,26 @@ public class PlayerStats : CharacterStats
     private void OnEnable() => BasicEventsManager.OnLevelUp += HandleLevelUp;
 
     private void OnDisable() => BasicEventsManager.OnLevelUp -= HandleLevelUp;
+
     private void HandleLevelUp(int levelId)
     {
         if (!Object.HasStateAuthority) return;
 
-        var levelSO = levelsData[levelId - 1];
+        // Guard: si no hay datos para ese nivel, ignorar
+        if (levelsData == null || levelsData.Count == 0)
+        {
+            Debug.LogWarning($"[PlayerStats] levelsData está vacío. LevelId: {levelId}");
+            return;
+        }
+
+        int index = levelId - 1;
+        if (index < 0 || index >= levelsData.Count)
+        {
+            Debug.LogWarning($"[PlayerStats] LevelId {levelId} fuera de rango. levelsData.Count: {levelsData.Count}");
+            return;
+        }
+
+        var levelSO = levelsData[index];
         foreach (var info in levelSO.statInfo)
         {
             var existing = baseLevelStats.FirstOrDefault(s => s.statType == info.statType);
@@ -30,7 +45,7 @@ public class PlayerStats : CharacterStats
             OnStatsChanged?.Invoke();
         }
 
-        RefreshStats(); // Recalcular todo con el nuevo nivel
+        RefreshStats();
     }
 
     public void RefreshStats()
