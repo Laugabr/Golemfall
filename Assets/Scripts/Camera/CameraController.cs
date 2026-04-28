@@ -6,18 +6,21 @@ namespace Game.CameraSystem
 {
     /// <summary>
     /// Cámara con:
-    ///   - Seguimiento por zona muerta world-space (edge-scrolling).
-    ///   - Rotación world-space fija (no rota por el movimiento del jugador).
+    ///   - Seguimiento por zona muerta world-space.
+    ///   - Rotación orbital con botón derecho del mouse (yaw + pitch), cursor libre.
     ///   - Sistema de presets con transiciones suaves programables.
-    ///   - Input manual de rotación con offset aditivo (teclas 8/2 pitch, 4/6 yaw, 0 reset).
+    ///   - Reset de offset con la tecla End.
+    ///   - Propiedad WorldYaw para movimiento WASD relativo a la cámara:
+    ///     NetCharacterController rota el input por este valor → W siempre
+    ///     empuja al jugador hacia donde mira la cámara.
     ///
-    /// IMPORTANTE: La rotación visible de la cámara es la suma de:
-    ///   (preset actual / transición en curso)  +  (offset manual del usuario)
-    /// Esto permite que el usuario rote manualmente sin romper las transiciones
-    /// programadas, y que el reset con '0' devuelva la cámara al "base" sin más.
+    /// ROTACIÓN CON MOUSE:
+    ///   Mientras se mantiene apretado el botón derecho, el delta del mouse
+    ///   acumula un offset de yaw (horizontal) y pitch (vertical) sobre la
+    ///   rotación base del preset actual. El offset se aplica con SmoothDamp
+    ///   para que el movimiento tenga inercia natural (estilo BG3 / Last Epoch).
     ///
-    /// Integración con Photon Fusion 2: este componente debe estar habilitado únicamente
-    /// en el cliente que tiene autoridad de input sobre el jugador. Ver SetTarget().
+    /// Integración Photon Fusion 2: habilitar solo en el cliente con input authority.
     /// </summary>
     [DisallowMultipleComponent]
     public class CameraController : MonoBehaviour
@@ -27,11 +30,11 @@ namespace Game.CameraSystem
         // ─────────────────────────────────────────────────────────────────────────
 
         [Header("Target")]
-        [Tooltip("Jugador (u otro objeto) al que la cámara sigue. Si es null al Start, no sigue a nadie.")]
+        [Tooltip("Jugador al que la cámara sigue. Si es null al Start, no sigue a nadie.")]
         [SerializeField] private Transform target;
 
         [Header("Zona muerta world-space")]
-        [Tooltip("Mitad del ancho (eje X del mundo) de la zona muerta. El jugador puede moverse libremente dentro de este rectángulo sin que la cámara se mueva.")]
+        [Tooltip("Mitad del ancho (eje X del mundo) de la zona muerta.")]
         [Min(0f)]
         [SerializeField] private float deadZoneHalfWidth = 4f;
 
@@ -40,11 +43,11 @@ namespace Game.CameraSystem
         [SerializeField] private float deadZoneHalfLength = 3f;
 
         [Header("Suavizado del seguimiento")]
-        [Tooltip("Tiempo aproximado (segundos) que tarda la cámara en alcanzar al jugador tras salirse de la zona muerta. Más alto = más delay / más 'pesado'.")]
+        [Tooltip("Tiempo (segundos) que tarda la cámara en alcanzar al jugador. Más alto = más delay.")]
         [Min(0f)]
         [SerializeField] private float followSmoothTime = 0.35f;
 
-        [Tooltip("Velocidad máxima (unidades/s) con la que la cámara se puede mover siguiendo al jugador. Evita tirones con saltos grandes.")]
+        [Tooltip("Velocidad máxima (unidades/s) del seguimiento. Evita tirones con saltos grandes.")]
         [Min(0f)]
         [SerializeField] private float followMaxSpeed = 30f;
 
@@ -53,34 +56,40 @@ namespace Game.CameraSystem
         // ─────────────────────────────────────────────────────────────────────────
 
         [Header("Presets de cámara")]
-        [Tooltip("Lista de configuraciones de cámara (pitch/yaw/distancia). Se invocan por nombre desde código con TransitionToPreset(name).")]
+        [Tooltip("Lista de configuraciones de cámara (pitch / yaw / distancia).")]
         [SerializeField] private List<CameraPreset> presets = new List<CameraPreset>();
 
-        [Tooltip("Índice del preset inicial que se aplica instantáneamente (sin transición) al arrancar.")]
+        [Tooltip("Índice del preset inicial aplicado al arrancar (sin transición).")]
         [SerializeField] private int initialPresetIndex = 0;
 
         [Header("Auto-transitions al inicio del juego")]
-        [Tooltip("Lista de transiciones que se disparan solas al Start(). Ej: {0s → 'Intro', 10s → 'Normal'}.")]
+        [Tooltip("Transiciones que se disparan automáticamente al Start().")]
         [SerializeField] private List<AutoTransition> autoTransitions = new List<AutoTransition>();
 
         // ─────────────────────────────────────────────────────────────────────────
-        // Input manual
+        // Input de rotación con mouse
         // ─────────────────────────────────────────────────────────────────────────
 
-        [Header("Input manual (teclado numérico)")]
-        [Tooltip("Velocidad de rotación manual al mantener las teclas (grados/segundo).")]
+        [Header("Rotación con botón derecho del mouse")]
+        [Tooltip("Sensibilidad del mouse para rotar la cámara. Rango sugerido: 0.08–0.25.")]
         [Min(0f)]
-        [SerializeField] private float manualRotationSpeed = 45f;
+        [SerializeField] private float mouseSensitivity = 0.15f;
 
-        [Tooltip("Offset máximo de pitch (grados) que el usuario puede aplicar sobre la rotación base.")]
+        [Tooltip("Suavizado de la rotación (SmoothDamp). Más alto = más inercia. Rango: 0.05–0.2.")]
+        [Min(0f)]
+        [SerializeField] private float rotationSmoothTime = 0.1f;
+
+        [Tooltip("Offset máximo de pitch sobre la rotación base del preset.\n" +
+                 "X = límite hacia abajo (negativo), Y = límite hacia arriba (positivo).")]
         [SerializeField] private Vector2 manualPitchRange = new Vector2(-20f, 20f);
 
-        [Tooltip("Offset máximo de yaw (grados) que el usuario puede aplicar sobre la rotación base.")]
-        [SerializeField] private Vector2 manualYawRange = new Vector2(-45f, 45f);
+        [Tooltip("Offset máximo de yaw sobre la rotación base del preset.\n" +
+                 "X = límite izquierda (negativo), Y = límite derecha (positivo).")]
+        [SerializeField] private Vector2 manualYawRange = new Vector2(-60f, 60f);
 
-        [Tooltip("Tiempo (segundos) que tarda el reset con '0' en devolver el offset a cero.")]
+        [Tooltip("Duración (segundos) de la animación de reset al presionar End.")]
         [Min(0f)]
-        [SerializeField] private float manualResetDuration = 0.3f;
+        [SerializeField] private float manualResetDuration = 0.4f;
 
         // ─────────────────────────────────────────────────────────────────────────
         // Debug
@@ -94,87 +103,62 @@ namespace Game.CameraSystem
         // Estado interno
         // ─────────────────────────────────────────────────────────────────────────
 
-        // Focus point = el "centro" que la cámara intenta seguir en el plano XZ.
-        // La cámara real se posiciona a cierta distancia de este punto, según pitch/yaw.
         private Vector3 focusPoint;
-        private Vector3 focusVelocity; // usado por SmoothDamp
+        private Vector3 focusVelocity;
 
-        // Estado actual de la rotación "base" (lo que dicta el preset actual o la transición en curso).
+        // Rotación "base" dictada por el preset activo o la transición en curso.
         private float basePitch;
         private float baseYaw;
         private float baseDistance;
 
-        // Offset manual del usuario (se suma a la base).
-        private float manualPitchOffset;
-        private float manualYawOffset;
+        // Objetivo del offset manual (acumulado desde el mouse).
+        private float targetPitchOffset;
+        private float targetYawOffset;
 
-        // Corrutinas activas (las guardamos para poder cancelarlas si se dispara otra transición).
+        // Offset suavizado actual (lo que realmente se aplica al transform).
+        private float smoothPitchOffset;
+        private float smoothYawOffset;
+
+        // Velocidades internas de SmoothDamp para el offset.
+        private float pitchOffsetVelocity;
+        private float yawOffsetVelocity;
+
         private Coroutine transitionRoutine;
         private Coroutine manualResetRoutine;
-
-        // ─────────────────────────────────────────────────────────────────────────
-        // Ciclo de vida
-        // ─────────────────────────────────────────────────────────────────────────
-
-        private void Start()
-        {
-            // Aplicar preset inicial de golpe (sin transición) para no ver un "snap" feo al arrancar.
-            if (presets.Count > 0 && initialPresetIndex >= 0 && initialPresetIndex < presets.Count)
-            {
-                var initial = presets[initialPresetIndex];
-                basePitch = initial.pitch;
-                baseYaw = initial.yaw;
-                baseDistance = initial.distance;
-            }
-
-            // Inicializar el focus point en la posición del target (si hay) para que no haya salto.
-            if (target != null)
-            {
-                focusPoint = target.position;
-            }
-
-            // Aplicar transform inmediatamente con los valores iniciales.
-            ApplyTransform(instant: true);
-
-            // Arrancar las auto-transitions.
-            if (autoTransitions.Count > 0)
-            {
-                StartCoroutine(RunAutoTransitions());
-            }
-        }
-
-        private void LateUpdate()
-        {
-            // LateUpdate es el lugar correcto para cámaras: corre después de que todos los
-            // Update() del frame movieron a sus entidades, así la cámara ve la posición final.
-
-            UpdateFocusPoint();
-            HandleManualInput();
-            ApplyTransform(instant: false);
-        }
 
         // ─────────────────────────────────────────────────────────────────────────
         // API pública
         // ─────────────────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Setea el target al que sigue la cámara. Llamar desde el jugador local en
-        /// Fusion 2: if (Object.HasInputAuthority) camera.SetTarget(transform);
+        /// Yaw total actual de la cámara (preset base + offset del usuario, ya suavizado).
+        ///
+        /// NetCharacterController lo usa para transformar el input WASD al espacio de la cámara:
+        ///
+        ///   Vector3 camForward = Quaternion.Euler(0, cam.WorldYaw, 0) * Vector3.forward;
+        ///   Vector3 camRight   = Quaternion.Euler(0, cam.WorldYaw, 0) * Vector3.right;
+        ///   Vector3 worldDir   = camForward * input.Direction.y + camRight * input.Direction.x;
+        ///
+        /// Solo Y (yaw) importa para movimiento en el plano XZ; el pitch no afecta la dirección
+        /// de movimiento del jugador.
+        /// </summary>
+        public float WorldYaw => baseYaw + smoothYawOffset;
+
+        /// <summary>
+        /// Setea el target al que sigue la cámara.
+        /// En Fusion 2: llamar solo desde el cliente con HasInputAuthority.
         /// </summary>
         public void SetTarget(Transform newTarget)
         {
             target = newTarget;
             if (target != null)
             {
-                focusPoint = target.position;
+                focusPoint    = target.position;
                 focusVelocity = Vector3.zero;
             }
         }
 
-        /// <summary>
-        /// Transiciona suavemente al preset indicado (busca por nombre).
-        /// Si hay otra transición en curso, la cancela.
-        /// </summary>
+        /// <summary>Transiciona suavemente al preset indicado (busca por nombre).</summary>
         public void TransitionToPreset(string presetName, float? overrideDuration = null)
         {
             var preset = presets.Find(p => p.presetName == presetName);
@@ -186,9 +170,7 @@ namespace Game.CameraSystem
             TransitionToPreset(preset, overrideDuration);
         }
 
-        /// <summary>
-        /// Transiciona suavemente al preset indicado (por índice en la lista).
-        /// </summary>
+        /// <summary>Transiciona suavemente al preset indicado (por índice).</summary>
         public void TransitionToPreset(int index, float? overrideDuration = null)
         {
             if (index < 0 || index >= presets.Count)
@@ -202,11 +184,41 @@ namespace Game.CameraSystem
         private void TransitionToPreset(CameraPreset preset, float? overrideDuration)
         {
             if (transitionRoutine != null)
-            {
                 StopCoroutine(transitionRoutine);
-            }
+
             float duration = overrideDuration ?? preset.transitionDuration;
             transitionRoutine = StartCoroutine(TransitionRoutine(preset, duration));
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // Ciclo de vida
+        // ─────────────────────────────────────────────────────────────────────────
+
+        private void Start()
+        {
+            if (presets.Count > 0 && initialPresetIndex >= 0 && initialPresetIndex < presets.Count)
+            {
+                var initial = presets[initialPresetIndex];
+                basePitch    = initial.pitch;
+                baseYaw      = initial.yaw;
+                baseDistance = initial.distance;
+            }
+
+            if (target != null)
+                focusPoint = target.position;
+
+            ApplyTransform(instant: true);
+
+            if (autoTransitions.Count > 0)
+                StartCoroutine(RunAutoTransitions());
+        }
+
+        private void LateUpdate()
+        {
+            UpdateFocusPoint();
+            HandleMouseInput();
+            SmoothOffsets();
+            ApplyTransform(instant: false);
         }
 
         // ─────────────────────────────────────────────────────────────────────────
@@ -217,45 +229,33 @@ namespace Game.CameraSystem
         {
             if (target == null) return;
 
-            // Calculamos el desvío (en XZ) entre el target y el focus point actual.
             Vector3 targetPos = target.position;
             float dx = targetPos.x - focusPoint.x;
             float dz = targetPos.z - focusPoint.z;
 
-            // Computamos hacia dónde debería ir el focus point: el punto MÁS CERCANO posible
-            // al focus actual que meta al target dentro del rectángulo de zona muerta.
-            // Equivalente: si el target está fuera del rect, mover el focus lo justo para que
-            // el target quede en el borde del rect. Si está dentro, el focus no se mueve.
             float desiredX = focusPoint.x;
             float desiredZ = focusPoint.z;
 
-            if (dx > deadZoneHalfWidth) desiredX = targetPos.x - deadZoneHalfWidth;
-            else if (dx < -deadZoneHalfWidth) desiredX = targetPos.x + deadZoneHalfWidth;
+            if      (dx >  deadZoneHalfWidth)  desiredX = targetPos.x - deadZoneHalfWidth;
+            else if (dx < -deadZoneHalfWidth)  desiredX = targetPos.x + deadZoneHalfWidth;
 
-            if (dz > deadZoneHalfLength) desiredZ = targetPos.z - deadZoneHalfLength;
+            if      (dz >  deadZoneHalfLength) desiredZ = targetPos.z - deadZoneHalfLength;
             else if (dz < -deadZoneHalfLength) desiredZ = targetPos.z + deadZoneHalfLength;
 
-            // Mantenemos la Y del focus point al nivel del target (útil si el terreno tiene altura).
             Vector3 desiredFocus = new Vector3(desiredX, targetPos.y, desiredZ);
 
-            // Smoothing: SmoothDamp da un "delay" natural con critical damping (sin overshoot).
             focusPoint = Vector3.SmoothDamp(
-                focusPoint,
-                desiredFocus,
-                ref focusVelocity,
-                followSmoothTime,
-                followMaxSpeed
+                focusPoint, desiredFocus, ref focusVelocity, followSmoothTime, followMaxSpeed
             );
         }
 
         // ─────────────────────────────────────────────────────────────────────────
-        // Input manual (teclado numérico)
+        // Input de mouse: botón derecho mantenido → acumular offset
         // ─────────────────────────────────────────────────────────────────────────
 
-        private void HandleManualInput()
+        private void HandleMouseInput()
         {
-            float dt = Time.deltaTime;
-
+            // Reset suave del offset con End.
             if (Input.GetKeyDown(KeyCode.End))
             {
                 if (manualResetRoutine != null) StopCoroutine(manualResetRoutine);
@@ -263,48 +263,61 @@ namespace Game.CameraSystem
                 return;
             }
 
-            // Si alguna flecha está presionada, cancelamos un reset en curso.
-            bool anyKey =
-                Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow) ||
-                Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow);
-
-            if (anyKey && manualResetRoutine != null)
+            if (Input.GetMouseButton(1))
             {
-                StopCoroutine(manualResetRoutine);
-                manualResetRoutine = null;
+                float mouseX = Input.GetAxis("Mouse X");
+                float mouseY = Input.GetAxis("Mouse Y");
+
+                // Si el usuario mueve el mouse, cancelamos un reset en curso.
+                bool moving = Mathf.Abs(mouseX) > 0.001f || Mathf.Abs(mouseY) > 0.001f;
+                if (moving && manualResetRoutine != null)
+                {
+                    StopCoroutine(manualResetRoutine);
+                    manualResetRoutine = null;
+                }
+
+                // Mouse X → yaw | Mouse Y → pitch (subir mouse = cámara sube)
+                targetYawOffset   += mouseX * mouseSensitivity * 100f * Time.deltaTime;
+                targetPitchOffset -= mouseY * mouseSensitivity * 100f * Time.deltaTime;
+
+                targetPitchOffset = Mathf.Clamp(targetPitchOffset, manualPitchRange.x, manualPitchRange.y);
+                targetYawOffset   = Mathf.Clamp(targetYawOffset,   manualYawRange.x,   manualYawRange.y);
             }
+        }
 
-            // Pitch: flecha arriba sube la cámara, flecha abajo la baja.
-            if (Input.GetKey(KeyCode.UpArrow)) manualPitchOffset += manualRotationSpeed * dt;
-            if (Input.GetKey(KeyCode.DownArrow)) manualPitchOffset -= manualRotationSpeed * dt;
-
-            // Yaw: flecha izquierda rota a la izquierda, derecha a la derecha.
-            if (Input.GetKey(KeyCode.LeftArrow)) manualYawOffset -= manualRotationSpeed * dt;
-            if (Input.GetKey(KeyCode.RightArrow)) manualYawOffset += manualRotationSpeed * dt;
-
-            manualPitchOffset = Mathf.Clamp(manualPitchOffset, manualPitchRange.x, manualPitchRange.y);
-            manualYawOffset = Mathf.Clamp(manualYawOffset, manualYawRange.x, manualYawRange.y);
+        /// <summary>
+        /// Aplica SmoothDamp sobre el offset para suavizar el movimiento
+        /// incluso cuando el mouse se detiene (da inercia natural).
+        /// </summary>
+        private void SmoothOffsets()
+        {
+            smoothPitchOffset = Mathf.SmoothDamp(
+                smoothPitchOffset, targetPitchOffset, ref pitchOffsetVelocity, rotationSmoothTime
+            );
+            smoothYawOffset = Mathf.SmoothDamp(
+                smoothYawOffset, targetYawOffset, ref yawOffsetVelocity, rotationSmoothTime
+            );
         }
 
         private IEnumerator ResetManualOffsetsRoutine()
         {
-            float startPitch = manualPitchOffset;
-            float startYaw = manualYawOffset;
-            float elapsed = 0f;
+            float startPitch = targetPitchOffset;
+            float startYaw   = targetYawOffset;
+            float elapsed    = 0f;
 
             while (elapsed < manualResetDuration)
             {
                 elapsed += Time.deltaTime;
-                float t = Mathf.Clamp01(elapsed / manualResetDuration);
-                // Ease-out para que el último tramo sea suave (t rápido al principio, lento al final).
-                float eased = 1f - Mathf.Pow(1f - t, 2f);
-                manualPitchOffset = Mathf.Lerp(startPitch, 0f, eased);
-                manualYawOffset = Mathf.Lerp(startYaw, 0f, eased);
+                float t     = Mathf.Clamp01(elapsed / manualResetDuration);
+                float eased = 1f - Mathf.Pow(1f - t, 3f); // ease-out cúbico
+
+                targetPitchOffset = Mathf.Lerp(startPitch, 0f, eased);
+                targetYawOffset   = Mathf.Lerp(startYaw,   0f, eased);
                 yield return null;
             }
 
-            manualPitchOffset = 0f;
-            manualYawOffset = 0f;
+            targetPitchOffset  = 0f;
+            targetYawOffset    = 0f;
             manualResetRoutine = null;
         }
 
@@ -314,16 +327,15 @@ namespace Game.CameraSystem
 
         private IEnumerator TransitionRoutine(CameraPreset target, float duration)
         {
-            float startPitch = basePitch;
-            float startYaw = baseYaw;
+            float startPitch    = basePitch;
+            float startYaw      = baseYaw;
             float startDistance = baseDistance;
-            float elapsed = 0f;
+            float elapsed       = 0f;
 
-            // Duración de 0 → salto instantáneo.
             if (duration <= 0f)
             {
-                basePitch = target.pitch;
-                baseYaw = target.yaw;
+                basePitch    = target.pitch;
+                baseYaw      = target.yaw;
                 baseDistance = target.distance;
                 transitionRoutine = null;
                 yield break;
@@ -332,24 +344,23 @@ namespace Game.CameraSystem
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
-                float t = Mathf.Clamp01(elapsed / duration);
+                float t     = Mathf.Clamp01(elapsed / duration);
                 float eased = target.transitionCurve.Evaluate(t);
 
-                basePitch = Mathf.Lerp(startPitch, target.pitch, eased);
-                baseYaw = Mathf.LerpAngle(startYaw, target.yaw, eased); // LerpAngle: elige el camino más corto
+                basePitch    = Mathf.Lerp(startPitch,    target.pitch,    eased);
+                baseYaw      = Mathf.LerpAngle(startYaw, target.yaw,      eased);
                 baseDistance = Mathf.Lerp(startDistance, target.distance, eased);
                 yield return null;
             }
 
-            basePitch = target.pitch;
-            baseYaw = target.yaw;
+            basePitch    = target.pitch;
+            baseYaw      = target.yaw;
             baseDistance = target.distance;
             transitionRoutine = null;
         }
 
         private IEnumerator RunAutoTransitions()
         {
-            // Ordenamos por tiempo ascendente para poder esperar incrementalmente.
             var sorted = new List<AutoTransition>(autoTransitions);
             sorted.Sort((a, b) => a.triggerAtSeconds.CompareTo(b.triggerAtSeconds));
 
@@ -361,9 +372,7 @@ namespace Game.CameraSystem
                 timeWaited = auto.triggerAtSeconds;
 
                 if (!string.IsNullOrEmpty(auto.presetName))
-                {
                     TransitionToPreset(auto.presetName);
-                }
             }
         }
 
@@ -373,36 +382,29 @@ namespace Game.CameraSystem
 
         private void ApplyTransform(bool instant)
         {
-            // Rotación final = base (preset/transición) + offset manual del usuario.
-            float finalPitch = basePitch + manualPitchOffset;
-            float finalYaw = baseYaw + manualYawOffset;
+            float finalPitch = basePitch + smoothPitchOffset;
+            float finalYaw   = baseYaw   + smoothYawOffset;
 
-            // Calculamos la posición: partiendo del focus point, nos alejamos "hacia atrás" según
-            // pitch/yaw a la distancia configurada. Truco clásico: construir un quaternion con la
-            // rotación deseada, multiplicarlo por Vector3.back * distancia, y sumarlo al focus.
-            Quaternion rot = Quaternion.Euler(finalPitch, finalYaw, 0f);
+            Quaternion rot          = Quaternion.Euler(finalPitch, finalYaw, 0f);
             Vector3 offsetFromFocus = rot * Vector3.back * baseDistance;
-            Vector3 desiredCamPos = focusPoint + offsetFromFocus;
+            Vector3 desiredCamPos   = focusPoint + offsetFromFocus;
 
             transform.position = desiredCamPos;
             transform.rotation = rot;
         }
 
         // ─────────────────────────────────────────────────────────────────────────
-        // Gizmos (debug visual en el editor)
+        // Gizmos
         // ─────────────────────────────────────────────────────────────────────────
 
         private void OnDrawGizmosSelected()
         {
             if (!drawGizmos) return;
 
-            // Dibuja el rectángulo de zona muerta en el plano XZ, a la altura del focus point.
-            // En editor (sin target) usamos la posición del transform como referencia.
             Vector3 center = Application.isPlaying ? focusPoint : transform.position;
 
             Gizmos.color = new Color(0f, 1f, 0.4f, 0.8f);
-            Vector3 size = new Vector3(deadZoneHalfWidth * 2f, 0.05f, deadZoneHalfLength * 2f);
-            Gizmos.DrawWireCube(center, size);
+            Gizmos.DrawWireCube(center, new Vector3(deadZoneHalfWidth * 2f, 0.05f, deadZoneHalfLength * 2f));
 
             Gizmos.color = Color.yellow;
             Gizmos.DrawSphere(center, 0.2f);

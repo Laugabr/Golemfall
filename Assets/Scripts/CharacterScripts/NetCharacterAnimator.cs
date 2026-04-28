@@ -108,14 +108,14 @@ public class NetCharacterAnimator : NetworkBehaviour
     }
     private void UpdateIdleRandomizer()
     {
-        // 1. Si se mueve, salta o está en dash, cancelamos variantes
+        // 1. Si se mueve, salta o estï¿½ en dash, cancelamos variantes
         if (!kcc.IsGrounded || kcc.RealVelocity.sqrMagnitude > 0.5f || _isDashing)
         {
             ResetIdleSystem();
             return;
         }
 
-        // 2. Si está en medio de una animación de ataque (usa el Tag "Attack" en el Animator)
+        // 2. Si estï¿½ en medio de una animaciï¿½n de ataque (usa el Tag "Attack" en el Animator)
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
         if (stateInfo.IsTag("Attack"))
         {
@@ -123,7 +123,7 @@ public class NetCharacterAnimator : NetworkBehaviour
             return;
         }
 
-        // 3. Lógica del cronómetro
+        // 3. Lï¿½gica del cronï¿½metro
         _idleTimer -= Runner.DeltaTime;
 
         if (_idleTimer <= 0f)
@@ -154,11 +154,16 @@ public class NetCharacterAnimator : NetworkBehaviour
 
     private void ResetIdleSystem()
     {
-        // Solo enviamos el parámetro si es necesario (para ahorrar red)
+        // Solo enviamos el parï¿½metro si es necesario (para ahorrar red)
         if (animator.GetInteger(IdleTypeHash) != 0)
             animator.SetInteger(IdleTypeHash, 0);
 
         _isInVariant = false;
         _idleTimer = 2f; // Bloqueo de seguridad de 2 segundos
+    }
+
+    private void FinalizeJump()
+    {
+
     }
 }
