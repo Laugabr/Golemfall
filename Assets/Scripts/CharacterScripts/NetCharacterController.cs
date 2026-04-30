@@ -45,7 +45,7 @@ public class NetCharacterController : NetworkBehaviour
 
     private void Awake()
     {
-        charStats  = GetComponent<CharacterStats>();
+        charStats = GetComponent<CharacterStats>();
         charPickUp = GetComponent<CharacterPickUp>();
         charAbilities = GetComponent<AbilityHolder>();
     }
@@ -56,7 +56,7 @@ public class NetCharacterController : NetworkBehaviour
 
         if (HasInputAuthority)
         {
-            cachedMainCamera      = Camera.main;
+            cachedMainCamera = Camera.main;
             cachedInventoryToggle = FindFirstObjectByType<InventoryToggle>();
 
             if (cachedMainCamera != null)
@@ -80,11 +80,11 @@ public class NetCharacterController : NetworkBehaviour
         if (!GetInput(out NetInputPlayer input)) return;
         if (charStats == null || charStats.localStats.Count == 0) return;
 
-        // ── Cooldown del dash ─────────────────────────────────────────────────
+        //  Cooldown del dash
         if (dashCooldownTimer > 0f)
             dashCooldownTimer -= Runner.DeltaTime;
 
-        // ── Dirección de movimiento relativa a la cámara ──────────────────────
+        // Dirección de movimiento relativa a la cámara 
         // Construimos los ejes de la cámara proyectados en el plano XZ.
         // Si no hay cámara (clientes remotos o servidor), usamos los ejes del mundo.
         //
@@ -96,43 +96,44 @@ public class NetCharacterController : NetworkBehaviour
 
         if (HasInputAuthority && cachedCameraController != null)
         {
-            float yaw  = cachedCameraController.WorldYaw;
+            float yaw = cachedCameraController.WorldYaw;
             camForward = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
-            camRight   = Quaternion.Euler(0f, yaw, 0f) * Vector3.right;
+            camRight = Quaternion.Euler(0f, yaw, 0f) * Vector3.right;
         }
         else
         {
             // Servidor / clientes remotos: usamos los ejes del mundo.
             // No importa porque el servidor no tiene cámara; solo procesa física.
             camForward = Vector3.forward;
-            camRight   = Vector3.right;
+            camRight = Vector3.right;
         }
 
         Vector3 inputWorld = (camForward * input.Direction.y
-                            + camRight   * input.Direction.x);
+                            + camRight * input.Direction.x);
 
         // Normalizamos solo si hay magnitud real para evitar dividir por cero.
         if (inputWorld.sqrMagnitude > 1f)
             inputWorld.Normalize();
 
-        // ── Inicio del dash ───────────────────────────────────────────────────
+        // Inicio del dash 
         if (input.Buttons.WasPressed(previousButtons, InputButton.Dash)
             && dashCooldownTimer <= 0f
             && input.Direction.magnitude > 0.1f)
         {
-            isDashing         = true;
-            dashTimer         = dashDuration;
+            isDashing = true;
+            dashTimer = dashDuration;
             dashCooldownTimer = dashCooldown;
-            dashDirection     = inputWorld.normalized; // dash en la dirección relativa a la cámara
+            dashDirection = inputWorld.normalized;
         }
 
-        // ── Salto ─────────────────────────────────────────────────────────────
+        // Salto 
         float jump = 0f;
         if (input.Buttons.WasPressed(previousButtons, InputButton.Jump) && kcc.IsGrounded)
             jump = jumpPower;
 
-        // ── Habilidades / interacción ─────────────────────────────────────────
-        if (input.Buttons.WasPressed(previousButtons, InputButton.BasicAttack))
+        // Habilidades / interacción 
+        if (input.Buttons.WasPressed(previousButtons, InputButton.BasicAttack) ||
+    input.Buttons.WasPressed(previousButtons, InputButton.MouseButton0))
         {
             if (HasInputAuthority && !IsInventoryOpen())
                 charAbilities?.RPC_RequestUseAbility(0, GetMouseDirection());
@@ -147,7 +148,7 @@ public class NetCharacterController : NetworkBehaviour
         if (input.Buttons.WasPressed(previousButtons, InputButton.Interact) && HasInputAuthority)
             charPickUp?.TryPickUp();
 
-        // ── Movimiento ────────────────────────────────────────────────────────
+        // Movimiento
         if (isDashing)
         {
             kcc.Move(dashDirection * dashSpeed);
@@ -181,7 +182,7 @@ public class NetCharacterController : NetworkBehaviour
         if (cam == null) return transform.forward;
 
         Plane plane = new Plane(Vector3.up, transform.position);
-        Ray   ray   = cam.ScreenPointToRay(Input.mousePosition);
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
 
         if (plane.Raycast(ray, out float dist))
         {

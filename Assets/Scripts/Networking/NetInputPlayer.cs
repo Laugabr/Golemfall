@@ -3,12 +3,14 @@ using UnityEngine;
 
 public enum InputButton
 {
-    Jump,
-    Dash,
-    Interact,
-    BasicAttack,    // Mouse izquierdo — ataque melee
-    FirstSkill,     // Q — ataque a distancia
-    SecondarySkill  // E — habilidad secundaria
+    Jump,           // 0
+    Dash,           // 1
+    Interact,       // 2
+    BasicAttack,    // 3
+    FirstSkill,     // 4
+    SecondarySkill, // 5
+    MouseButton0,   // 6 — click izquierdo acumulado (protección clicks rápidos en Fusion)
+    MouseButton1,   // 7 — reservado para uso futuro
 }
 
 public struct NetInputPlayer : INetworkInput
@@ -18,9 +20,4 @@ public struct NetInputPlayer : INetworkInput
     public Vector2 Direction;
 
     public Vector2 LookDelta;
-
-    public const byte MOUSE_BUTTON_0 = 1;
-
-    // MOUSE_BUTTON_1 ya no se usa para skills — el botón derecho es control de cámara
-    public const byte MOUSE_BUTTON_1 = 2;
 }

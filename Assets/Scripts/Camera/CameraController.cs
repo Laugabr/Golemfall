@@ -281,7 +281,8 @@ namespace Game.CameraSystem
                 targetPitchOffset -= mouseY * mouseSensitivity * 100f * Time.deltaTime;
 
                 targetPitchOffset = Mathf.Clamp(targetPitchOffset, manualPitchRange.x, manualPitchRange.y);
-                targetYawOffset   = Mathf.Clamp(targetYawOffset,   manualYawRange.x,   manualYawRange.y);
+                //targetYawOffset   = Mathf.Clamp(targetYawOffset,   manualYawRange.x,   manualYawRange.y);
+                //targetYawOffset rotación infinita
             }
         }
 

@@ -13,16 +13,24 @@ using UnityEngine.InputSystem;
 ///   Space         → salto
 ///   Shift         → dash
 ///   F             → interactuar / recoger ítem
-///   Mouse izq.    → BasicAttack (melee)
+///   Mouse izq.    → BasicAttack (melee) + MouseButton0 (protección clicks rápidos)
 ///   Q             → FirstSkill (ataque a distancia)
 ///   E             → SecondarySkill
 ///   Mouse der.    → control de cámara (manejado en CameraController, NO aquí)
+///
+/// NOTA sobre MouseButton0:
+///   Fusion no corre al mismo framerate que Unity. Si el jugador hace un click
+///   muy rápido, el botón puede presionarse y soltarse entre dos ticks de Fusion
+///   y el input se pierde. _mouseLButtonPressed acumula el click con GetMouseButtonDown
+///   y lo mantiene hasta que OnInput lo consume, garantizando que Fusion siempre lo vea.
+///   Ahora usa InputButton.MouseButton0 (bit 6) en lugar de la constante MOUSE_BUTTON_0
+///   que antes valía 1 y colisionaba con el bit de Dash.
 /// </summary>
 public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkRunnerCallbacks
 {
     private NetInputPlayer accumulatedInput;
     private bool resetInput;
-    private bool _mouseLButtonPressed;
+    private bool _mouseLButtonPressed; // protección contra clicks rápidos entre ticks de Fusion
 
     void IBeforeUpdate.BeforeUpdate()
     {
@@ -35,13 +43,13 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
         Keyboard keyboard = Keyboard.current;
         NetworkButtons buttons = default;
 
-        // Mouse izquierdo — BasicAttack (melee).
-        // Solo registramos el press, no el hold, para ataques discretos.
+        // Acumulamos el click izquierdo con GetMouseButtonDown para no perderlo
+        // entre ticks de Fusion.
         if (Input.GetMouseButtonDown(0))
             _mouseLButtonPressed = true;
 
-        // NOTA: Mouse derecho (botón 1) se dejó de capturar aquí intencionalmente.
-        // El botón derecho es ahora exclusivo de la rotación de cámara (CameraController).
+        // NOTA: Mouse derecho (botón 1) no se captura aquí intencionalmente.
+        // El botón derecho es exclusivo de la rotación de cámara (CameraController).
 
         if (keyboard != null)
         {
@@ -56,22 +64,22 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
             accumulatedInput.Direction += moveDirection;
 
             // ── Botones de acción ────────────────────────────────────────────────
-            accumulatedInput.Buttons.Set(InputButton.Jump,          keyboard.spaceKey.isPressed);
-            accumulatedInput.Buttons.Set(InputButton.Dash,          keyboard.shiftKey.isPressed);
-            accumulatedInput.Buttons.Set(InputButton.Interact,      keyboard.fKey.isPressed);
-            accumulatedInput.Buttons.Set(InputButton.SecondarySkill,keyboard.eKey.isPressed);
-
-            // Q → FirstSkill (ataque a distancia)
-            accumulatedInput.Buttons.Set(InputButton.FirstSkill,    keyboard.qKey.isPressed);
+            accumulatedInput.Buttons.Set(InputButton.Jump,           keyboard.spaceKey.isPressed);
+            accumulatedInput.Buttons.Set(InputButton.Dash,           keyboard.shiftKey.isPressed);
+            accumulatedInput.Buttons.Set(InputButton.Interact,       keyboard.fKey.isPressed);
+            accumulatedInput.Buttons.Set(InputButton.SecondarySkill, keyboard.eKey.isPressed);
+            accumulatedInput.Buttons.Set(InputButton.FirstSkill,     keyboard.qKey.isPressed);
         }
 
         Mouse mouse = Mouse.current;
         if (mouse != null)
         {
-            // Mouse izquierdo → BasicAttack (melee).
-            // Usamos GetMouseButtonDown (acumulado arriba) para disparar una sola vez por click.
-            accumulatedInput.Buttons.Set(NetInputPlayer.MOUSE_BUTTON_0, _mouseLButtonPressed);
-            accumulatedInput.Buttons.Set(InputButton.BasicAttack, mouse.leftButton.isPressed);
+            // BasicAttack: hold normal del botón izquierdo.
+            accumulatedInput.Buttons.Set(InputButton.BasicAttack,  mouse.leftButton.isPressed);
+
+            // MouseButton0: click acumulado para no perder clicks rápidos entre ticks.
+            // Usa el bit 6 — no colisiona con ningún otro InputButton.
+            accumulatedInput.Buttons.Set(InputButton.MouseButton0, _mouseLButtonPressed);
         }
 
         accumulatedInput.Buttons = new NetworkButtons(accumulatedInput.Buttons.Bits | buttons.Bits);
@@ -81,8 +89,8 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
     {
         accumulatedInput.Direction.Normalize();
         input.Set(accumulatedInput);
-        resetInput         = true;
-        _mouseLButtonPressed = false;
+        resetInput           = true;
+        _mouseLButtonPressed = false; // consumido — listo para el próximo click
     }
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
