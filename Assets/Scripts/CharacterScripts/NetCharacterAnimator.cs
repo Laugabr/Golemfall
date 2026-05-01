@@ -246,4 +246,6 @@ public class NetCharacterAnimator : NetworkBehaviour
             animator.SetTrigger(RangeTrigger);
         }
     }
+
+    private void FinalizeJump() { }
 }

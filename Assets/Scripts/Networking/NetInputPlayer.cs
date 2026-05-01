@@ -20,4 +20,11 @@ public struct NetInputPlayer : INetworkInput
     public Vector2 Direction;
 
     public Vector2 LookDelta;
+
+    /// <summary>
+    /// Yaw (en grados) de la cámara del cliente que origina el input.
+    /// El server lo usa para transformar Direction (espacio cámara) a espacio mundo,
+    /// de modo que el movimiento sea idéntico para owner y proxies/server.
+    /// </summary>
+    public float CameraYaw;
 }

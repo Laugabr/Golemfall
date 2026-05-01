@@ -7,6 +7,7 @@ public class NetCharacterController : NetworkBehaviour
 {
     [Header("Visuals")]
     [SerializeField] private Transform bodyVisuals;
+    [SerializeField] private float rotationSpeed = 15f;
 
     [Header("Movement")]
     [SerializeField] private SimpleKCC kcc;
@@ -30,18 +31,20 @@ public class NetCharacterController : NetworkBehaviour
     private float dashCooldownTimer;
     private Vector3 dashDirection;
 
-    // Cache local (solo relevante para el cliente con input authority).
+    // Cache local - solo se usa en el cliente con InputAuthority.
     private InventoryToggle cachedInventoryToggle;
     private Camera cachedMainCamera;
+    private CameraController cachedCameraController;
+
+    // Networked state que el server escribe y todos los peers leen en Render().
 
     /// <summary>
-    /// Referencia a la CameraController local.
-    /// Se cachea en Spawned() y se usa cada tick para leer WorldYaw.
-    /// Es null en clientes remotos — el movimiento relativo a la cámara
-    /// solo se calcula en el cliente con InputAuthority; el servidor
-    /// recibe la dirección ya transformada dentro del input de Fusion.
+    /// Yaw (en grados) deseado para el bodyVisuals. El server lo actualiza
+    /// cada tick a partir de la dirección de movimiento del jugador. Todos los
+    /// peers (host, owner, proxies) lo leen en Render() y rotan el visual con
+    /// un Slerp para que se vea suave en cualquier máquina.
     /// </summary>
-    private CameraController cachedCameraController;
+    [Networked] private float NetBodyYaw { get; set; }
 
     private void Awake()
     {
@@ -53,6 +56,11 @@ public class NetCharacterController : NetworkBehaviour
     public override void Spawned()
     {
         kcc.SetGravity(Physics.gravity.y * 3f);
+
+        // Inicializar el yaw de red con la rotación actual del visual para que
+        // los proxies que entran tarde no vean un snap a 0 grados.
+        if (HasStateAuthority && bodyVisuals != null)
+            NetBodyYaw = bodyVisuals.eulerAngles.y;
 
         if (HasInputAuthority)
         {
@@ -80,42 +88,24 @@ public class NetCharacterController : NetworkBehaviour
         if (!GetInput(out NetInputPlayer input)) return;
         if (charStats == null || charStats.localStats.Count == 0) return;
 
-        //  Cooldown del dash
         if (dashCooldownTimer > 0f)
             dashCooldownTimer -= Runner.DeltaTime;
 
-        // Dirección de movimiento relativa a la cámara 
-        // Construimos los ejes de la cámara proyectados en el plano XZ.
-        // Si no hay cámara (clientes remotos o servidor), usamos los ejes del mundo.
-        //
-        // WASD → input.Direction es un Vector2 (x = strafe, y = avance).
-        // Queremos que Y apunte hacia donde mira la cámara (WorldYaw) y X sea
-        // su perpendicular hacia la derecha — así W = "hacia la cámara" siempre.
-        Vector3 camForward;
-        Vector3 camRight;
+        // Dirección de movimiento relativa a la cámara del CLIENTE
+        // El cliente envía su CameraYaw en el input, así que el server puede
+        // hacer el cálculo correctamente para CUALQUIER jugador (no solo el local).
+        // Esto arregla el bug por el que el server movía a los clientes
+        // remotos en una dirección distinta de la que pidieron.
+        float yaw = input.CameraYaw;
+        Vector3 camForward = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
+        Vector3 camRight   = Quaternion.Euler(0f, yaw, 0f) * Vector3.right;
 
-        if (HasInputAuthority && cachedCameraController != null)
-        {
-            float yaw = cachedCameraController.WorldYaw;
-            camForward = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
-            camRight = Quaternion.Euler(0f, yaw, 0f) * Vector3.right;
-        }
-        else
-        {
-            // Servidor / clientes remotos: usamos los ejes del mundo.
-            // No importa porque el servidor no tiene cámara; solo procesa física.
-            camForward = Vector3.forward;
-            camRight = Vector3.right;
-        }
+        Vector3 inputWorld = camForward * input.Direction.y + camRight * input.Direction.x;
 
-        Vector3 inputWorld = (camForward * input.Direction.y
-                            + camRight * input.Direction.x);
-
-        // Normalizamos solo si hay magnitud real para evitar dividir por cero.
         if (inputWorld.sqrMagnitude > 1f)
             inputWorld.Normalize();
 
-        // Inicio del dash 
+        // Dash start
         if (input.Buttons.WasPressed(previousButtons, InputButton.Dash)
             && dashCooldownTimer <= 0f
             && input.Direction.magnitude > 0.1f)
@@ -126,14 +116,14 @@ public class NetCharacterController : NetworkBehaviour
             dashDirection = inputWorld.normalized;
         }
 
-        // Salto 
+        // Salto
         float jump = 0f;
         if (input.Buttons.WasPressed(previousButtons, InputButton.Jump) && kcc.IsGrounded)
             jump = jumpPower;
 
-        // Habilidades / interacción 
+        // Habilidades / interacción
         if (input.Buttons.WasPressed(previousButtons, InputButton.BasicAttack) ||
-    input.Buttons.WasPressed(previousButtons, InputButton.MouseButton0))
+            input.Buttons.WasPressed(previousButtons, InputButton.MouseButton0))
         {
             if (HasInputAuthority && !IsInventoryOpen())
                 charAbilities?.RPC_RequestUseAbility(0, GetMouseDirection());
@@ -148,28 +138,48 @@ public class NetCharacterController : NetworkBehaviour
         if (input.Buttons.WasPressed(previousButtons, InputButton.Interact) && HasInputAuthority)
             charPickUp?.TryPickUp();
 
-        // Movimiento
+        // Movimiento + actualización de yaw deseado
+        Vector3 moveDir;
+
         if (isDashing)
         {
             kcc.Move(dashDirection * dashSpeed);
             dashTimer -= Runner.DeltaTime;
             if (dashTimer <= 0f) isDashing = false;
+
+            moveDir = dashDirection;
         }
         else
         {
             kcc.Move(inputWorld * charStats.GetStat(Stat.speed), jump);
+            moveDir = inputWorld;
+        }
 
-            // Rota el visual del personaje hacia la dirección de movimiento.
-            if (inputWorld.sqrMagnitude > 0.01f)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(inputWorld);
-                bodyVisuals.rotation = Quaternion.Slerp(
-                    bodyVisuals.rotation, targetRotation, 15f * Runner.DeltaTime
-                );
-            }
+        // Solo el server escribe el yaw replicado.
+        // Si no hay dirección este tick, conservamos el yaw anterior — el
+        // personaje queda mirando hacia donde venía caminando.
+        if (HasStateAuthority && moveDir.sqrMagnitude > 0.01f)
+        {
+            NetBodyYaw = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
         }
 
         previousButtons = input.Buttons;
+    }
+
+    /// <summary>
+    /// Render corre en TODOS los peers (host, owner, proxies) a framerate
+    /// de pantalla. Aquí aplicamos el yaw replicado al bodyVisuals con un
+    /// Slerp suave para que la rotación se vea fluida en cualquier máquina,
+    /// incluso si la red entrega los valores con saltos.
+    /// </summary>
+    public override void Render()
+    {
+        if (bodyVisuals == null) return;
+
+        Quaternion target = Quaternion.Euler(0f, NetBodyYaw, 0f);
+        bodyVisuals.rotation = Quaternion.Slerp(
+            bodyVisuals.rotation, target, rotationSpeed * Time.deltaTime
+        );
     }
 
     /// <summary>
