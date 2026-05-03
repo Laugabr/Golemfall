@@ -168,6 +168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bodyVisuals: {fileID: 6315990241650637208}
+  rotationSpeed: 15
   kcc: {fileID: -461821717541361334}
   jumpPower: 12
   charStats: {fileID: 8401534272914521562}
@@ -176,6 +177,8 @@ MonoBehaviour:
   dashSpeed: 40
   dashDuration: 0.33
   dashCooldown: 1.5
+  _IsDashing:
+    _value: 0
 --- !u!114 &-461821717541361334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -375,6 +378,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   kcc: {fileID: -461821717541361334}
   animator: {fileID: 6456957767660994922}
+  controller: {fileID: 0}
   chanceToChange: 0.15
   variantDuration: 1
 --- !u!114 &5306823183112004080
