@@ -85,48 +85,41 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
 
     // ========== Callbacks ==========
     // Called when a player joins the session
-    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
+  public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
+{
+    Debug.Log("Player joined: " + player);
+    if (_lobbyPanel)
+        _lobbyPanel.SetActive(false);
+    else
+        Debug.LogWarning("LobbyPanel destruido o no asignado");
+
+    if (!_networkRunner.IsServer) return;
+
+    var playerSpawned = _networkRunner.Spawn(
+        _playerPrefab,
+        _spawnPoint.position,
+        Quaternion.identity,
+        player
+    );
+
+    _players.Add(player, playerSpawned);
+
+    int playerIndex = _players.Count - 1;
+    var colorSetting = playerSpawned.GetComponentInChildren<PlayerColorSetting>(true);
+    if (colorSetting != null)
+        colorSetting.PlayerIndex = playerIndex;
+    else
+        Debug.LogWarning("[NetworkController] No se encontró PlayerColorSetting en el prefab.");
+
+    PlayerRegistry.Register(playerSpawned.transform);
+    Debug.Log($"[NetworkController] Player Registrado. Total: {PlayerRegistry.Players.Count}");
+
+    if (player == _networkRunner.LocalPlayer)
     {
-        Debug.Log("Player joined: " + player);
-        if (_lobbyPanel)
-        {
-            Debug.Log("LobbyPanel encontrado, ocultándolo");
-            _lobbyPanel.SetActive(false);
-        }
-        else
-        {
-            Debug.LogWarning("LobbyPanel destruido o no asignado");
-        }
-
-        if (!_networkRunner.IsServer)
-        {
-            Debug.Log(runner.name + " is not server");
-            return;
-        }
-        // Only server spawns players
-
-        // Spawn player prefab for this player
-        var playerSpawned = _networkRunner.Spawn(
-            _playerPrefab,
-            _spawnPoint.position,
-            Quaternion.identity,
-            player
-        );
-
-        _players.Add(player, playerSpawned);
-
-        //Register players on Registry
-
-        PlayerRegistry.Register(playerSpawned.transform);
-
-        Debug.Log ($"[NetworkController] Player Registrado en registry. Total: {PlayerRegistry.Players.Count}");
-
-        if (player == _networkRunner.LocalPlayer)
-        {
-            if (CloudSaveGame.Instance != null)
-                CloudSaveGame.Instance.StartGameSave();
-        }
+        if (CloudSaveGame.Instance != null)
+            CloudSaveGame.Instance.StartGameSave();
     }
+}
 
     // Called when a player leaves the session
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
