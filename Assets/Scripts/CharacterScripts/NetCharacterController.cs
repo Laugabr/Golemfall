@@ -2,7 +2,6 @@ using Fusion;
 using Fusion.Addons.SimpleKCC;
 using Game.CameraSystem;
 using UnityEngine;
-
 public class NetCharacterController : NetworkBehaviour
 {
     [Header("Visuals")]
@@ -24,6 +23,10 @@ public class NetCharacterController : NetworkBehaviour
     [SerializeField] private float dashSpeed = 20f;
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1f;
+
+    [Header("Visuals")]
+
+    [SerializeField] private int playerIndex;
 
     private NetworkButtons previousButtons;
     private float dashTimer;
@@ -71,10 +74,9 @@ public class NetCharacterController : NetworkBehaviour
     {
         kcc.SetGravity(Physics.gravity.y * 3f);
 
-        // Inicializar el yaw de red con la rotación actual del visual para que
-        // los proxies que entran tarde no vean un snap a 0 grados.
         if (HasStateAuthority && bodyVisuals != null)
             NetBodyYaw = bodyVisuals.eulerAngles.y;
+
 
         if (HasInputAuthority)
         {
@@ -84,15 +86,10 @@ public class NetCharacterController : NetworkBehaviour
             if (cachedMainCamera != null)
             {
                 cachedCameraController = cachedMainCamera.GetComponent<CameraController>();
-
                 if (cachedCameraController != null)
-                {
                     cachedCameraController.SetTarget(transform);
-                }
                 else
-                {
                     Debug.LogWarning("[NetCharacterController] Main Camera no tiene CameraController.");
-                }
             }
         }
     }
