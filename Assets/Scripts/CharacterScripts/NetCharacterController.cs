@@ -38,18 +38,25 @@ public class NetCharacterController : NetworkBehaviour
     // Networked state que el server escribe y todos los peers leen.
 
     /// <summary>
-    /// Yaw (en grados) deseado para el bodyVisuals. El server lo actualiza
-    /// cada tick a partir de la dirección de movimiento del jugador. Todos los
-    /// peers (host, owner, proxies) lo leen en Render() y rotan el visual con
-    /// un Slerp para que se vea suave en cualquier máquina.
+    /// Yaw (en grados) deseado para el bodyVisuals. Se actualiza cada tick a
+    /// partir de la dirección de movimiento del jugador.
+    ///
+    /// PREDICTION: tanto el StateAuthority como el InputAuthority escriben este
+    /// valor en sus respectivos FixedUpdateNetwork. En el cliente con InputAuthority,
+    /// la escritura es una predicción local que Fusion sobrescribe automáticamente
+    /// cuando llega el snapshot autoritativo del host. Esto hace que el jugador
+    /// local vea su rotación inmediatamente al cambiar de dirección, sin esperar
+    /// el round-trip al server.
     /// </summary>
     [Networked] private float NetBodyYaw { get; set; }
 
     /// <summary>
-    /// Estado de dash autoritativo. El server lo activa al iniciar el dash
-    /// y lo apaga al terminar la duración. El NetCharacterAnimator lo lee
-    /// para decidir si debe reproducir la animación de dash, evitando que
-    /// la animación se dispare cuando el dash real está en cooldown.
+    /// Estado de dash autoritativo. Tanto el host como el InputAuthority lo activan
+    /// cuando se cumplen las condiciones (input + cooldown + dirección). En el
+    /// cliente, esto funciona como predicción local: el dash se ve inmediatamente
+    /// y Fusion sincroniza con el host. El NetCharacterAnimator lo lee para
+    /// decidir si reproducir la animación de dash, evitando que la animación se
+    /// dispare cuando el dash real está en cooldown.
     /// </summary>
     [Networked] public NetworkBool IsDashing { get; private set; }
 
@@ -98,7 +105,7 @@ public class NetCharacterController : NetworkBehaviour
         if (dashCooldownTimer > 0f)
             dashCooldownTimer -= Runner.DeltaTime;
 
-        // Dirección de movimiento relativa a la cámara del CLIENTE 
+        // Dirección de movimiento relativa a la cámara del CLIENTE.
         // El cliente envía su CameraYaw en el input, así que el server puede
         // hacer el cálculo correctamente para CUALQUIER jugador (no solo el local).
         float yaw = input.CameraYaw;
@@ -110,7 +117,7 @@ public class NetCharacterController : NetworkBehaviour
         if (inputWorld.sqrMagnitude > 1f)
             inputWorld.Normalize();
 
-        // Dash start 
+        // Dash start.
         // Se activa solo si: hay input de dash, no hay cooldown y hay dirección.
         // Si está en cooldown, la solicitud se ignora silenciosamente — el
         // animador, al leer IsDashing, NO disparará la animación de dash falsa.
@@ -124,12 +131,12 @@ public class NetCharacterController : NetworkBehaviour
             dashDirection = inputWorld.normalized;
         }
 
-        // Salto 
+        // Salto
         float jump = 0f;
         if (input.Buttons.WasPressed(previousButtons, InputButton.Jump) && kcc.IsGrounded)
             jump = jumpPower;
 
-        // Habilidades / interacción 
+        // Habilidades / interacción
         if (input.Buttons.WasPressed(previousButtons, InputButton.BasicAttack) ||
             input.Buttons.WasPressed(previousButtons, InputButton.MouseButton0))
         {
@@ -163,10 +170,14 @@ public class NetCharacterController : NetworkBehaviour
             moveDir = inputWorld;
         }
 
-        // Solo el server escribe el yaw replicado.
+        // PREDICTION del yaw replicado.
+        // Antes solo escribía si HasStateAuthority. Ahora también el InputAuthority
+        // escribe — Fusion trata esa escritura como predicción local y la
+        // reconcilia con el snapshot autoritativo. Esto hace que el cliente local
+        // vea su rotación responder inmediatamente al cambiar de dirección.
         // Si no hay dirección este tick, conservamos el yaw anterior — el
         // personaje queda mirando hacia donde venía caminando.
-        if (HasStateAuthority && moveDir.sqrMagnitude > 0.01f)
+        if (moveDir.sqrMagnitude > 0.01f)
         {
             NetBodyYaw = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
         }
