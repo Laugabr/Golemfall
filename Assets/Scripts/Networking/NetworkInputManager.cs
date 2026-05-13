@@ -60,7 +60,7 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
             if (keyboard.aKey.isPressed) moveDirection += Vector2.left;
             if (keyboard.dKey.isPressed) moveDirection += Vector2.right;
 
-            accumulatedInput.Direction += moveDirection;
+            accumulatedInput.Direction = moveDirection;
 
             accumulatedInput.Buttons.Set(InputButton.Jump,           keyboard.spaceKey.isPressed);
             accumulatedInput.Buttons.Set(InputButton.Dash,           keyboard.shiftKey.isPressed);

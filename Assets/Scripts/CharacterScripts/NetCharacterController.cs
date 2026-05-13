@@ -2,7 +2,6 @@ using Fusion;
 using Fusion.Addons.SimpleKCC;
 using Game.CameraSystem;
 using UnityEngine;
-
 public class NetCharacterController : NetworkBehaviour
 {
     [Header("Visuals")]
@@ -25,18 +24,21 @@ public class NetCharacterController : NetworkBehaviour
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1f;
 
+    [Header("Visuals")]
+
+    [SerializeField] private int playerIndex;
+
     private NetworkButtons previousButtons;
-    private bool isDashing;
     private float dashTimer;
     private float dashCooldownTimer;
     private Vector3 dashDirection;
 
-    // Cache local - solo se usa en el cliente con InputAuthority.
+    // Cache local — solo se usa en el cliente con InputAuthority.
     private InventoryToggle cachedInventoryToggle;
     private Camera cachedMainCamera;
     private CameraController cachedCameraController;
 
-    // Networked state que el server escribe y todos los peers leen en Render().
+    // Networked state que el server escribe y todos los peers leen.
 
     /// <summary>
     /// Yaw (en grados) deseado para el bodyVisuals. El server lo actualiza
@@ -45,6 +47,14 @@ public class NetCharacterController : NetworkBehaviour
     /// un Slerp para que se vea suave en cualquier máquina.
     /// </summary>
     [Networked] private float NetBodyYaw { get; set; }
+
+    /// <summary>
+    /// Estado de dash autoritativo. El server lo activa al iniciar el dash
+    /// y lo apaga al terminar la duración. El NetCharacterAnimator lo lee
+    /// para decidir si debe reproducir la animación de dash, evitando que
+    /// la animación se dispare cuando el dash real está en cooldown.
+    /// </summary>
+    [Networked] public NetworkBool IsDashing { get; private set; }
 
     private void Awake()
     {
@@ -57,10 +67,9 @@ public class NetCharacterController : NetworkBehaviour
     {
         kcc.SetGravity(Physics.gravity.y * 3f);
 
-        // Inicializar el yaw de red con la rotación actual del visual para que
-        // los proxies que entran tarde no vean un snap a 0 grados.
         if (HasStateAuthority && bodyVisuals != null)
             NetBodyYaw = bodyVisuals.eulerAngles.y;
+
 
         if (HasInputAuthority)
         {
@@ -70,15 +79,10 @@ public class NetCharacterController : NetworkBehaviour
             if (cachedMainCamera != null)
             {
                 cachedCameraController = cachedMainCamera.GetComponent<CameraController>();
-
                 if (cachedCameraController != null)
-                {
                     cachedCameraController.SetTarget(transform);
-                }
                 else
-                {
                     Debug.LogWarning("[NetCharacterController] Main Camera no tiene CameraController.");
-                }
             }
         }
     }
@@ -91,11 +95,9 @@ public class NetCharacterController : NetworkBehaviour
         if (dashCooldownTimer > 0f)
             dashCooldownTimer -= Runner.DeltaTime;
 
-        // Dirección de movimiento relativa a la cámara del CLIENTE
+        // Dirección de movimiento relativa a la cámara del CLIENTE 
         // El cliente envía su CameraYaw en el input, así que el server puede
         // hacer el cálculo correctamente para CUALQUIER jugador (no solo el local).
-        // Esto arregla el bug por el que el server movía a los clientes
-        // remotos en una dirección distinta de la que pidieron.
         float yaw = input.CameraYaw;
         Vector3 camForward = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
         Vector3 camRight   = Quaternion.Euler(0f, yaw, 0f) * Vector3.right;
@@ -105,23 +107,26 @@ public class NetCharacterController : NetworkBehaviour
         if (inputWorld.sqrMagnitude > 1f)
             inputWorld.Normalize();
 
-        // Dash start
+        // Dash start 
+        // Se activa solo si: hay input de dash, no hay cooldown y hay dirección.
+        // Si está en cooldown, la solicitud se ignora silenciosamente — el
+        // animador, al leer IsDashing, NO disparará la animación de dash falsa.
         if (input.Buttons.WasPressed(previousButtons, InputButton.Dash)
             && dashCooldownTimer <= 0f
             && input.Direction.magnitude > 0.1f)
         {
-            isDashing = true;
+            IsDashing = true;
             dashTimer = dashDuration;
             dashCooldownTimer = dashCooldown;
             dashDirection = inputWorld.normalized;
         }
 
-        // Salto
+        // Salto 
         float jump = 0f;
         if (input.Buttons.WasPressed(previousButtons, InputButton.Jump) && kcc.IsGrounded)
             jump = jumpPower;
 
-        // Habilidades / interacción
+        // Habilidades / interacción 
         if (input.Buttons.WasPressed(previousButtons, InputButton.BasicAttack) ||
             input.Buttons.WasPressed(previousButtons, InputButton.MouseButton0))
         {
@@ -141,11 +146,11 @@ public class NetCharacterController : NetworkBehaviour
         // Movimiento + actualización de yaw deseado
         Vector3 moveDir;
 
-        if (isDashing)
+        if (IsDashing)
         {
             kcc.Move(dashDirection * dashSpeed);
             dashTimer -= Runner.DeltaTime;
-            if (dashTimer <= 0f) isDashing = false;
+            if (dashTimer <= 0f) IsDashing = false;
 
             moveDir = dashDirection;
         }
@@ -169,8 +174,7 @@ public class NetCharacterController : NetworkBehaviour
     /// <summary>
     /// Render corre en TODOS los peers (host, owner, proxies) a framerate
     /// de pantalla. Aquí aplicamos el yaw replicado al bodyVisuals con un
-    /// Slerp suave para que la rotación se vea fluida en cualquier máquina,
-    /// incluso si la red entrega los valores con saltos.
+    /// Slerp suave para que la rotación se vea fluida en cualquier máquina.
     /// </summary>
     public override void Render()
     {

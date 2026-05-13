@@ -11,6 +11,9 @@ using UnityEngine;
 ///   - All peers (host, owner, proxies) read those Networked variables in Render()
 ///     and drive the Animator. This guarantees remote players see animations.
 ///
+/// IsDashing comes from NetCharacterController (single source of truth) so the
+/// animation never plays when the dash is blocked by cooldown.
+///
 /// Animator parameters expected:
 ///   bool    isWalking
 ///   bool    isDashing
@@ -24,18 +27,16 @@ public class NetCharacterAnimator : NetworkBehaviour
 {
     [SerializeField] private SimpleKCC kcc;
     [SerializeField] private Animator animator;
+    [SerializeField] private NetCharacterController controller;
 
     [Header("Idle Settings")]
     [SerializeField] private float chanceToChange = 0.15f;
     [SerializeField] private float variantDuration = 4f;
 
-    // ─────────────────────────────────────────────────────────────────────────
     // Networked state — readable by all peers (host, owner, proxies).
     // The StateAuthority writes these; everyone else just reads them.
-    // ─────────────────────────────────────────────────────────────────────────
 
     [Networked] private NetworkBool NetIsWalking { get; set; }
-    [Networked] private NetworkBool NetIsDashing { get; set; }
     [Networked] private NetworkBool NetIsGrounded { get; set; }
     [Networked] private int NetIdleType { get; set; }
 
@@ -58,15 +59,13 @@ public class NetCharacterAnimator : NetworkBehaviour
     private static readonly int MeleeTrigger = Animator.StringToHash("meleeTrigger");
     private static readonly int RangeTrigger = Animator.StringToHash("rangeTrigger");
 
-    // Server-only state for the dash timer and idle randomizer.
+    // Server-only state for the idle randomizer.
     private NetworkButtons _previousButtons;
-    private bool _serverIsDashing;
-    private float _serverDashTimer;
     private float _serverIdleTimer;
     private bool _serverIsInVariant;
 
-    // Keep in sync with NetCharacterController
-    private const float DashDuration = 0.2f;
+    // Track dash transitions to reset the idle system the moment a dash starts.
+    private bool _wasDashingLastTick;
 
     private void Awake()
     {
@@ -75,6 +74,9 @@ public class NetCharacterAnimator : NetworkBehaviour
 
         if (kcc == null)
             kcc = GetComponent<SimpleKCC>();
+
+        if (controller == null)
+            controller = GetComponent<NetCharacterController>();
     }
 
     public override void Spawned()
@@ -86,40 +88,24 @@ public class NetCharacterAnimator : NetworkBehaviour
         _lastRangeTick = NetRangeTick;
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
     // FixedUpdateNetwork: only the StateAuthority writes Networked state.
-    // ─────────────────────────────────────────────────────────────────────────
     public override void FixedUpdateNetwork()
     {
         if (!HasStateAuthority) return;
         if (animator == null) return;
 
-        // Read input to drive triggers and walking state.
-        // GetInput() works on StateAuthority for the player whose input we own.
+        // Detect dash start (controller is the source of truth for IsDashing).
+        bool dashing = controller != null && controller.IsDashing;
+        bool dashJustStarted = dashing && !_wasDashingLastTick;
+        if (dashJustStarted) ResetIdleServer();
+        _wasDashingLastTick = dashing;
+
         if (!GetInput(out NetInputPlayer input))
         {
             // No input this tick (can happen briefly): still update grounded/walking
             // based on physics so proxies don't freeze.
             UpdateMovementFlags(Vector3.zero);
             return;
-        }
-
-        // Dash timing (server-side)
-        bool dashPressed = input.Buttons.WasPressed(_previousButtons, InputButton.Dash);
-        bool hasDirection = input.Direction.magnitude > 0.1f;
-
-        if (dashPressed && hasDirection)
-        {
-            _serverIsDashing = true;
-            _serverDashTimer = DashDuration;
-            ResetIdleServer();
-        }
-
-        if (_serverIsDashing)
-        {
-            _serverDashTimer -= Runner.DeltaTime;
-            if (_serverDashTimer <= 0f)
-                _serverIsDashing = false;
         }
 
         // Jump
@@ -154,16 +140,18 @@ public class NetCharacterAnimator : NetworkBehaviour
 
     private void UpdateMovementFlags(Vector3 inputDir)
     {
+        bool dashing = controller != null && controller.IsDashing;
         bool hasDir = inputDir.magnitude > 0.1f;
-        NetIsWalking = hasDir && !_serverIsDashing;
-        NetIsDashing = _serverIsDashing;
+        NetIsWalking = hasDir && !dashing;
         NetIsGrounded = kcc.IsGrounded;
     }
 
     private void UpdateIdleRandomizerServer()
     {
+        bool dashing = controller != null && controller.IsDashing;
+
         // Cancel variants if moving / airborne / dashing
-        if (!kcc.IsGrounded || kcc.RealVelocity.sqrMagnitude > 0.5f || _serverIsDashing)
+        if (!kcc.IsGrounded || kcc.RealVelocity.sqrMagnitude > 0.5f || dashing)
         {
             ResetIdleServer();
             return;
@@ -213,17 +201,18 @@ public class NetCharacterAnimator : NetworkBehaviour
         _serverIdleTimer = 2f;
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
     // Render: runs on every peer (host, owner, proxies) at display framerate.
     // This is where we drive the Animator from the Networked state.
-    // ─────────────────────────────────────────────────────────────────────────
     public override void Render()
     {
         if (animator == null) return;
 
+        // IsDashing comes from the controller (replicated, single source of truth).
+        bool dashing = controller != null && controller.IsDashing;
+
         // Booleans
         animator.SetBool(IsWalking, NetIsWalking);
-        animator.SetBool(IsDashing, NetIsDashing);
+        animator.SetBool(IsDashing, dashing);
         animator.SetBool(IsGrounded, NetIsGrounded);
         animator.SetInteger(IdleTypeHash, NetIdleType);
 
@@ -247,5 +236,7 @@ public class NetCharacterAnimator : NetworkBehaviour
         }
     }
 
+    // Called by Animation Event on ani_player_jumpStart.
+    // Currently no-op, kept to silence the "has no receiver" warning.
     private void FinalizeJump() { }
 }
