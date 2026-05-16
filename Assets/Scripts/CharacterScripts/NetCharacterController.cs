@@ -55,6 +55,7 @@ public class NetCharacterController : NetworkBehaviour
     /// la animación se dispare cuando el dash real está en cooldown.
     /// </summary>
     [Networked] public NetworkBool IsDashing { get; private set; }
+    [Networked] public float NetVerticalVelocity { get; private set; }
 
     private void Awake()
     {
@@ -91,6 +92,8 @@ public class NetCharacterController : NetworkBehaviour
     {
         if (!GetInput(out NetInputPlayer input)) return;
         if (charStats == null || charStats.localStats.Count == 0) return;
+
+        float previousY = transform.position.y;
 
         if (dashCooldownTimer > 0f)
             dashCooldownTimer -= Runner.DeltaTime;
@@ -166,6 +169,11 @@ public class NetCharacterController : NetworkBehaviour
         if (HasStateAuthority && moveDir.sqrMagnitude > 0.01f)
         {
             NetBodyYaw = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
+        }
+
+        if (HasStateAuthority && Runner.DeltaTime > 0f)
+        {
+            NetVerticalVelocity = (transform.position.y - previousY) / Runner.DeltaTime;
         }
 
         previousButtons = input.Buttons;

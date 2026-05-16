@@ -66,7 +66,7 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_walk
-      takeName: ani_player_walk
+      takeName: arm_characterBody|ani_player_walk
       internalID: 1968118018660022061
       firstFrame: 0
       lastFrame: 23
@@ -76,7 +76,7 @@ ModelImporter:
       cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
-      loopTime: 0
+      loopTime: 1
       loopBlend: 0
       loopBlendOrientation: 0
       loopBlendPositionY: 0
@@ -95,7 +95,7 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_idle.01
-      takeName: ani_player_idle.01
+      takeName: arm_characterBody|ani_player_idle.01
       internalID: 8450524404850177221
       firstFrame: 0
       lastFrame: 19
@@ -105,7 +105,7 @@ ModelImporter:
       cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
-      loopTime: 0
+      loopTime: 1
       loopBlend: 0
       loopBlendOrientation: 0
       loopBlendPositionY: 0
@@ -124,7 +124,7 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_idle.02
-      takeName: ani_player_idle.02
+      takeName: arm_characterBody|ani_player_idle.02
       internalID: 7941622792215746709
       firstFrame: 0
       lastFrame: 37
@@ -153,7 +153,7 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_idle.03
-      takeName: ani_player_idle.03
+      takeName: arm_characterBody|ani_player_idle.03
       internalID: -4435314956341178342
       firstFrame: 0
       lastFrame: 47
@@ -182,7 +182,7 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_jumpStart
-      takeName: ani_player_jumpStart
+      takeName: arm_characterBody|ani_player_jumpStart
       internalID: -2590525897278324021
       firstFrame: 0
       lastFrame: 7
@@ -211,10 +211,10 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_jumpAir
-      takeName: ani_player_jumpAir
+      takeName: arm_characterBody|ani_player_jumpAir
       internalID: 5688152146967355948
       firstFrame: 0
-      lastFrame: 10
+      lastFrame: 6
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -240,10 +240,10 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_jumpLand
-      takeName: ani_player_jumpLand
+      takeName: arm_characterBody|ani_player_jumpLand
       internalID: 512572662823186654
       firstFrame: 0
-      lastFrame: 9
+      lastFrame: 18
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -269,7 +269,7 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_dashStart
-      takeName: ani_player_dashStart
+      takeName: arm_characterBody|ani_player_dashStart
       internalID: -6449056169559865231
       firstFrame: 0
       lastFrame: 2
@@ -298,7 +298,7 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_dashAir
-      takeName: ani_player_dashAir
+      takeName: arm_characterBody|ani_player_dashAir
       internalID: 5287836707669602874
       firstFrame: 0
       lastFrame: 5
@@ -308,7 +308,7 @@ ModelImporter:
       cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
-      loopTime: 0
+      loopTime: 1
       loopBlend: 0
       loopBlendOrientation: 0
       loopBlendPositionY: 0
@@ -327,7 +327,7 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_dashLand
-      takeName: ani_player_dashLand
+      takeName: arm_characterBody|ani_player_dashLand
       internalID: 3749229738083949676
       firstFrame: 0
       lastFrame: 10
@@ -356,7 +356,7 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_meleAttack_01
-      takeName: ani_player_meleAttack_01
+      takeName: arm_characterBody|ani_player_meleAttack_01
       internalID: 4782067660731178403
       firstFrame: 0
       lastFrame: 13
@@ -385,7 +385,7 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_meleAttack_02
-      takeName: ani_player_meleAttack_02
+      takeName: arm_characterBody|ani_player_meleAttack_02
       internalID: 5199717884866756624
       firstFrame: 0
       lastFrame: 13
@@ -414,7 +414,7 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_rangoAttack_01
-      takeName: ani_player_rangoAttack_01
+      takeName: arm_characterBody|ani_player_rangoAttack_01
       internalID: 3797012567868693064
       firstFrame: 0
       lastFrame: 17
@@ -443,7 +443,7 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_rangoAttack_02
-      takeName: ani_player_rangoAttack_02
+      takeName: arm_characterBody|ani_player_rangoAttack_02
       internalID: 6112948346915974892
       firstFrame: 0
       lastFrame: 17
@@ -472,10 +472,10 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_rangoEggAOE
-      takeName: ani_player_rangoEggAOE
+      takeName: arm_characterBody|ani_player_rangoEggAOE
       internalID: -8075517266451885370
       firstFrame: 0
-      lastFrame: 63
+      lastFrame: 64
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -501,10 +501,10 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_specialAbility
-      takeName: ani_player_specialAbility
+      takeName: arm_characterBody|ani_player_specialAbility
       internalID: 1567131251635744762
       firstFrame: 0
-      lastFrame: 37
+      lastFrame: 45
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -530,7 +530,7 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_takeDamage_01
-      takeName: ani_player_takeDamage_01
+      takeName: arm_characterBody|ani_player_takeDamage_01
       internalID: 5504238230186331729
       firstFrame: 0
       lastFrame: 11
@@ -559,7 +559,7 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_takeDamage_02
-      takeName: ani_player_takeDamage_02
+      takeName: arm_characterBody|ani_player_takeDamage_02
       internalID: 2860803218839819409
       firstFrame: 0
       lastFrame: 11
@@ -588,7 +588,7 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_pickUpObject
-      takeName: ani_player_pickUpObject
+      takeName: arm_characterBody|ani_player_pickUpObject
       internalID: -1981012143754331967
       firstFrame: 0
       lastFrame: 15
@@ -617,10 +617,68 @@ ModelImporter:
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: ani_player_death
-      takeName: ani_player_death
+      takeName: arm_characterBody|ani_player_death
       internalID: 6084591279133722794
       firstFrame: 0
       lastFrame: 39
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: ani_player_flutter
+      takeName: arm_characterBody|ani_player_flutter
+      internalID: -7160237456236669861
+      firstFrame: 0
+      lastFrame: 41
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: ani_player_jumpFall
+      takeName: arm_characterBody|ani_player_jumpFall
+      internalID: 910756343092693921
+      firstFrame: 0
+      lastFrame: 3
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

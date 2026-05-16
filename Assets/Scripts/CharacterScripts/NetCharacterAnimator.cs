@@ -58,6 +58,7 @@ public class NetCharacterAnimator : NetworkBehaviour
     private static readonly int JumpTrigger = Animator.StringToHash("jumpTrigger");
     private static readonly int MeleeTrigger = Animator.StringToHash("meleeTrigger");
     private static readonly int RangeTrigger = Animator.StringToHash("rangeTrigger");
+    private static readonly int VerticalVelocityHash = Animator.StringToHash("verticalVelocity");
 
     // Server-only state for the idle randomizer.
     private NetworkButtons _previousButtons;
@@ -216,13 +217,12 @@ public class NetCharacterAnimator : NetworkBehaviour
         animator.SetBool(IsGrounded, NetIsGrounded);
         animator.SetInteger(IdleTypeHash, NetIdleType);
 
-        // Triggers via tick-stamp diff
-        if (NetJumpTick != _lastJumpTick)
+        if (controller != null)
         {
-            _lastJumpTick = NetJumpTick;
-            animator.SetTrigger(JumpTrigger);
+            animator.SetFloat(VerticalVelocityHash, controller.NetVerticalVelocity);
         }
 
+        // Triggers via tick-stamp diff
         if (NetMeleeTick != _lastMeleeTick)
         {
             _lastMeleeTick = NetMeleeTick;
