@@ -20,10 +20,13 @@ MonoBehaviour:
   missionSteps:
   - targetId: 1
     amount: 3
+    displayText: Recolectar items
   - targetId: 0
     amount: 2
+    displayText: Matar enemigos
   - targetId: 7
     amount: 6
+    displayText: Romper cosas
   failureSteps: []
   nextMissions:
   - {fileID: 11400000, guid: fd74751076871cf40b42d08e4fa8cd8d, type: 2}

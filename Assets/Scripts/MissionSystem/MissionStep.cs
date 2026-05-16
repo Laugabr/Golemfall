@@ -5,9 +5,15 @@ using System;
 public class MissionStep
 {
     public GameEventType targetId;
-    public int amount; //cuanta cantidad de enemigos por ej para completar la misión
+    public int amount;
+
+    [Tooltip("Texto para mostrar en el panel. Si está vacío, usa targetId.")]
+    public string displayText;
+
     [NonSerialized] public bool isComplete;
-    [NonSerialized] public int currentAmount; //nonserialized es para que el game designer no lo toque y no lo vea en el inspector
+    [NonSerialized] public int currentAmount;
+
+    public string DisplayLabel => string.IsNullOrEmpty(displayText) ? targetId.ToString() : displayText;
 
     public bool TryUpdateProgress(GameEventType id, int progress)
     {

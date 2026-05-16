@@ -20,11 +20,14 @@ MonoBehaviour:
   missionSteps:
   - targetId: 0
     amount: 4
+    displayText: Matar enemigos
   - targetId: 2
     amount: 1
+    displayText: Recolectar item especial
   failureSteps:
   - targetId: 6
     amount: 1
+    displayText: No morir
   nextMissions: []
   pausesOtherMissions: 1
   startWithEvent: 1
