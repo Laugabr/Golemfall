@@ -178,6 +178,8 @@ MonoBehaviour:
   dashSpeed: 40
   dashDuration: 0.33
   dashCooldown: 1.5
+  charHealth: {fileID: 0}
+  playerIndex: 0
   _IsDashing:
     _value: 0
 --- !u!114 &-461821717541361334
@@ -343,6 +345,11 @@ MonoBehaviour:
   _CurrentHealth: 100
   localCurrentHealth: 100
   localMaxHealth: 100
+  timeToRespawn: 5
+  bodyVisualsGO: {fileID: 8269205730414287776}
+  playerCollider: {fileID: 0}
+  _IsDead:
+    _value: 0
 --- !u!95 &6456957767660994922
 Animator:
   serializedVersion: 7

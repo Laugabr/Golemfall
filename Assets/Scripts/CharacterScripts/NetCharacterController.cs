@@ -24,7 +24,8 @@ public class NetCharacterController : NetworkBehaviour
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1f;
 
-    [Header("Visuals")]
+    [Header("Health")]
+    [SerializeField] private PlayerHealth charHealth;
 
     [SerializeField] private int playerIndex;
 
@@ -61,6 +62,7 @@ public class NetCharacterController : NetworkBehaviour
         charStats = GetComponent<CharacterStats>();
         charPickUp = GetComponent<CharacterPickUp>();
         charAbilities = GetComponent<AbilityHolder>();
+        charHealth = GetComponent<PlayerHealth>();
     }
 
     public override void Spawned()
@@ -111,6 +113,12 @@ public class NetCharacterController : NetworkBehaviour
         // Se activa solo si: hay input de dash, no hay cooldown y hay dirección.
         // Si está en cooldown, la solicitud se ignora silenciosamente — el
         // animador, al leer IsDashing, NO disparará la animación de dash falsa.
+
+        if(charHealth.IsDead)
+        {
+            return;
+        }
+
         if (input.Buttons.WasPressed(previousButtons, InputButton.Dash)
             && dashCooldownTimer <= 0f
             && input.Direction.magnitude > 0.1f)
