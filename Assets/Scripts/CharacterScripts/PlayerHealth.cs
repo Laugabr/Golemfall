@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using Fusion;
 using Fusion.Sockets;
+using Fusion.Addons.SimpleKCC;
 
 public class PlayerHealth : HealthSystem
 {
@@ -11,7 +12,8 @@ public class PlayerHealth : HealthSystem
 
     [Networked, OnChangedRender(nameof(OnIsDeadChanged))]
     public NetworkBool IsDead { get; private set; }
-    [SerializeField] private Vector3 _lastSpawnPoint;
+    [SerializeField] public Vector3 _lastSpawnPoint;
+
 
     public override void Spawned()
     {

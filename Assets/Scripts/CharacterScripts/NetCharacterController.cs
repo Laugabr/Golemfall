@@ -96,7 +96,10 @@ public class NetCharacterController : NetworkBehaviour
 
         if (dashCooldownTimer > 0f)
             dashCooldownTimer -= Runner.DeltaTime;
-
+        if(Input.GetKeyDown(KeyCode.P))
+        {
+            transform.position = charHealth._lastSpawnPoint;
+        }
         // Dirección de movimiento relativa a la cámara del CLIENTE 
         // El cliente envía su CameraYaw en el input, así que el server puede
         // hacer el cálculo correctamente para CUALQUIER jugador (no solo el local).
@@ -116,6 +119,8 @@ public class NetCharacterController : NetworkBehaviour
 
         if(charHealth.IsDead)
         {
+            kcc.SetPosition(charHealth._lastSpawnPoint); 
+
             return;
         }
 
