@@ -6788,14 +6788,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1194156211320922922, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
-      propertyPath: m_Text
-      value: Host Game
-      objectReference: {fileID: 0}
     - target: {fileID: 2187635607002211792, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1247381035}
+    - target: {fileID: 2232176892931607906, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
+      propertyPath: missionController
+      value: 
+      objectReference: {fileID: 1200033960}
     - target: {fileID: 2234571358591216612, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
       propertyPath: missionController
       value: 
@@ -6804,50 +6804,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: CanvasGameplay
       objectReference: {fileID: 0}
-    - target: {fileID: 2646220559339416935, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3703608024015020191, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
+    - target: {fileID: 2837046685517930915, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
+      propertyPath: viewPrefab
+      value: 
+      objectReference: {fileID: 7885189044842743621, guid: 06a6813d70dc3804d99107a746bc4101, type: 3}
     - target: {fileID: 4173632843823321882, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1247381038}
-    - target: {fileID: 4370952972442512893, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4425757384437414787, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4765230515416402541, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1247381039}
-    - target: {fileID: 5574012013513818566, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -255.37695
-      objectReference: {fileID: 0}
-    - target: {fileID: 5574012013513818566, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -84.53003
-      objectReference: {fileID: 0}
-    - target: {fileID: 5627788028854120734, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 75.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 5843155469311343744, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
-      propertyPath: m_Text
-      value: Join Game
-      objectReference: {fileID: 0}
-    - target: {fileID: 8251470073581032909, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 8414989706905736984, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
       propertyPath: m_Pivot.x
       value: 0
