@@ -2,7 +2,6 @@ using Fusion;
 using Fusion.Addons.SimpleKCC;
 using Game.CameraSystem;
 using UnityEngine;
-
 public class NetCharacterController : NetworkBehaviour
 {
     [Header("Visuals")]
@@ -24,6 +23,11 @@ public class NetCharacterController : NetworkBehaviour
     [SerializeField] private float dashSpeed = 20f;
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1f;
+
+    [Header("Health")]
+    [SerializeField] private PlayerHealth charHealth;
+
+    [SerializeField] private int playerIndex;
 
     private NetworkButtons previousButtons;
     private float dashTimer;
@@ -58,16 +62,16 @@ public class NetCharacterController : NetworkBehaviour
         charStats = GetComponent<CharacterStats>();
         charPickUp = GetComponent<CharacterPickUp>();
         charAbilities = GetComponent<AbilityHolder>();
+        charHealth = GetComponent<PlayerHealth>();
     }
 
     public override void Spawned()
     {
         kcc.SetGravity(Physics.gravity.y * 3f);
 
-        // Inicializar el yaw de red con la rotación actual del visual para que
-        // los proxies que entran tarde no vean un snap a 0 grados.
         if (HasStateAuthority && bodyVisuals != null)
             NetBodyYaw = bodyVisuals.eulerAngles.y;
+
 
         if (HasInputAuthority)
         {
@@ -77,15 +81,10 @@ public class NetCharacterController : NetworkBehaviour
             if (cachedMainCamera != null)
             {
                 cachedCameraController = cachedMainCamera.GetComponent<CameraController>();
-
                 if (cachedCameraController != null)
-                {
                     cachedCameraController.SetTarget(transform);
-                }
                 else
-                {
                     Debug.LogWarning("[NetCharacterController] Main Camera no tiene CameraController.");
-                }
             }
         }
     }
@@ -97,7 +96,10 @@ public class NetCharacterController : NetworkBehaviour
 
         if (dashCooldownTimer > 0f)
             dashCooldownTimer -= Runner.DeltaTime;
-
+        if(Input.GetKeyDown(KeyCode.P))
+        {
+            transform.position = charHealth._lastSpawnPoint;
+        }
         // Dirección de movimiento relativa a la cámara del CLIENTE 
         // El cliente envía su CameraYaw en el input, así que el server puede
         // hacer el cálculo correctamente para CUALQUIER jugador (no solo el local).
@@ -114,6 +116,14 @@ public class NetCharacterController : NetworkBehaviour
         // Se activa solo si: hay input de dash, no hay cooldown y hay dirección.
         // Si está en cooldown, la solicitud se ignora silenciosamente — el
         // animador, al leer IsDashing, NO disparará la animación de dash falsa.
+
+        if(charHealth.IsDead)
+        {
+            kcc.SetPosition(charHealth._lastSpawnPoint); 
+
+            return;
+        }
+
         if (input.Buttons.WasPressed(previousButtons, InputButton.Dash)
             && dashCooldownTimer <= 0f
             && input.Direction.magnitude > 0.1f)

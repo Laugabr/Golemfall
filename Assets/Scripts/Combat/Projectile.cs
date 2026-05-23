@@ -8,19 +8,26 @@ public class Projectile : NetworkBehaviour
     [Networked] private float Speed { get; set; }
     [Networked] private int Damage { get; set; }
     [Networked] private float ActiveTime { get; set; }
-
     [Networked] private bool hasHit { get; set; }
     [Networked] private NetworkObject Owner { get; set; }
     [Networked] private ProjectileType Type { get; set; }
+    [Networked] private bool DestroyOnHit { get; set; }
+
+    [Header("VFX (asignar en Inspector)")]
+    [SerializeField] private GameObject collisionVFX;  // efecto al chocar con cualquier cosa
+    [SerializeField] private GameObject hitTargetVFX;  // efecto al dañar un objetivo (opcional)
 
     private HashSet<NetworkObject> hitTargets = new HashSet<NetworkObject>();
     private Collider col;
-    [Networked] private bool DestroyOnHit { get; set; }    private void Awake()
+
+    private void Awake()
     {
         col = GetComponent<Collider>();
-        col.enabled = false; // desactivar al inicio
+        col.enabled = false;
     }
-    public void Initialize(NetworkObject caster, int damage, float speed, Vector3 dir, float activeTime, bool destroyOnHit, ProjectileType type)
+
+    public void Initialize(NetworkObject caster, int damage, float speed, Vector3 dir,
+                           float activeTime, bool destroyOnHit, ProjectileType type)
     {
         Owner = caster;
         Damage = damage;
@@ -30,74 +37,81 @@ public class Projectile : NetworkBehaviour
         DestroyOnHit = destroyOnHit;
         Type = type;
 
-        if (col == null)
-            col = GetComponent<Collider>();
-
+        if (col == null) col = GetComponent<Collider>();
         col.enabled = true;
     }
-    public override void Spawned()
-    {
-        Debug.Log($"SPAWNED en player: {Runner.LocalPlayer}");
 
-
-    }
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority) return;
 
-        ActiveTime = ActiveTime - Runner.DeltaTime;
+        ActiveTime -= Runner.DeltaTime;
         transform.position += Direction * Speed * Runner.DeltaTime;
 
         if (ActiveTime <= 0)
-        {
             Runner.Despawn(Object);
-        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Validaciones básicas de red
         if (Object == null || !Object.HasStateAuthority) return;
         if (hasHit) return;
         if (Owner == null) return;
 
-        // Evitar pegarle al propio caster
         var otherNet = other.GetComponent<NetworkObject>();
         if (otherNet != null && otherNet == Owner) return;
 
-        // Obtener damageable
+        // Siempre mostramos el efecto de colisión (pared, suelo, etc.)
+        bool damagedTarget = false;
+
         var damageable = other.GetComponent<IDamageable>();
-        if (damageable == null) return;
-
-        // --- FILTRO PvE ---
-        // Player projectile → solo daña enemigos
-        if (Type == ProjectileType.Player && !other.CompareTag("Enemy"))
-            return;
-
-        // Enemy projectile → solo daña player
-        if (Type == ProjectileType.Enemy && !other.CompareTag("Player"))
-            return;
-
-        // Evitar múltiples hits al mismo target
-        if (otherNet != null)
+        if (damageable != null)
         {
-            if (hitTargets.Contains(otherNet))
-                return;
+            if (Type == ProjectileType.Player && !other.CompareTag("Enemy")) goto skip;
+            if (Type == ProjectileType.Enemy && !other.CompareTag("Player")) goto skip;
 
-            hitTargets.Add(otherNet);
+            if (otherNet != null)
+            {
+                if (hitTargets.Contains(otherNet)) return;
+                hitTargets.Add(otherNet);
+            }
+
+            damageable.TakeDamage(Damage, Owner.gameObject);
+            damagedTarget = true;
         }
 
-        // Aplicar daño
-        damageable.TakeDamage(Damage, Owner.gameObject);
-
-        // Marcar impacto (por si querés usarlo después)
+        skip:
         hasHit = true;
 
-        // Destruir si corresponde
+        RPC_SpawnVFX(transform.position, transform.rotation, damagedTarget);
+
         if (DestroyOnHit)
         {
             col.enabled = false;
             Runner.Despawn(Object);
+        }
+    }
+
+    /// <summary>
+    /// RPC enviado a TODOS los clientes para instanciar VFX localmente.
+    /// Cada cliente crea el efecto en su propia máquina — sin NetworkObject ni bandwidth extra.
+    /// </summary>
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_SpawnVFX(Vector3 position, Quaternion rotation, bool showHitTargetFX)
+    {
+        // Efecto de colisión (siempre)
+        if (collisionVFX != null)
+        {
+            var vfx = Instantiate(collisionVFX, position, rotation);
+            // Auto-destruir tras N segundos si el prefab no lo hace solo
+            Destroy(vfx, 5f);
+        }
+
+        // Efecto de impacto al objetivo (solo si dañó y tiene el prefab asignado)
+        if (showHitTargetFX && hitTargetVFX != null)
+        {
+            var vfx = Instantiate(hitTargetVFX, position, rotation);
+            Destroy(vfx, 5f);
         }
     }
 }
