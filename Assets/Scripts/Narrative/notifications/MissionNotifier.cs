@@ -13,6 +13,7 @@ public class MissionNotifier : MonoBehaviour
 
     private void OnEnable()
     {
+        Debug.Log($"[MissionNotifier] OnEnable - suscribiendo. GO: {gameObject.name}, activo: {gameObject.activeInHierarchy}");
         MissionEvents.OnMissionStarted += HandleStarted;
         MissionEvents.OnMissionComplete += HandleComplete;
         MissionEvents.OnMissionFailed += HandleFailed;
@@ -25,9 +26,23 @@ public class MissionNotifier : MonoBehaviour
         MissionEvents.OnMissionFailed -= HandleFailed;
     }
 
-    private void HandleStarted(MissionData m) => Notify(missionStartedTemplate, m);
-    private void HandleComplete(MissionData m) => Notify(missionCompleteTemplate, m);
-    private void HandleFailed(MissionData m) => Notify(missionFailedTemplate, m);
+    private void HandleStarted(MissionData m)
+    {
+        Debug.Log($"[MissionNotifier] HandleStarted: {m?.missionName}, template={missionStartedTemplate?.name}, managerExiste={NotificationManager.Instance != null}");
+        Notify(missionStartedTemplate, m);
+    }
+
+    private void HandleComplete(MissionData m)
+    {
+        Debug.Log($"[MissionNotifier] HandleComplete: {m?.missionName}, template={missionCompleteTemplate?.name}, managerExiste={NotificationManager.Instance != null}");
+        Notify(missionCompleteTemplate, m);
+    }
+
+    private void HandleFailed(MissionData m)
+    {
+        Debug.Log($"[MissionNotifier] HandleFailed: {m?.missionName}, template={missionFailedTemplate?.name}, managerExiste={NotificationManager.Instance != null}");
+        Notify(missionFailedTemplate, m);
+    }
 
     private void Notify(NotificationData template, MissionData mission)
     {
@@ -36,4 +51,3 @@ public class MissionNotifier : MonoBehaviour
         NotificationManager.Instance.Show(template, mission.missionName);
     }
 }
-

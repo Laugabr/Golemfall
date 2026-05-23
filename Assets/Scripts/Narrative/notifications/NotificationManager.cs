@@ -44,6 +44,7 @@ public class NotificationManager : MonoBehaviour
     /// <summary>API canónica: muestra una notificación a partir de un SO.</summary>
     public void Show(NotificationData data, params object[] formatArgs)
     {
+        Debug.Log($"[NotifManager] Show: data={data?.name}, prefab={viewPrefab != null}, parent={viewParent?.name}");
         if (data == null)
         {
             Debug.LogWarning("[NotificationManager] Show llamado con data null.");
