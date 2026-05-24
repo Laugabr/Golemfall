@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: mat_FireBallDimmer
+  m_Name: mat_FBHead
   m_Shader: {fileID: -6465566751694194690, guid: 776092056c305f147a067c7a2862cce1, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -65,20 +65,20 @@ Material:
     - _Cull: 2
     - _Depth_Fade_Distance: 0
     - _DstBlend: 10
-    - _Fire_Noise_Intensity: -0.29
-    - _Fire_Noise_UV_Distortion_Intensity: 0.74
+    - _Fire_Noise_Intensity: 1.12
+    - _Fire_Noise_UV_Distortion_Intensity: 2.16
     - _QueueControl: 0
     - _QueueOffset: 0
     - _SrcBlend: 5
     - _Surface: 1
-    - _UV_Masking_Bottom_0_Legt_1: 0
+    - _UV_Masking_Bottom_0_Legt_1: -0.063
     - _ZTest: 4
     - _ZWrite: 0
     - _ZWriteControl: 0
     m_Colors:
-    - _Fire_Color_A: {r: 0.3301887, g: 0, b: 0.016676076, a: 0.2627451}
-    - _Fire_Color_B: {r: 1.4528302, g: 0, b: 0.092866324, a: 1}
-    - _Fire_Noise_UV_Distortion_Tiling_and_Offset_Speed: {r: 1.64, g: 1.49, b: 0, a: 1}
-    - _SmoothStep: {r: 0.62, g: 0.6, b: 0, a: 0}
+    - _Fire_Color_A: {r: 1.2590739, g: 7.9999995, b: 0.11320733, a: 0}
+    - _Fire_Color_B: {r: 59.82717, g: 75.33307, b: 0, a: 0}
+    - _Fire_Noise_UV_Distortion_Tiling_and_Offset_Speed: {r: 1.64, g: 1.48, b: 0, a: 2}
+    - _SmoothStep: {r: 0.54, g: -0.01, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
