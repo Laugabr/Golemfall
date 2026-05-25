@@ -20,9 +20,15 @@ MonoBehaviour:
   missionSteps:
   - targetId: 1
     amount: 6
+    displayText: Recolectar items
   - targetId: 3
     amount: 2
+    displayText: Hablar con npc
   - targetId: 2
     amount: 1
+    displayText: Recolectar item especial
   failureSteps: []
   nextMissions: []
+  pausesOtherMissions: 0
+  startWithEvent: 0
+  startEvent: 0

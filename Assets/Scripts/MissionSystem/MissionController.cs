@@ -16,6 +16,11 @@ public class MissionController : NetworkBehaviour
     private List<MissionData> _currentMissions = new();
     public IReadOnlyList<MissionData> CurrentMissions => _currentMissions;
 
+    // IDs de misiones que ya terminaron (completadas o fallidas no se trackean igual,
+    // solo guardamos completadas para DialogueRequirement.MissionComplete)
+    private HashSet<string> _completedMissionIds = new();
+    public bool IsMissionComplete(string missionId) => _completedMissionIds.Contains(missionId);
+
     // When true only the pausing mission receives progress
     private bool missionsPaused = false;
     private MissionData pausingMission;
@@ -278,6 +283,7 @@ public class MissionController : NetworkBehaviour
 
                 case MissionStatus.kComplete:
                     Debug.Log($"Mission Completed: {mission.missionId}");
+                    _completedMissionIds.Add(mission.missionId);
                     MissionEvents.OnMissionComplete?.Invoke(mission);
                     globalStatus = MissionStatus.kComplete;
                     RPC_AllClientsRemoveMission(mission.missionId);
