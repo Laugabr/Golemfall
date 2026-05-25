@@ -38,6 +38,7 @@ public class NetCharacterAnimator : NetworkBehaviour
 
     [Networked] private NetworkBool NetIsWalking { get; set; }
     [Networked] private NetworkBool NetIsGrounded { get; set; }
+    [Networked] private NetworkBool NetIsFalling { get; set; }
     [Networked] private int NetIdleType { get; set; }
 
     // Trigger replication via "tick stamp": when the stamp changes, fire the trigger once.
@@ -54,10 +55,12 @@ public class NetCharacterAnimator : NetworkBehaviour
     private static readonly int IsWalking = Animator.StringToHash("isWalking");
     private static readonly int IsDashing = Animator.StringToHash("isDashing");
     private static readonly int IsGrounded = Animator.StringToHash("isGrounded");
+    private static readonly int IsFallingHash = Animator.StringToHash("isFalling");
     private static readonly int IdleTypeHash = Animator.StringToHash("idleType");
-    private static readonly int JumpTrigger = Animator.StringToHash("jumpTrigger");
-    private static readonly int MeleeTrigger = Animator.StringToHash("meleeTrigger");
-    private static readonly int RangeTrigger = Animator.StringToHash("rangeTrigger");
+    private static readonly int JumpTriggerHash = Animator.StringToHash("jumpTrigger");
+    private static readonly int MeleeTriggerHash = Animator.StringToHash("meleeTrigger");
+    private static readonly int RangeTriggerHash = Animator.StringToHash("rangeTrigger");
+    private static readonly int VerticalVelocityHash = Animator.StringToHash("verticalVelocity");
 
     // Server-only state for the idle randomizer.
     private NetworkButtons _previousButtons;
@@ -66,6 +69,10 @@ public class NetCharacterAnimator : NetworkBehaviour
 
     // Track dash transitions to reset the idle system the moment a dash starts.
     private bool _wasDashingLastTick;
+
+    // Umbral: por debajo de este valor de velocidad vertical = está cayendo.
+    // Ajustalo si ves falsos positivos (ej: pequeñas rampas).
+    private const float FallVelocityThreshold = -1.5f;
 
     private void Awake()
     {
@@ -96,6 +103,8 @@ public class NetCharacterAnimator : NetworkBehaviour
 
         // Detect dash start (controller is the source of truth for IsDashing).
         bool dashing = controller != null && controller.IsDashing;
+
+        // Detectamos inicio de dash para resetear el idle randomizer
         bool dashJustStarted = dashing && !_wasDashingLastTick;
         if (dashJustStarted) ResetIdleServer();
         _wasDashingLastTick = dashing;
@@ -114,6 +123,10 @@ public class NetCharacterAnimator : NetworkBehaviour
         {
             NetJumpTick = Runner.Tick;
             ResetIdleServer();
+
+            // Dispara el trigger inmediato en el cliente local
+            if (HasInputAuthority && animator != null)
+                animator.SetTrigger(JumpTriggerHash);
         }
 
         // Attacks: replicate via tick stamp
@@ -134,16 +147,26 @@ public class NetCharacterAnimator : NetworkBehaviour
 
         // Idle randomizer (server-side, replicated via NetIdleType)
         UpdateIdleRandomizerServer();
-
         _previousButtons = input.Buttons;
     }
 
-    private void UpdateMovementFlags(Vector3 inputDir)
+    private void UpdateMovementFlags(Vector2 inputDir)
     {
         bool dashing = controller != null && controller.IsDashing;
-        bool hasDir = inputDir.magnitude > 0.1f;
-        NetIsWalking = hasDir && !dashing;
-        NetIsGrounded = kcc.IsGrounded;
+        bool grounded = kcc.IsGrounded;
+        float vertVel = controller != null ? controller.NetVerticalVelocity : 0f;
+
+        // isFalling: no está en suelo Y está bajando con velocidad significativa.
+        // Esto captura caídas de montañas, post-dash en aire, post-salto, etc.
+        bool falling = !grounded && vertVel < FallVelocityThreshold && !dashing;
+
+        // isWalking: hay input de dirección, está en suelo y no está dasheando.
+        // El chequeo de grounded evita que "walk" quede activo al caer de una montaña.-
+        bool walking = inputDir.magnitude > 0.1f && grounded && !dashing;
+
+        NetIsWalking = walking;
+        NetIsGrounded = grounded;
+        NetIsFalling = falling;
     }
 
     private void UpdateIdleRandomizerServer()
@@ -214,29 +237,37 @@ public class NetCharacterAnimator : NetworkBehaviour
         animator.SetBool(IsWalking, NetIsWalking);
         animator.SetBool(IsDashing, dashing);
         animator.SetBool(IsGrounded, NetIsGrounded);
+        animator.SetBool(IsFallingHash, NetIsFalling);
         animator.SetInteger(IdleTypeHash, NetIdleType);
 
-        // Triggers via tick-stamp diff
-        if (NetJumpTick != _lastJumpTick)
+        if (controller != null)
+        {
+            animator.SetFloat(VerticalVelocityHash, controller.NetVerticalVelocity);
+        }
+
+        // ── Triggers via tick-stamp ──
+        // Comparamos el tick de red con el último que procesamos localmente.
+        // Si cambió → alguien presionó el botón → disparamos el trigger UNA vez.
+        // Esto funciona correctamente para proxies y late-joiners.
+
+        if (NetJumpTick != _lastJumpTick)   // ANTES FALTABA ESTO
         {
             _lastJumpTick = NetJumpTick;
-            animator.SetTrigger(JumpTrigger);
+            animator.SetTrigger(JumpTriggerHash);
         }
 
         if (NetMeleeTick != _lastMeleeTick)
         {
             _lastMeleeTick = NetMeleeTick;
-            animator.SetTrigger(MeleeTrigger);
+            animator.SetTrigger(MeleeTriggerHash);
         }
 
         if (NetRangeTick != _lastRangeTick)
         {
             _lastRangeTick = NetRangeTick;
-            animator.SetTrigger(RangeTrigger);
+            animator.SetTrigger(RangeTriggerHash);
         }
     }
 
-    // Called by Animation Event on ani_player_jumpStart.
-    // Currently no-op, kept to silence the "has no receiver" warning.
-    private void FinalizeJump() { }
+    private void FinalizeJump() { } // Animation Event — mantiene silencio del warning
 }
