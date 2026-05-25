@@ -171,11 +171,14 @@ public class NetCharacterController : NetworkBehaviour
 
         if (IsDashing)
         {
-            kcc.Move(dashDirection * dashSpeed);
+            // Congelamos la Y para que el dash sea horizontal puro
+            Vector3 flatDirection = new Vector3(dashDirection.x, 0f, dashDirection.z).normalized;
+            kcc.Move(flatDirection * dashSpeed);
+
             dashTimer -= Runner.DeltaTime;
             if (dashTimer <= 0f) IsDashing = false;
 
-            moveDir = dashDirection;
+            moveDir = flatDirection;
         }
         else
         {
