@@ -123,6 +123,10 @@ public class NetCharacterAnimator : NetworkBehaviour
         {
             NetJumpTick = Runner.Tick;
             ResetIdleServer();
+
+            // Dispara el trigger inmediato en el cliente local
+            if (HasInputAuthority && animator != null)
+                animator.SetTrigger(JumpTriggerHash);
         }
 
         // Attacks: replicate via tick stamp
@@ -154,10 +158,10 @@ public class NetCharacterAnimator : NetworkBehaviour
 
         // isFalling: no está en suelo Y está bajando con velocidad significativa.
         // Esto captura caídas de montañas, post-dash en aire, post-salto, etc.
-        bool falling = !grounded && vertVel < FallVelocityThreshold;
+        bool falling = !grounded && vertVel < FallVelocityThreshold && !dashing;
 
         // isWalking: hay input de dirección, está en suelo y no está dasheando.
-        // El chequeo de grounded evita que "walk" quede activo al caer de una montaña.
+        // El chequeo de grounded evita que "walk" quede activo al caer de una montaña.-
         bool walking = inputDir.magnitude > 0.1f && grounded && !dashing;
 
         NetIsWalking = walking;
