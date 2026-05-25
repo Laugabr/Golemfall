@@ -171,11 +171,16 @@ public class NetCharacterController : NetworkBehaviour
 
         if (IsDashing)
         {
-            kcc.Move(dashDirection * dashSpeed);
-            dashTimer -= Runner.DeltaTime;
-            if (dashTimer <= 0f) IsDashing = false;
+            Vector3 flatDirection = new Vector3(dashDirection.x, 0f, dashDirection.z).normalized;
 
-            moveDir = dashDirection;
+            // Fijamos velocidad completa incluyendo Y en 0
+            kcc.Move(flatDirection * dashSpeed, -kcc.RealVelocity.y);
+
+            dashTimer -= Runner.DeltaTime;
+            if (dashTimer <= 0f)
+                IsDashing = false;
+
+            moveDir = flatDirection;
         }
         else
         {
