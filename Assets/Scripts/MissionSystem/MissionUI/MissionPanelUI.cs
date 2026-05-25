@@ -1,31 +1,53 @@
-using UnityEngine;
-using System;
+using System.Text;
 using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using Fusion;
 
 public class MissionPanelUI : MonoBehaviour
 {
+    [Header("Panel")]
     [SerializeField] private GameObject panel;
+    [SerializeField] private KeyCode toggleKey = KeyCode.M;
 
+    [Header("Lista de misiones")]
     [SerializeField] private Transform missionListParent;
     [SerializeField] private GameObject missionItemPrefab;
 
+    [Header("Refs")]
     [SerializeField] private MissionController missionController;
 
-    void OnEnable()
+    [Header("Estilo (opcional)")]
+    [SerializeField] private string objetivosHeader = "<color=#7CFF7C><b>OBJETIVOS</b></color>";
+    [SerializeField] private string fallosHeader = "<color=#FF7C7C><b>NO DEBE OCURRIR</b></color>";
+    [SerializeField] private string completedColor = "#7CFF7C";
+    [SerializeField] private string pendingColor = "#FFFFFF";
+
+    private void Update()
     {
-        MissionEvents.OnMissionComplete += OnMissionChanged;
-        MissionEvents.OnMissionFailed += OnMissionChanged;
-        MissionEvents.OnMissionProgress += OnMissionChanged;
-        MissionEvents.OnMissionStarted += OnMissionChanged;
+        if (!Input.GetKeyDown(toggleKey)) return;
+
+        var runner = FindFirstObjectByType<NetworkRunner>();
+        if (runner == null || !runner.IsRunning) return;
+
+        TogglePanel();
+    }
+
+    private void OnEnable()
+    {
+        MissionEvents.OnMissionComplete    += OnMissionChanged;
+        MissionEvents.OnMissionFailed      += OnMissionChanged;
+        MissionEvents.OnMissionProgress    += OnMissionChanged;
+        MissionEvents.OnMissionStarted     += OnMissionChanged;
         MissionEvents.OnMissionListChanged += RefreshMissions;
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
-        MissionEvents.OnMissionComplete -= OnMissionChanged;
-        MissionEvents.OnMissionFailed -= OnMissionChanged;
-        MissionEvents.OnMissionProgress -= OnMissionChanged;
-        MissionEvents.OnMissionStarted -= OnMissionChanged;
+        MissionEvents.OnMissionComplete    -= OnMissionChanged;
+        MissionEvents.OnMissionFailed      -= OnMissionChanged;
+        MissionEvents.OnMissionProgress    -= OnMissionChanged;
+        MissionEvents.OnMissionStarted     -= OnMissionChanged;
         MissionEvents.OnMissionListChanged -= RefreshMissions;
     }
 
@@ -34,38 +56,67 @@ public class MissionPanelUI : MonoBehaviour
         bool newState = !panel.activeSelf;
         panel.SetActive(newState);
 
-        if (newState)
-        {
-            RefreshMissions();
-        }
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(null);
+
+        if (newState) RefreshMissions();
     }
 
-    void RefreshMissions()
+    private void OnMissionChanged(MissionData _)
     {
-        foreach (Transform child in missionListParent)
-        {
-            Destroy(child.gameObject);
-        }
+        if (panel.activeSelf) RefreshMissions();
+    }
+
+    private void RefreshMissions()
+    {
+        foreach (Transform child in missionListParent) Destroy(child.gameObject);
+
+        if (missionController == null) return;
 
         foreach (var mission in missionController.CurrentMissions)
         {
             GameObject item = Instantiate(missionItemPrefab, missionListParent);
-
             TMP_Text text = item.GetComponentInChildren<TMP_Text>();
-            string missionText = mission.missionId + "\n";
-
-            foreach (var step in mission.missionSteps)
-            {
-                missionText += $"- {step.targetId} {step.currentAmount}/{step.amount}\n";
-            }
-
-            text.text = missionText;
+            if (text != null) text.text = BuildMissionText(mission);
         }
     }
 
-    void OnMissionChanged(MissionData mission)
+    private string BuildMissionText(MissionData mission)
     {
-        if (panel.activeSelf)
-            RefreshMissions();
+        var sb = new StringBuilder();
+
+        sb.Append("<b>").Append(mission.missionName).Append("</b>\n");
+
+        if (!string.IsNullOrEmpty(mission.description))
+            sb.Append("<size=80%>").Append(mission.description).Append("</size>\n");
+
+        // Objetivos
+        if (mission.missionSteps != null && mission.missionSteps.Count > 0)
+        {
+            sb.Append('\n').Append(objetivosHeader).Append('\n');
+            foreach (var step in mission.missionSteps)
+                AppendStepLine(sb, step);
+        }
+
+        // Fallos
+        if (mission.failureSteps != null && mission.failureSteps.Count > 0)
+        {
+            sb.Append('\n').Append(fallosHeader).Append('\n');
+            foreach (var step in mission.failureSteps)
+                AppendStepLine(sb, step);
+        }
+
+        return sb.ToString();
+    }
+
+    private void AppendStepLine(StringBuilder sb, MissionStep step)
+    {
+        string color = step.isComplete ? completedColor : pendingColor;
+        string check = step.isComplete ? "✓" : "•";
+        sb.Append("<color=").Append(color).Append(">")
+          .Append(check).Append(' ')
+          .Append(step.DisplayLabel)
+          .Append(' ').Append(step.currentAmount).Append('/').Append(step.amount)
+          .Append("</color>\n");
     }
 }

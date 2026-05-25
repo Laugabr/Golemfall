@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: mat_FireTest
+  m_Name: mat_VenomBallDimmest
   m_Shader: {fileID: -6465566751694194690, guid: 776092056c305f147a067c7a2862cce1, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -62,23 +62,23 @@ Material:
     - _AlphaToMask: 0
     - _Blend: 0
     - _CastShadows: 1
-    - _Cull: 2
+    - _Cull: 0
     - _Depth_Fade_Distance: 0
     - _DstBlend: 10
-    - _Fire_Noise_Intensity: 1.12
-    - _Fire_Noise_UV_Distortion_Intensity: 0.45
+    - _Fire_Noise_Intensity: -0.1
+    - _Fire_Noise_UV_Distortion_Intensity: 0.74
     - _QueueControl: 0
     - _QueueOffset: 0
     - _SrcBlend: 5
     - _Surface: 1
-    - _UV_Masking_Bottom_0_Legt_1: -0.063
+    - _UV_Masking_Bottom_0_Legt_1: 0
     - _ZTest: 4
     - _ZWrite: 0
     - _ZWriteControl: 0
     m_Colors:
-    - _Fire_Color_A: {r: 0.20754719, g: 0.010768958, b: 0.021263788, a: 0}
-    - _Fire_Color_B: {r: 3.5266223, g: 0.6820354, b: 0.9487995, a: 0}
-    - _Fire_Noise_UV_Distortion_Tiling_and_Offset_Speed: {r: 1.64, g: 1.48, b: 0, a: 2}
-    - _SmoothStep: {r: 0.8, g: 0.16, b: 0, a: 0}
+    - _Fire_Color_A: {r: 0.11372549, g: 0, b: 0.58431375, a: 1}
+    - _Fire_Color_B: {r: 0.11372549, g: 0, b: 0.58431375, a: 1}
+    - _Fire_Noise_UV_Distortion_Tiling_and_Offset_Speed: {r: 1.64, g: 1.49, b: 0, a: 0.24}
+    - _SmoothStep: {r: 0.9, g: 0.8, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
