@@ -24,7 +24,8 @@ public class NetCharacterController : NetworkBehaviour
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1f;
 
-    [Header("Visuals")]
+    [Header("Health")]
+    [SerializeField] private PlayerHealth charHealth;
 
     [SerializeField] private int playerIndex;
 
@@ -69,6 +70,7 @@ public class NetCharacterController : NetworkBehaviour
         charStats = GetComponent<CharacterStats>();
         charPickUp = GetComponent<CharacterPickUp>();
         charAbilities = GetComponent<AbilityHolder>();
+        charHealth = GetComponent<PlayerHealth>();
     }
 
     public override void Spawned()
@@ -104,8 +106,11 @@ public class NetCharacterController : NetworkBehaviour
 
         if (dashCooldownTimer > 0f)
             dashCooldownTimer -= Runner.DeltaTime;
-
-        // Dirección de movimiento relativa a la cámara del CLIENTE.
+        if(Input.GetKeyDown(KeyCode.P))
+        {
+            transform.position = charHealth._lastSpawnPoint;
+        }
+        // Dirección de movimiento relativa a la cámara del CLIENTE 
         // El cliente envía su CameraYaw en el input, así que el server puede
         // hacer el cálculo correctamente para CUALQUIER jugador (no solo el local).
         float yaw = input.CameraYaw;
@@ -121,6 +126,14 @@ public class NetCharacterController : NetworkBehaviour
         // Se activa solo si: hay input de dash, no hay cooldown y hay dirección.
         // Si está en cooldown, la solicitud se ignora silenciosamente — el
         // animador, al leer IsDashing, NO disparará la animación de dash falsa.
+
+        if(charHealth.IsDead)
+        {
+            kcc.SetPosition(charHealth._lastSpawnPoint); 
+
+            return;
+        }
+
         if (input.Buttons.WasPressed(previousButtons, InputButton.Dash)
             && dashCooldownTimer <= 0f
             && input.Direction.magnitude > 0.1f)
