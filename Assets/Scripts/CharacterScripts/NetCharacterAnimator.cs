@@ -176,7 +176,7 @@ public class NetCharacterAnimator : NetworkBehaviour
         if (input.Buttons.WasPressed(_previousButtons, InputButton.BasicAttack))
         {
             NetMeleeTick = Runner.Tick;
-            animator.SetTrigger(MeleeTrigger);
+            animator.SetTrigger(MeleeTriggerHash);
             ResetIdleLocal();
         }
 
@@ -184,7 +184,7 @@ public class NetCharacterAnimator : NetworkBehaviour
         if (input.Buttons.WasPressed(_previousButtons, InputButton.FirstSkill))
         {
             NetRangeTick = Runner.Tick;
-            animator.SetTrigger(RangeTrigger);
+            animator.SetTrigger(RangeTriggerHash);
             ResetIdleLocal();
         }
 
