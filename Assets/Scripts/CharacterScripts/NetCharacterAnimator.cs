@@ -52,6 +52,7 @@ public class NetCharacterAnimator : NetworkBehaviour
 
     [Networked] private NetworkBool NetIsWalking { get; set; }
     [Networked] private NetworkBool NetIsGrounded { get; set; }
+    [Networked] private NetworkBool NetIsFalling { get; set; }
     [Networked] private int NetIdleType { get; set; }
 
     // Triggers replicados para los PROXIES via "tick stamp": cuando el stamp
@@ -70,10 +71,12 @@ public class NetCharacterAnimator : NetworkBehaviour
     private static readonly int IsWalking = Animator.StringToHash("isWalking");
     private static readonly int IsDashing = Animator.StringToHash("isDashing");
     private static readonly int IsGrounded = Animator.StringToHash("isGrounded");
+    private static readonly int IsFallingHash = Animator.StringToHash("isFalling");
     private static readonly int IdleTypeHash = Animator.StringToHash("idleType");
-    private static readonly int JumpTrigger = Animator.StringToHash("jumpTrigger");
-    private static readonly int MeleeTrigger = Animator.StringToHash("meleeTrigger");
-    private static readonly int RangeTrigger = Animator.StringToHash("rangeTrigger");
+    private static readonly int JumpTriggerHash = Animator.StringToHash("jumpTrigger");
+    private static readonly int MeleeTriggerHash = Animator.StringToHash("meleeTrigger");
+    private static readonly int RangeTriggerHash = Animator.StringToHash("rangeTrigger");
+    private static readonly int VerticalVelocityHash = Animator.StringToHash("verticalVelocity");
 
     // Estado para detectar "edge" de presionado en FUN. Se mantiene por peer.
     private NetworkButtons _previousButtons;
@@ -85,6 +88,9 @@ public class NetCharacterAnimator : NetworkBehaviour
     // Para detectar el inicio del dash y resetear el idle.
     private bool _wasDashingLastTick;
 
+    // Umbral: por debajo de este valor de velocidad vertical = está cayendo.
+    // Ajustalo si ves falsos positivos (ej: pequeñas rampas).
+    private const float FallVelocityThreshold = -1.5f;
     // Cache: ¿soy el owner de este personaje? (host viendo su personaje, o cliente local).
     // Si es false, soy un proxy y solo reacciono a [Networked] en Render().
     private bool IsOwner => HasInputAuthority || HasStateAuthority;
@@ -161,7 +167,7 @@ public class NetCharacterAnimator : NetworkBehaviour
             // Disparo local para el owner. NO usamos _lastJumpTick acá: el owner
             // NUNCA lee NetJumpTick en Render(), así que no hay riesgo de doble
             // disparo. (Es el bug que tenía la versión anterior).
-            animator.SetTrigger(JumpTrigger);
+            animator.SetTrigger(JumpTriggerHash);
 
             ResetIdleLocal();
         }
@@ -198,12 +204,23 @@ public class NetCharacterAnimator : NetworkBehaviour
         _previousButtons = input.Buttons;
     }
 
-    private void UpdateMovementFlags(Vector3 inputDir)
+    private void UpdateMovementFlags(Vector2 inputDir)
     {
         bool dashing = controller != null && controller.IsDashing;
-        bool hasDir = inputDir.magnitude > 0.1f;
-        NetIsWalking = hasDir && !dashing;
-        NetIsGrounded = kcc.IsGrounded;
+        bool grounded = kcc.IsGrounded;
+        float vertVel = controller != null ? controller.NetVerticalVelocity : 0f;
+
+        // isFalling: no está en suelo Y está bajando con velocidad significativa.
+        // Esto captura caídas de montañas, post-dash en aire, post-salto, etc.
+        bool falling = !grounded && vertVel < FallVelocityThreshold && !dashing;
+
+        // isWalking: hay input de dirección, está en suelo y no está dasheando.
+        // El chequeo de grounded evita que "walk" quede activo al caer de una montaña.-
+        bool walking = inputDir.magnitude > 0.1f && grounded && !dashing;
+
+        NetIsWalking = walking;
+        NetIsGrounded = grounded;
+        NetIsFalling = falling;
     }
 
     private void UpdateIdleRandomizerServer()
@@ -297,29 +314,33 @@ public class NetCharacterAnimator : NetworkBehaviour
         animator.SetBool(IsWalking, NetIsWalking);
         animator.SetBool(IsDashing, dashing);
         animator.SetBool(IsGrounded, NetIsGrounded);
+        animator.SetBool(IsFallingHash, NetIsFalling);
         animator.SetInteger(IdleTypeHash, NetIdleType);
 
-        // Triggers: SOLO los proxies los leen acá. El owner ya los disparó en FUN.
-        if (IsOwner) return;
+if (controller != null)
+    animator.SetFloat(VerticalVelocityHash, controller.NetVerticalVelocity);
 
-        if (NetJumpTick != _lastJumpTick)
-        {
-            _lastJumpTick = NetJumpTick;
-            animator.SetTrigger(JumpTrigger);
-        }
+// Triggers: SOLO los proxies los leen acá. El owner ya los disparó en FUN.
+if (IsOwner) return;
 
-        if (NetMeleeTick != _lastMeleeTick)
-        {
-            _lastMeleeTick = NetMeleeTick;
-            animator.SetTrigger(MeleeTrigger);
-        }
+if (NetJumpTick != _lastJumpTick)
+{
+    _lastJumpTick = NetJumpTick;
+    animator.SetTrigger(JumpTriggerHash);
+}
 
-        if (NetRangeTick != _lastRangeTick)
-        {
-            _lastRangeTick = NetRangeTick;
-            animator.SetTrigger(RangeTrigger);
-        }
-    }
+if (NetMeleeTick != _lastMeleeTick)
+{
+    _lastMeleeTick = NetMeleeTick;
+    animator.SetTrigger(MeleeTriggerHash);
+}
+
+if (NetRangeTick != _lastRangeTick)
+{
+    _lastRangeTick = NetRangeTick;
+    animator.SetTrigger(RangeTriggerHash);
+}
+}
 
     // Llamado por el Animation Event en ani_player_jumpStart.
     // Actualmente no-op, se mantiene para silenciar el warning "has no receiver".
