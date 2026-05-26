@@ -20,7 +20,12 @@ MonoBehaviour:
   missionSteps:
   - targetId: 0
     amount: 8
+    displayText: Matar enemigos
   failureSteps:
   - targetId: 4
     amount: 1
+    displayText: Proteger al npc
   nextMissions: []
+  pausesOtherMissions: 0
+  startWithEvent: 0
+  startEvent: 0
