@@ -33,7 +33,7 @@ Transform:
   m_GameObject: {fileID: 4695642118095032319}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.064827375, y: 0.23464441, z: 0.18928471}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.27, y: 1.27, z: 1.27}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4910,7 +4910,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a384b9411169c6b4fb6da1d659f5ae4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collisionVFX: {fileID: 0}
+  collisionVFX: {fileID: 3793125330449138262}
   hitTargetVFX: {fileID: 0}
 --- !u!54 &2949625105750849721
 Rigidbody:
@@ -4937,7 +4937,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!114 &-3904395779510015691
 MonoBehaviour:
@@ -4999,17 +4999,17 @@ SphereCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 2.74
-  m_Center: {x: 0, y: -0.88, z: 0.01}
+  m_Radius: 2.56
+  m_Center: {x: 0, y: 0.16, z: 0.01}
 --- !u!1001 &7488026977652719893
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5175,6 +5175,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
+--- !u!1 &3793125330449138262 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6001384847077884739, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
+  m_PrefabInstance: {fileID: 7488026977652719893}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4910381730620863401 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2580561444201378492, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
