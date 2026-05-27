@@ -97,6 +97,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2762658678027402792}
   - component: {fileID: 1065603575762288944}
+  - component: {fileID: 5395520731874177227}
+  - component: {fileID: 716258680934219171}
   m_Layer: 0
   m_Name: Collider_Rock_04
   m_TagString: Untagged
@@ -138,5 +140,47 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2.59, y: 3.35, z: 1.5}
-  m_Center: {x: 0.15, y: 1.68, z: 0.07}
+  m_Size: {x: 2.9074411, y: 1.7445141, z: 1.9889367}
+  m_Center: {x: 0.17864418, y: 0.87725717, z: 0.07849753}
+--- !u!65 &5395520731874177227
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5717361071693542158}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.4252803, y: 0.9355141, z: 1.6918241}
+  m_Center: {x: 0.093774915, y: 2.100609, z: -0.01265806}
+--- !u!65 &716258680934219171
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5717361071693542158}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.8711565, y: 0.75301695, z: 1.3165118}
+  m_Center: {x: -0.0027872324, y: 2.9154408, z: -0.021037161}

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1153166858855586409}
   - component: {fileID: 3806276817402666086}
+  - component: {fileID: 4267601156582576506}
   m_Layer: 0
   m_Name: Collider_Tree_03
   m_TagString: Untagged
@@ -51,8 +52,29 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.13, y: 3.73, z: 0.79}
-  m_Center: {x: 0.1, y: 1.9, z: 0}
+  m_Size: {x: 1.0906131, y: 6.500449, z: 0.79}
+  m_Center: {x: 0.2403871, y: 3.2852244, z: 0}
+--- !u!65 &4267601156582576506
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 294534596166697813}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 4.036653, y: 1.4651947, z: 4.176688}
+  m_Center: {x: -0.24184966, y: 7.242489, z: 0.015853763}
 --- !u!1 &7979934269663631337
 GameObject:
   m_ObjectHideFlags: 0
