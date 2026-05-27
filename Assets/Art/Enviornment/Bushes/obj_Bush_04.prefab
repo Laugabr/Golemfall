@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6845721415795639783}
   - component: {fileID: 6673755592320957193}
+  - component: {fileID: 328499107166085699}
   m_Layer: 0
   m_Name: Collider_Bush_04
   m_TagString: Untagged
@@ -51,8 +52,29 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.8, y: 1.61, z: 1}
-  m_Center: {x: 0, y: 0.68, z: 0}
+  m_Size: {x: 4.2900095, y: 1.2247646, z: 2.5331159}
+  m_Center: {x: 0.10265362, y: 0.6334635, z: -0.029682398}
+--- !u!65 &328499107166085699
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2938298957940891352}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.1478338, y: 1.0309389, z: 2.1226366}
+  m_Center: {x: 0.04442984, y: 1.5424196, z: -0.021881938}
 --- !u!1 &8170417193169425358
 GameObject:
   m_ObjectHideFlags: 0
