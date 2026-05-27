@@ -25,6 +25,12 @@ namespace Game.CameraSystem
     [DisallowMultipleComponent]
     public class CameraController : MonoBehaviour
     {
+        // Multiplicadores internos para que los valores del Inspector queden
+        // en rangos cómodos (1–10) en lugar de fracciones.
+        // Calibrados para sensación equivalente a una corrida estable a ~60 FPS
+        // independiente del framerate.
+        private const float MouseRotationMultiplier = 0.5f;
+        private const float ZoomScrollMultiplier    = 10f;
         // ─────────────────────────────────────────────────────────────────────────
         // Target y seguimiento
         // ─────────────────────────────────────────────────────────────────────────
@@ -92,6 +98,23 @@ namespace Game.CameraSystem
         [SerializeField] private float manualResetDuration = 0.4f;
 
         // ─────────────────────────────────────────────────────────────────────────
+        // Zoom con rueda del mouse
+        // ─────────────────────────────────────────────────────────────────────────
+
+        [Header("Zoom con rueda del mouse")]
+        [Tooltip("Cuánto cambia la distancia por 'tick' de la rueda. Subir = zoom más rápido.")]
+        [Min(0f)]
+        [SerializeField] private float zoomSensitivity = 2f;
+
+        [Tooltip("Límites absolutos de distancia de la cámara.\n" +
+                 "X = mínimo (más cerca), Y = máximo (más lejos).")]
+        [SerializeField] private Vector2 zoomDistanceRange = new Vector2(3f, 25f);
+
+        [Tooltip("Suavizado del zoom (SmoothDamp). Más alto = más inercia. Rango: 0.05–0.2.")]
+        [Min(0f)]
+        [SerializeField] private float zoomSmoothTime = 0.1f;
+
+        // ─────────────────────────────────────────────────────────────────────────
         // Debug
         // ─────────────────────────────────────────────────────────────────────────
 
@@ -123,6 +146,13 @@ namespace Game.CameraSystem
         private float pitchOffsetVelocity;
         private float yawOffsetVelocity;
 
+        // Zoom: offset acumulado de distancia desde la rueda del mouse.
+        // La distancia final aplicada al transform es: baseDistance + smoothZoomOffset,
+        // clampeada contra zoomDistanceRange.
+        private float targetZoomOffset;
+        private float smoothZoomOffset;
+        private float zoomOffsetVelocity;
+
         private Coroutine transitionRoutine;
         private Coroutine manualResetRoutine;
 
@@ -153,7 +183,7 @@ namespace Game.CameraSystem
             target = newTarget;
             if (target != null)
             {
-                focusPoint    = target.position;
+                focusPoint = target.position;
                 focusVelocity = Vector3.zero;
             }
         }
@@ -186,6 +216,10 @@ namespace Game.CameraSystem
             if (transitionRoutine != null)
                 StopCoroutine(transitionRoutine);
 
+            // Al cambiar de preset, el zoom del jugador se resetea: manda el preset.
+            // El SmoothDamp del zoom se encarga de hacer la transición suave hasta 0.
+            targetZoomOffset = 0f;
+
             float duration = overrideDuration ?? preset.transitionDuration;
             transitionRoutine = StartCoroutine(TransitionRoutine(preset, duration));
         }
@@ -199,8 +233,8 @@ namespace Game.CameraSystem
             if (presets.Count > 0 && initialPresetIndex >= 0 && initialPresetIndex < presets.Count)
             {
                 var initial = presets[initialPresetIndex];
-                basePitch    = initial.pitch;
-                baseYaw      = initial.yaw;
+                basePitch = initial.pitch;
+                baseYaw = initial.yaw;
                 baseDistance = initial.distance;
             }
 
@@ -236,10 +270,10 @@ namespace Game.CameraSystem
             float desiredX = focusPoint.x;
             float desiredZ = focusPoint.z;
 
-            if      (dx >  deadZoneHalfWidth)  desiredX = targetPos.x - deadZoneHalfWidth;
-            else if (dx < -deadZoneHalfWidth)  desiredX = targetPos.x + deadZoneHalfWidth;
+            if (dx > deadZoneHalfWidth) desiredX = targetPos.x - deadZoneHalfWidth;
+            else if (dx < -deadZoneHalfWidth) desiredX = targetPos.x + deadZoneHalfWidth;
 
-            if      (dz >  deadZoneHalfLength) desiredZ = targetPos.z - deadZoneHalfLength;
+            if (dz > deadZoneHalfLength) desiredZ = targetPos.z - deadZoneHalfLength;
             else if (dz < -deadZoneHalfLength) desiredZ = targetPos.z + deadZoneHalfLength;
 
             Vector3 desiredFocus = new Vector3(desiredX, targetPos.y, desiredZ);
@@ -277,12 +311,28 @@ namespace Game.CameraSystem
                 }
 
                 // Mouse X → yaw | Mouse Y → pitch (subir mouse = cámara sube)
-                targetYawOffset   += mouseX * mouseSensitivity * 100f * Time.deltaTime;
-                targetPitchOffset -= mouseY * mouseSensitivity * 100f * Time.deltaTime;
+                // NOTA: Input.GetAxis("Mouse X/Y") ya devuelve un delta entre frames,
+                // por eso NO se multiplica por Time.deltaTime (sería dependiente del FPS).
+                targetYawOffset += mouseX * mouseSensitivity * MouseRotationMultiplier;
+                targetPitchOffset -= mouseY * mouseSensitivity * MouseRotationMultiplier;
+
 
                 targetPitchOffset = Mathf.Clamp(targetPitchOffset, manualPitchRange.x, manualPitchRange.y);
                 //targetYawOffset   = Mathf.Clamp(targetYawOffset,   manualYawRange.x,   manualYawRange.y);
                 //targetYawOffset rotación infinita
+            }
+
+            // Zoom con rueda del mouse: acumula delta y clampea contra los topes globales.
+            float scroll = Input.GetAxis("Mouse ScrollWheel");
+            if (Mathf.Abs(scroll) > 0.0001f)
+            {
+                // Scroll positivo = acercar (distancia menor), negativo = alejar.
+                targetZoomOffset -= scroll * zoomSensitivity * ZoomScrollMultiplier;
+
+                // El clamp se hace sobre la distancia FINAL (preset + offset), no sobre el offset solo.
+                float minOffset = zoomDistanceRange.x - baseDistance;
+                float maxOffset = zoomDistanceRange.y - baseDistance;
+                targetZoomOffset = Mathf.Clamp(targetZoomOffset, minOffset, maxOffset);
             }
         }
 
@@ -290,7 +340,7 @@ namespace Game.CameraSystem
         /// Aplica SmoothDamp sobre el offset para suavizar el movimiento
         /// incluso cuando el mouse se detiene (da inercia natural).
         /// </summary>
-        private void SmoothOffsets()
+       private void SmoothOffsets()
         {
             smoothPitchOffset = Mathf.SmoothDamp(
                 smoothPitchOffset, targetPitchOffset, ref pitchOffsetVelocity, rotationSmoothTime
@@ -298,27 +348,30 @@ namespace Game.CameraSystem
             smoothYawOffset = Mathf.SmoothDamp(
                 smoothYawOffset, targetYawOffset, ref yawOffsetVelocity, rotationSmoothTime
             );
+            smoothZoomOffset = Mathf.SmoothDamp(
+                smoothZoomOffset, targetZoomOffset, ref zoomOffsetVelocity, zoomSmoothTime
+            );
         }
 
         private IEnumerator ResetManualOffsetsRoutine()
         {
             float startPitch = targetPitchOffset;
-            float startYaw   = targetYawOffset;
-            float elapsed    = 0f;
+            float startYaw = targetYawOffset;
+            float elapsed = 0f;
 
             while (elapsed < manualResetDuration)
             {
                 elapsed += Time.deltaTime;
-                float t     = Mathf.Clamp01(elapsed / manualResetDuration);
+                float t = Mathf.Clamp01(elapsed / manualResetDuration);
                 float eased = 1f - Mathf.Pow(1f - t, 3f); // ease-out cúbico
 
                 targetPitchOffset = Mathf.Lerp(startPitch, 0f, eased);
-                targetYawOffset   = Mathf.Lerp(startYaw,   0f, eased);
+                targetYawOffset = Mathf.Lerp(startYaw, 0f, eased);
                 yield return null;
             }
 
-            targetPitchOffset  = 0f;
-            targetYawOffset    = 0f;
+            targetPitchOffset = 0f;
+            targetYawOffset = 0f;
             manualResetRoutine = null;
         }
 
@@ -328,15 +381,15 @@ namespace Game.CameraSystem
 
         private IEnumerator TransitionRoutine(CameraPreset target, float duration)
         {
-            float startPitch    = basePitch;
-            float startYaw      = baseYaw;
+            float startPitch = basePitch;
+            float startYaw = baseYaw;
             float startDistance = baseDistance;
-            float elapsed       = 0f;
+            float elapsed = 0f;
 
             if (duration <= 0f)
             {
-                basePitch    = target.pitch;
-                baseYaw      = target.yaw;
+                basePitch = target.pitch;
+                baseYaw = target.yaw;
                 baseDistance = target.distance;
                 transitionRoutine = null;
                 yield break;
@@ -345,17 +398,17 @@ namespace Game.CameraSystem
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
-                float t     = Mathf.Clamp01(elapsed / duration);
+                float t = Mathf.Clamp01(elapsed / duration);
                 float eased = target.transitionCurve.Evaluate(t);
 
-                basePitch    = Mathf.Lerp(startPitch,    target.pitch,    eased);
-                baseYaw      = Mathf.LerpAngle(startYaw, target.yaw,      eased);
+                basePitch = Mathf.Lerp(startPitch, target.pitch, eased);
+                baseYaw = Mathf.LerpAngle(startYaw, target.yaw, eased);
                 baseDistance = Mathf.Lerp(startDistance, target.distance, eased);
                 yield return null;
             }
 
-            basePitch    = target.pitch;
-            baseYaw      = target.yaw;
+            basePitch = target.pitch;
+            baseYaw = target.yaw;
             baseDistance = target.distance;
             transitionRoutine = null;
         }
@@ -383,11 +436,17 @@ namespace Game.CameraSystem
 
         private void ApplyTransform(bool instant)
         {
-            float finalPitch = basePitch + smoothPitchOffset;
-            float finalYaw   = baseYaw   + smoothYawOffset;
+            float finalPitch    = basePitch + smoothPitchOffset;
+            float finalYaw      = baseYaw   + smoothYawOffset;
+            // Distancia final: preset + zoom del usuario, clampeada contra los topes globales.
+            float finalDistance = Mathf.Clamp(
+                baseDistance + smoothZoomOffset,
+                zoomDistanceRange.x,
+                zoomDistanceRange.y
+            );
 
             Quaternion rot          = Quaternion.Euler(finalPitch, finalYaw, 0f);
-            Vector3 offsetFromFocus = rot * Vector3.back * baseDistance;
+            Vector3 offsetFromFocus = rot * Vector3.back * finalDistance;
             Vector3 desiredCamPos   = focusPoint + offsetFromFocus;
 
             transform.position = desiredCamPos;
