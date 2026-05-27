@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c263c045ef8f3a743a149ef9a8e1cfdf, type: 3}
   m_Name: CaveMission_01
   m_EditorClassIdentifier: 
-  missionId: CaveMission_01
-  missionName: CaveMission_01
-  description: Kill and collect special item
+  missionId: mision_cueva
+  missionName: "Misi\xF3n de la Cueva Oscura"
+  description: Vence a 4 enemigos y encuentra el artefacto perdido
   xp: 1200
-  coins: 1200
+  coins: 0
   missionSteps:
   - targetId: 0
     amount: 4
-    displayText: Matar enemigos
+    displayText: Vencer a 4 enemigos
   - targetId: 2
     amount: 1
-    displayText: Recolectar item especial
+    displayText: Recolectar artefacto perdido
   failureSteps:
   - targetId: 6
     amount: 1
