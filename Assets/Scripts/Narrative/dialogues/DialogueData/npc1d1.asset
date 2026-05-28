@@ -17,15 +17,19 @@ MonoBehaviour:
     condition: 1
     missionId: mision_rompibles_01
   lines:
-  - text: 
+  - text: "\xA1Bienvenida Owlina Queen! La madre de todos los seres te despert\xF3
+      de tu letargo porque\r\nuna fuerza c\xF3smica externa que toma forma de golems
+      invadi\xF3 nuestro mundo provocando\r\ncaos por todos lados! >>"
     portrait: {fileID: 0}
-    speakerNameOverride: 
-  - text: 
+    speakerNameOverride: "Dulce C\xEDclope"
+  - text: "Necesitamos que recuerdes tu entrenamiento ancestral para poder\r\nenfrentarla
+      y as\xED ayudar a restaurar el equilibrio >>"
     portrait: {fileID: 0}
-    speakerNameOverride: 
-  - text: 
+    speakerNameOverride: "Dulce C\xEDclope"
+  - text: "\xA1Destruye 3 nebuflor que se encuentran\r\nm\xE1s adelante utilizando
+      tu ataque b\xE1sico!"
     portrait: {fileID: 0}
-    speakerNameOverride: 
-  onCompleteEvent: 0
+    speakerNameOverride: "Dulce C\xEDclope"
+  onCompleteEvent: 16
   onCompleteAmount: 1
-  triggerEventOnComplete: 0
+  triggerEventOnComplete: 1
