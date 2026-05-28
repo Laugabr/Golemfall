@@ -10,16 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 64b5bda43f4b2f44481a42f85c2441b2, type: 3}
-  m_Name: dialogue1
+  m_Name: npc1d2
   m_EditorClassIdentifier: 
-  dialogueId: dialogue1
+  dialogueId: 
   requirement:
-    condition: 2
+    condition: 0
     missionId: 
-  lines:
-  - text: Hola Owlita Queen!
-    portrait: {fileID: 0}
-    speakerNameOverride: pepe
+  lines: []
   onCompleteEvent: 0
-  onCompleteAmount: 0
-  triggerEventOnComplete: 1
+  onCompleteAmount: 1
+  triggerEventOnComplete: 0
