@@ -10,25 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c263c045ef8f3a743a149ef9a8e1cfdf, type: 3}
-  m_Name: CaveMission_01
+  m_Name: mision_explorar_01
   m_EditorClassIdentifier: 
-  missionId: mision_cueva
-  missionName: "Misi\xF3n de la Cueva Oscura"
-  description: Vence a 4 enemigos y encuentra el artefacto perdido
-  xp: 1200
-  coins: 0
+  missionId: mision_explorador
+  missionName: Mision del Explorador
+  description: 
+  xp: 500
+  coins: 500
   missionSteps:
-  - targetId: 0
-    amount: 4
-    displayText: Vencer a 4 enemigos
+  - targetId: 1
+    amount: 6
+    displayText: Recolectar items
+  - targetId: 3
+    amount: 2
+    displayText: Hablar con npc
   - targetId: 2
     amount: 1
-    displayText: Recolectar artefacto perdido
-  failureSteps:
-  - targetId: 6
-    amount: 1
-    displayText: No morir
+    displayText: Recolectar item especial
+  failureSteps: []
   nextMissions: []
-  pausesOtherMissions: 1
-  startWithEvent: 1
-  startEvent: 5
+  pausesOtherMissions: 0
+  startWithEvent: 0
+  startEvent: 0
