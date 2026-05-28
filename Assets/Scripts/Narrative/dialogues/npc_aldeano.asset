@@ -10,9 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b7432ccd61ca55c4f93de647a1384b84, type: 3}
-  m_Name: npc1
+  m_Name: npc_aldeano
   m_EditorClassIdentifier: 
-  npcId: npc1
-  displayName: Npc1
+  npcId: npc_aldeano
+  displayName: Aldeano
   portrait: {fileID: 0}
-  dialogues: []
+  dialogues:
+  - {fileID: 11400000, guid: ce7738ae76b6b9c40a9e4273279f7780, type: 2}
+  - {fileID: 11400000, guid: b598653a550fca14abb0537700de1d09, type: 2}
