@@ -13,19 +13,20 @@ MonoBehaviour:
   m_Name: mision_batalla_01
   m_EditorClassIdentifier: 
   missionId: mision_batalla_01
-  missionName: Mision de Batalla
-  description: Kill and protect
-  xp: 900
-  coins: 900
+  missionName: "Misi\xF3n \"Cacer\xEDa de Golems\""
+  description: "Bien luchado Owlina! Las criaturas corruptas se est\xE1n multiplicando.
+    Derrota 4 enemigos m\xE1s y despeja el camino."
+  xp: 300
+  coins: 0
   missionSteps:
   - targetId: 0
-    amount: 8
-    displayText: Matar enemigos
+    amount: 4
+    displayText: Derrota golems
   failureSteps:
   - targetId: 4
     amount: 1
     displayText: Proteger al npc
   nextMissions: []
   pausesOtherMissions: 0
-  startWithEvent: 0
+  startWithEvent: 1
   startEvent: 0

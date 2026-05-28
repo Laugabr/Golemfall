@@ -12,18 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c263c045ef8f3a743a149ef9a8e1cfdf, type: 3}
   m_Name: mision_rompibles_01
   m_EditorClassIdentifier: 
-  missionId: mision_rompe_pepe
-  missionName: "Misi\xF3n Rompe Pepe"
-  description: Debes romper 3 flores carnivoras
-  xp: 100
+  missionId: mision_rompibles_01
+  missionName: "Misi\xF3n \"Entrenamiento Ancestral\""
+  description: Destruye 3 nebuflor para entrenar tu ataque
+  xp: 50
   coins: 0
   missionSteps:
   - targetId: 7
     amount: 3
-    displayText: Romper cosas
+    displayText: Destruir nebuflores
   failureSteps: []
   nextMissions:
-  - {fileID: 11400000, guid: 511e420db3566d84e950d73a939022db, type: 2}
+  - {fileID: 11400000, guid: 5166e7cc41bb5d045b84206eb651cdb9, type: 2}
   pausesOtherMissions: 0
-  startWithEvent: 0
-  startEvent: 0
+  startWithEvent: 1
+  startEvent: 3

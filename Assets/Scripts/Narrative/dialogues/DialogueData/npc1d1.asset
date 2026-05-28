@@ -12,11 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 64b5bda43f4b2f44481a42f85c2441b2, type: 3}
   m_Name: npc1d1
   m_EditorClassIdentifier: 
-  dialogueId: 
+  dialogueId: npc1d1
   requirement:
-    condition: 0
-    missionId: 
-  lines: []
+    condition: 1
+    missionId: mision_rompibles_01
+  lines:
+  - text: 
+    portrait: {fileID: 0}
+    speakerNameOverride: 
+  - text: 
+    portrait: {fileID: 0}
+    speakerNameOverride: 
+  - text: 
+    portrait: {fileID: 0}
+    speakerNameOverride: 
   onCompleteEvent: 0
   onCompleteAmount: 1
   triggerEventOnComplete: 0

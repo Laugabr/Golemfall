@@ -12,21 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c263c045ef8f3a743a149ef9a8e1cfdf, type: 3}
   m_Name: mision_explorar_01
   m_EditorClassIdentifier: 
-  missionId: mision_explorador
-  missionName: Mision del Explorador
-  description: 
-  xp: 500
-  coins: 500
+  missionId: mision_explorar_01
+  missionName: Mision "Secretos del Bosque"
+  description: "El bosque esconde antiguos recursos que pueden ayudarte en tu viaje.
+    Explora, destruye objetos rompibles y encuentra el fragmento escondido m\xE1s
+    adelante."
+  xp: 100
+  coins: 0
   missionSteps:
   - targetId: 1
-    amount: 6
-    displayText: Recolectar items
-  - targetId: 3
-    amount: 2
-    displayText: Hablar con npc
-  - targetId: 2
     amount: 1
-    displayText: Recolectar item especial
+    displayText: Recolectar items
   failureSteps: []
   nextMissions: []
   pausesOtherMissions: 0

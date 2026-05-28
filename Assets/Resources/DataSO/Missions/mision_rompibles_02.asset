@@ -12,12 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c263c045ef8f3a743a149ef9a8e1cfdf, type: 3}
   m_Name: mision_rompibles_02
   m_EditorClassIdentifier: 
-  missionId: 
-  missionName: 
-  description: 
-  xp: 0
+  missionId: mision_rompibles_02
+  missionName: "Misi\xF3n \"La magia de tu bast\xF3n\""
+  description: Usa la tecla Q para entrenar tu ataque a distancia
+  xp: 50
   coins: 0
-  missionSteps: []
+  missionSteps:
+  - targetId: 7
+    amount: 1
+    displayText: Destruir nebuflor distante
   failureSteps: []
   nextMissions: []
   pausesOtherMissions: 0
