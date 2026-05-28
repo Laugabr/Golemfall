@@ -9,5 +9,6 @@ public enum GameEventType
     KillNPC,
     EnterCave,
     PlayerDied,
-    BreakBreakable
+    BreakBreakable,
+    MisionGoldenEgg
 }
