@@ -66,7 +66,7 @@ Material:
     - _Depth_Fade_Distance: 0
     - _DstBlend: 10
     - _Fire_Noise_Intensity: 1.12
-    - _Fire_Noise_UV_Distortion_Intensity: 2.16
+    - _Fire_Noise_UV_Distortion_Intensity: -0.2
     - _QueueControl: 0
     - _QueueOffset: 0
     - _SrcBlend: 5
@@ -76,8 +76,8 @@ Material:
     - _ZWrite: 0
     - _ZWriteControl: 0
     m_Colors:
-    - _Fire_Color_A: {r: 1.2590739, g: 7.9999995, b: 0.11320733, a: 0}
-    - _Fire_Color_B: {r: 59.82717, g: 75.33307, b: 0, a: 0}
+    - _Fire_Color_A: {r: 10.680627, g: 0, b: 0.107908785, a: 0}
+    - _Fire_Color_B: {r: 27.868664, g: 24.274122, b: 0, a: 0}
     - _Fire_Noise_UV_Distortion_Tiling_and_Offset_Speed: {r: 1.64, g: 1.48, b: 0, a: 2}
     - _SmoothStep: {r: 0.54, g: -0.01, b: 0, a: 0}
   m_BuildTextureStacks: []
