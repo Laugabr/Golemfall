@@ -26,6 +26,17 @@ public class Projectile : NetworkBehaviour
         col.enabled = false;
     }
 
+    public override void Spawned()
+    {
+        // Solo el cliente que disparó destruye su fake
+        if (Object.HasStateAuthority || !Object.HasInputAuthority) return;
+
+        // Owner es el NetworkObject del caster (ya lo tenés networkeado)
+        uint ownerId = Owner.Id.Raw;
+        var fake = FakeProjectileRegistry.Dequeue(ownerId);
+
+        if (fake != null) Destroy(fake.gameObject);
+    }
     public void Initialize(NetworkObject caster, int damage, float speed, Vector3 dir,
                            float activeTime, bool destroyOnHit, ProjectileType type)
     {

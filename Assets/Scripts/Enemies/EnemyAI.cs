@@ -152,12 +152,12 @@ public class EnemyAI : NetworkBehaviour
 
         if(_enemyType == EnemyType.Ranged)
         {
-            _abilityHolder.UseAbility(0, CurrentTarget.position - transform.position); 
+            _abilityHolder.TryUseAbility(0, CurrentTarget.position - transform.position); 
         }  
 
         if(_enemyType == EnemyType.Melee)
         {
-            _abilityHolder.UseAbility(0, CurrentTarget.position - transform.position); 
+            _abilityHolder.TryUseAbility(0, CurrentTarget.position - transform.position); 
         }
     }
 

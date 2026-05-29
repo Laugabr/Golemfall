@@ -130,6 +130,11 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         {
             _networkRunner.Despawn(playerSpawned);
         }
+        
+        // Limpia los fakes de un jugador que se desconectó
+        var obj = runner.GetPlayerObject(player);
+        if (obj != null)
+            FakeProjectileRegistry.Clear(obj.Id.Raw);
     }
 
     // ========== Empty Callbacks required==========
