@@ -70,12 +70,12 @@ Material:
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _CastShadows: 0
-    - _CausticCutout: 0.73
-    - _CausticSpeed: 0.05
-    - _CausticTiling: 6.43
+    - _CausticCutout: 0.5
+    - _CausticSpeed: 0.04
+    - _CausticTiling: 10
     - _Cull: 2
-    - _Depth: 6.9
-    - _DepthFalloff: 1.22
+    - _Depth: 9.13
+    - _DepthFalloff: 0.42
     - _DstBlend: 10
     - _FoamAmount: 0.38
     - _FoamCutout: 0.09
@@ -88,6 +88,8 @@ Material:
     - _ReceiveShadows: 0
     - _SrcBlend: 1
     - _Surface: 1
+    - _WaveIntensity: 0.01
+    - _WaveSpeed: -0.5
     - _WorkflowMode: 1
     - _ZTest: 4
     - _ZWrite: 0
@@ -96,7 +98,7 @@ Material:
     - _CausticColor: {r: 2, g: 2, b: 2, a: 0}
     - _FoamColor: {r: 1, g: 1, b: 1, a: 0}
     - _FoamSpeed: {r: 0, g: -0.3, b: 0, a: 0}
-    - _MainColor: {r: 0.23366857, g: 0.7220495, b: 0.8396226, a: 0}
-    - _ShoreColor: {r: 0.23113209, g: 0.7735527, b: 1, a: 0}
+    - _MainColor: {r: 0.06274507, g: 0.48365185, b: 0.77254903, a: 0}
+    - _ShoreColor: {r: 0.0014239977, g: 0.3018868, b: 0.11811023, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
