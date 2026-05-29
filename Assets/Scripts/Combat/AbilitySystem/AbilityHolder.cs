@@ -52,48 +52,41 @@ public class AbilityHolder : NetworkBehaviour
     public void RPC_RequestUseAbility(int index, Vector3 direction, RpcInfo info = default)
     {
         if (!Object.HasStateAuthority) return;
-
         if (index < 0 || index >= abilities.Length) return;
 
-        if (states.Get(index) != AbilityState.Ready)
+        // ✅ Permite relanzar aunque esté Active, bloquea solo Cooldown
+        if (states.Get(index) == AbilityState.Cooldown)
         {
             Debug.Log($"[SERVER] Skill {index} en cooldown");
             return;
         }
 
         var ability = abilities[index];
-
-        if (ability == null)
-        {
-            Debug.LogError("Ability null");
-            return;
-        }
+        if (ability == null) { Debug.LogError("Ability null"); return; }
 
         Debug.Log($"[SERVER] Player {info.Source} usa skill {index}");
 
         if (ability is ProjectileAbility proj)
-        {
             ProjectileRuntime.Execute(proj, Runner, Object, direction);
-        }
 
+        // Reinicia el active timer (si ya estaba activa, la "recarga")
         states.Set(index, AbilityState.Active);
         activeTimers.Set(index, ability.activeTime);
     }
-        public void UseAbility(int index, Vector3 direction)
+
+    public void UseAbility(int index, Vector3 direction)
     {
         if (!Object.HasStateAuthority) return;
-
         if (index < 0 || index >= abilities.Length) return;
 
-        if (states.Get(index) != AbilityState.Ready)
-            return;
+        // ✅ Mismo cambio acá
+        if (states.Get(index) == AbilityState.Cooldown) return;
 
         var ability = abilities[index];
+        if (ability == null) return;
 
         if (ability is ProjectileAbility proj)
-        {
             ProjectileRuntime.Execute(proj, Runner, Object, direction);
-        }
 
         states.Set(index, AbilityState.Active);
         activeTimers.Set(index, ability.activeTime);
