@@ -15,6 +15,8 @@ public class EnemyAI : NetworkBehaviour
     [SerializeField] private NavMeshAgent _agent;
     [SerializeField] private Transform _shootPoint;
     [SerializeField] private AbilityHolder _abilityHolder;
+    // Referencia al animator networked. Se auto-resuelve en Awake() si no se asigna.
+    [SerializeField] private NetEnemyAnimator _animator;
 
     [Header("Players")]
     private List<Transform> players = new List<Transform>();
@@ -52,6 +54,9 @@ public class EnemyAI : NetworkBehaviour
 
         if (_abilityHolder == null)
             _abilityHolder = GetComponent<AbilityHolder>();
+
+        if (_animator == null)
+            _animator = GetComponent<NetEnemyAnimator>();
     }
 
     private void Start()
@@ -150,14 +155,21 @@ public class EnemyAI : NetworkBehaviour
     {
         if (!Object.HasStateAuthority) return;
 
+        // Disparamos la animación de ataque ANTES de spawn — así el tick stamp
+        // se replica en el mismo tick que el daño (decisión 1.a: trigger + spawn
+        // en el mismo tick). Si más adelante queremos sincronizar el spawn con
+        // un AnimationEvent en mitad del clip, lo movemos al método llamado por
+        // ese evento.
+        _animator?.TriggerAttack();
+
         if(_enemyType == EnemyType.Ranged)
         {
-            _abilityHolder.TryUseAbility(0, CurrentTarget.position - transform.position); 
+            _abilityHolder.TryUseAbility(0, CurrentTarget.position - transform.position);
         }  
 
         if(_enemyType == EnemyType.Melee)
         {
-            _abilityHolder.TryUseAbility(0, CurrentTarget.position - transform.position); 
+            _abilityHolder.TryUseAbility(0, CurrentTarget.position - transform.position);
         }
     }
 
@@ -172,5 +184,29 @@ public class EnemyAI : NetworkBehaviour
     {
         if (players.Contains(player))
             players.Remove(player);
+    }
+
+    /// <summary>
+    /// Detiene la AI y el movimiento del enemigo. La llama EnemyHealth.Die()
+    /// para que durante la animación de muerte (delay antes del Despawn) la
+    /// BT no siga evaluando ni el agent siga caminando.
+    /// Mismo patrón que BossAI.DisableBoss().
+    /// </summary>
+    public void DisableAI()
+    {
+        if (!Object.HasStateAuthority) return;
+
+        // Frenar el agent. isOnNavMesh evita warnings si el GO ya no está
+        // sobre el navmesh por alguna razón puntual.
+        if (_agent != null && _agent.isOnNavMesh)
+        {
+            _agent.isStopped = true;
+            _agent.ResetPath();
+        }
+
+        CurrentTarget = null;
+
+        // enabled = false hace que Fusion ya no llame FixedUpdateNetwork acá.
+        enabled = false;
     }
 }
