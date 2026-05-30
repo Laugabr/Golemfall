@@ -27,7 +27,6 @@ public class EnemyAI : NetworkBehaviour
     [SerializeField] private float _minDistance = 4f;
     [SerializeField] private float _moveSpeed = 3.5f;
     [SerializeField] private float _attackCooldown = 1f;
-    
 
     [Header("Patrol")]
     [SerializeField] private Transform[] _patrolPoints;
@@ -35,12 +34,14 @@ public class EnemyAI : NetworkBehaviour
     [Header("Projectile")]
     [SerializeField] private NetworkPrefabRef _projectilePrefab;
 
-    // Solo lectura para nodos
+    // Read Only
     public float VisionRange => _visionRange;
     public float AttackRange => _attackRange;
     public float ShootDistance => _shootDistance;
     public float MinDistance => _minDistance;
     public float AttackCooldown => _attackCooldown;
+    public float MoveSpeed => _moveSpeed;
+
     public NavMeshAgent Agent => _agent;
 
     private Node rootNode;
@@ -57,6 +58,9 @@ public class EnemyAI : NetworkBehaviour
     private void Start()
     {
         _agent.speed = _moveSpeed;
+
+        Debug.Log($"[EnemyAI] Speed seteada: {_moveSpeed}");
+
         BuildTree();
     }
 
@@ -126,7 +130,10 @@ public class EnemyAI : NetworkBehaviour
 
             if (playerObj == null) continue;
 
-            float dist = Vector3.Distance(transform.position, playerObj.transform.position);
+            float dist = Vector3.Distance(
+                transform.position,
+                playerObj.transform.position
+            );
 
             if (dist < minDist)
             {
@@ -138,30 +145,17 @@ public class EnemyAI : NetworkBehaviour
         CurrentTarget = closest;
     }
 
-    // Melee
-  //  public void DealDamage()
-  //  {
-//
-    //    Debug.Log("⚔️ Melee hit");
-    ////}
-
-    // Ranged
     public void RangedAttack()
     {
         if (!Object.HasStateAuthority) return;
+        if (CurrentTarget == null) return;
 
-        if(_enemyType == EnemyType.Ranged)
-        {
-            _abilityHolder.TryUseAbility(0, CurrentTarget.position - transform.position); 
-        }  
-
-        if(_enemyType == EnemyType.Melee)
-        {
-            _abilityHolder.TryUseAbility(0, CurrentTarget.position - transform.position); 
-        }
+        _abilityHolder.TryUseAbility(
+            0,
+            CurrentTarget.position - transform.position
+        );
     }
 
-    //  Métodos controlados para modificar players
     public void RegisterPlayer(Transform player)
     {
         if (!players.Contains(player))
