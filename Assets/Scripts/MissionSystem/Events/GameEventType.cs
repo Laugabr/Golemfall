@@ -1,23 +1,22 @@
-using UnityEngine;
-
 public enum GameEventType
 {
-    KillEnemy,
-    CollectItem,
-    CollectSpecialItem,
-    CollectSpecialItem1,
-    TalkNPC,
-    TalkNPC1,
-    TalkNPC2,
-    TalkNPC3,
-    TalkNPC4,
-    TalkNPC5,
-    KillNPC,
-    EnterCave,
-    PlayerDied,
-    BreakBreakable,
-    BreakSpecialBreakable1,
-    StartMisionGoldenEgg,
-    StartMisionRompibles1,
-    StartMisionRompibles2
+    KillEnemy = 0,
+    CollectItem = 1,
+    CollectSpecialItem = 2,
+    CollectSpecialItem1 = 3,
+    TalkNPC = 4,
+    TalkNPC1 = 5,
+    TalkNPC2 = 6,
+    TalkNPC3 = 7,
+    TalkNPC4 = 8,
+    TalkNPC5 = 9,
+    KillNPC = 10,
+    EnterCave = 11,
+    PlayerDied = 12,
+    BreakBreakable = 13,
+    BreakSpecialBreakable1 = 14,
+    StartMisionGoldenEgg = 15,
+    StartMisionRompibles1 = 16,
+    StartMisionRompibles2 = 17
 }
+//Advertencia: Unity serializa los enums por su valor numérico, no por su nombre. 

@@ -5629,10 +5629,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: CanvasGameplay
       objectReference: {fileID: 0}
-    - target: {fileID: 2837046685517930915, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
-      propertyPath: viewPrefab
-      value: 
-      objectReference: {fileID: 7885189044842743621, guid: 06a6813d70dc3804d99107a746bc4101, type: 3}
     - target: {fileID: 4173632843823321882, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -5641,6 +5637,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1247381039}
+    - target: {fileID: 6497405370637626114, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 119.90991
+      objectReference: {fileID: 0}
     - target: {fileID: 8414989706905736984, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
       propertyPath: m_Pivot.x
       value: 0
