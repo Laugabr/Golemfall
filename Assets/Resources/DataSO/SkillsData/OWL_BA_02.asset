@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: OWL_BA_02
   m_EditorClassIdentifier: 
   name: VenomBall
-  cooldownTime: 3
-  activeTime: 7
+  cooldownTime: 1.5
+  activeTime: 0
+  projectileLifetime: 3
   projectilePrefab: {fileID: -166465162631183935, guid: 9e680d33671141840a3fbe3bd70cdb6f, type: 3}
-  projectileSpeed: 15
+  projectileSpeed: 17
   damageMultiplier: 2
   destroyOnHit: 1
   projectileType: 0

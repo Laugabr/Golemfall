@@ -1,8 +1,9 @@
+using Fusion;
+using Fusion.Addons.SimpleKCC;
+using Fusion.Sockets;
+using Game.CameraSystem;
 using System.Collections;
 using UnityEngine;
-using Fusion;
-using Fusion.Sockets;
-using Fusion.Addons.SimpleKCC;
 
 public class PlayerHealth : HealthSystem
 {
@@ -51,9 +52,17 @@ public class PlayerHealth : HealthSystem
 
     private IEnumerator RespawnRoutine()
     {
-        yield return new WaitForSeconds(timeToRespawn); // espera primero
+        // Espera que termine la animación de muerte
+        yield return new WaitForSeconds(1.625f);
 
-        transform.position = _lastSpawnPoint; // ← solo mover al revivir
+        // Queda tirado 2 segundos CON los visuales activos
+        yield return new WaitForSeconds(2f);
+
+        // Recién ahora desaparece y reaparece en el spawn
+        if (bodyVisualsGO != null)
+            bodyVisualsGO.SetActive(false);
+
+        transform.position = _lastSpawnPoint;
         CurrentHealth = MaxHealth;
         IsDead = false;
     }
@@ -92,7 +101,26 @@ public class PlayerHealth : HealthSystem
 
     private void OnIsDeadChanged()
     {
-        SetAlive(!IsDead);
+        if (IsDead)
+        {
+            playerCollider.enabled = false;
+            // Desactivamos la física para que caiga al suelo y no flote
+            var kcc = GetComponent<Fusion.Addons.SimpleKCC.SimpleKCC>();
+            if (kcc != null) kcc.SetGravity(0f);
+        }
+        else
+        {
+            SetAlive(true);
+            // Reactivamos la física al revivir
+            var kcc = GetComponent<Fusion.Addons.SimpleKCC.SimpleKCC>();
+            if (kcc != null) kcc.SetGravity(Physics.gravity.y * 3f);
+
+            if (Object.HasInputAuthority)
+            {
+                var cam = Camera.main?.GetComponent<CameraController>();
+                if (cam != null) cam.SnapToTarget();
+            }
+        }
     }
 
     private void SetAlive(bool alive)

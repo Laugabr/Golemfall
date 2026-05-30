@@ -26,6 +26,7 @@ public class NetCharacterController : NetworkBehaviour
 
     [Header("Health")]
     [SerializeField] private PlayerHealth charHealth;
+    public bool IsDead => charHealth != null && charHealth.IsDead;
 
     [SerializeField] private int playerIndex;
 
@@ -128,10 +129,10 @@ public class NetCharacterController : NetworkBehaviour
         // Si está en cooldown, la solicitud se ignora silenciosamente — el
         // animador, al leer IsDashing, NO disparará la animación de dash falsa.
 
-        if(charHealth.IsDead)
+        if (charHealth.IsDead)
         {
-            kcc.SetPosition(charHealth._lastSpawnPoint); 
-
+            // Seguimos aplicando gravedad para que caiga al suelo
+            kcc.Move(Vector3.zero);
             return;
         }
 

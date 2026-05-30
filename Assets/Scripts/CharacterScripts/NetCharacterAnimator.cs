@@ -78,6 +78,8 @@ public class NetCharacterAnimator : NetworkBehaviour
     private static readonly int MeleeTriggerHash = Animator.StringToHash("meleeTrigger");
     private static readonly int RangeTriggerHash = Animator.StringToHash("rangeTrigger");
     private static readonly int VerticalVelocityHash = Animator.StringToHash("verticalVelocity");
+    private static readonly int DeathTriggerHash = Animator.StringToHash("deathTrigger");
+    private static readonly int IsDeadHash = Animator.StringToHash("isDead");
 
     // Estado para detectar "edge" de presionado en FUN. Se mantiene por peer.
     private NetworkButtons _previousButtons;
@@ -95,6 +97,7 @@ public class NetCharacterAnimator : NetworkBehaviour
     // Cache: ¿soy el owner de este personaje? (host viendo su personaje, o cliente local).
     // Si es false, soy un proxy y solo reacciono a [Networked] en Render().
     private bool IsOwner => HasInputAuthority || HasStateAuthority;
+    private bool _wasDeadLastFrame;
 
     private void Awake()
     {
@@ -189,15 +192,7 @@ public class NetCharacterAnimator : NetworkBehaviour
             }
         }
 
-        /*if (input.Buttons.WasPressed(_previousButtons, InputButton.BasicAttack))
-        {
-            NetMeleeTick = Runner.Tick;
-            animator.SetTrigger(MeleeTriggerHash);
-            ResetIdleLocal();
-        }*/
-
         // RANGE (FirstSkill)
-
         // RANGE — solo dispara si la habilidad está ready
         if (input.Buttons.WasPressed(_previousButtons, InputButton.FirstSkill))
         {
@@ -208,13 +203,6 @@ public class NetCharacterAnimator : NetworkBehaviour
                 ResetIdleLocal();
             }
         }
-
-        /*if (input.Buttons.WasPressed(_previousButtons, InputButton.FirstSkill))
-        {
-            NetRangeTick = Runner.Tick;
-            animator.SetTrigger(RangeTriggerHash);
-            ResetIdleLocal();
-        }*/
 
         // ── BOOLEANOS PREDICHOS ─────────────────────────────────────────────
         // isWalking e isGrounded los escribimos como [Networked]. Tanto host como
@@ -337,6 +325,7 @@ public class NetCharacterAnimator : NetworkBehaviour
         if (animator == null) return;
 
         bool dashing = controller != null && controller.IsDashing;
+        bool isDead = controller != null && controller.IsDead;
 
         // Booleanos: aplicar siempre, son idempotentes.
         animator.SetBool(IsWalking, NetIsWalking);
@@ -344,31 +333,37 @@ public class NetCharacterAnimator : NetworkBehaviour
         animator.SetBool(IsGrounded, NetIsGrounded);
         animator.SetBool(IsFallingHash, NetIsFalling);
         animator.SetInteger(IdleTypeHash, NetIdleType);
+        animator.SetBool(IsDeadHash, isDead);
 
-if (controller != null)
-    animator.SetFloat(VerticalVelocityHash, controller.NetVerticalVelocity);
+        if (controller != null)
+            animator.SetFloat(VerticalVelocityHash, controller.NetVerticalVelocity);
 
-// Triggers: SOLO los proxies los leen acá. El owner ya los disparó en FUN.
-if (IsOwner) return;
+        // Trigger de muerte: solo se dispara una vez al cambiar de vivo a muerto
+        if (isDead && !_wasDeadLastFrame)
+            animator.SetTrigger(DeathTriggerHash);
+        _wasDeadLastFrame = isDead;
 
-if (NetJumpTick != _lastJumpTick)
-{
-    _lastJumpTick = NetJumpTick;
-    animator.SetTrigger(JumpTriggerHash);
-}
+        // Triggers: SOLO los proxies los leen acá. El owner ya los disparó en FUN.
+        if (IsOwner) return;
 
-if (NetMeleeTick != _lastMeleeTick)
-{
-    _lastMeleeTick = NetMeleeTick;
-    animator.SetTrigger(MeleeTriggerHash);
-}
+        if (NetJumpTick != _lastJumpTick)
+        {
+            _lastJumpTick = NetJumpTick;
+            animator.SetTrigger(JumpTriggerHash);
+        }
 
-if (NetRangeTick != _lastRangeTick)
-{
-    _lastRangeTick = NetRangeTick;
-    animator.SetTrigger(RangeTriggerHash);
-}
-}
+        if (NetMeleeTick != _lastMeleeTick)
+        {
+            _lastMeleeTick = NetMeleeTick;
+            animator.SetTrigger(MeleeTriggerHash);
+        }
+
+        if (NetRangeTick != _lastRangeTick)
+        {
+            _lastRangeTick = NetRangeTick;
+            animator.SetTrigger(RangeTriggerHash);
+        }
+    }
 
     // Llamado por el Animation Event en ani_player_jumpStart.
     // Actualmente no-op, se mantiene para silenciar el warning "has no receiver".

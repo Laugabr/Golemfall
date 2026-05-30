@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: OWL_BA_01
   m_EditorClassIdentifier: 
   name: asd
-  cooldownTime: 0.1
-  activeTime: 0.6
+  cooldownTime: 0
+  activeTime: 0.7
+  projectileLifetime: 3
   projectilePrefab: {fileID: 1675199986379086463, guid: e678130e0c743684598758290be96f8c, type: 3}
   projectileSpeed: 0
   damageMultiplier: 1
   destroyOnHit: 0
+  projectileType: 0
