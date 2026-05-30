@@ -64,6 +64,7 @@ public class NetCharacterController : NetworkBehaviour
     /// </summary>
     [Networked] public NetworkBool IsDashing { get; private set; }
     [Networked] public float NetVerticalVelocity { get; private set; }
+    [Networked] private NetworkBool IsAttacking { get; set; }
 
     private void Awake()
     {
@@ -150,7 +151,38 @@ public class NetCharacterController : NetworkBehaviour
             jump = jumpPower;
 
         // Habilidades / interacción
+
         if (input.Buttons.WasPressed(previousButtons, InputButton.BasicAttack) ||
+    input.Buttons.WasPressed(previousButtons, InputButton.MouseButton0))
+        {
+            if (HasInputAuthority && !IsInventoryOpen())
+            {
+                Vector3 mouseDir = GetMouseDirection();
+
+                if (mouseDir.sqrMagnitude > 0.01f && (charAbilities == null || charAbilities.IsReady(0)))
+                {
+                    NetBodyYaw = Mathf.Atan2(mouseDir.x, mouseDir.z) * Mathf.Rad2Deg;
+                    IsAttacking = true;
+                }
+
+                charAbilities?.RPC_RequestUseAbility(0, mouseDir);
+            }
+        }
+
+        if (input.Buttons.WasPressed(previousButtons, InputButton.FirstSkill) && HasInputAuthority)
+        {
+            Vector3 mouseDir = GetMouseDirection();
+
+            if (mouseDir.sqrMagnitude > 0.01f && (charAbilities == null || charAbilities.IsReady(1)))
+            {
+                NetBodyYaw = Mathf.Atan2(mouseDir.x, mouseDir.z) * Mathf.Rad2Deg;
+                IsAttacking = true;
+            }
+
+            charAbilities?.RPC_RequestUseAbility(1, mouseDir);
+        }
+
+        /*if (input.Buttons.WasPressed(previousButtons, InputButton.BasicAttack) ||
             input.Buttons.WasPressed(previousButtons, InputButton.MouseButton0))
         {
             if (HasInputAuthority && !IsInventoryOpen())
@@ -164,7 +196,7 @@ public class NetCharacterController : NetworkBehaviour
             charAbilities?.RPC_RequestUseAbility(2, GetMouseDirection());
 
         if (input.Buttons.WasPressed(previousButtons, InputButton.Interact) && HasInputAuthority)
-            charPickUp?.TryPickUp();
+            charPickUp?.TryPickUp();*/
 
         // Movimiento + actualización de yaw deseado
         Vector3 moveDir;
@@ -195,7 +227,7 @@ public class NetCharacterController : NetworkBehaviour
         // vea su rotación responder inmediatamente al cambiar de dirección.
         // Si no hay dirección este tick, conservamos el yaw anterior — el
         // personaje queda mirando hacia donde venía caminando.
-        if (moveDir.sqrMagnitude > 0.01f)
+        if (moveDir.sqrMagnitude > 0.01f && !IsAttacking)
         {
             NetBodyYaw = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
         }
@@ -250,5 +282,10 @@ public class NetCharacterController : NetworkBehaviour
             cachedInventoryToggle = FindFirstObjectByType<InventoryToggle>();
 
         return cachedInventoryToggle != null && cachedInventoryToggle.IsInventoryOpen;
+    }
+
+    public void ClearAttackLock()
+    {
+        IsAttacking = false;
     }
 }

@@ -60,7 +60,48 @@ public class AbilityHolder : NetworkBehaviour
     }
 
     // ── RPC cliente → servidor ───────────────────────────────────────────────
+
+    // Fix: bloquear durante Active Y Cooldown, no solo Cooldown
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RPC_RequestUseAbility(int index, Vector3 direction, RpcInfo info = default)
+    {
+        if (index < 0 || index >= abilities.Length) return;
+
+        // Antes solo bloqueaba Cooldown — ahora bloquea cualquier estado no Ready
+        if (states.Get(index) != AbilityState.Ready)
+        {
+            Debug.Log($"[SERVER] Skill {index} en cooldown");
+            return;
+        }
+
+        var ability = abilities[index];
+        if (ability == null) { Debug.LogError("Ability null"); return; }
+
+        Debug.Log($"[SERVER] Player {info.Source} usa skill {index}");
+
+        if (ability is ProjectileAbility proj)
+            ProjectileRuntime.Execute(proj, Runner, Object, direction);
+
+        if (ability.activeTime > 0f)
+        {
+            states.Set(index, AbilityState.Active);
+            activeTimers.Set(index, ability.activeTime);
+        }
+        else
+        {
+            states.Set(index, AbilityState.Cooldown);
+            cooldowns.Set(index, ability.cooldownTime);
+        }
+    }
+
+    // Nuevo método público — el animator lo usa para bloquear el trigger
+    public bool IsReady(int index)
+    {
+        if (index < 0 || index >= abilities.Length) return false;
+        return states.Get(index) == AbilityState.Ready;
+    }
+
+    /*[Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     public void RPC_RequestUseAbility(int index, Vector3 direction, RpcInfo info = default)
     {
         if (index < 0 || index >= abilities.Length) return;
@@ -80,7 +121,7 @@ public class AbilityHolder : NetworkBehaviour
 
         states.Set(index, AbilityState.Active);
         activeTimers.Set(index, ability.activeTime);
-    }
+    }*/
 
     // ── Ejecución directa con state authority (host o servidor) ─────────────
     private void ExecuteAuthority(int index, Vector3 direction)
@@ -93,8 +134,16 @@ public class AbilityHolder : NetworkBehaviour
         if (ability is ProjectileAbility proj)
             ProjectileRuntime.Execute(proj, Runner, Object, direction);
 
-        states.Set(index, AbilityState.Active);
-        activeTimers.Set(index, ability.activeTime);
+        if (ability.activeTime > 0f)
+        {
+            states.Set(index, AbilityState.Active);
+            activeTimers.Set(index, ability.activeTime);
+        }
+        else
+        {
+            states.Set(index, AbilityState.Cooldown);
+            cooldowns.Set(index, ability.cooldownTime);
+        }
     }
 
     // ── Proyectil visual local (sin red) ────────────────────────────────────
@@ -112,7 +161,7 @@ public class AbilityHolder : NetworkBehaviour
         var fake = go.AddComponent<FakeProjectile>();
 
         uint ownerId = Object.Id.Raw;
-        fake.Initialize(ownerId, direction, ability.projectileSpeed, ability.activeTime);
+        fake.Initialize(ownerId, direction, ability.projectileSpeed, ability.projectileLifetime);
     }
 
     // ── Helpers para UI ─────────────────────────────────────────────────────

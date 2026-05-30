@@ -33,7 +33,7 @@ public static class ProjectileRuntime
                     Mathf.FloorToInt(damage),
                     data.projectileSpeed,
                     direction,
-                    data.activeTime,
+                    data.projectileLifetime, // antes era data.activeTime
                     data.destroyOnHit,
                     data.projectileType
                     

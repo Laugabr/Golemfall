@@ -188,6 +188,16 @@ namespace Game.CameraSystem
             }
         }
 
+        /// Teletransporta el focusPoint al target inmediatamente, sin suavizado.
+        /// Usar al respawnear para evitar que la cámara recorra todo el mapa.
+        public void SnapToTarget()
+        {
+            if (target == null) return;
+            focusPoint = target.position;
+            focusVelocity = Vector3.zero;
+            ApplyTransform(true);
+        }
+
         /// <summary>Transiciona suavemente al preset indicado (busca por nombre).</summary>
         public void TransitionToPreset(string presetName, float? overrideDuration = null)
         {

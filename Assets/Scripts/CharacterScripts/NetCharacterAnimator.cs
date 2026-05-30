@@ -42,6 +42,7 @@ public class NetCharacterAnimator : NetworkBehaviour
     [SerializeField] private SimpleKCC kcc;
     [SerializeField] private Animator animator;
     [SerializeField] private NetCharacterController controller;
+    [SerializeField] private AbilityHolder abilityHolder;
 
     [Header("Idle Settings")]
     [SerializeField] private float chanceToChange = 0.15f;
@@ -105,6 +106,8 @@ public class NetCharacterAnimator : NetworkBehaviour
 
         if (controller == null)
             controller = GetComponent<NetCharacterController>();
+
+        if (abilityHolder == null) abilityHolder = GetComponent<AbilityHolder>();
     }
 
     public override void Spawned()
@@ -173,20 +176,45 @@ public class NetCharacterAnimator : NetworkBehaviour
         }
 
         // MELEE
+
+        // MELEE — solo dispara si la habilidad está ready
         if (input.Buttons.WasPressed(_previousButtons, InputButton.BasicAttack))
+        {
+            // abilityHolder == null es fallback por si no está asignado
+            if (abilityHolder == null || abilityHolder.IsReady(0))
+            {
+                NetMeleeTick = Runner.Tick;
+                animator.SetTrigger(MeleeTriggerHash);
+                ResetIdleLocal();
+            }
+        }
+
+        /*if (input.Buttons.WasPressed(_previousButtons, InputButton.BasicAttack))
         {
             NetMeleeTick = Runner.Tick;
             animator.SetTrigger(MeleeTriggerHash);
             ResetIdleLocal();
-        }
+        }*/
 
         // RANGE (FirstSkill)
+
+        // RANGE — solo dispara si la habilidad está ready
         if (input.Buttons.WasPressed(_previousButtons, InputButton.FirstSkill))
+        {
+            if (abilityHolder == null || abilityHolder.IsReady(1))
+            {
+                NetRangeTick = Runner.Tick;
+                animator.SetTrigger(RangeTriggerHash);
+                ResetIdleLocal();
+            }
+        }
+
+        /*if (input.Buttons.WasPressed(_previousButtons, InputButton.FirstSkill))
         {
             NetRangeTick = Runner.Tick;
             animator.SetTrigger(RangeTriggerHash);
             ResetIdleLocal();
-        }
+        }*/
 
         // ── BOOLEANOS PREDICHOS ─────────────────────────────────────────────
         // isWalking e isGrounded los escribimos como [Networked]. Tanto host como
