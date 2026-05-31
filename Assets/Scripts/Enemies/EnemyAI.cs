@@ -89,12 +89,12 @@ public class EnemyAI : NetworkBehaviour
 
         UpdateTarget();
 
-        // Velocidad según si tiene target o no
         _agent.speed = _hasTarget ? _chaseSpeed : _patrolSpeed;
+
+        Debug.Log($"[ENEMY] speed: {_agent.speed}, velocity: {_agent.velocity.magnitude}, hasTarget: {_hasTarget}");
 
         rootNode?.Evaluate();
 
-        // Rotación hacia el target
         if (CurrentTarget != null)
         {
             Vector3 dir = CurrentTarget.position - transform.position;

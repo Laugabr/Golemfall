@@ -119,7 +119,7 @@ MonoBehaviour:
   _visionRange: 10
   _loseTargetRange: 14
   _patrolSpeed: 2
-  _chaseSpeed: 7
+  _chaseSpeed: 40
   _attackRange: 2
   _attackCooldown: 1.2
   _shootDistance: 0
@@ -161,8 +161,8 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 1.31
-  m_Speed: 8
-  m_Acceleration: 15
+  m_Speed: 0
+  m_Acceleration: 50
   avoidancePriority: 50
   m_AngularSpeed: 360
   m_StoppingDistance: 1.5
