@@ -35,7 +35,6 @@ public class EnemyAI : NetworkBehaviour
     [Header("Patrol")]
     [SerializeField] private Transform[] _patrolPoints;
 
-    // Solo lectura para nodos
     public float VisionRange => _visionRange;
     public float AttackRange => _attackRange;
     public float ShootDistance => _shootDistance;
@@ -44,8 +43,9 @@ public class EnemyAI : NetworkBehaviour
     public NavMeshAgent Agent => _agent;
     public Transform CurrentTarget { get; private set; }
 
-    // Cooldown de ataque autoritativo usando SimulationTime
     private double _lastAttackTime = -999;
+    private Node rootNode;
+    private bool _hasTarget;
 
     public bool CanAttack()
     {
@@ -57,9 +57,6 @@ public class EnemyAI : NetworkBehaviour
     {
         _lastAttackTime = Runner.SimulationTime;
     }
-
-    private Node rootNode;
-    private bool _hasTarget;
 
     private void Awake()
     {
@@ -86,14 +83,19 @@ public class EnemyAI : NetworkBehaviour
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority) return;
+        if (!_agent.isOnNavMesh) return;
 
         UpdateTarget();
 
-        _agent.speed = _hasTarget ? _chaseSpeed : _patrolSpeed;
-
-        Debug.Log($"[ENEMY] speed: {_agent.speed}, velocity: {_agent.velocity.magnitude}, hasTarget: {_hasTarget}");
-
         rootNode?.Evaluate();
+
+        // Movemos el transform directamente usando la dirección del NavMeshAgent
+        if (_agent.hasPath && !_agent.pathPending)
+        {
+            Vector3 velocity = _agent.desiredVelocity.normalized * (_hasTarget ? _chaseSpeed : _patrolSpeed);
+            transform.position += velocity * Runner.DeltaTime;
+            _agent.nextPosition = transform.position;
+        }
 
         if (CurrentTarget != null)
         {
@@ -106,6 +108,14 @@ public class EnemyAI : NetworkBehaviour
                     Runner.DeltaTime * 10f
                 );
         }
+    }
+
+    // Esto sincroniza la posición del NavMeshAgent con Fusion cada frame
+    public override void Render()
+    {
+        if (!Object.HasStateAuthority) return;
+        if (_agent != null && _agent.isOnNavMesh)
+            transform.position = _agent.nextPosition;
     }
 
     void BuildTree()
@@ -143,7 +153,6 @@ public class EnemyAI : NetworkBehaviour
     {
         if (NetworkController.Instance == null) return;
 
-        // Si ya tiene target, solo lo pierde si se aleja demasiado o muere
         if (CurrentTarget != null)
         {
             var health = CurrentTarget.GetComponent<PlayerHealth>();
@@ -158,7 +167,6 @@ public class EnemyAI : NetworkBehaviour
             return;
         }
 
-        // Busca el jugador vivo más cercano dentro del rango de visión
         float minDist = float.MaxValue;
         Transform closest = null;
 
