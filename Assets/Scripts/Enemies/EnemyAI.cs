@@ -16,24 +16,24 @@ public class EnemyAI : NetworkBehaviour
     [SerializeField] private Transform _shootPoint;
     [SerializeField] private AbilityHolder _abilityHolder;
 
-    [Header("Players")]
-    private List<Transform> players = new List<Transform>();
-    public Transform CurrentTarget { get; private set; }
-
-    [Header("Settings")]
+    [Header("Vision")]
     [SerializeField] private float _visionRange = 8f;
+    [SerializeField] private float _loseTargetRange = 12f;
+
+    [Header("Movement")]
+    [SerializeField] private float _patrolSpeed = 2f;
+    [SerializeField] private float _chaseSpeed = 5f;
+
+    [Header("Melee Settings")]
     [SerializeField] private float _attackRange = 2f;
+    [SerializeField] private float _attackCooldown = 1f;
+
+    [Header("Ranged Settings")]
     [SerializeField] private float _shootDistance = 8f;
     [SerializeField] private float _minDistance = 4f;
-    [SerializeField] private float _moveSpeed = 3.5f;
-    [SerializeField] private float _attackCooldown = 1f;
-    
 
     [Header("Patrol")]
     [SerializeField] private Transform[] _patrolPoints;
-
-    [Header("Projectile")]
-    [SerializeField] private NetworkPrefabRef _projectilePrefab;
 
     // Solo lectura para nodos
     public float VisionRange => _visionRange;
@@ -42,8 +42,24 @@ public class EnemyAI : NetworkBehaviour
     public float MinDistance => _minDistance;
     public float AttackCooldown => _attackCooldown;
     public NavMeshAgent Agent => _agent;
+    public Transform CurrentTarget { get; private set; }
+
+    // Cooldown de ataque autoritativo usando SimulationTime
+    private double _lastAttackTime = -999;
+
+    public bool CanAttack()
+    {
+        if (Runner == null) return false;
+        return Runner.SimulationTime >= _lastAttackTime + _attackCooldown;
+    }
+
+    public void RegisterAttack()
+    {
+        _lastAttackTime = Runner.SimulationTime;
+    }
 
     private Node rootNode;
+    private bool _hasTarget;
 
     private void Awake()
     {
@@ -54,9 +70,16 @@ public class EnemyAI : NetworkBehaviour
             _abilityHolder = GetComponent<AbilityHolder>();
     }
 
-    private void Start()
+    public override void Spawned()
     {
-        _agent.speed = _moveSpeed;
+        if (!Object.HasStateAuthority)
+        {
+            _agent.enabled = false;
+            return;
+        }
+
+        _agent.enabled = true;
+        _agent.speed = _patrolSpeed;
         BuildTree();
     }
 
@@ -65,7 +88,24 @@ public class EnemyAI : NetworkBehaviour
         if (!Object.HasStateAuthority) return;
 
         UpdateTarget();
+
+        // Velocidad según si tiene target o no
+        _agent.speed = _hasTarget ? _chaseSpeed : _patrolSpeed;
+
         rootNode?.Evaluate();
+
+        // Rotación hacia el target
+        if (CurrentTarget != null)
+        {
+            Vector3 dir = CurrentTarget.position - transform.position;
+            dir.y = 0f;
+            if (dir.sqrMagnitude > 0.01f)
+                transform.rotation = Quaternion.Slerp(
+                    transform.rotation,
+                    Quaternion.LookRotation(dir),
+                    Runner.DeltaTime * 10f
+                );
+        }
     }
 
     void BuildTree()
@@ -78,16 +118,9 @@ public class EnemyAI : NetworkBehaviour
             var moveTo = new MoveToPlayer(this);
             var attack = new AttackPlayer(this);
 
-            var attackSequence = new Sequence(new List<Node>
-            {
-                canSee,
-                moveTo,
-                attack
-            });
-
             rootNode = new Selector(new List<Node>
             {
-                attackSequence,
+                new Sequence(new List<Node> { canSee, moveTo, attack }),
                 patrol
             });
         }
@@ -97,17 +130,10 @@ public class EnemyAI : NetworkBehaviour
             var moveToShoot = new MoveToShootDistance(this);
             var rangedAttack = new RangedAttackNode(this);
 
-            var attackSequence = new Sequence(new List<Node>
-            {
-                canSee,
-                moveToShoot,
-                rangedAttack
-            });
-
             rootNode = new Selector(new List<Node>
             {
                 keepDistance,
-                attackSequence,
+                new Sequence(new List<Node> { canSee, moveToShoot, rangedAttack }),
                 patrol
             });
         }
@@ -117,18 +143,35 @@ public class EnemyAI : NetworkBehaviour
     {
         if (NetworkController.Instance == null) return;
 
+        // Si ya tiene target, solo lo pierde si se aleja demasiado o muere
+        if (CurrentTarget != null)
+        {
+            var health = CurrentTarget.GetComponent<PlayerHealth>();
+            bool isDead = health != null && health.IsDead;
+            float dist = Vector3.Distance(transform.position, CurrentTarget.position);
+
+            if (isDead || dist > _loseTargetRange)
+            {
+                CurrentTarget = null;
+                _hasTarget = false;
+            }
+            return;
+        }
+
+        // Busca el jugador vivo más cercano dentro del rango de visión
         float minDist = float.MaxValue;
         Transform closest = null;
 
         foreach (var kvp in NetworkController.Instance._players)
         {
             var playerObj = kvp.Value;
-
             if (playerObj == null) continue;
 
-            float dist = Vector3.Distance(transform.position, playerObj.transform.position);
+            var health = playerObj.GetComponent<PlayerHealth>();
+            if (health != null && health.IsDead) continue;
 
-            if (dist < minDist)
+            float dist = Vector3.Distance(transform.position, playerObj.transform.position);
+            if (dist < minDist && dist <= _visionRange)
             {
                 minDist = dist;
                 closest = playerObj.transform;
@@ -136,41 +179,15 @@ public class EnemyAI : NetworkBehaviour
         }
 
         CurrentTarget = closest;
+        _hasTarget = closest != null;
     }
 
-    // Melee
-  //  public void DealDamage()
-  //  {
-//
-    //    Debug.Log("⚔️ Melee hit");
-    ////}
-
-    // Ranged
     public void RangedAttack()
     {
         if (!Object.HasStateAuthority) return;
+        if (CurrentTarget == null) return;
 
-        if(_enemyType == EnemyType.Ranged)
-        {
-            _abilityHolder.TryUseAbility(0, CurrentTarget.position - transform.position); 
-        }  
-
-        if(_enemyType == EnemyType.Melee)
-        {
-            _abilityHolder.TryUseAbility(0, CurrentTarget.position - transform.position); 
-        }
-    }
-
-    //  Métodos controlados para modificar players
-    public void RegisterPlayer(Transform player)
-    {
-        if (!players.Contains(player))
-            players.Add(player);
-    }
-
-    public void UnregisterPlayer(Transform player)
-    {
-        if (players.Contains(player))
-            players.Remove(player);
+        Vector3 dir = (CurrentTarget.position - transform.position).normalized;
+        _abilityHolder.TryUseAbility(0, dir);
     }
 }
