@@ -301,6 +301,7 @@ MonoBehaviour:
   abilities:
   - {fileID: 11400000, guid: ef252dcb3ef18bb41b299e0f06614d04, type: 2}
   - {fileID: 11400000, guid: 4284d1078c756d14ab88cabc45805dde, type: 2}
+  fakePrefabs: []
 --- !u!114 &8401534272914521562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -328,7 +329,8 @@ MonoBehaviour:
   OnStatsChanged:
     m_PersistentCalls:
       m_Calls: []
-  levelsData: []
+  levelsData:
+  - {fileID: 11400000, guid: 5f1dc252c01a302448d541b00d45f5fa, type: 2}
 --- !u!114 &6387982667878599669
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -389,6 +391,7 @@ MonoBehaviour:
   kcc: {fileID: -461821717541361334}
   animator: {fileID: 6456957767660994922}
   controller: {fileID: 0}
+  abilityHolder: {fileID: 0}
   chanceToChange: 0.15
   variantDuration: 1
 --- !u!114 &5306823183112004080
