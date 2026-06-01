@@ -2711,6 +2711,14 @@ PrefabInstance:
       propertyPath: SortKey
       value: 3795288376
       objectReference: {fileID: 0}
+    - target: {fileID: 1876080899843528332, guid: 571900fbea18bb746afda651b9f9dc98, type: 3}
+      propertyPath: NetworkedBehaviours.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1876080899843528332, guid: 571900fbea18bb746afda651b9f9dc98, type: 3}
+      propertyPath: 'NetworkedBehaviours.Array.data[0]'
+      value: 
+      objectReference: {fileID: 783516741}
     - target: {fileID: 5323926401402589627, guid: 571900fbea18bb746afda651b9f9dc98, type: 3}
       propertyPath: m_Name
       value: MeleeEnemy
@@ -3679,6 +3687,10 @@ PrefabInstance:
       propertyPath: SortKey
       value: 804042651
       objectReference: {fileID: 0}
+    - target: {fileID: 6225985665620732748, guid: 1d40e7fcef3e023478c9268d7a44c58f, type: 3}
+      propertyPath: NetworkedBehaviours.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7081202088321387110, guid: 1d40e7fcef3e023478c9268d7a44c58f, type: 3}
       propertyPath: m_Name
       value: BreakDropFloresDeCristal
@@ -3955,6 +3967,10 @@ PrefabInstance:
     - target: {fileID: 2701614432225955119, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
       propertyPath: m_RaycastTarget
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5434133647803518195, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5878439918928802927, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
       propertyPath: m_IsActive
@@ -4775,6 +4791,10 @@ PrefabInstance:
     - target: {fileID: -3441595451686584826, guid: 3452432a8414b134fbb084449b65baa3, type: 3}
       propertyPath: SortKey
       value: 533866632
+      objectReference: {fileID: 0}
+    - target: {fileID: -3441595451686584826, guid: 3452432a8414b134fbb084449b65baa3, type: 3}
+      propertyPath: NetworkedBehaviours.Array.size
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4271360419292300968, guid: 3452432a8414b134fbb084449b65baa3, type: 3}
       propertyPath: m_Name
@@ -7421,6 +7441,10 @@ PrefabInstance:
       propertyPath: SortKey
       value: 4038129924
       objectReference: {fileID: 0}
+    - target: {fileID: 2619206615306508724, guid: a79e56862b1d18144b76152876f22d47, type: 3}
+      propertyPath: NetworkedBehaviours.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8364140927958009631, guid: a79e56862b1d18144b76152876f22d47, type: 3}
       propertyPath: m_Name
       value: BreakDropPiedrasMagicas
@@ -9890,6 +9914,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 827e9a4f65bbf304795428b3d0e79a9e, type: 3}
+--- !u!114 &783516741 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3635627597254423547, guid: 571900fbea18bb746afda651b9f9dc98, type: 3}
+  m_PrefabInstance: {fileID: 195112652}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76e08ad46edee2a4cac2ad8414488eca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &784101372
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10511,6 +10546,14 @@ PrefabInstance:
       propertyPath: SortKey
       value: 3524027263
       objectReference: {fileID: 0}
+    - target: {fileID: 1876080899843528332, guid: 571900fbea18bb746afda651b9f9dc98, type: 3}
+      propertyPath: NetworkedBehaviours.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1876080899843528332, guid: 571900fbea18bb746afda651b9f9dc98, type: 3}
+      propertyPath: 'NetworkedBehaviours.Array.data[0]'
+      value: 
+      objectReference: {fileID: 809328000}
     - target: {fileID: 5323926401402589627, guid: 571900fbea18bb746afda651b9f9dc98, type: 3}
       propertyPath: m_Name
       value: MeleeEnemy (1)
@@ -10560,6 +10603,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 571900fbea18bb746afda651b9f9dc98, type: 3}
+--- !u!114 &809328000 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3635627597254423547, guid: 571900fbea18bb746afda651b9f9dc98, type: 3}
+  m_PrefabInstance: {fileID: 809026087}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76e08ad46edee2a4cac2ad8414488eca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &812249475
 GameObject:
   m_ObjectHideFlags: 0
@@ -13604,6 +13658,10 @@ PrefabInstance:
     - target: {fileID: 3065192983911512520, guid: 9e821d0921e0d394498e5f0371c872ca, type: 3}
       propertyPath: SortKey
       value: 3108354045
+      objectReference: {fileID: 0}
+    - target: {fileID: 3065192983911512520, guid: 9e821d0921e0d394498e5f0371c872ca, type: 3}
+      propertyPath: NetworkedBehaviours.Array.size
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8817742911791881036, guid: 9e821d0921e0d394498e5f0371c872ca, type: 3}
       propertyPath: m_LocalPosition.x
@@ -21129,6 +21187,10 @@ PrefabInstance:
       propertyPath: SortKey
       value: 276199570
       objectReference: {fileID: 0}
+    - target: {fileID: 5895357111309371133, guid: a66b9143bd7805640a70b6c813f7858f, type: 3}
+      propertyPath: NetworkedBehaviours.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6782289913844675227, guid: a66b9143bd7805640a70b6c813f7858f, type: 3}
       propertyPath: m_Name
       value: BreakDropHongosLuminosos
@@ -25155,6 +25217,10 @@ PrefabInstance:
       propertyPath: SortKey
       value: 1870273315
       objectReference: {fileID: 0}
+    - target: {fileID: 2298214016790035623, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: NetworkedBehaviours.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6900497967080996735, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
       propertyPath: m_Name
       value: missionController
@@ -26002,6 +26068,10 @@ PrefabInstance:
     - target: {fileID: 1241597209134646925, guid: b18e1a64d2e26984f9ecf3cb747ee599, type: 3}
       propertyPath: SortKey
       value: 2332272115
+      objectReference: {fileID: 0}
+    - target: {fileID: 1241597209134646925, guid: b18e1a64d2e26984f9ecf3cb747ee599, type: 3}
+      propertyPath: NetworkedBehaviours.Array.size
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3536778107334885028, guid: b18e1a64d2e26984f9ecf3cb747ee599, type: 3}
       propertyPath: m_LocalPosition.x

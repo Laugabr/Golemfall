@@ -40,7 +40,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7880399040212296238}
-  - component: {fileID: 1333273586123327393}
   - component: {fileID: 3635627597254423547}
   - component: {fileID: 1876080899843528332}
   - component: {fileID: 7292801381997764673}
@@ -48,6 +47,7 @@ GameObject:
   - component: {fileID: 2992418593781395394}
   - component: {fileID: 4619221694758630480}
   - component: {fileID: 5687046585043888028}
+  - component: {fileID: -176365332237324104}
   m_Layer: 8
   m_Name: MeleeEnemy
   m_TagString: Enemy
@@ -77,29 +77,6 @@ Transform:
   - {fileID: 498445358866651680}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &1333273586123327393
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5323926401402589627}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 1.36
-  m_Height: 2.27
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.81, z: 0}
 --- !u!114 &3635627597254423547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -237,6 +214,27 @@ MonoBehaviour:
   SyncParent: 0
   _autoAOIOverride: 1
   DisableSharedModeInterpolation: 0
+--- !u!65 &-176365332237324104
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5323926401402589627}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3, y: 3, z: 3}
+  m_Center: {x: 0, y: 1.04, z: 0}
 --- !u!1 &5606225194181569883
 GameObject:
   m_ObjectHideFlags: 0
