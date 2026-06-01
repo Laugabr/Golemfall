@@ -25,10 +25,10 @@ namespace BehaviourTree
             if (distance > ai.AttackRange)
                 return state = NodeState.Failure;
 
-            if (Time.time >= lastAttackTime + ai.AttackCooldown)
+            if (ai.CanAttack())
             {
                 ai.RangedAttack();
-                lastAttackTime = Time.time;
+                ai.RegisterAttack();
             }
 
             return state = NodeState.Success;
