@@ -16,19 +16,29 @@ namespace BehaviourTree
             if (ai.CurrentTarget == null)
                 return state = NodeState.Failure;
 
-            ai.Agent.SetDestination(ai.CurrentTarget.position);
+            ai.Agent.speed = ai.MoveSpeed;
 
-            float distance = Vector3.Distance(
-                ai.transform.position,
+            ai.Agent.stoppingDistance =
+                ai.AttackRange;
+
+            ai.Agent.SetDestination(
                 ai.CurrentTarget.position
             );
 
+            float distance =
+                Vector3.Distance(
+                    ai.transform.position,
+                    ai.CurrentTarget.position
+                );
+
             if (distance <= ai.AttackRange)
+            {
+                ai.Agent.ResetPath();
                 return state = NodeState.Success;
+            }
 
             return state = NodeState.Running;
         }
     }
 }
-
 
