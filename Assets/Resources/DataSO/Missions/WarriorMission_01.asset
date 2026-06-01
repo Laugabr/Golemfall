@@ -10,19 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c263c045ef8f3a743a149ef9a8e1cfdf, type: 3}
-  m_Name: misionHuevoDorado
+  m_Name: WarriorMission_01
   m_EditorClassIdentifier: 
-  missionId: mision_huevo_dorado
-  missionName: "La Misi\xF3n del huevo de oro"
-  description: 
-  xp: 50
-  coins: 0
+  missionId: WarriorMission_01
+  missionName: WarriorMission_01
+  description: Kill and protect
+  xp: 900
+  coins: 900
   missionSteps:
-  - targetId: 2
-    amount: 0
-    displayText: 
-  failureSteps: []
+  - targetId: 0
+    amount: 8
+    displayText: Matar enemigos
+  failureSteps:
+  - targetId: 4
+    amount: 1
+    displayText: Proteger al npc
   nextMissions: []
   pausesOtherMissions: 0
-  startWithEvent: 1
-  startEvent: 8
+  startWithEvent: 0
+  startEvent: 0

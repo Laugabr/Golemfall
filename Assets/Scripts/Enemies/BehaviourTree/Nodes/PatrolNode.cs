@@ -9,10 +9,7 @@ namespace BehaviourTree
         private Transform[] _points;
         private int _currentIndex = 0;
 
-        public PatrolNode(
-            NavMeshAgent agent,
-            Transform[] patrolPoints
-        )
+        public PatrolNode(NavMeshAgent agent, Transform[] patrolPoints)
         {
             _agent = agent;
             _points = patrolPoints;
@@ -20,27 +17,20 @@ namespace BehaviourTree
 
         public override NodeState Evaluate()
         {
-            if (_points == null ||
-                _points.Length == 0)
+            if (_points == null || _points.Length == 0)
             {
                 state = NodeState.Failure;
                 return state;
             }
 
-            _agent.stoppingDistance = 0.2f;
+            // Definir destino
+            _agent.stoppingDistance = 0; // evita que quede lejos del punto
+            _agent.SetDestination(_points[_currentIndex].position);
 
-            _agent.SetDestination(
-                _points[_currentIndex].position
-            );
-
-            if (
-                !_agent.pathPending &&
-                _agent.remainingDistance <= 0.2f
-            )
+            // Cuando llega al punto, pasa al siguiente
+            if (!_agent.pathPending && _agent.remainingDistance <= 0.2f)
             {
-                _currentIndex =
-                    (_currentIndex + 1) %
-                    _points.Length;
+                _currentIndex = (_currentIndex + 1) % _points.Length;
             }
 
             state = NodeState.Running;
