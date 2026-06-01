@@ -25,14 +25,13 @@ namespace BehaviourTree
             if (distance > ai.ShootDistance)
                 return state = NodeState.Failure;
 
-            if (ai.CanAttack())
+            if (Time.time >= lastAttackTime + ai.AttackCooldown)
             {
                 ai.RangedAttack();
-                ai.RegisterAttack();
+                lastAttackTime = Time.time;
             }
 
             return state = NodeState.Success;
         }
-
     }
 }
