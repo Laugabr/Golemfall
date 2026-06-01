@@ -1982,9 +1982,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panel: {fileID: 938191881}
+  toggleKey: 109
   missionListParent: {fileID: 623706828}
   missionItemPrefab: {fileID: 4220520777092613370, guid: 09b226d8bbba7234cb00e53d4208cf36, type: 3}
   missionController: {fileID: 1200033960}
+  objetivosHeader: <color=#7CFF7C><b>OBJETIVOS</b></color>
+  fallosHeader: <color=#FF7C7C><b>NO DEBE OCURRIR</b></color>
+  completedColor: '#7CFF7C'
+  pendingColor: '#FFFFFF'
 --- !u!114 &938191884
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4753,6 +4758,9 @@ MonoBehaviour:
   manualPitchRange: {x: -360, y: 360}
   manualYawRange: {x: -360, y: 360}
   manualResetDuration: 0.3
+  zoomSensitivity: 2
+  zoomDistanceRange: {x: 3, y: 25}
+  zoomSmoothTime: 0.1
   drawGizmos: 1
 --- !u!114 &1950503635
 MonoBehaviour:
