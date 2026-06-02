@@ -135,6 +135,13 @@ public class NetCharacterAnimator : NetworkBehaviour
             return;
         }
 
+        // Si está muerto no procesamos ningún input de animación
+        if (controller != null && controller.IsDead)
+        {
+            _previousButtons = input.Buttons;
+            return;
+        }
+
         // CRÍTICO: solo aplicar cambios al Animator durante ticks Forward.
         // Durante una resimulación, Fusion vuelve a llamar FixedUpdateNetwork()
         // para reaplicar los inputs ya guardados; si disparamos triggers ahí,

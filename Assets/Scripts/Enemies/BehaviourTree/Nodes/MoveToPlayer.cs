@@ -28,8 +28,8 @@ namespace BehaviourTree
                 return state = NodeState.Success;
             }
 
-            if (!ai.Agent.hasPath || Vector3.Distance(ai.Agent.destination, ai.CurrentTarget.position) > 1f)
-                ai.Agent.SetDestination(ai.CurrentTarget.position);
+            // Siempre actualiza el destino para que el path sea fresco
+            ai.Agent.SetDestination(ai.CurrentTarget.position);
 
             return state = NodeState.Running;
         }
