@@ -48,6 +48,6 @@ public class MissionNotifier : MonoBehaviour
     {
         if (template == null || mission == null) return;
         if (NotificationManager.Instance == null) return;
-        NotificationManager.Instance.Show(template, mission.missionName);
+    NotificationManager.Instance.Show(template, mission.missionName, mission.description);
     }
 }

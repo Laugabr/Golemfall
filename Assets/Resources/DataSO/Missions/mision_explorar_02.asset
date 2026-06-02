@@ -10,23 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c263c045ef8f3a743a149ef9a8e1cfdf, type: 3}
-  m_Name: mision_batalla_01
+  m_Name: mision_explorar_02
   m_EditorClassIdentifier: 
-  missionId: mision_batalla_01
-  missionName: "Misi\xF3n \"Cacer\xEDa de Golems\""
-  description: "Las criaturas corruptas se est\xE1n multiplicando. Derrota 4 enemigos
-    m\xE1s y despeja el camino."
-  xp: 200
+  missionId: mision_explorar_02
+  missionName: '"Reliquias Perdidas"'
+  description: "Profundiza tu exploraci\xF3n y descubre 4 nuevos tesoros."
+  xp: 150
   coins: 0
   missionSteps:
-  - targetId: 0
+  - targetId: 1
     amount: 4
-    displayText: Derrota golems
-  failureSteps:
-  - targetId: 4
-    amount: 1
-    displayText: Proteger al npc
+    displayText: Encuentra tesoros
+  failureSteps: []
   nextMissions: []
   pausesOtherMissions: 0
-  startWithEvent: 1
+  startWithEvent: 0
   startEvent: 0
