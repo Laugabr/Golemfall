@@ -291,10 +291,8 @@ public class EnemyAI : NetworkBehaviour
         if (!Object.HasStateAuthority) return;
         if (CurrentTarget == null) return;
 
+        // Solo dispara la animación, el proyectil sale desde EnemyFireAtFrame
         _animator?.TriggerAttack();
-
-        Vector3 dir = (CurrentTarget.position - transform.position).normalized;
-        _abilityHolder.TryUseAbility(0, dir);
     }
 
     /// <summary>
@@ -313,6 +311,20 @@ public class EnemyAI : NetworkBehaviour
 
         CurrentTarget = null;
         enabled = false;
+    }
+
+    /// <summary>
+    /// Llamado por EnemyFireAtFrame StateMachineBehaviour en el frame exacto del ataque.
+    /// Dispara el proyectil o aplica daño sincronizado con la animación.
+    /// Solo corre en el host para mantener autoridad de red.
+    /// </summary>
+    public void FireProjectile()
+    {
+        if (!Object.HasStateAuthority) return;
+        if (CurrentTarget == null) return;
+
+        Vector3 dir = (CurrentTarget.position - transform.position).normalized;
+        _abilityHolder.TryUseAbility(0, dir);
     }
 
     /// <summary>
