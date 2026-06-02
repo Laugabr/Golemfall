@@ -88,7 +88,7 @@ public class EnemyAI : NetworkBehaviour
     public override void Spawned()
     {
         HomePosition = transform.position;
-        Debug.LogError($"[ENEMY] Spawned - Name: {gameObject.name}, HomePosition: {HomePosition}, HasStateAuthority: {Object.HasStateAuthority}");
+        Debug.Log($"[ENEMY] Spawned - Name: {gameObject.name}, HomePosition: {HomePosition}, HasStateAuthority: {Object.HasStateAuthority}");
 
         if (!Object.HasStateAuthority)
         {
