@@ -24,9 +24,11 @@ public class EnemyFireAtFrame : StateMachineBehaviour
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         if (_hasFired) return;
+        if (_ai == null) return;
 
-        // Solo el host dispara el proyectil
-        if (_ai == null || !_ai.Object.HasStateAuthority) return;
+        Debug.Log($"[FIRE] HasStateAuthority: {_ai.Object?.HasStateAuthority}, normalizedTime: {stateInfo.normalizedTime:F2}");
+
+        if (!_ai.Object.HasStateAuthority) return;
 
         if (stateInfo.normalizedTime >= fireAtNormalizedTime)
         {
