@@ -2,6 +2,11 @@
 
 namespace BehaviourTree
 {
+    /// <summary>
+    /// Nodo que verifica si el enemigo tiene un target activo.
+    /// La detección real la maneja UpdateTarget() en EnemyAI cada tick.
+    /// Este nodo simplemente consulta si ya hay un target asignado.
+    /// </summary>
     public class CanSeePlayer : Node
     {
         private EnemyAI ai;
@@ -16,18 +21,7 @@ namespace BehaviourTree
             if (ai.CurrentTarget == null)
                 return state = NodeState.Failure;
 
-            float distance = Vector3.Distance(
-                ai.transform.position,
-                ai.CurrentTarget.position
-            );
-
-            if (distance <= ai.VisionRange)
-                return state = NodeState.Success;
-
-            return state = NodeState.Failure;
+            return state = NodeState.Success;
         }
     }
 }
-
-
-

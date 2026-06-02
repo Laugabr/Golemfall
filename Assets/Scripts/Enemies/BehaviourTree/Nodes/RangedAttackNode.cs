@@ -2,6 +2,12 @@ using UnityEngine;
 
 namespace BehaviourTree
 {
+    /// <summary>
+    /// Nodo de ataque para el enemigo ranged.
+    /// Verifica que el jugador esté dentro del ShootDistance y respeta el AttackCooldown.
+    /// Devuelve Success mientras el jugador está en rango, permitiendo que el árbol
+    /// no evalúe nodos de menor prioridad mientras el ranged puede disparar.
+    /// </summary>
     public class RangedAttackNode : Node
     {
         private EnemyAI ai;
@@ -25,6 +31,7 @@ namespace BehaviourTree
             if (distance > ai.ShootDistance)
                 return state = NodeState.Failure;
 
+            // Dispara si el cooldown pasó
             if (Time.time >= lastAttackTime + ai.AttackCooldown)
             {
                 ai.RangedAttack();

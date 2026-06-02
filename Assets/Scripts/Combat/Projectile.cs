@@ -59,9 +59,6 @@ public class Projectile : NetworkBehaviour
         ActiveTime -= Runner.DeltaTime;
         transform.position += Direction * Speed * Runner.DeltaTime;
 
-        ActiveTime -= Runner.DeltaTime;
-        transform.position += Direction * Speed * Runner.DeltaTime;
-
         if (ActiveTime <= 0)
         {
             RPC_SpawnVFX(transform.position, transform.rotation, false);

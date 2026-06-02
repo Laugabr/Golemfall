@@ -62,16 +62,16 @@ MonoBehaviour:
   _shootPoint: {fileID: 3513886675532977578}
   _abilityHolder: {fileID: 4619221694758630480}
   _animator: {fileID: 2598499195944361799}
-  _visionRange: 3
-  _patrolSpeed: 7
+  _visionRange: 7
+  _patrolSpeed: 5
   _chaseSpeed: 15
   _attackRange: 2
   _attackCooldown: 3
   _shootDistance: 0
   _minDistance: 0
-  _patrolRadius: 30
-  _chaseRadius: 50
-  _returnSpeed: 4
+  _patrolRadius: 40
+  _chaseRadius: 60
+  _returnSpeed: 7
   _patrolWaitTime: 1
 --- !u!114 &1876080899843528332
 MonoBehaviour:
@@ -110,7 +110,7 @@ NavMeshAgent:
   m_Speed: 0
   m_Acceleration: 50
   avoidancePriority: 50
-  m_AngularSpeed: 720
+  m_AngularSpeed: 360
   m_StoppingDistance: 0.5
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 0

@@ -2,10 +2,14 @@
 
 namespace BehaviourTree
 {
+    /// <summary>
+    /// Nodo de ataque para el enemigo melee.
+    /// Verifica que el jugador esté dentro del AttackRange y que el cooldown haya pasado.
+    /// Usa CanAttack() y RegisterAttack() de EnemyAI para el cooldown determinístico con Fusion.
+    /// </summary>
     public class AttackPlayer : Node
     {
         private EnemyAI ai;
-        private float lastAttackTime;
 
         public AttackPlayer(EnemyAI enemyAI)
         {
@@ -25,10 +29,11 @@ namespace BehaviourTree
             if (distance > ai.AttackRange)
                 return state = NodeState.Failure;
 
-            if (Time.time >= lastAttackTime + ai.AttackCooldown)
+            // Solo ataca si el cooldown pasó
+            if (ai.CanAttack())
             {
                 ai.RangedAttack();
-                lastAttackTime = Time.time;
+                ai.RegisterAttack();
             }
 
             return state = NodeState.Success;
