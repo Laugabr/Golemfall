@@ -10,20 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 64b5bda43f4b2f44481a42f85c2441b2, type: 3}
-  m_Name: npc1d2
+  m_Name: npc1d4
   m_EditorClassIdentifier: 
-  dialogueId: npc1d2
+  dialogueId: npc1d4
   requirement:
     condition: 2
-    missionId: mision_rompibles_01
+    missionId: mision_rompibles_02
   lines:
-  - text: "\xA1Vamos Owlina Queen! Destruye las 3 Nebuflor y contin\xFAa recordando
-      tu entrenamiento ancestral."
+  - text: destruye la maldita nebuflor
     portrait: {fileID: 21300000, guid: 7dae44e1659b5ce47bc9329c6109c60a, type: 3}
     speakerNameOverride: "Dulce C\xEDclope"
-  - text: Si, si. Estoy en eso
-    portrait: {fileID: 21300000, guid: a8acb7ca7301b6e4eb1d02315b328567, type: 3}
-    speakerNameOverride: Owlina Queen
   onCompleteEvent: 0
   onCompleteAmount: 1
   triggerEventOnComplete: 0

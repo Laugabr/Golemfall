@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 5771689255916287617}
   - component: {fileID: 4447393548731223198}
   - component: {fileID: 1241597209134646925}
-  - component: {fileID: 2546736531141173865}
   m_Layer: 7
   m_Name: BreakNoDrop
   m_TagString: Enemy
@@ -106,12 +105,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.507584, y: 2.948576, z: 4.5254245}
-  m_Center: {x: 0.020554304, y: 0.8668299, z: 0.068612814}
+  m_Size: {x: 5.664459, y: 3.620819, z: 6.323242}
+  m_Center: {x: -0.05760193, y: 1.2185822, z: 0.2640381}
 --- !u!114 &5771689255916287617
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -162,17 +161,3 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 5771689255916287617}
   ForceRemoteRenderTimeframe: 0
---- !u!114 &2546736531141173865
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7651186507946290808}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1541381998, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Guid:
-    RawGuidValue: 1d40e7fcef3e023478c9268d7a44c58f
