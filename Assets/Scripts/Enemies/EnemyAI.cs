@@ -30,6 +30,7 @@ public class EnemyAI : NetworkBehaviour
     [SerializeField] private Transform _shootPoint;
     [SerializeField] private AbilityHolder _abilityHolder;
     [SerializeField] private NetEnemyAnimator _animator;
+    [SerializeField] private Animator _enemyAnimator;
 
     [Header("Vision")]
     [SerializeField] private float _visionRange = 8f;
@@ -68,6 +69,7 @@ public class EnemyAI : NetworkBehaviour
     public NavMeshAgent Agent => _agent;
     public Transform CurrentTarget { get; private set; }
     public bool HasTarget => _hasTarget;
+    public bool IsInAttackAnimation { get; set; }
 
     // Posición inicial del enemigo al spawnear, usada como centro del territorio
     public Vector3 HomePosition { get; private set; }
@@ -107,6 +109,9 @@ public class EnemyAI : NetworkBehaviour
 
         if (_animator == null)
             _animator = GetComponent<NetEnemyAnimator>();
+
+        if (_enemyAnimator == null)
+            _enemyAnimator = GetComponentInChildren<Animator>();
     }
 
     public override void Spawned()
@@ -153,9 +158,18 @@ public class EnemyAI : NetworkBehaviour
 
         // Movemos el transform manualmente para que Fusion replique correctamente
         // el NavMeshAgent no mueve el transform solo cuando se usa con networking
-        if (_agent.hasPath && !_agent.pathPending)
+        // No se mueve si está ejecutando la animación de ataque
+        bool inAttackAnim = IsInAttackAnimation;
+
+        if (_agent.hasPath && !_agent.pathPending && !IsInAttackAnimation)
         {
             transform.position += _agent.desiredVelocity * Runner.DeltaTime;
+            _agent.nextPosition = transform.position;
+        }
+        else if (IsInAttackAnimation)
+        {
+            // Forzamos velocidad cero para eliminar la inercia
+            _agent.velocity = Vector3.zero;
             _agent.nextPosition = transform.position;
         }
 

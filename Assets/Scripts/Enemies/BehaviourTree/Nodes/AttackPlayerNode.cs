@@ -21,6 +21,11 @@ namespace BehaviourTree
             if (ai.CurrentTarget == null)
                 return state = NodeState.Failure;
 
+            // Si está en la animación de ataque bloqueamos el árbol
+            // para que no intente moverse hasta que termine
+            if (ai.IsInAttackAnimation)
+                return state = NodeState.Running;
+
             float distance = Vector3.Distance(
                 ai.transform.position,
                 ai.CurrentTarget.position
@@ -29,7 +34,6 @@ namespace BehaviourTree
             if (distance > ai.AttackRange)
                 return state = NodeState.Failure;
 
-            // Solo ataca si el cooldown pasó
             if (ai.CanAttack())
             {
                 ai.RangedAttack();

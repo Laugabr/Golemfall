@@ -15,10 +15,10 @@ GameObject:
   - component: {fileID: 2036515683476400331}
   - component: {fileID: 2992418593781395394}
   - component: {fileID: 4619221694758630480}
-  - component: {fileID: 5687046585043888028}
   - component: {fileID: 8668329545571998256}
   - component: {fileID: 2986504931908971064}
   - component: {fileID: -5246979284648119877}
+  - component: {fileID: 7762433367510058815}
   m_Layer: 8
   m_Name: RangedEnemy
   m_TagString: Enemy
@@ -94,8 +94,8 @@ MonoBehaviour:
   - {fileID: 2036515683476400331}
   - {fileID: 2992418593781395394}
   - {fileID: 4619221694758630480}
-  - {fileID: 5687046585043888028}
   - {fileID: -5246979284648119877}
+  - {fileID: 7762433367510058815}
   ForceRemoteRenderTimeframe: 0
 --- !u!195 &7292801381997764673
 NavMeshAgent:
@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 874c8951faca731439516ec6b102d8d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseStats: {fileID: 11400000, guid: 98be6f086a350c342b8c8dea204cb07d, type: 2}
+  baseStats: {fileID: 11400000, guid: c19baa7a8b3b8d84fa2504c4c00f4641, type: 2}
   localStats: []
 --- !u!114 &4619221694758630480
 MonoBehaviour:
@@ -169,23 +169,6 @@ MonoBehaviour:
   abilities:
   - {fileID: 11400000, guid: 1a26a9f781a15014eb7fc741e35a1d58, type: 2}
   fakePrefabs: []
---- !u!114 &5687046585043888028
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5323926401402589627}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _stateAuthorityChangeErrorCorrectionDelta: 0
-  SyncScale: 0
-  SyncParent: 0
-  _autoAOIOverride: 1
-  DisableSharedModeInterpolation: 0
 --- !u!65 &8668329545571998256
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -247,6 +230,23 @@ MonoBehaviour:
   idleVariantCount: 1
   chanceToChange: 0.15
   variantDuration: 4
+--- !u!114 &7762433367510058815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5323926401402589627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _stateAuthorityChangeErrorCorrectionDelta: 0
+  SyncScale: 0
+  SyncParent: 0
+  _autoAOIOverride: 1
+  DisableSharedModeInterpolation: 0
 --- !u!1 &5828352303755625452
 GameObject:
   m_ObjectHideFlags: 0
