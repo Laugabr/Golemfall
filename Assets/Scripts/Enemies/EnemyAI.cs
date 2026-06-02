@@ -15,10 +15,10 @@ public class EnemyAI : NetworkBehaviour
     [SerializeField] private NavMeshAgent _agent;
     [SerializeField] private Transform _shootPoint;
     [SerializeField] private AbilityHolder _abilityHolder;
+    [SerializeField] private NetEnemyAnimator _animator;
 
     [Header("Vision")]
     [SerializeField] private float _visionRange = 8f;
-    [SerializeField] private float _loseTargetRange = 12f;
 
     [Header("Movement")]
     [SerializeField] private float _patrolSpeed = 2f;
@@ -32,9 +32,22 @@ public class EnemyAI : NetworkBehaviour
     [SerializeField] private float _shootDistance = 8f;
     [SerializeField] private float _minDistance = 4f;
 
-    [Header("Patrol")]
-    [SerializeField] private Transform[] _patrolPoints;
+    [Header("Territory")]
+    [SerializeField] private float _patrolRadius = 8f;
+    [SerializeField] private float _chaseRadius = 15f;
+    [SerializeField] private float _returnSpeed = 4f;
 
+    [Header("Patrol")]
+    [SerializeField] private float _patrolWaitTime = 2f;
+
+    public float PatrolSpeed => _patrolSpeed;
+    public float PatrolRadius => _patrolRadius;
+    public float ChaseRadius => _chaseRadius;
+    public float ReturnSpeed => _returnSpeed;
+    public float PatrolWaitTime => _patrolWaitTime;
+    public Vector3 HomePosition { get; private set; }
+    public bool HasTarget => _hasTarget;
+    private bool _wasHavingTarget;
     public float VisionRange => _visionRange;
     public float AttackRange => _attackRange;
     public float ShootDistance => _shootDistance;
@@ -46,6 +59,8 @@ public class EnemyAI : NetworkBehaviour
     private double _lastAttackTime = -999;
     private Node rootNode;
     private bool _hasTarget;
+    private PatrolNode _patrolNode;
+    private Vector3 _lastMoveDirection;
 
     public bool CanAttack()
     {
@@ -65,10 +80,16 @@ public class EnemyAI : NetworkBehaviour
 
         if (_abilityHolder == null)
             _abilityHolder = GetComponent<AbilityHolder>();
+
+        if (_animator == null)
+            _animator = GetComponent<NetEnemyAnimator>();
     }
 
     public override void Spawned()
     {
+        HomePosition = transform.position;
+        Debug.LogError($"[ENEMY] Spawned - Name: {gameObject.name}, HomePosition: {HomePosition}, HasStateAuthority: {Object.HasStateAuthority}");
+
         if (!Object.HasStateAuthority)
         {
             _agent.enabled = false;
@@ -77,6 +98,7 @@ public class EnemyAI : NetworkBehaviour
 
         _agent.enabled = true;
         _agent.speed = _patrolSpeed;
+        _agent.autoBraking = false;
         BuildTree();
     }
 
@@ -87,17 +109,42 @@ public class EnemyAI : NetworkBehaviour
 
         UpdateTarget();
 
+
+        // Solo resetea el patrol cuando recién detecta el target
+        if (_hasTarget && !_wasHavingTarget)
+            _patrolNode?.Reset();
+
+        _wasHavingTarget = _hasTarget;
+
+        // Un solo lugar controla la velocidad
+        if (_hasTarget)
+            _agent.speed = _chaseSpeed;
+        else if (Vector3.Distance(transform.position, HomePosition) > _patrolRadius * 1.5f)
+            _agent.speed = _returnSpeed;
+        else
+            _agent.speed = _patrolSpeed;
+
         rootNode?.Evaluate();
 
-        // Movemos el transform directamente usando la dirección del NavMeshAgent
         if (_agent.hasPath && !_agent.pathPending)
         {
-            Vector3 velocity = _agent.desiredVelocity.normalized * (_hasTarget ? _chaseSpeed : _patrolSpeed);
-            transform.position += velocity * Runner.DeltaTime;
+            transform.position += _agent.desiredVelocity * Runner.DeltaTime;
             _agent.nextPosition = transform.position;
         }
 
-        if (CurrentTarget != null)
+        if (_hasTarget && CurrentTarget != null)
+        {
+            Vector3 dir = CurrentTarget.position - transform.position;
+            dir.y = 0f;
+            if (dir.sqrMagnitude > 0.01f)
+                transform.rotation = Quaternion.Slerp(
+                    transform.rotation,
+                    Quaternion.LookRotation(dir),
+                    Runner.DeltaTime * 10f
+                );
+        }
+
+        if (_hasTarget && CurrentTarget != null)
         {
             Vector3 dir = CurrentTarget.position - transform.position;
             dir.y = 0f;
@@ -110,7 +157,6 @@ public class EnemyAI : NetworkBehaviour
         }
     }
 
-    // Esto sincroniza la posición del NavMeshAgent con Fusion cada frame
     public override void Render()
     {
         if (!Object.HasStateAuthority) return;
@@ -121,7 +167,7 @@ public class EnemyAI : NetworkBehaviour
     void BuildTree()
     {
         var canSee = new CanSeePlayer(this);
-        var patrol = new PatrolNode(_agent, _patrolPoints);
+        _patrolNode = new PatrolNode(_agent, this);
 
         if (_enemyType == EnemyType.Melee)
         {
@@ -131,7 +177,7 @@ public class EnemyAI : NetworkBehaviour
             rootNode = new Selector(new List<Node>
             {
                 new Sequence(new List<Node> { canSee, moveTo, attack }),
-                patrol
+                _patrolNode
             });
         }
         else
@@ -144,7 +190,7 @@ public class EnemyAI : NetworkBehaviour
             {
                 keepDistance,
                 new Sequence(new List<Node> { canSee, moveToShoot, rangedAttack }),
-                patrol
+                _patrolNode
             });
         }
     }
@@ -157,9 +203,10 @@ public class EnemyAI : NetworkBehaviour
         {
             var health = CurrentTarget.GetComponent<PlayerHealth>();
             bool isDead = health != null && health.IsDead;
-            float dist = Vector3.Distance(transform.position, CurrentTarget.position);
 
-            if (isDead || dist > _loseTargetRange)
+            // Pierde el target si el jugador sale del chaseRadius desde HomePosition
+            float distFromHome = Vector3.Distance(HomePosition, CurrentTarget.position);
+            if (isDead || distFromHome > _chaseRadius)
             {
                 CurrentTarget = null;
                 _hasTarget = false;
@@ -167,6 +214,7 @@ public class EnemyAI : NetworkBehaviour
             return;
         }
 
+        // Detecta jugadores dentro del visionRange desde la posición actual del enemigo
         float minDist = float.MaxValue;
         Transform closest = null;
 
@@ -178,6 +226,7 @@ public class EnemyAI : NetworkBehaviour
             var health = playerObj.GetComponent<PlayerHealth>();
             if (health != null && health.IsDead) continue;
 
+            // Detección desde posición actual del enemigo con visionRange
             float dist = Vector3.Distance(transform.position, playerObj.transform.position);
             if (dist < minDist && dist <= _visionRange)
             {
@@ -195,7 +244,23 @@ public class EnemyAI : NetworkBehaviour
         if (!Object.HasStateAuthority) return;
         if (CurrentTarget == null) return;
 
+        _animator?.TriggerAttack();
+
         Vector3 dir = (CurrentTarget.position - transform.position).normalized;
         _abilityHolder.TryUseAbility(0, dir);
+    }
+
+    public void DisableAI()
+    {
+        if (!Object.HasStateAuthority) return;
+
+        if (_agent != null && _agent.isOnNavMesh)
+        {
+            _agent.isStopped = true;
+            _agent.ResetPath();
+        }
+
+        CurrentTarget = null;
+        enabled = false;
     }
 }

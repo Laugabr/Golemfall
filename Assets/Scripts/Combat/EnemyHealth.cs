@@ -3,6 +3,14 @@ using UnityEngine;
 public class EnemyHealth : HealthSystem
 {
     [SerializeField] private EnemyHealthBar healthBar;
+    [SerializeField] private NetEnemyAnimator netAnimator;
+    [SerializeField] private EnemyAI enemyAI;
+
+    [Header("Death")]
+    [SerializeField] private float deathAnimDuration = 1.5f;
+
+    private int _lastObservedHealth = -1;
+    private bool _dieScheduled;
 
     public override void Spawned()
     {
@@ -19,6 +27,11 @@ public class EnemyHealth : HealthSystem
             healthBar?.SetMaxHealth(MaxHealth);
             healthBar?.SetHealth(CurrentHealth);
         }
+
+        if (netAnimator == null) netAnimator = GetComponent<NetEnemyAnimator>();
+        if (enemyAI == null) enemyAI = GetComponent<EnemyAI>();
+
+        _lastObservedHealth = CurrentHealth;
     }
 
     public override void Render()
@@ -31,6 +44,13 @@ public class EnemyHealth : HealthSystem
     {
         base.CurrentHealthChanged();
         healthBar?.SetHealth(CurrentHealth);
+
+        int newHealth = CurrentHealth;
+
+        if (_lastObservedHealth > 0 && newHealth < _lastObservedHealth && newHealth > 0)
+            netAnimator?.TriggerTakeDamage();
+
+        _lastObservedHealth = newHealth;
     }
 
     public override void MaxHealthChanged()
@@ -53,7 +73,6 @@ public class EnemyHealth : HealthSystem
     {
         if (stats != null)
             return stats.GetStat(Stat.armor);
-
         return 0;
     }
 
@@ -61,9 +80,19 @@ public class EnemyHealth : HealthSystem
     {
         Debug.Log($"Enemy {gameObject.name} murió");
 
-        if (Object.HasStateAuthority)
-        {
+        if (!Object.HasStateAuthority) return;
+        if (_dieScheduled) return;
+        _dieScheduled = true;
+
+        netAnimator?.SetDead();
+        enemyAI?.DisableAI();
+
+        Invoke(nameof(DoDespawn), deathAnimDuration);
+    }
+
+    private void DoDespawn()
+    {
+        if (Object != null && Object.IsValid && Object.HasStateAuthority)
             Runner.Despawn(Object);
-        }
     }
 }
