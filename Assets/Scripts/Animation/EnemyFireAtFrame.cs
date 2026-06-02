@@ -1,14 +1,13 @@
 using UnityEngine;
 
 /// <summary>
-/// Dispara el proyectil en el momento exacto de la animación de ataque
-/// usando el normalizedTime del Animator en lugar de Animation Events.
-/// Más fácil de ajustar que un Animation Event en el FBX.
+/// Dispara el proyectil en el momento exacto de la animación de ataque.
+/// Solo el host ejecuta el disparo ya que es quien tiene StateAuthority sobre el enemigo.
+/// Los clientes ven la animación pero no disparan proyectiles.
 /// </summary>
 public class EnemyFireAtFrame : StateMachineBehaviour
 {
-    [Tooltip("Momento normalizado (0 a 1) donde sale el proyectil. " +
-             "0 = inicio, 0.5 = mitad, 1 = final")]
+    [Tooltip("Momento normalizado (0 a 1) donde sale el proyectil.")]
     [SerializeField, Range(0f, 1f)] private float fireAtNormalizedTime = 0.5f;
 
     private bool _hasFired;
@@ -17,6 +16,7 @@ public class EnemyFireAtFrame : StateMachineBehaviour
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         _hasFired = false;
+
         if (_ai == null)
             _ai = animator.GetComponentInParent<EnemyAI>();
     }
@@ -25,11 +25,13 @@ public class EnemyFireAtFrame : StateMachineBehaviour
     {
         if (_hasFired) return;
 
-        // Dispara cuando la animación llega al porcentaje configurado
+        // Solo el host dispara el proyectil
+        if (_ai == null || !_ai.Object.HasStateAuthority) return;
+
         if (stateInfo.normalizedTime >= fireAtNormalizedTime)
         {
             _hasFired = true;
-            _ai?.FireProjectile();
+            _ai.FireProjectile();
         }
     }
 
