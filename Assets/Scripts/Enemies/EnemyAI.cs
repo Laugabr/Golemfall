@@ -324,7 +324,11 @@ public class EnemyAI : NetworkBehaviour
         if (CurrentTarget == null) return;
 
         Vector3 dir = (CurrentTarget.position - transform.position).normalized;
-        _abilityHolder.TryUseAbility(0, dir);
+
+        // Los enemigos tienen StateAuthority pero no InputAuthority
+        // entonces TryUseAbility nunca llega al RPC
+        // Llamamos directamente al método de ejecución del servidor
+        _abilityHolder.ExecuteAbilityAuthority(0, dir);
     }
 
     /// <summary>
