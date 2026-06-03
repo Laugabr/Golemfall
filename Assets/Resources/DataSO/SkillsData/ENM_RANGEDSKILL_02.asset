@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: ENM_RANGEDSKILL_02
   m_EditorClassIdentifier: 
   name: Ranged
-  cooldownTime: 2
-  activeTime: 7
-  projectileLifetime: 3
+  cooldownTime: 0
+  activeTime: 0
+  projectileLifetime: 4
   projectilePrefab: {fileID: -166465162631183935, guid: 6fefd4c0b08b1974fbcffae66d01ae9d, type: 3}
-  projectileSpeed: 14
+  projectileSpeed: 20
   damageMultiplier: 1
   destroyOnHit: 1
   projectileType: 1

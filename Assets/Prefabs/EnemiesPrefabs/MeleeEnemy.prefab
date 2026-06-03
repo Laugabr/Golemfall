@@ -62,9 +62,10 @@ MonoBehaviour:
   _shootPoint: {fileID: 3513886675532977578}
   _abilityHolder: {fileID: 4619221694758630480}
   _animator: {fileID: 2598499195944361799}
-  _visionRange: 7
-  _patrolSpeed: 5
-  _chaseSpeed: 15
+  _enemyAnimator: {fileID: 0}
+  _visionRange: 20
+  _patrolSpeed: 3
+  _chaseSpeed: 17
   _attackRange: 2
   _attackCooldown: 3
   _shootDistance: 0
