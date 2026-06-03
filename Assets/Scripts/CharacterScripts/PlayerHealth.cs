@@ -13,9 +13,25 @@ public class PlayerHealth : HealthSystem
 
     [Networked, OnChangedRender(nameof(OnIsDeadChanged))]
     public NetworkBool IsDead { get; private set; }
+
+    [Networked] public NetworkBool NeedsRespawn { get; set; }
+
+
     [SerializeField] public Vector3 _lastSpawnPoint;
+    private SimpleKCC simplekcc;
 
+    private IEnumerator RespawnRoutine()
+    {
+        yield return new WaitForSeconds(1.625f);
+        yield return new WaitForSeconds(2f);
 
+        if (bodyVisualsGO != null)
+            bodyVisualsGO.SetActive(false);
+
+        CurrentHealth = MaxHealth;
+        IsDead = false;
+        NeedsRespawn = true; // ← el controller lo lee en FUN y mueve
+    }
     public override void Spawned()
     {
         base.Spawned();
@@ -32,6 +48,10 @@ public class PlayerHealth : HealthSystem
 
         _lastSpawnPoint = transform.position; // fallback: posición inicial
 
+        simplekcc = GetComponent<SimpleKCC>();
+        if (simplekcc == null)
+            Debug.LogError($"PlayerHealth requires SimpleKCC on {gameObject.name}");
+
         // Visuals se setean en todos los clientes
         SetAlive(true);
     }
@@ -46,27 +66,14 @@ public class PlayerHealth : HealthSystem
     public void SetLastSpawnPoint(Vector3 position)
     {
         if (!Object.HasStateAuthority) return;
+
+
         _lastSpawnPoint = position;
         Debug.Log($"[SERVER] LastSpawnPoint seteado en {position}");
     }
 
-    private IEnumerator RespawnRoutine()
-    {
-        // Espera que termine la animación de muerte
-        yield return new WaitForSeconds(1.625f);
 
-        // Queda tirado 2 segundos CON los visuales activos
-        yield return new WaitForSeconds(2f);
-
-        // Recién ahora desaparece y reaparece en el spawn
-        if (bodyVisualsGO != null)
-            bodyVisualsGO.SetActive(false);
-
-        transform.position = _lastSpawnPoint;
-        CurrentHealth = MaxHealth;
-        IsDead = false;
-    }
-
+    
     private void OnDestroy()
     {
         if (stats is PlayerStats playerStats)
@@ -94,10 +101,10 @@ public class PlayerHealth : HealthSystem
 
         Debug.Log($"[SERVER] {gameObject.name} murió.");
         IsDead = true;
-        StartCoroutine(RespawnRoutine());
-        // ← NO mover aquí, el player muere donde está
-    }
 
+        if (Object.HasStateAuthority)
+            StartCoroutine(RespawnRoutine());
+    }
 
     private void OnIsDeadChanged()
     {

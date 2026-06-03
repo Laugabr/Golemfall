@@ -108,33 +108,42 @@ public class NetCharacterController : NetworkBehaviour
 
         if (dashCooldownTimer > 0f)
             dashCooldownTimer -= Runner.DeltaTime;
-        if(Input.GetKeyDown(KeyCode.P))
-        {
-            transform.position = charHealth._lastSpawnPoint;
-        }
-        // Dirección de movimiento relativa a la cámara del CLIENTE 
-        // El cliente envía su CameraYaw en el input, así que el server puede
-        // hacer el cálculo correctamente para CUALQUIER jugador (no solo el local).
+
         float yaw = input.CameraYaw;
         Vector3 camForward = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
         Vector3 camRight   = Quaternion.Euler(0f, yaw, 0f) * Vector3.right;
-
         Vector3 inputWorld = camForward * input.Direction.y + camRight * input.Direction.x;
 
         if (inputWorld.sqrMagnitude > 1f)
             inputWorld.Normalize();
+
+        // ── RESPAWN ─────────────────────────────────────────────────────────────
+        if (charHealth != null && charHealth.NeedsRespawn)
+        {
+            if (Object.HasStateAuthority)
+            {
+                kcc.SetPosition(charHealth._lastSpawnPoint);
+                charHealth.NeedsRespawn = false;
+            }
+            return;
+        }
+
+        // ── MUERTO (sin respawn pendiente) ──────────────────────────────────────
+        if (charHealth != null && charHealth.IsDead)
+        {
+            kcc.Move(Vector3.zero);
+
+            if (HasStateAuthority && Runner.DeltaTime > 0f)
+                NetVerticalVelocity = (transform.position.y - previousY) / Runner.DeltaTime;
+            return;
+        }
 
         // Dash start.
         // Se activa solo si: hay input de dash, no hay cooldown y hay dirección.
         // Si está en cooldown, la solicitud se ignora silenciosamente — el
         // animador, al leer IsDashing, NO disparará la animación de dash falsa.
 
-        if (charHealth.IsDead)
-        {
-            // Seguimos aplicando gravedad para que caiga al suelo
-            kcc.Move(Vector3.zero);
-            return;
-        }
+
 
         if (input.Buttons.WasPressed(previousButtons, InputButton.Dash)
             && dashCooldownTimer <= 0f
