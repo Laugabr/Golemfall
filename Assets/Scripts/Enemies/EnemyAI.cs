@@ -41,7 +41,6 @@ public class EnemyAI : NetworkBehaviour
 
     [Header("Melee Settings")]
     [SerializeField] private float _attackRange = 2f;
-    [SerializeField] private float _attackCooldown = 1f;
 
     [Header("Ranged Settings")]
     [SerializeField] private float _shootDistance = 8f;
@@ -65,7 +64,6 @@ public class EnemyAI : NetworkBehaviour
     public float AttackRange => _attackRange;
     public float ShootDistance => _shootDistance;
     public float MinDistance => _minDistance;
-    public float AttackCooldown => _attackCooldown;
     public NavMeshAgent Agent => _agent;
     public Transform CurrentTarget { get; private set; }
     public bool HasTarget => _hasTarget;
@@ -74,7 +72,6 @@ public class EnemyAI : NetworkBehaviour
     // Posición inicial del enemigo al spawnear, usada como centro del territorio
     public Vector3 HomePosition { get; private set; }
 
-    private double _lastAttackTime = -999;
     private Node rootNode;
     private bool _hasTarget;
     private bool _wasHavingTarget;
@@ -82,22 +79,20 @@ public class EnemyAI : NetworkBehaviour
     private Vector3 _lastMoveDirection;
 
     /// <summary>
-    /// Devuelve true si el cooldown de ataque ya pasó.
-    /// Usa SimulationTime de Fusion para ser determinístico en red.
+    /// Verifica si el enemigo puede atacar consultando el AbilityHolder.
+    /// El cooldown lo maneja el ScriptableObject de la habilidad, no el EnemyAI.
     /// </summary>
     public bool CanAttack()
     {
-        if (Runner == null) return false;
-        return Runner.SimulationTime >= _lastAttackTime + _attackCooldown;
+        if (_abilityHolder == null) return false;
+        return _abilityHolder.IsReady(0);
     }
 
     /// <summary>
-    /// Registra el momento del último ataque para el cooldown.
+    /// Ya no necesita registrar nada, AbilityHolder maneja el cooldown automáticamente.
+    /// Se mantiene para no romper los nodos que la llaman.
     /// </summary>
-    public void RegisterAttack()
-    {
-        _lastAttackTime = Runner.SimulationTime;
-    }
+    public void RegisterAttack() { }
 
     private void Awake()
     {
