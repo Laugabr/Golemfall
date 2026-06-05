@@ -42,8 +42,9 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Depth_Fade_Distance: -8.39
-    - _Fog_Power: 4.5
+    - _DepthFalloff: 0
+    - _Depth_Fade_Distance: -1.03
+    - _Fog_Power: 0.26
     - _Luminosity_Intensity: 2.56
     - _QueueControl: 0
     - _QueueOffset: 0
