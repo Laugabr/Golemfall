@@ -203,10 +203,10 @@ public class NetCharacterController : NetworkBehaviour
             charAbilities?.RPC_RequestUseAbility(1, GetMouseDirection());
 
         if (input.Buttons.WasPressed(previousButtons, InputButton.SecondarySkill) && HasInputAuthority)
-            charAbilities?.RPC_RequestUseAbility(2, GetMouseDirection());
+            charAbilities?.RPC_RequestUseAbility(2, GetMouseDirection());*/
 
         if (input.Buttons.WasPressed(previousButtons, InputButton.Interact) && HasInputAuthority)
-            charPickUp?.TryPickUp();*/
+            charPickUp?.TryPickUp();
 
         // Movimiento + actualización de yaw deseado
         Vector3 moveDir;
