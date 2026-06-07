@@ -34,9 +34,6 @@ public class NetCharacterController : NetworkBehaviour
     [SerializeField] private int playerIndex;
 
     private NetworkButtons previousButtons;
-    /*private float dashTimer;
-    private float dashCooldownTimer;
-    private Vector3 dashDirection;*/
 
     // Cache local — solo se usa en el cliente con InputAuthority.
     private InventoryToggle cachedInventoryToggle;

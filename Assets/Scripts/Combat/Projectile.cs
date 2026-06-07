@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Projectile : NetworkBehaviour
 {
+    // ── Estado networked del proyectil ───────────────────────────────────────
     [Networked] private Vector3 Direction { get; set; }
     [Networked] private float Speed { get; set; }
     [Networked] private int Damage { get; set; }
@@ -13,12 +14,39 @@ public class Projectile : NetworkBehaviour
     [Networked] private ProjectileType Type { get; set; }
     [Networked] private bool DestroyOnHit { get; set; }
 
+    /// <summary>
+    /// Si es true, manda el VFX de explosion al impactar via NetworkVFXManager.
+    /// Se desactiva para ataques melee que no necesitan explosion.
+    /// </summary>
+    [Networked] private bool ShowHitVFX { get; set; }
+
+    // ── Estado networked para VFX de expiracion ──────────────────────────────
+    // Para la expiracion usamos flag networked + Render() con Despawn diferido
+    // porque el objeto se destruye inmediatamente y cualquier RPC se perderia.
+    // Para los hits usamos NetworkVFXManager que siempre existe en la escena,
+    // garantizando que el RPC llegue al cliente sin importar el Despawn.
+
+    /// <summary>
+    /// Se activa cuando el proyectil expira por tiempo (sin golpear nada).
+    /// El Despawn se hace un tick despues para que Render() lo detecte primero.
+    /// </summary>
+    [Networked] private NetworkBool Expired { get; set; }
+
+    /// <summary>
+    /// Posicion exacta de la expiracion. Se escribe antes de activar Expired
+    /// para que Render() la lea en la posicion correcta.
+    /// </summary>
+    [Networked] private Vector3 ExpirePosition { get; set; }
+
     [Header("VFX (asignar en Inspector)")]
-    [SerializeField] private GameObject collisionVFX;  // efecto al chocar con cualquier cosa
-    [SerializeField] private GameObject hitTargetVFX;  // efecto al dañar un objetivo (opcional)
+    [SerializeField] private GameObject collisionVFX;   // efecto al expirar sin chocar
+    [SerializeField] private GameObject hitTargetVFX;   // efecto al danar un objetivo (opcional)
 
     private HashSet<NetworkObject> hitTargets = new HashSet<NetworkObject>();
     private Collider col;
+
+    // Variable local — evita que el VFX de expiracion se instancie mas de una vez por peer
+    private bool _vfxExpiredPlayed;
 
     private void Awake()
     {
@@ -28,17 +56,17 @@ public class Projectile : NetworkBehaviour
 
     public override void Spawned()
     {
-        // Solo el cliente que disparó destruye su fake
+        // Solo el cliente que disparo destruye su proyectil falso local
         if (Object.HasStateAuthority || !Object.HasInputAuthority) return;
 
-        // Owner es el NetworkObject del caster (ya lo tenés networkeado)
         uint ownerId = Owner.Id.Raw;
         var fake = FakeProjectileRegistry.Dequeue(ownerId);
 
         if (fake != null) Destroy(fake.gameObject);
     }
+
     public void Initialize(NetworkObject caster, int damage, float speed, Vector3 dir,
-                           float activeTime, bool destroyOnHit, ProjectileType type)
+                           float activeTime, bool destroyOnHit, ProjectileType type, bool showHitVFX)
     {
         Owner = caster;
         Damage = damage;
@@ -47,6 +75,7 @@ public class Projectile : NetworkBehaviour
         ActiveTime = activeTime;
         DestroyOnHit = destroyOnHit;
         Type = type;
+        ShowHitVFX = showHitVFX;
 
         if (col == null) col = GetComponent<Collider>();
         col.enabled = true;
@@ -59,9 +88,18 @@ public class Projectile : NetworkBehaviour
         ActiveTime -= Runner.DeltaTime;
         transform.position += Direction * Speed * Runner.DeltaTime;
 
-        if (ActiveTime <= 0)
+        // Tick 1 — activamos el flag de expiracion y guardamos la posicion.
+        // Render() lo detecta en todos los peers en este tick.
+        if (ActiveTime <= 0f && !Expired && !hasHit)
         {
-            RPC_SpawnVFX(transform.position, transform.rotation, false);
+            ExpirePosition = transform.position;
+            Expired = true;
+        }
+
+        // Tick 2 — despawneamos un tick despues para darle tiempo a Render()
+        // de correr en todos los peers con el flag ya activado.
+        if (Expired && ActiveTime <= -Runner.DeltaTime)
+        {
             Runner.Despawn(Object);
         }
     }
@@ -75,7 +113,6 @@ public class Projectile : NetworkBehaviour
         var otherNet = other.GetComponent<NetworkObject>();
         if (otherNet != null && otherNet == Owner) return;
 
-        // Siempre mostramos el efecto de colisión (pared, suelo, etc.)
         bool damagedTarget = false;
 
         var damageable = other.GetComponent<IDamageable>();
@@ -94,10 +131,14 @@ public class Projectile : NetworkBehaviour
             damagedTarget = true;
         }
 
-        skip:
+    skip:
         hasHit = true;
 
-        RPC_SpawnVFX(transform.position, transform.rotation, damagedTarget);
+        // Mandamos el VFX desde el NetworkVFXManager que siempre existe,
+        // garantizando que el RPC llegue al cliente antes o despues del Despawn.
+        // Solo si ShowHitVFX es true — el melee lo tiene desactivado.
+        if (ShowHitVFX && NetworkVFXManager.Instance != null)
+            NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(transform.position, damagedTarget);
 
         if (DestroyOnHit)
         {
@@ -107,25 +148,23 @@ public class Projectile : NetworkBehaviour
     }
 
     /// <summary>
-    /// RPC enviado a TODOS los clientes para instanciar VFX localmente.
-    /// Cada cliente crea el efecto en su propia máquina — sin NetworkObject ni bandwidth extra.
+    /// Render() corre en TODOS los peers a framerate de pantalla.
+    /// Solo maneja el VFX de expiracion por tiempo — los hits los maneja
+    /// el NetworkVFXManager via RPC.
+    /// _vfxExpiredPlayed es local por peer para evitar instanciar el VFX
+    /// multiples veces en frames consecutivos.
     /// </summary>
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_SpawnVFX(Vector3 position, Quaternion rotation, bool showHitTargetFX)
+    public override void Render()
     {
-        // Efecto de colisión (siempre)
-        if (collisionVFX != null)
+        if (Expired && !_vfxExpiredPlayed)
         {
-            var vfx = Instantiate(collisionVFX, position, rotation);
-            // Auto-destruir tras N segundos si el prefab no lo hace solo
-            Destroy(vfx, 5f);
-        }
+            _vfxExpiredPlayed = true;
 
-        // Efecto de impacto al objetivo (solo si dañó y tiene el prefab asignado)
-        if (showHitTargetFX && hitTargetVFX != null)
-        {
-            var vfx = Instantiate(hitTargetVFX, position, rotation);
-            Destroy(vfx, 5f);
+            if (collisionVFX != null)
+            {
+                var vfx = Instantiate(collisionVFX, ExpirePosition, Quaternion.identity);
+                Destroy(vfx, 5f);
+            }
         }
     }
 }
