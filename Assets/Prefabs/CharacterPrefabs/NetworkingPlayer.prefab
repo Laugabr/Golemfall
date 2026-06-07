@@ -206,7 +206,7 @@ MonoBehaviour:
     CollisionLayerMask:
       serializedVersion: 2
       m_Bits: 129
-    ProxyInterpolationMode: 0
+    ProxyInterpolationMode: 1
     MaxPenetrationSteps: 8
     CCDRadiusMultiplier: 0.75
     AntiJitterDistance: {x: 0.025, y: 0.01}
@@ -354,6 +354,8 @@ MonoBehaviour:
   bodyVisualsGO: {fileID: 8269205730414287776}
   playerCollider: {fileID: 0}
   _IsDead:
+    _value: 0
+  _NeedsRespawn:
     _value: 0
   _lastSpawnPoint: {x: 0, y: 0, z: 0}
 --- !u!95 &6456957767660994922
