@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7926167145193732565}
   - component: {fileID: 8485184835350406878}
   - component: {fileID: 2865810531412643530}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Visuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -120,9 +120,10 @@ GameObject:
   - component: {fileID: 6845721415795639783}
   - component: {fileID: 6673755592320957193}
   - component: {fileID: 328499107166085699}
-  m_Layer: 0
+  - component: {fileID: 6438894492427684625}
+  m_Layer: 8
   m_Name: Collider_Bush_04
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -158,7 +159,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -185,6 +186,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 3.1478338, y: 1.0309389, z: 2.1226366}
   m_Center: {x: 0.04442984, y: 1.5424196, z: -0.021881938}
+--- !u!114 &6438894492427684625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2938298957940891352}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb53edfdce5c64b4bbadb5543ac21a2e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8170417193169425358
 GameObject:
   m_ObjectHideFlags: 0
@@ -194,9 +207,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5694540961171146650}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: obj_Bush_04
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -209,7 +222,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8170417193169425358}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
