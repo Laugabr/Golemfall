@@ -12,7 +12,7 @@ public class SpawnPointManager : MonoBehaviour
         _spawnPoints = GetComponentsInChildren<SpawnPoint>();
 
         if (_spawnPoints.Length == 0)
-            Debug.LogError("SpawnPointManager: no SpawnPoints found as children.");
+            Debug.Log("SpawnPointManager: no SpawnPoints found as children.");
     }
 
     public Vector3 GetRandomSpawnPoint()
