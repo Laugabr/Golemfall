@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 5771689255916287617}
   - component: {fileID: 4447393548731223198}
   - component: {fileID: 1241597209134646925}
-  - component: {fileID: 2546736531141173865}
   m_Layer: 7
   m_Name: BreakNoDrop
   m_TagString: Enemy
@@ -125,7 +124,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitFeedback: {fileID: 4447393548731223198}
-  breakEffectPrefab: {fileID: 0}
+  breakEffectPrefab: {fileID: 8828155658195520032, guid: a25be0e4cefbdd34a8f9f296cb5d1f31, type: 3}
   dropPrefab: {fileID: 0}
   experienceReward: 20
   trackEvent: 7
@@ -162,17 +161,3 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 5771689255916287617}
   ForceRemoteRenderTimeframe: 0
---- !u!114 &2546736531141173865
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7651186507946290808}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1541381998, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Guid:
-    RawGuidValue: 1d40e7fcef3e023478c9268d7a44c58f
