@@ -1,9 +1,9 @@
 using UnityEngine;
 
 /// <summary>
-/// Dispara el proyectil en el momento exacto de la animación de ataque.
+/// Dispara el proyectil en el momento exacto de la animaciï¿½n de ataque.
 /// Solo el host ejecuta el disparo ya que es quien tiene StateAuthority sobre el enemigo.
-/// Los clientes ven la animación pero no disparan proyectiles.
+/// Los clientes ven la animaciï¿½n pero no disparan proyectiles.
 /// </summary>
 public class EnemyFireAtFrame : StateMachineBehaviour
 {
@@ -26,7 +26,7 @@ public class EnemyFireAtFrame : StateMachineBehaviour
         if (_hasFired) return;
         if (_ai == null) return;
 
-        Debug.Log($"[FIRE] HasStateAuthority: {_ai.Object?.HasStateAuthority}, normalizedTime: {stateInfo.normalizedTime:F2}");
+        //Debug.Log($"[FIRE] HasStateAuthority: {_ai.Object?.HasStateAuthority}, normalizedTime: {stateInfo.normalizedTime:F2}");
 
         if (!_ai.Object.HasStateAuthority) return;
 

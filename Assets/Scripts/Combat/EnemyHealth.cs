@@ -84,6 +84,8 @@ public class EnemyHealth : HealthSystem
         if (_dieScheduled) return;
         _dieScheduled = true;
 
+        TrackEvents.OnTrackEvent?.Invoke(GameEventType.KillEnemy, 1);
+
         netAnimator?.SetDead();
         enemyAI?.DisableAI();
 
