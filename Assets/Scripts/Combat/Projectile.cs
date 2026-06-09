@@ -21,11 +21,6 @@ public class Projectile : NetworkBehaviour
     [Networked] private bool ShowHitVFX { get; set; }
 
     // ── Estado networked para VFX de expiracion ──────────────────────────────
-    // Para la expiracion usamos flag networked + Render() con Despawn diferido
-    // porque el objeto se destruye inmediatamente y cualquier RPC se perderia.
-    // Para los hits usamos NetworkVFXManager que siempre existe en la escena,
-    // garantizando que el RPC llegue al cliente sin importar el Despawn.
-
     /// <summary>
     /// Se activa cuando el proyectil expira por tiempo (sin golpear nada).
     /// El Despawn se hace un tick despues para que Render() lo detecte primero.
@@ -37,6 +32,15 @@ public class Projectile : NetworkBehaviour
     /// para que Render() la lea en la posicion correcta.
     /// </summary>
     [Networked] private Vector3 ExpirePosition { get; set; }
+
+    /// <summary>
+    /// Tick en que ocurrio el hit. Usado para garantizar que el Despawn
+    /// ocurra en el tick SIGUIENTE al hit, no en el mismo.
+    /// -1 significa que no hubo hit todavia.
+    /// Se inicializa en Initialize() y no en Spawned() para garantizar
+    /// que sea -1 desde el primer tick antes de que FixedUpdateNetwork corra.
+    /// </summary>
+    [Networked] private int HitTick { get; set; }
 
     [Header("VFX (asignar en Inspector)")]
     [SerializeField] private GameObject collisionVFX;   // efecto al expirar sin chocar
@@ -77,6 +81,10 @@ public class Projectile : NetworkBehaviour
         Type = type;
         ShowHitVFX = showHitVFX;
 
+        // Se inicializa acá y no en Spawned() para garantizar que sea -1
+        // desde el primer tick, antes de que FixedUpdateNetwork corra.
+        HitTick = -1;
+
         if (col == null) col = GetComponent<Collider>();
         col.enabled = true;
     }
@@ -88,19 +96,30 @@ public class Projectile : NetworkBehaviour
         ActiveTime -= Runner.DeltaTime;
         transform.position += Direction * Speed * Runner.DeltaTime;
 
-        // Tick 1 — activamos el flag de expiracion y guardamos la posicion.
-        // Render() lo detecta en todos los peers en este tick.
-        if (ActiveTime <= 0f && !Expired && !hasHit)
+        // ── Expiracion por tiempo ────────────────────────────────────────────
+        // Tick 1 — activamos el flag y guardamos la posicion
+        // Cubre tanto proyectiles normales como melee (DestroyOnHit=false)
+        if (ActiveTime <= 0f && !Expired)
         {
             ExpirePosition = transform.position;
             Expired = true;
         }
 
-        // Tick 2 — despawneamos un tick despues para darle tiempo a Render()
-        // de correr en todos los peers con el flag ya activado.
+        // Tick 2 — Despawn un tick despues para que Render() lo detecte primero
         if (Expired && ActiveTime <= -Runner.DeltaTime)
         {
             Runner.Despawn(Object);
+            return;
+        }
+
+        // ── Hit diferido ─────────────────────────────────────────────────────
+        // OnTriggerEnter guarda el tick en que ocurrio el hit (HitTick).
+        // Esperamos a que el tick actual sea MAYOR al tick del hit para
+        // garantizar que el Despawn ocurre en el tick siguiente, no en el mismo.
+        if (DestroyOnHit && HitTick >= 0 && Runner.Tick > HitTick)
+        {
+            Runner.Despawn(Object);
+            return;
         }
     }
 
@@ -133,17 +152,21 @@ public class Projectile : NetworkBehaviour
 
     skip:
         hasHit = true;
+        col.enabled = false;
+
+        // Guardamos el tick actual para que FixedUpdateNetwork despawnee
+        // en el tick siguiente — garantizando que el RPC del VFX llegue primero.
+        HitTick = Runner.Tick;
 
         // Mandamos el VFX desde el NetworkVFXManager que siempre existe,
-        // garantizando que el RPC llegue al cliente antes o despues del Despawn.
+        // garantizando que el RPC llegue al cliente sin importar el Despawn.
         // Solo si ShowHitVFX es true — el melee lo tiene desactivado.
+        // Usamos la posicion del objetivo como centro del VFX para que
+        // la explosion coincida visualmente con el impacto.
         if (ShowHitVFX && NetworkVFXManager.Instance != null)
-            NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(transform.position, damagedTarget);
-
-        if (DestroyOnHit)
         {
-            col.enabled = false;
-            Runner.Despawn(Object);
+            Vector3 vfxPos = other.bounds.center;
+            NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(vfxPos, damagedTarget, Type);
         }
     }
 
@@ -151,8 +174,6 @@ public class Projectile : NetworkBehaviour
     /// Render() corre en TODOS los peers a framerate de pantalla.
     /// Solo maneja el VFX de expiracion por tiempo — los hits los maneja
     /// el NetworkVFXManager via RPC.
-    /// _vfxExpiredPlayed es local por peer para evitar instanciar el VFX
-    /// multiples veces en frames consecutivos.
     /// </summary>
     public override void Render()
     {

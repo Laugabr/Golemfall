@@ -17,6 +17,7 @@ public class NetworkVFXManager : NetworkBehaviour
     [Header("VFX de proyectil (asignar en Inspector)")]
     [SerializeField] private GameObject projectileCollisionVFX;  // explosion al chocar con cualquier cosa
     [SerializeField] private GameObject projectileHitTargetVFX;  // explosion adicional al dañar objetivo (opcional)
+    [SerializeField] private GameObject enemyProjectileCollisionVFX; // vfx_RangedEnemy_01
 
     public override void Spawned()
     {
@@ -29,18 +30,22 @@ public class NetworkVFXManager : NetworkBehaviour
     /// llega al cliente correctamente — a diferencia de mandarlo desde el
     /// proyectil que puede despawnearse antes de que el RPC se procese.
     /// </summary>
+
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void RPC_SpawnProjectileHitVFX(Vector3 position, bool damagedTarget)
+    public void RPC_SpawnProjectileHitVFX(Vector3 position, bool damagedTarget, ProjectileType type)
     {
-        // Efecto de colision — siempre (pared, suelo, enemigo, etc.)
-        if (projectileCollisionVFX != null)
+        // Selecciona el VFX según el tipo de proyectil
+        GameObject vfxToSpawn = type == ProjectileType.Player ?
+            projectileCollisionVFX : enemyProjectileCollisionVFX;
+
+        if (vfxToSpawn != null)
         {
-            var vfx = Instantiate(projectileCollisionVFX, position, Quaternion.identity);
+            var vfx = Instantiate(vfxToSpawn, position, Quaternion.identity);
             Destroy(vfx, 5f);
         }
 
-        // Efecto de daño al objetivo — solo si daño y tiene prefab asignado
-        if (damagedTarget && projectileHitTargetVFX != null)
+        // Efecto adicional al dañar objetivo — solo para proyectiles del jugador
+        if (type == ProjectileType.Player && damagedTarget && projectileHitTargetVFX != null)
         {
             var vfx = Instantiate(projectileHitTargetVFX, position, Quaternion.identity);
             Destroy(vfx, 5f);

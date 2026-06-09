@@ -24856,7 +24856,7 @@ Transform:
   m_GameObject: {fileID: 1096641626}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -71.7, y: -2.8, z: -22.8}
+  m_LocalPosition: {x: -295.2, y: -41.7, z: 94.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -35594,6 +35594,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectileCollisionVFX: {fileID: 5206478384481510202, guid: e35ff35c1f8018c46aebe317070f19eb, type: 3}
   projectileHitTargetVFX: {fileID: 5206478384481510202, guid: e35ff35c1f8018c46aebe317070f19eb, type: 3}
+  enemyProjectileCollisionVFX: {fileID: 1462583455677290251, guid: 6f50629b8d27ea841a56108dee4f1b9b, type: 3}
 --- !u!114 &1532648658
 MonoBehaviour:
   m_ObjectHideFlags: 0

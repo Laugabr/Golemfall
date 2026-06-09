@@ -32,7 +32,7 @@ namespace BehaviourTree
             if (distance < ai.MinDistance)
             {
                 Vector3 dir = (ai.transform.position - ai.CurrentTarget.position).normalized;
-                Vector3 targetPos = ai.transform.position + dir * ai.MinDistance;
+                Vector3 targetPos = ai.CurrentTarget.position + dir * (ai.MinDistance * 1.5f);
                 ai.Agent.SetDestination(targetPos);
 
                 return state = NodeState.Running;
