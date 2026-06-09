@@ -114,6 +114,12 @@ namespace Game.CameraSystem
         [Min(0f)]
         [SerializeField] private float zoomSmoothTime = 0.1f;
 
+        [Tooltip("Tiempo (segundos) en el que la cámara ignora la dead zone y recentra al player " +
+                 "después de un input de scroll. Cada scroll lo refresca; al expirar vuelve la " +
+                 "dead zone normal. 0 = desactivado.")]
+        [Min(0f)]
+        [SerializeField] private float zoomRecenterDuration = 0.5f;
+
         // ─────────────────────────────────────────────────────────────────────────
         // Debug
         // ─────────────────────────────────────────────────────────────────────────
@@ -152,6 +158,10 @@ namespace Game.CameraSystem
         private float targetZoomOffset;
         private float smoothZoomOffset;
         private float zoomOffsetVelocity;
+
+        // Cuenta regresiva de "recentrado por zoom": mientras es > 0, UpdateFocusPoint
+        // ignora la dead zone y centra al player. Se refresca con cada scroll.
+        private float zoomRecenterTimer;
 
         private Coroutine transitionRoutine;
         private Coroutine manualResetRoutine;
@@ -274,17 +284,28 @@ namespace Game.CameraSystem
             if (target == null) return;
 
             Vector3 targetPos = target.position;
+
+            // Mientras el recentrado por zoom está activo, ignoramos la dead zone
+            // (halfWidth/halfLength = 0) para que el focusPoint converja al player.
+            // Al expirar el timer, vuelve la dead zone normal sin saltos: el SmoothDamp
+            // de abajo absorbe la transición.
+            bool recentering = zoomRecenterTimer > 0f;
+            if (recentering) zoomRecenterTimer -= Time.deltaTime;
+
+            float halfWidth  = recentering ? 0f : deadZoneHalfWidth;
+            float halfLength = recentering ? 0f : deadZoneHalfLength;
+
             float dx = targetPos.x - focusPoint.x;
             float dz = targetPos.z - focusPoint.z;
 
             float desiredX = focusPoint.x;
             float desiredZ = focusPoint.z;
 
-            if (dx > deadZoneHalfWidth) desiredX = targetPos.x - deadZoneHalfWidth;
-            else if (dx < -deadZoneHalfWidth) desiredX = targetPos.x + deadZoneHalfWidth;
+            if (dx > halfWidth) desiredX = targetPos.x - halfWidth;
+            else if (dx < -halfWidth) desiredX = targetPos.x + halfWidth;
 
-            if (dz > deadZoneHalfLength) desiredZ = targetPos.z - deadZoneHalfLength;
-            else if (dz < -deadZoneHalfLength) desiredZ = targetPos.z + deadZoneHalfLength;
+            if (dz > halfLength) desiredZ = targetPos.z - halfLength;
+            else if (dz < -halfLength) desiredZ = targetPos.z + halfLength;
 
             Vector3 desiredFocus = new Vector3(desiredX, targetPos.y, desiredZ);
 
@@ -343,6 +364,10 @@ namespace Game.CameraSystem
                 float minOffset = zoomDistanceRange.x - baseDistance;
                 float maxOffset = zoomDistanceRange.y - baseDistance;
                 targetZoomOffset = Mathf.Clamp(targetZoomOffset, minOffset, maxOffset);
+
+                // Activar/refrescar el recentrado: durante este lapso la cámara
+                // sigue al player sin dead zone para que el zoom "vaya al player".
+                zoomRecenterTimer = zoomRecenterDuration;
             }
         }
 
