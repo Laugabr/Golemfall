@@ -206,7 +206,7 @@ MonoBehaviour:
     CollisionLayerMask:
       serializedVersion: 2
       m_Bits: 129
-    ProxyInterpolationMode: 0
+    ProxyInterpolationMode: 1
     MaxPenetrationSteps: 8
     CCDRadiusMultiplier: 0.75
     AntiJitterDistance: {x: 0.025, y: 0.01}
@@ -354,6 +354,8 @@ MonoBehaviour:
   bodyVisualsGO: {fileID: 8269205730414287776}
   playerCollider: {fileID: 0}
   _IsDead:
+    _value: 0
+  _NeedsRespawn:
     _value: 0
   _lastSpawnPoint: {x: 0, y: 0, z: 0}
 --- !u!95 &6456957767660994922
@@ -643,6 +645,14 @@ PrefabInstance:
     - target: {fileID: 3658423880020861933, guid: a6a1031802a7a2549ab2221a1fa55529, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6367841883437294002, guid: a6a1031802a7a2549ab2221a1fa55529, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.245
+      objectReference: {fileID: 0}
+    - target: {fileID: 6367841883437294002, guid: a6a1031802a7a2549ab2221a1fa55529, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.399
       objectReference: {fileID: 0}
     - target: {fileID: 6548629434408907934, guid: a6a1031802a7a2549ab2221a1fa55529, type: 3}
       propertyPath: m_IsActive

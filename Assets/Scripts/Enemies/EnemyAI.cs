@@ -318,7 +318,8 @@ public class EnemyAI : NetworkBehaviour
         if (!Object.HasStateAuthority) return;
         if (CurrentTarget == null) return;
 
-        Vector3 dir = (CurrentTarget.position - transform.position).normalized;
+        Vector3 targetCenter = CurrentTarget.position + Vector3.up * 1f;
+        Vector3 dir = (targetCenter - _shootPoint.position).normalized;
 
         // Los enemigos tienen StateAuthority pero no InputAuthority
         // entonces TryUseAbility nunca llega al RPC

@@ -23,6 +23,9 @@ public class NetCharacterController : NetworkBehaviour
     [SerializeField] private float dashSpeed = 20f;
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1f;
+    [Networked] private float DashTimer { get; set; }
+    [Networked] private float DashCooldownTimer { get; set; }
+    [Networked] private Vector3 DashDirection { get; set; }
 
     [Header("Health")]
     [SerializeField] private PlayerHealth charHealth;
@@ -31,9 +34,6 @@ public class NetCharacterController : NetworkBehaviour
     [SerializeField] private int playerIndex;
 
     private NetworkButtons previousButtons;
-    private float dashTimer;
-    private float dashCooldownTimer;
-    private Vector3 dashDirection;
 
     // Cache local — solo se usa en el cliente con InputAuthority.
     private InventoryToggle cachedInventoryToggle;
@@ -106,8 +106,8 @@ public class NetCharacterController : NetworkBehaviour
 
         float previousY = transform.position.y;
 
-        if (dashCooldownTimer > 0f)
-            dashCooldownTimer -= Runner.DeltaTime;
+        if (DashCooldownTimer > 0f)
+            DashCooldownTimer -= Runner.DeltaTime;
 
         float yaw = input.CameraYaw;
         Vector3 camForward = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
@@ -146,13 +146,13 @@ public class NetCharacterController : NetworkBehaviour
 
 
         if (input.Buttons.WasPressed(previousButtons, InputButton.Dash)
-            && dashCooldownTimer <= 0f
+            && DashCooldownTimer <= 0f
             && input.Direction.magnitude > 0.1f)
         {
             IsDashing = true;
-            dashTimer = dashDuration;
-            dashCooldownTimer = dashCooldown;
-            dashDirection = inputWorld.normalized;
+            DashTimer = dashDuration;
+            DashCooldownTimer = dashCooldown;
+            DashDirection = inputWorld.normalized;
         }
 
         // Salto
@@ -192,19 +192,6 @@ public class NetCharacterController : NetworkBehaviour
             charAbilities?.RPC_RequestUseAbility(1, mouseDir);
         }
 
-        /*if (input.Buttons.WasPressed(previousButtons, InputButton.BasicAttack) ||
-            input.Buttons.WasPressed(previousButtons, InputButton.MouseButton0))
-        {
-            if (HasInputAuthority && !IsInventoryOpen())
-                charAbilities?.RPC_RequestUseAbility(0, GetMouseDirection());
-        }
-
-        if (input.Buttons.WasPressed(previousButtons, InputButton.FirstSkill) && HasInputAuthority)
-            charAbilities?.RPC_RequestUseAbility(1, GetMouseDirection());
-
-        if (input.Buttons.WasPressed(previousButtons, InputButton.SecondarySkill) && HasInputAuthority)
-            charAbilities?.RPC_RequestUseAbility(2, GetMouseDirection());*/
-
         if (input.Buttons.WasPressed(previousButtons, InputButton.Interact) && HasInputAuthority)
             charPickUp?.TryPickUp();
 
@@ -213,13 +200,13 @@ public class NetCharacterController : NetworkBehaviour
 
         if (IsDashing)
         {
-            Vector3 flatDirection = new Vector3(dashDirection.x, 0f, dashDirection.z).normalized;
+            Vector3 flatDirection = new Vector3(DashDirection.x, 0f, DashDirection.z).normalized;
 
             // Fijamos velocidad completa incluyendo Y en 0
             kcc.Move(flatDirection * dashSpeed, -kcc.RealVelocity.y);
 
-            dashTimer -= Runner.DeltaTime;
-            if (dashTimer <= 0f)
+            DashTimer -= Runner.DeltaTime;
+            if (DashTimer <= 0f)
                 IsDashing = false;
 
             moveDir = flatDirection;

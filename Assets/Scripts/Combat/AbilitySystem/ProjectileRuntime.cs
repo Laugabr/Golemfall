@@ -33,10 +33,10 @@ public static class ProjectileRuntime
                     Mathf.FloorToInt(damage),
                     data.projectileSpeed,
                     direction,
-                    data.projectileLifetime, // antes era data.activeTime
+                    data.projectileLifetime,
                     data.destroyOnHit,
-                    data.projectileType
-                    
+                    data.projectileType,
+                    data.showHitVFX       // indica si mostrar explosion al impactar
                 );
             }
         );
@@ -44,4 +44,3 @@ public static class ProjectileRuntime
         Debug.Log("[SERVER] Projectile spawned");
     }
 }
-
