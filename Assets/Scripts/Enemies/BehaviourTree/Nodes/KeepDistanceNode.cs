@@ -31,14 +31,20 @@ namespace BehaviourTree
             // El jugador está demasiado cerca, retrocedemos
             if (distance < ai.MinDistance)
             {
+                // Calculamos destino ALEJADO del jugador a MinDistance * 2
+                // desde la posición del jugador hacia afuera
                 Vector3 dir = (ai.transform.position - ai.CurrentTarget.position).normalized;
-                Vector3 targetPos = ai.CurrentTarget.position + dir * (ai.MinDistance * 1.5f);
-                ai.Agent.SetDestination(targetPos);
+                Vector3 targetPos = ai.CurrentTarget.position + dir * (ai.MinDistance * 2f);
+
+                // Verificamos que el destino sea válido en el NavMesh
+                if (UnityEngine.AI.NavMesh.SamplePosition(targetPos, out var hit, 5f, UnityEngine.AI.NavMesh.AllAreas))
+                {
+                    ai.Agent.SetDestination(hit.position);
+                }
 
                 return state = NodeState.Running;
             }
 
-            // Distancia aceptable, este nodo no necesita hacer nada
             return state = NodeState.Failure;
         }
     }
