@@ -128,6 +128,7 @@ public class Projectile : NetworkBehaviour
         if (Object == null || !Object.HasStateAuthority) return;
         if (hasHit) return;
         if (Owner == null) return;
+        if (other.gameObject.layer == LayerMask.NameToLayer("Ignore Raycast")) return;
 
         var otherNet = other.GetComponent<NetworkObject>();
         if (otherNet != null && otherNet == Owner) return;
