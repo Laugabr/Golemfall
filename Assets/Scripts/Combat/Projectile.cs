@@ -165,8 +165,10 @@ public class Projectile : NetworkBehaviour
         // la explosion coincida visualmente con el impacto.
         if (ShowHitVFX && NetworkVFXManager.Instance != null)
         {
-            Vector3 vfxPos = other.bounds.center;
-            NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(vfxPos, damagedTarget, Type);
+            Vector3 vfxPos = damagedTarget ?
+                other.bounds.center :
+                other.ClosestPoint(transform.position);
+            NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(vfxPos, damagedTarget, Type, Direction);
         }
     }
 

@@ -22,20 +22,19 @@ using UnityEngine;
 ///     ignoran el input y solo reaccionan a cambios de las [Networked] en Render().
 ///   - Resultado: cada peer dispara cada trigger exactamente UNA vez.
 ///
-/// Reglas clave de la doc oficial de Fusion 2 sobre animaciones:
-///   1. Aplicar cambios al Animator solo cuando GetInput() devuelve true.
-///   2. Solo en ticks Forward (Runner.IsForward) — NUNCA durante resimulación.
-///   3. La animación se autocorrige sola si la predicción falla — no hay que
-///      cancelarla manualmente.
-///
 /// Animator parameters expected:
 ///   bool    isWalking
 ///   bool    isDashing
 ///   bool    isGrounded
+///   bool    isFalling
+///   bool    isDead
 ///   int     idleType
+///   float   verticalVelocity
 ///   trigger jumpTrigger
 ///   trigger meleeTrigger
 ///   trigger rangeTrigger
+///   trigger takeDamageTrigger
+///   trigger deathTrigger
 /// </summary>
 public class NetCharacterAnimator : NetworkBehaviour
 {
@@ -48,27 +47,32 @@ public class NetCharacterAnimator : NetworkBehaviour
     [SerializeField] private float chanceToChange = 0.15f;
     [SerializeField] private float variantDuration = 4f;
 
-    // Networked state — leído por proxies en Render(). El owner las escribe en FUN
-    // pero NO las lee en Render() (usa su propio estado predicho directamente).
-
+    // ── Variables networked — leídas por proxies en Render() ─────────────────
     [Networked] private NetworkBool NetIsWalking { get; set; }
     [Networked] private NetworkBool NetIsGrounded { get; set; }
     [Networked] private NetworkBool NetIsFalling { get; set; }
     [Networked] private int NetIdleType { get; set; }
 
-    // Triggers replicados para los PROXIES via "tick stamp": cuando el stamp
-    // cambia, el proxy dispara el trigger una vez. El owner NO los lee.
+    // Tick stamps para triggers — cuando cambian, el proxy dispara el trigger una vez
     [Networked] private int NetJumpTick { get; set; }
     [Networked] private int NetMeleeTick { get; set; }
     [Networked] private int NetRangeTick { get; set; }
 
-    // Último tick observado por los PROXIES — usado para detectar cambios en Render().
-    // En el owner, estas variables nunca se actualizan (porque no dispara desde Render).
+    /// <summary>
+    /// Tick stamp para el trigger de recibir daño.
+    /// Solo el StateAuthority lo escribe via TriggerTakeDamage().
+    /// Los proxies lo leen en Render() y disparan el trigger cuando cambia.
+    /// El owner (host) lo dispara directamente en TriggerTakeDamage().
+    /// </summary>
+    [Networked] private int NetTakeDamageTick { get; set; }
+
+    // Último tick observado por los PROXIES — detecta cambios en Render()
     private int _lastJumpTick;
     private int _lastMeleeTick;
     private int _lastRangeTick;
+    private int _lastTakeDamageTick;
 
-    // Cached parameter hashes
+    // Hashes cacheados de los parámetros del Animator
     private static readonly int IsWalking = Animator.StringToHash("isWalking");
     private static readonly int IsDashing = Animator.StringToHash("isDashing");
     private static readonly int IsGrounded = Animator.StringToHash("isGrounded");
@@ -77,27 +81,22 @@ public class NetCharacterAnimator : NetworkBehaviour
     private static readonly int JumpTriggerHash = Animator.StringToHash("jumpTrigger");
     private static readonly int MeleeTriggerHash = Animator.StringToHash("meleeTrigger");
     private static readonly int RangeTriggerHash = Animator.StringToHash("rangeTrigger");
+    private static readonly int TakeDamageTriggerHash = Animator.StringToHash("takeDamageTrigger");
     private static readonly int VerticalVelocityHash = Animator.StringToHash("verticalVelocity");
     private static readonly int DeathTriggerHash = Animator.StringToHash("deathTrigger");
     private static readonly int IsDeadHash = Animator.StringToHash("isDead");
 
-    // Estado para detectar "edge" de presionado en FUN. Se mantiene por peer.
     private NetworkButtons _previousButtons;
 
-    // Estado del idle randomizer — SOLO se usa en el StateAuthority (es no-determinístico).
+    // Estado del idle randomizer — SOLO en StateAuthority (es no-determinístico)
     private float _serverIdleTimer;
     private bool _serverIsInVariant;
 
-    // Para detectar el inicio del dash y resetear el idle.
     private bool _wasDashingLastTick;
-
-    // Umbral: por debajo de este valor de velocidad vertical = está cayendo.
-    // Ajustalo si ves falsos positivos (ej: pequeñas rampas).
-    private const float FallVelocityThreshold = -1.5f;
-    // Cache: ¿soy el owner de este personaje? (host viendo su personaje, o cliente local).
-    // Si es false, soy un proxy y solo reacciono a [Networked] en Render().
-    private bool IsOwner => HasInputAuthority || HasStateAuthority;
     private bool _wasDeadLastFrame;
+
+    private const float FallVelocityThreshold = -1.5f;
+    private bool IsOwner => HasInputAuthority || HasStateAuthority;
 
     private void Awake()
     {
@@ -110,30 +109,25 @@ public class NetCharacterAnimator : NetworkBehaviour
         if (controller == null)
             controller = GetComponent<NetCharacterController>();
 
-        if (abilityHolder == null) abilityHolder = GetComponent<AbilityHolder>();
+        if (abilityHolder == null)
+            abilityHolder = GetComponent<AbilityHolder>();
     }
 
     public override void Spawned()
     {
-        // Inicializar last-seen ticks para que un proxy que entra tarde a la sesión
-        // no dispare triggers viejos cuando recibe el primer snapshot.
+        // Inicializar last-seen ticks para que un proxy que entra tarde no
+        // dispare triggers viejos al recibir el primer snapshot.
         _lastJumpTick = NetJumpTick;
         _lastMeleeTick = NetMeleeTick;
         _lastRangeTick = NetRangeTick;
+        _lastTakeDamageTick = NetTakeDamageTick;
     }
 
-    /// <summary>
-    /// FixedUpdateNetwork corre en host (StateAuthority) y cliente local (InputAuthority).
-    /// Los proxies devuelven false en GetInput() y se filtran abajo.
-    /// </summary>
     public override void FixedUpdateNetwork()
     {
         if (animator == null) return;
 
-        if (!GetInput(out NetInputPlayer input))
-        {
-            return;
-        }
+        if (!GetInput(out NetInputPlayer input)) return;
 
         // Si está muerto no procesamos ningún input de animación
         if (controller != null && controller.IsDead)
@@ -142,55 +136,35 @@ public class NetCharacterAnimator : NetworkBehaviour
             return;
         }
 
-        // CRÍTICO: solo aplicar cambios al Animator durante ticks Forward.
-        // Durante una resimulación, Fusion vuelve a llamar FixedUpdateNetwork()
-        // para reaplicar los inputs ya guardados; si disparamos triggers ahí,
-        // se reproducirían varias veces por frame. La doc de Fusion 2 lo prohíbe
-        // explícitamente.
+        // Solo aplicar cambios al Animator durante ticks Forward.
+        // Durante resimulación los triggers se dispararían múltiples veces.
         if (!Runner.IsForward)
         {
-            // Aún así actualizamos _previousButtons para que el WasPressed del
-            // próximo tick Forward esté bien sincronizado con el flujo de inputs.
             _previousButtons = input.Buttons;
             return;
         }
 
-        // Detectar inicio de dash (controller es la fuente de verdad de IsDashing).
+        // Detectar inicio de dash para resetear el idle
         bool dashing = controller != null && controller.IsDashing;
         bool dashJustStarted = dashing && !_wasDashingLastTick;
         if (dashJustStarted) ResetIdleLocal();
         _wasDashingLastTick = dashing;
 
-        // ── TRIGGERS PREDICHOS (camino del OWNER) ───────────────────────────
-        // El owner (host o input authority) dispara animator.SetTrigger() acá
-        // basándose en el INPUT. Además escribe la [Networked] para los proxies.
-        // El owner NUNCA dispara triggers desde Render() — eso es solo para
-        // proxies. Esta separación garantiza un disparo único.
+        // ── TRIGGERS DEL OWNER ───────────────────────────────────────────────
+        // El owner dispara triggers acá. Los proxies los leen en Render().
 
-        // JUMP: solo si está en piso.
+        // JUMP
         bool jumpPressed = input.Buttons.WasPressed(_previousButtons, InputButton.Jump);
         if (jumpPressed && kcc.IsGrounded)
         {
-            // Escribir la [Networked] para que los proxies vean el trigger.
-            // En el host esta es la escritura autoritativa; en el InputAuthority
-            // es una predicción que Fusion sobrescribe con el valor del server,
-            // pero los proxies igual ven el cambio cuando llega el snapshot.
             NetJumpTick = Runner.Tick;
-
-            // Disparo local para el owner. NO usamos _lastJumpTick acá: el owner
-            // NUNCA lee NetJumpTick en Render(), así que no hay riesgo de doble
-            // disparo. (Es el bug que tenía la versión anterior).
             animator.SetTrigger(JumpTriggerHash);
-
             ResetIdleLocal();
         }
 
-        // MELEE
-
-        // MELEE — solo dispara si la habilidad está ready
+        // MELEE — solo si la habilidad está ready
         if (input.Buttons.WasPressed(_previousButtons, InputButton.BasicAttack))
         {
-            // abilityHolder == null es fallback por si no está asignado
             if (abilityHolder == null || abilityHolder.IsReady(0))
             {
                 NetMeleeTick = Runner.Tick;
@@ -199,8 +173,7 @@ public class NetCharacterAnimator : NetworkBehaviour
             }
         }
 
-        // RANGE (FirstSkill)
-        // RANGE — solo dispara si la habilidad está ready
+        // RANGE — solo si la habilidad está ready
         if (input.Buttons.WasPressed(_previousButtons, InputButton.FirstSkill))
         {
             if (abilityHolder == null || abilityHolder.IsReady(1))
@@ -211,20 +184,26 @@ public class NetCharacterAnimator : NetworkBehaviour
             }
         }
 
-        // ── BOOLEANOS PREDICHOS ─────────────────────────────────────────────
-        // isWalking e isGrounded los escribimos como [Networked]. Tanto host como
-        // InputAuthority escriben — en el cliente queda como predicción local.
+        // ── BOOLEANOS ────────────────────────────────────────────────────────
         UpdateMovementFlags(input.Direction);
 
-        // ── IDLE RANDOMIZER (NO predicho) ──────────────────────────────────
-        // Usa Random.value, que es no-determinístico — si lo corriéramos en el
-        // InputAuthority, el cliente y el server elegirían variantes distintas.
+        // ── IDLE RANDOMIZER (solo StateAuthority — usa Random no-determinístico)
         if (HasStateAuthority)
-        {
             UpdateIdleRandomizerServer();
-        }
 
         _previousButtons = input.Buttons;
+    }
+
+    /// <summary>
+    /// Llamado por PlayerHealth cuando el jugador recibe daño.
+    /// Solo corre en StateAuthority — escribe el tick stamp y dispara
+    /// el trigger localmente. Los proxies lo detectan en Render().
+    /// </summary>
+    public void TriggerTakeDamage()
+    {
+        if (!Object.HasStateAuthority) return;
+        NetTakeDamageTick = Runner.Tick;
+        animator.SetTrigger(TakeDamageTriggerHash);
     }
 
     private void UpdateMovementFlags(Vector2 inputDir)
@@ -233,12 +212,7 @@ public class NetCharacterAnimator : NetworkBehaviour
         bool grounded = kcc.IsGrounded;
         float vertVel = controller != null ? controller.NetVerticalVelocity : 0f;
 
-        // isFalling: no está en suelo Y está bajando con velocidad significativa.
-        // Esto captura caídas de montañas, post-dash en aire, post-salto, etc.
         bool falling = !grounded && vertVel < FallVelocityThreshold && !dashing;
-
-        // isWalking: hay input de dirección, está en suelo y no está dasheando.
-        // El chequeo de grounded evita que "walk" quede activo al caer de una montaña.-
         bool walking = inputDir.magnitude > 0.1f && grounded && !dashing;
 
         NetIsWalking = walking;
@@ -302,30 +276,16 @@ public class NetCharacterAnimator : NetworkBehaviour
     private void ResetIdleLocal()
     {
         if (HasStateAuthority)
-        {
             ResetIdleServer();
-        }
         else if (NetIdleType != 0)
-        {
             NetIdleType = 0;
-        }
     }
 
     /// <summary>
     /// Render corre en TODOS los peers a framerate de pantalla.
-    /// 
-    /// CAMINO DEL PROXY (no es owner): leemos las [Networked] tick stamps y
-    /// disparamos los triggers cuando cambian. Esta es la ÚNICA forma en que
-    /// el proxy se entera de los triggers.
-    /// 
-    /// CAMINO DEL OWNER (host o input authority): NO leemos las [Networked] tick
-    /// stamps acá. Ya disparamos los triggers en FUN basándonos en el input.
-    /// Si los leyéramos acá también, los triggers se dispararían dos veces
-    /// (síntoma: animación de salto/melee/range "doble" desde otra perspectiva).
-    /// 
-    /// Los booleanos (isWalking, isDashing, isGrounded, idleType) sí se aplican
-    /// para todos los peers, porque SetBool/SetInteger son idempotentes y
-    /// pueden llamarse múltiples veces sin problema.
+    /// Booleanos: se aplican para todos los peers (son idempotentes).
+    /// Triggers: SOLO los proxies los leen acá. El owner ya los disparó en FUN
+    /// o via TriggerTakeDamage().
     /// </summary>
     public override void Render()
     {
@@ -334,7 +294,7 @@ public class NetCharacterAnimator : NetworkBehaviour
         bool dashing = controller != null && controller.IsDashing;
         bool isDead = controller != null && controller.IsDead;
 
-        // Booleanos: aplicar siempre, son idempotentes.
+        // Booleanos — aplicar siempre, son idempotentes
         animator.SetBool(IsWalking, NetIsWalking);
         animator.SetBool(IsDashing, dashing);
         animator.SetBool(IsGrounded, NetIsGrounded);
@@ -345,12 +305,12 @@ public class NetCharacterAnimator : NetworkBehaviour
         if (controller != null)
             animator.SetFloat(VerticalVelocityHash, controller.NetVerticalVelocity);
 
-        // Trigger de muerte: solo se dispara una vez al cambiar de vivo a muerto
+        // Trigger de muerte — solo una vez al pasar de vivo a muerto
         if (isDead && !_wasDeadLastFrame)
             animator.SetTrigger(DeathTriggerHash);
         _wasDeadLastFrame = isDead;
 
-        // Triggers: SOLO los proxies los leen acá. El owner ya los disparó en FUN.
+        // Triggers — SOLO proxies los leen acá
         if (IsOwner) return;
 
         if (NetJumpTick != _lastJumpTick)
@@ -370,9 +330,16 @@ public class NetCharacterAnimator : NetworkBehaviour
             _lastRangeTick = NetRangeTick;
             animator.SetTrigger(RangeTriggerHash);
         }
+
+        // TakeDamage — proxies reaccionan al cambio del tick stamp
+        if (NetTakeDamageTick != _lastTakeDamageTick)
+        {
+            _lastTakeDamageTick = NetTakeDamageTick;
+            animator.SetTrigger(TakeDamageTriggerHash);
+        }
     }
 
-    // Llamado por el Animation Event en ani_player_jumpStart.
-    // Actualmente no-op, se mantiene para silenciar el warning "has no receiver".
+    // Llamado por Animation Event en ani_player_jumpStart.
+    // No-op, se mantiene para silenciar el warning.
     private void FinalizeJump() { }
 }

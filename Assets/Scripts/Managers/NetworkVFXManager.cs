@@ -32,22 +32,24 @@ public class NetworkVFXManager : NetworkBehaviour
     /// </summary>
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void RPC_SpawnProjectileHitVFX(Vector3 position, bool damagedTarget, ProjectileType type)
+    public void RPC_SpawnProjectileHitVFX(Vector3 position, bool damagedTarget, ProjectileType type, Vector3 hitDirection)
     {
-        // Selecciona el VFX según el tipo de proyectil
+        Quaternion rot = hitDirection != Vector3.zero ?
+            Quaternion.LookRotation(-hitDirection) : Quaternion.identity;
+
         GameObject vfxToSpawn = type == ProjectileType.Player ?
             projectileCollisionVFX : enemyProjectileCollisionVFX;
 
         if (vfxToSpawn != null)
         {
-            var vfx = Instantiate(vfxToSpawn, position, Quaternion.identity);
+            Vector3 finalPos = position + hitDirection.normalized * 2.5f;
+            var vfx = Instantiate(vfxToSpawn, finalPos, rot);
             Destroy(vfx, 5f);
         }
 
-        // Efecto adicional al dañar objetivo — solo para proyectiles del jugador
         if (type == ProjectileType.Player && damagedTarget && projectileHitTargetVFX != null)
         {
-            var vfx = Instantiate(projectileHitTargetVFX, position, Quaternion.identity);
+            var vfx = Instantiate(projectileHitTargetVFX, position, rot);
             Destroy(vfx, 5f);
         }
     }

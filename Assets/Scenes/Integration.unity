@@ -1030,7 +1030,7 @@ GameObject:
   - component: {fileID: 30940502}
   - component: {fileID: 30940504}
   - component: {fileID: 30940503}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6464,7 +6464,7 @@ GameObject:
   - component: {fileID: 249709431}
   - component: {fileID: 249709433}
   - component: {fileID: 249709432}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: CheckpointPG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6480,7 +6480,7 @@ Transform:
   m_GameObject: {fileID: 249709430}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -189.65, y: -50.36, z: 157}
+  m_LocalPosition: {x: -185.1, y: -50.36, z: 157}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6517,7 +6517,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 10, y: 10, z: 10}
+  m_Size: {x: 70, y: 70, z: 70}
   m_Center: {x: 0, y: 4.89, z: 0}
 --- !u!4 &252564738 stripped
 Transform:
@@ -14859,7 +14859,7 @@ GameObject:
   - component: {fileID: 631587350}
   - component: {fileID: 631587352}
   - component: {fileID: 631587351}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14875,7 +14875,7 @@ Transform:
   m_GameObject: {fileID: 631587349}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -307, y: -47, z: 1138}
+  m_LocalPosition: {x: -307, y: -47, z: 1081.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -14912,7 +14912,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 10, y: 10, z: 10}
+  m_Size: {x: 70, y: 70, z: 70}
   m_Center: {x: 0, y: 4.89, z: 0}
 --- !u!1001 &632861183
 PrefabInstance:
@@ -16822,7 +16822,7 @@ GameObject:
   - component: {fileID: 744926118}
   - component: {fileID: 744926120}
   - component: {fileID: 744926119}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16838,7 +16838,7 @@ Transform:
   m_GameObject: {fileID: 744926117}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 156.7, y: 57, z: 739.2}
+  m_LocalPosition: {x: 156.7, y: 57, z: 731.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -16875,7 +16875,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 10, y: 10, z: 10}
+  m_Size: {x: 70, y: 70, z: 70}
   m_Center: {x: 0, y: 4.89, z: 0}
 --- !u!1001 &753674377
 PrefabInstance:
@@ -24856,7 +24856,7 @@ Transform:
   m_GameObject: {fileID: 1096641626}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -72, y: -6, z: -23}
+  m_LocalPosition: {x: -285.6, y: -45.1, z: 109.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -32919,6 +32919,7 @@ MonoBehaviour:
   zoomSensitivity: 2
   zoomDistanceRange: {x: 3, y: 25}
   zoomSmoothTime: 0.1
+  zoomRecenterDuration: 0.5
   drawGizmos: 1
 --- !u!114 &1435359108
 MonoBehaviour:
@@ -44273,7 +44274,7 @@ GameObject:
   - component: {fileID: 1965284440}
   - component: {fileID: 1965284442}
   - component: {fileID: 1965284441}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Checkpoint01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44289,7 +44290,7 @@ Transform:
   m_GameObject: {fileID: 1965284439}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 109.2, y: -50.36, z: 261.9}
+  m_LocalPosition: {x: 117.4, y: -50.36, z: 261.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -44326,7 +44327,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 10, y: 10, z: 10}
+  m_Size: {x: 70, y: 70, z: 70}
   m_Center: {x: 0, y: 4.89, z: 0}
 --- !u!4 &1965570225 stripped
 Transform:

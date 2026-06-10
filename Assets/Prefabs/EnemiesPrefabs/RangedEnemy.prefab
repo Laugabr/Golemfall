@@ -67,7 +67,6 @@ MonoBehaviour:
   _patrolSpeed: 3
   _chaseSpeed: 10
   _attackRange: 0.5
-  _meleeHitRange: 3
   _shootDistance: 35
   _minDistance: 15
   _patrolRadius: 40
@@ -273,7 +272,7 @@ Transform:
   m_GameObject: {fileID: 5828352303755625452}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.034, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -121,10 +121,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.74
-  m_Height: 2
+  m_Radius: 0.64
+  m_Height: 1.68
   m_Direction: 1
-  m_Center: {x: 0, y: 0.93, z: 0}
+  m_Center: {x: 0, y: 0.79, z: 0}
 --- !u!114 &5404860756821982459
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -353,6 +353,7 @@ MonoBehaviour:
   timeToRespawn: 5
   bodyVisualsGO: {fileID: 8269205730414287776}
   playerCollider: {fileID: 0}
+  netAnimator: {fileID: 7656503128217257916}
   _IsDead:
     _value: 0
   _NeedsRespawn:

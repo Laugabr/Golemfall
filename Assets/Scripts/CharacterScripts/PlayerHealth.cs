@@ -1,6 +1,5 @@
 using Fusion;
 using Fusion.Addons.SimpleKCC;
-using Fusion.Sockets;
 using Game.CameraSystem;
 using System.Collections;
 using UnityEngine;
@@ -11,11 +10,16 @@ public class PlayerHealth : HealthSystem
     [SerializeField] private GameObject bodyVisualsGO;
     [SerializeField] private Collider playerCollider;
 
+    /// <summary>
+    /// Referencia al animador networked del personaje.
+    /// Se usa para disparar la animación de recibir daño en todos los peers.
+    /// </summary>
+    [SerializeField] private NetCharacterAnimator netAnimator;
+
     [Networked, OnChangedRender(nameof(OnIsDeadChanged))]
     public NetworkBool IsDead { get; private set; }
 
     [Networked] public NetworkBool NeedsRespawn { get; set; }
-
 
     [SerializeField] public Vector3 _lastSpawnPoint;
     private SimpleKCC simplekcc;
@@ -30,8 +34,9 @@ public class PlayerHealth : HealthSystem
 
         CurrentHealth = MaxHealth;
         IsDead = false;
-        NeedsRespawn = true; // ← el controller lo lee en FUN y mueve
+        NeedsRespawn = true;
     }
+
     public override void Spawned()
     {
         base.Spawned();
@@ -46,34 +51,28 @@ public class PlayerHealth : HealthSystem
             RecalculateMaxHealth();
         }
 
-        _lastSpawnPoint = transform.position; // fallback: posición inicial
+        _lastSpawnPoint = transform.position;
 
         simplekcc = GetComponent<SimpleKCC>();
         if (simplekcc == null)
             Debug.LogError($"PlayerHealth requires SimpleKCC on {gameObject.name}");
 
-        // Visuals se setean en todos los clientes
         SetAlive(true);
     }
 
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.K))
-        {
+        if (Input.GetKeyDown(KeyCode.K))
             TakeDamage(999, gameObject);
-        }
     }
+
     public void SetLastSpawnPoint(Vector3 position)
     {
         if (!Object.HasStateAuthority) return;
-
-
         _lastSpawnPoint = position;
         Debug.Log($"[SERVER] LastSpawnPoint seteado en {position}");
     }
 
-
-    
     private void OnDestroy()
     {
         if (stats is PlayerStats playerStats)
@@ -91,8 +90,6 @@ public class PlayerHealth : HealthSystem
 
     public override int GetArmor() => stats.GetStat(Stat.armor);
 
-    // FixedUpdateNetwork ya no necesita chequear muerte,
-    // TakeDamage en HealthSystem ya llama Die()
     public override void FixedUpdateNetwork() { }
 
     public override void Die()
@@ -106,19 +103,31 @@ public class PlayerHealth : HealthSystem
             StartCoroutine(RespawnRoutine());
     }
 
+    /// <summary>
+    /// Se llama via OnChangedRender cada vez que CurrentHealth cambia.
+    /// Dispara la animación de recibir daño si el jugador está vivo y perdió vida.
+    /// Solo aplica cuando el daño viene del servidor (StateAuthority).
+    /// </summary>
+    public override void CurrentHealthChanged()
+    {
+        base.CurrentHealthChanged();
+
+        // Solo dispara si está vivo y recibió daño (no al curarse ni al spawnar)
+        if (!IsDead && CurrentHealth < MaxHealth && CurrentHealth > 0)
+            netAnimator?.TriggerTakeDamage();
+    }
+
     private void OnIsDeadChanged()
     {
         if (IsDead)
         {
             playerCollider.enabled = false;
-            // Desactivamos la física para que caiga al suelo y no flote
             var kcc = GetComponent<Fusion.Addons.SimpleKCC.SimpleKCC>();
             if (kcc != null) kcc.SetGravity(0f);
         }
         else
         {
             SetAlive(true);
-            // Reactivamos la física al revivir
             var kcc = GetComponent<Fusion.Addons.SimpleKCC.SimpleKCC>();
             if (kcc != null) kcc.SetGravity(Physics.gravity.y * 3f);
 
@@ -138,7 +147,4 @@ public class PlayerHealth : HealthSystem
 
     public override void MaxHealthChanged() =>
         Debug.Log($"MaxHealth → {MaxHealth}");
-
-    public override void CurrentHealthChanged() =>
-        Debug.Log($"CurrentHealth → {CurrentHealth}");
 }

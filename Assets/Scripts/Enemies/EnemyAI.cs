@@ -318,8 +318,19 @@ public class EnemyAI : NetworkBehaviour
         if (!Object.HasStateAuthority) return;
         if (CurrentTarget == null) return;
 
-        Vector3 targetCenter = CurrentTarget.position + Vector3.up * 1f;
-        Vector3 dir = (targetCenter - _shootPoint.position).normalized;
+        Vector3 shootPos = _shootPoint != null ? _shootPoint.position : transform.position + Vector3.up * 1f;
+        Vector3 targetPos = CurrentTarget.position + Vector3.up * 1f;
+
+        // Si el jugador está en el suelo, igualamos la Y para disparar horizontal
+        var playerHealth = CurrentTarget.GetComponent<PlayerHealth>();
+        bool playerIsGrounded = playerHealth != null && !playerHealth.IsDead;
+
+        // Usamos la Y del ShootPoint cuando el jugador está cerca del suelo
+        float heightDiff = Mathf.Abs(targetPos.y - shootPos.y);
+        if (heightDiff < 1f)
+            targetPos.y = shootPos.y;
+
+        Vector3 dir = (targetPos - shootPos).normalized;
 
         // Los enemigos tienen StateAuthority pero no InputAuthority
         // entonces TryUseAbility nunca llega al RPC
