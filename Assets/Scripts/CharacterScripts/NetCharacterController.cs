@@ -2,6 +2,7 @@ using Fusion;
 using Fusion.Addons.SimpleKCC;
 using Game.CameraSystem;
 using UnityEngine;
+
 public class NetCharacterController : NetworkBehaviour
 {
     [Header("Visuals")]
@@ -33,14 +34,22 @@ public class NetCharacterController : NetworkBehaviour
 
     [SerializeField] private int playerIndex;
 
-    private NetworkButtons previousButtons;
+    /// <summary>
+    /// Botones del tick anterior usados para detectar flancos (WasPressed).
+    ///
+    /// DEBE ser [Networked] para sobrevivir rollbacks. Si fuera una variable
+    /// local normal, Fusion no la restauraría al resimular ticks pasados, lo que
+    /// causaría que WasPressed devuelva resultados incorrectos durante la
+    /// resimulación. Eso se manifestaba como tirones al dashear o saltar: el
+    /// cliente predecía una acción, el host la calculaba distinto, y la
+    /// reconciliación producía un salto de posición visible.
+    /// </summary>
+    [Networked] private NetworkButtons PreviousButtons { get; set; }
 
     // Cache local — solo se usa en el cliente con InputAuthority.
     private InventoryToggle cachedInventoryToggle;
     private Camera cachedMainCamera;
     private CameraController cachedCameraController;
-
-    // Networked state que el server escribe y todos los peers leen.
 
     /// <summary>
     /// Yaw (en grados) deseado para el bodyVisuals. Se actualiza cada tick a
@@ -82,7 +91,6 @@ public class NetCharacterController : NetworkBehaviour
         if (HasStateAuthority && bodyVisuals != null)
             NetBodyYaw = bodyVisuals.eulerAngles.y;
 
-
         if (HasInputAuthority)
         {
             cachedMainCamera = Camera.main;
@@ -111,7 +119,7 @@ public class NetCharacterController : NetworkBehaviour
 
         float yaw = input.CameraYaw;
         Vector3 camForward = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
-        Vector3 camRight   = Quaternion.Euler(0f, yaw, 0f) * Vector3.right;
+        Vector3 camRight = Quaternion.Euler(0f, yaw, 0f) * Vector3.right;
         Vector3 inputWorld = camForward * input.Direction.y + camRight * input.Direction.x;
 
         if (inputWorld.sqrMagnitude > 1f)
@@ -138,14 +146,14 @@ public class NetCharacterController : NetworkBehaviour
             return;
         }
 
-        // Dash start.
-        // Se activa solo si: hay input de dash, no hay cooldown y hay dirección.
-        // Si está en cooldown, la solicitud se ignora silenciosamente — el
-        // animador, al leer IsDashing, NO disparará la animación de dash falsa.
-
-
-
-        if (input.Buttons.WasPressed(previousButtons, InputButton.Dash)
+        // ── DASH ────────────────────────────────────────────────────────────────
+        // Se activa solo si: hay flanco de subida en el botón, no hay cooldown y
+        // hay dirección de movimiento.
+        // WasPressed usa PreviousButtons (networked) para detectar el flanco de
+        // forma correcta tanto en simulación normal como en resimulaciones de
+        // rollback — si PreviousButtons fuera una variable local, no sobreviviría
+        // el rollback y WasPressed daría resultados incorrectos.
+        if (input.Buttons.WasPressed(PreviousButtons, InputButton.Dash)
             && DashCooldownTimer <= 0f
             && input.Direction.magnitude > 0.1f)
         {
@@ -155,15 +163,16 @@ public class NetCharacterController : NetworkBehaviour
             DashDirection = inputWorld.normalized;
         }
 
-        // Salto
+        // ── SALTO ───────────────────────────────────────────────────────────────
+        // Igual que el dash: WasPressed necesita PreviousButtons networked para
+        // que el flanco se detecte correctamente durante resimulaciones.
         float jump = 0f;
-        if (input.Buttons.WasPressed(previousButtons, InputButton.Jump) && kcc.IsGrounded)
+        if (input.Buttons.WasPressed(PreviousButtons, InputButton.Jump) && kcc.IsGrounded)
             jump = jumpPower;
 
-        // Habilidades / interacción
-
-        if (input.Buttons.WasPressed(previousButtons, InputButton.BasicAttack) ||
-    input.Buttons.WasPressed(previousButtons, InputButton.MouseButton0))
+        // ── HABILIDADES / INTERACCIÓN ────────────────────────────────────────────
+        if (input.Buttons.WasPressed(PreviousButtons, InputButton.BasicAttack) ||
+            input.Buttons.WasPressed(PreviousButtons, InputButton.MouseButton0))
         {
             if (HasInputAuthority && !IsInventoryOpen())
             {
@@ -179,7 +188,7 @@ public class NetCharacterController : NetworkBehaviour
             }
         }
 
-        if (input.Buttons.WasPressed(previousButtons, InputButton.FirstSkill) && HasInputAuthority)
+        if (input.Buttons.WasPressed(PreviousButtons, InputButton.FirstSkill) && HasInputAuthority)
         {
             Vector3 mouseDir = GetMouseDirection();
 
@@ -192,17 +201,18 @@ public class NetCharacterController : NetworkBehaviour
             charAbilities?.RPC_RequestUseAbility(1, mouseDir);
         }
 
-        if (input.Buttons.WasPressed(previousButtons, InputButton.Interact) && HasInputAuthority)
+        if (input.Buttons.WasPressed(PreviousButtons, InputButton.Interact) && HasInputAuthority)
             charPickUp?.TryPickUp();
 
-        // Movimiento + actualización de yaw deseado
+        // ── MOVIMIENTO ───────────────────────────────────────────────────────────
         Vector3 moveDir;
 
         if (IsDashing)
         {
             Vector3 flatDirection = new Vector3(DashDirection.x, 0f, DashDirection.z).normalized;
 
-            // Fijamos velocidad completa incluyendo Y en 0
+            // Cancelamos la velocidad vertical para que el dash sea completamente
+            // horizontal independientemente del estado de salto o caída.
             kcc.Move(flatDirection * dashSpeed, -kcc.RealVelocity.y);
 
             DashTimer -= Runner.DeltaTime;
@@ -217,24 +227,22 @@ public class NetCharacterController : NetworkBehaviour
             moveDir = inputWorld;
         }
 
-        // PREDICTION del yaw replicado.
-        // Antes solo escribía si HasStateAuthority. Ahora también el InputAuthority
-        // escribe — Fusion trata esa escritura como predicción local y la
-        // reconcilia con el snapshot autoritativo. Esto hace que el cliente local
-        // vea su rotación responder inmediatamente al cambiar de dirección.
+        // ── YAW REPLICADO (PREDICTION) ───────────────────────────────────────────
+        // Tanto el StateAuthority como el InputAuthority escriben este valor.
+        // En el cliente con InputAuthority, la escritura es predicción local que
+        // Fusion reconcilia con el snapshot del host. El personaje local ve su
+        // rotación responder inmediatamente sin esperar el round-trip al server.
         // Si no hay dirección este tick, conservamos el yaw anterior — el
         // personaje queda mirando hacia donde venía caminando.
         if (moveDir.sqrMagnitude > 0.01f && !IsAttacking)
-        {
             NetBodyYaw = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
-        }
 
         if (HasStateAuthority && Runner.DeltaTime > 0f)
-        {
             NetVerticalVelocity = (transform.position.y - previousY) / Runner.DeltaTime;
-        }
 
-        previousButtons = input.Buttons;
+        // Guardamos los botones de este tick para detectar flancos en el siguiente.
+        // Al ser [Networked], Fusion los restaura correctamente durante rollbacks.
+        PreviousButtons = input.Buttons;
     }
 
     /// <summary>
