@@ -34654,6 +34654,7 @@ MonoBehaviour:
   zoomDistanceRange: {x: 3, y: 25}
   zoomSmoothTime: 0.1
   zoomRecenterDuration: 0.5
+  minFinalPitch: 5
   drawGizmos: 1
 --- !u!114 &1435359108
 MonoBehaviour:
@@ -38525,6 +38526,10 @@ PrefabInstance:
     - target: {fileID: 8427681016542528647, guid: 3900caab70739434b9d8d8ea2239b9fb, type: 3}
       propertyPath: m_Name
       value: obj_Playgrund02
+      objectReference: {fileID: 0}
+    - target: {fileID: 8427681016542528647, guid: 3900caab70739434b9d8d8ea2239b9fb, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -47186,6 +47191,10 @@ PrefabInstance:
     - target: {fileID: 2990374372627001769, guid: ebe08a0fe6598fa44941654293c9cba7, type: 3}
       propertyPath: m_Name
       value: obj_Playgrund01
+      objectReference: {fileID: 0}
+    - target: {fileID: 2990374372627001769, guid: ebe08a0fe6598fa44941654293c9cba7, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
       objectReference: {fileID: 0}
     - target: {fileID: 6494045438062070699, guid: ebe08a0fe6598fa44941654293c9cba7, type: 3}
       propertyPath: m_LocalPosition.x

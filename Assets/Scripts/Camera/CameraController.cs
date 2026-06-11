@@ -121,6 +121,16 @@ namespace Game.CameraSystem
         [SerializeField] private float zoomRecenterDuration = 0.5f;
 
         // ─────────────────────────────────────────────────────────────────────────
+        // Límite inferior de pitch
+        // ─────────────────────────────────────────────────────────────────────────
+
+        [Header("Límite inferior de pitch")]
+        [Tooltip("Pitch (grados) mínimo absoluto que puede alcanzar la cámara, sin importar el preset " +
+                 "o el offset manual. Evita que la cámara se ubique por debajo del player. " +
+                 "Valores típicos: 0–10. 0 = horizonte (cámara a la misma altura que el player).")]
+        [SerializeField] private float minFinalPitch = 5f;
+
+        // ─────────────────────────────────────────────────────────────────────────
         // Debug
         // ─────────────────────────────────────────────────────────────────────────
 
@@ -471,7 +481,11 @@ namespace Game.CameraSystem
 
         private void ApplyTransform(bool instant)
         {
-            float finalPitch    = basePitch + smoothPitchOffset;
+            // El pitch final nunca puede ir por debajo de minFinalPitch.
+            // El pitch final nunca puede ir por debajo de minFinalPitch.
+            // Esto evita que la cámara termine por debajo del player aunque el preset
+            // o el offset manual lo permitan.
+            float finalPitch    = Mathf.Max(basePitch + smoothPitchOffset, minFinalPitch);
             float finalYaw      = baseYaw   + smoothYawOffset;
             // Distancia final: preset + zoom del usuario, clampeada contra los topes globales.
             float finalDistance = Mathf.Clamp(
