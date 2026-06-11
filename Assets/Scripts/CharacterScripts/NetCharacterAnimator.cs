@@ -53,6 +53,12 @@ public class NetCharacterAnimator : NetworkBehaviour
     [Networked] private NetworkBool NetIsFalling { get; set; }
     [Networked] private int NetIdleType { get; set; }
 
+    // DEBE ser [Networked] para sobrevivir rollbacks. Mismo patrón que
+    // PreviousButtons en NetCharacterController — si fuera variable local,
+    // WasPressed daría resultados incorrectos durante resimulaciones y las
+    // animaciones de ataque no se dispararían en el cliente.
+    [Networked] private NetworkButtons PreviousButtons { get; set; }
+
     // Tick stamps para triggers — cuando cambian, el proxy dispara el trigger una vez
     [Networked] private int NetJumpTick { get; set; }
     [Networked] private int NetMeleeTick { get; set; }
@@ -85,8 +91,6 @@ public class NetCharacterAnimator : NetworkBehaviour
     private static readonly int VerticalVelocityHash = Animator.StringToHash("verticalVelocity");
     private static readonly int DeathTriggerHash = Animator.StringToHash("deathTrigger");
     private static readonly int IsDeadHash = Animator.StringToHash("isDead");
-
-    private NetworkButtons _previousButtons;
 
     // Estado del idle randomizer — SOLO en StateAuthority (es no-determinístico)
     private float _serverIdleTimer;
@@ -132,7 +136,7 @@ public class NetCharacterAnimator : NetworkBehaviour
         // Si está muerto no procesamos ningún input de animación
         if (controller != null && controller.IsDead)
         {
-            _previousButtons = input.Buttons;
+            PreviousButtons = input.Buttons;
             return;
         }
 
@@ -140,7 +144,7 @@ public class NetCharacterAnimator : NetworkBehaviour
         // Durante resimulación los triggers se dispararían múltiples veces.
         if (!Runner.IsForward)
         {
-            _previousButtons = input.Buttons;
+            PreviousButtons = input.Buttons;
             return;
         }
 
@@ -154,7 +158,7 @@ public class NetCharacterAnimator : NetworkBehaviour
         // El owner dispara triggers acá. Los proxies los leen en Render().
 
         // JUMP
-        bool jumpPressed = input.Buttons.WasPressed(_previousButtons, InputButton.Jump);
+        bool jumpPressed = input.Buttons.WasPressed(PreviousButtons, InputButton.Jump);
         if (jumpPressed && kcc.IsGrounded)
         {
             NetJumpTick = Runner.Tick;
@@ -163,7 +167,7 @@ public class NetCharacterAnimator : NetworkBehaviour
         }
 
         // MELEE — solo si la habilidad está ready
-        if (input.Buttons.WasPressed(_previousButtons, InputButton.BasicAttack))
+        if (input.Buttons.WasPressed(PreviousButtons, InputButton.BasicAttack))
         {
             if (abilityHolder == null || abilityHolder.IsReady(0))
             {
@@ -174,7 +178,7 @@ public class NetCharacterAnimator : NetworkBehaviour
         }
 
         // RANGE — solo si la habilidad está ready
-        if (input.Buttons.WasPressed(_previousButtons, InputButton.FirstSkill))
+        if (input.Buttons.WasPressed(PreviousButtons, InputButton.FirstSkill))
         {
             if (abilityHolder == null || abilityHolder.IsReady(1))
             {
@@ -191,7 +195,7 @@ public class NetCharacterAnimator : NetworkBehaviour
         if (HasStateAuthority)
             UpdateIdleRandomizerServer();
 
-        _previousButtons = input.Buttons;
+        PreviousButtons = input.Buttons;
     }
 
     /// <summary>
