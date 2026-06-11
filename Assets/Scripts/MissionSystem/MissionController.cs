@@ -241,8 +241,9 @@ public class MissionController : NetworkBehaviour
             if (mission.startWithEvent && mission.startEvent == stepId)
             {
                 bool alreadyRunning = _currentMissions.Any(m => m.missionId == mission.missionId);
+                bool blockedAsOneShot = mission.startOnlyOnce && _completedMissionIds.Contains(mission.missionId);
 
-                if (!alreadyRunning)
+                if (!alreadyRunning && !blockedAsOneShot)
                 {
                     StartNewMission(mission);
                     RPC_AllClientsStartMission(mission.missionId);
@@ -297,7 +298,7 @@ public class MissionController : NetworkBehaviour
                         }
                         Debug.Log($"[MISSION] XP grupal otorgada: {mission.xp} a {allExpManagers.Length} players");
                     }
-                    
+
                     if (mission == pausingMission)
                     {
                         missionsPaused = false;

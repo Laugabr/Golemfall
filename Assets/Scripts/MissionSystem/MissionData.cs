@@ -16,6 +16,7 @@ public class MissionData : ScriptableObject
     public bool pausesOtherMissions;
     public bool startWithEvent;
     public GameEventType startEvent;
+    public bool startOnlyOnce;
     //public bool allowTeleportParty;
     //public Vector3 teleportDestination;
     //public Scene teleportDestiny;
