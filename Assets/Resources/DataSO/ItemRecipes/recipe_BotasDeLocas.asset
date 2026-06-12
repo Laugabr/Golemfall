@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b69ed8a3b7f1ee240ae062bb25dbb68c, type: 3}
   m_Name: recipe_BotasDeLocas
   m_EditorClassIdentifier: 
-  itemA: 1
-  itemB: 2
-  resultItemKey: 8
+  _itemA: {fileID: 11400000, guid: 0849075fd34233b479f3be34b5d8b59a, type: 2}
+  _itemB: {fileID: 11400000, guid: e268fc3ba607c894d96ddd5e00c4e6e4, type: 2}
+  _resultItem: {fileID: 11400000, guid: 75cc2dc4ae12b6344acfa289845f4cd2, type: 2}

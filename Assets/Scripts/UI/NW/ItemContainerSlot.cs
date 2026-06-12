@@ -19,19 +19,7 @@ public class ItemContainerSlot : MonoBehaviour
     public void AssignItem(ItemSlot item)
     {
         currentItem = item;
-
-        // Attach the item to this UI slot
-
-        var rt = item.transform as RectTransform;
-
-        // Adjust RectTransform properties for correct UI placement
-
-        item.transform.SetParent(transform, false);
-        if (rt != null)
-        {
-            rt.anchoredPosition = Vector2.zero;
-            rt.localScale = Vector3.one;
-        }
+        ItemSlot.PlaceInto(item.transform, transform);
     }
 
     public void ClearSlot()
@@ -49,4 +37,3 @@ public class ItemContainerSlot : MonoBehaviour
         return currentItem;
     }
 }
-

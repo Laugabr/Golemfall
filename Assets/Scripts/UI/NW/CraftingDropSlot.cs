@@ -22,13 +22,9 @@ public class CraftingDropSlot : MonoBehaviour, IDropHandler
         var itemSlot = dragged.GetComponent<ItemSlot>();
         if (itemSlot == null) return;
 
-        // Mover visual
-        dragged.transform.SetParent(transform);
-        dragged.transform.localPosition = Vector3.zero;
-
+        ItemSlot.PlaceInto(dragged.transform, transform);
         CurrentItem = itemSlot;
 
-        // Notificar al sistema
         craftingUI.OnItemPlaced();
     }
 
