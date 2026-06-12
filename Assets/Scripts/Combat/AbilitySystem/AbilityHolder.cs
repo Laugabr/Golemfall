@@ -157,6 +157,12 @@ public class AbilityHolder : NetworkBehaviour
         return states.Get(index) == AbilityState.Ready;
     }
 
+    public float GetCooldownTime(int index)
+    {
+        if (index < 0 || index >= abilities.Length) return 0f;
+        return abilities[index].cooldownTime;
+    }
+
     /// <summary>
     /// Spawna un proyectil visual local sin red para feedback inmediato en el cliente.
     /// Se destruye cuando llega el proyectil real del servidor.

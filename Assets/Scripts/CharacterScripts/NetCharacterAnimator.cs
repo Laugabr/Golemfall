@@ -131,7 +131,9 @@ public class NetCharacterAnimator : NetworkBehaviour
     {
         if (animator == null) return;
 
-        if (!GetInput(out NetInputPlayer input)) return;
+        bool gotInput = GetInput(out NetInputPlayer input);
+        Debug.Log($"[ANIM FUN] HasStateAuth={HasStateAuthority} HasInputAuth={HasInputAuthority} GotInput={gotInput}");
+        if (!gotInput) return;
 
         // Si está muerto no procesamos ningún input de animación
         if (controller != null && controller.IsDead)
@@ -166,25 +168,40 @@ public class NetCharacterAnimator : NetworkBehaviour
             ResetIdleLocal();
         }
 
-        // MELEE — solo si la habilidad está ready
+        // MELEE
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.BasicAttack))
         {
-            if (abilityHolder == null || abilityHolder.IsReady(0))
+            // Calculamos el cooldown en ticks desde el ScriptableObject para no
+            // hardcodear el valor acá. Así si cambia el cooldown de la habilidad
+            // se refleja automáticamente sin tocar el animator.
+            float cooldownTime = abilityHolder != null ? abilityHolder.GetCooldownTime(0) : 0.7f;
+            int cooldownTicks = Mathf.CeilToInt(cooldownTime / Runner.DeltaTime);
+            bool animReady = (Runner.Tick - NetMeleeTick) > cooldownTicks;
+
+            if (animReady)
             {
-                NetMeleeTick = Runner.Tick;
                 animator.SetTrigger(MeleeTriggerHash);
                 ResetIdleLocal();
+
+                if (HasStateAuthority)
+                    NetMeleeTick = Runner.Tick;
             }
         }
 
-        // RANGE — solo si la habilidad está ready
+        // RANGE
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.FirstSkill))
         {
-            if (abilityHolder == null || abilityHolder.IsReady(1))
+            float cooldownTime = abilityHolder != null ? abilityHolder.GetCooldownTime(1) : 0f;
+            int cooldownTicks = Mathf.CeilToInt(cooldownTime / Runner.DeltaTime);
+            bool animReady = (Runner.Tick - NetRangeTick) > cooldownTicks;
+
+            if (animReady)
             {
-                NetRangeTick = Runner.Tick;
                 animator.SetTrigger(RangeTriggerHash);
                 ResetIdleLocal();
+
+                if (HasStateAuthority)
+                    NetRangeTick = Runner.Tick;
             }
         }
 
