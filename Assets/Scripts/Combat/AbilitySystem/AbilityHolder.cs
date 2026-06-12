@@ -78,7 +78,7 @@ public class AbilityHolder : NetworkBehaviour
         {
             // Feedback visual inmediato en el cliente mientras espera confirmación del servidor
             SpawnFakeProjectile(index, direction);
-            RPC_RequestUseAbility(index, direction);
+            RPC_RequestUseAbility(index, direction, 0f);
         }
     }
 
@@ -86,9 +86,14 @@ public class AbilityHolder : NetworkBehaviour
     /// RPC del cliente al servidor para validar y ejecutar la habilidad.
     /// El servidor rechaza si la habilidad no está en estado Ready.
     /// Bloquea durante Active Y Cooldown para evitar spam.
+    ///
+    /// attackYaw: yaw de ataque calculado en el cliente y enviado para que el
+    /// host pueda rotar el personaje correctamente antes de que la habilidad
+    /// pase a Cooldown — después del cambio de estado IsReady devuelve false
+    /// y NetCharacterController ya no puede escribir NetBodyYaw desde FUN.
     /// </summary>
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    public void RPC_RequestUseAbility(int index, Vector3 direction, RpcInfo info = default)
+    public void RPC_RequestUseAbility(int index, Vector3 direction, float attackYaw, RpcInfo info = default)
     {
         if (index < 0 || index >= abilities.Length) return;
 
@@ -102,6 +107,13 @@ public class AbilityHolder : NetworkBehaviour
         if (ability == null) { Debug.LogError("Ability null"); return; }
 
         Debug.Log($"[SERVER] Player {info.Source} usa skill {index}");
+
+        // Escribimos el yaw de ataque ANTES de cambiar el estado de la habilidad.
+        // Si lo hiciéramos después, IsReady ya devolvería false y el
+        // NetCharacterController no podría escribir NetBodyYaw desde FUN.
+        var netController = GetComponent<NetCharacterController>();
+        if (netController != null && attackYaw != 0f)
+            netController.SetAttackYaw(attackYaw);
 
         if (ability is ProjectileAbility proj)
             ProjectileRuntime.Execute(proj, Runner, Object, direction);
@@ -148,8 +160,7 @@ public class AbilityHolder : NetworkBehaviour
 
     /// <summary>
     /// Devuelve true si la habilidad está lista para usarse.
-    /// Usado por el NetCharacterAnimator para bloquear el trigger
-    /// de animación cuando la habilidad está en cooldown.
+    /// Usado por el NetCharacterAnimator para calcular cooldown en ticks.
     /// </summary>
     public bool IsReady(int index)
     {
@@ -157,6 +168,12 @@ public class AbilityHolder : NetworkBehaviour
         return states.Get(index) == AbilityState.Ready;
     }
 
+    /// <summary>
+    /// Devuelve el cooldown time de la habilidad desde el ScriptableObject.
+    /// Usado por NetCharacterAnimator para calcular el cooldown en ticks sin
+    /// depender de IsReady, que puede estar desactualizado en el mismo tick
+    /// en que se ejecuta el RPC.
+    /// </summary>
     public float GetCooldownTime(int index)
     {
         if (index < 0 || index >= abilities.Length) return 0f;

@@ -53,14 +53,14 @@ public class NetCharacterController : NetworkBehaviour
 
     /// <summary>
     /// Yaw (en grados) deseado para el bodyVisuals. Se actualiza cada tick a
-    /// partir de la dirección de movimiento del jugador.
+    /// partir de la dirección de movimiento o de ataque del jugador.
     ///
     /// PREDICTION: tanto el StateAuthority como el InputAuthority escriben este
     /// valor en sus respectivos FixedUpdateNetwork. En el cliente con InputAuthority,
     /// la escritura es una predicción local que Fusion sobrescribe automáticamente
     /// cuando llega el snapshot autoritativo del host. Esto hace que el jugador
-    /// local vea su rotación inmediatamente al cambiar de dirección, sin esperar
-    /// el round-trip al server.
+    /// local vea su rotación inmediatamente al cambiar de dirección o atacar,
+    /// sin esperar el round-trip al server.
     /// </summary>
     [Networked] private float NetBodyYaw { get; set; }
 
@@ -74,6 +74,12 @@ public class NetCharacterController : NetworkBehaviour
     /// </summary>
     [Networked] public NetworkBool IsDashing { get; private set; }
     [Networked] public float NetVerticalVelocity { get; private set; }
+
+    /// <summary>
+    /// Indica que el jugador está en medio de un ataque y no debe rotar
+    /// por movimiento. Se resetea via ClearAttackLock() llamado desde
+    /// un Animation Event al terminar la animación de ataque.
+    /// </summary>
     [Networked] private NetworkBool IsAttacking { get; set; }
 
     private void Awake()
@@ -104,6 +110,12 @@ public class NetCharacterController : NetworkBehaviour
                 else
                     Debug.LogWarning("[NetCharacterController] Main Camera no tiene CameraController.");
             }
+
+            // Registramos el transform del jugador local en el NetworkInputManager
+            // para que pueda calcular AttackYaw relativo a la posición real del jugador.
+            var inputManager = FindFirstObjectByType<NetworkInputManager>();
+            if (inputManager != null)
+                inputManager.SetLocalPlayer(transform);
         }
     }
 
@@ -171,6 +183,14 @@ public class NetCharacterController : NetworkBehaviour
             jump = jumpPower;
 
         // ── HABILIDADES / INTERACCIÓN ────────────────────────────────────────────
+
+        // MELEE (BasicAttack)
+        // La rotación se escribe desde el cliente con HasInputAuthority usando
+        // GetMouseDirection() — igual que antes. El host la escribe via SetAttackYaw()
+        // llamado desde RPC_RequestUseAbility, donde la habilidad todavía está Ready.
+        // Esto resuelve el problema de timing: si escribiéramos NetBodyYaw en FUN
+        // dependiendo de IsReady, el RPC ya habría puesto la habilidad en Cooldown
+        // antes de que el host llegue a ese bloque.
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.BasicAttack) ||
             input.Buttons.WasPressed(PreviousButtons, InputButton.MouseButton0))
         {
@@ -184,10 +204,11 @@ public class NetCharacterController : NetworkBehaviour
                     IsAttacking = true;
                 }
 
-                charAbilities?.RPC_RequestUseAbility(0, mouseDir);
+                charAbilities?.RPC_RequestUseAbility(0, mouseDir, input.AttackYaw);
             }
         }
 
+        // RANGE (FirstSkill) — mismo patrón que BasicAttack
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.FirstSkill) && HasInputAuthority)
         {
             Vector3 mouseDir = GetMouseDirection();
@@ -198,7 +219,7 @@ public class NetCharacterController : NetworkBehaviour
                 IsAttacking = true;
             }
 
-            charAbilities?.RPC_RequestUseAbility(1, mouseDir);
+            charAbilities?.RPC_RequestUseAbility(1, mouseDir, input.AttackYaw);
         }
 
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.Interact) && HasInputAuthority)
@@ -228,12 +249,10 @@ public class NetCharacterController : NetworkBehaviour
         }
 
         // ── YAW REPLICADO (PREDICTION) ───────────────────────────────────────────
-        // Tanto el StateAuthority como el InputAuthority escriben este valor.
-        // En el cliente con InputAuthority, la escritura es predicción local que
-        // Fusion reconcilia con el snapshot del host. El personaje local ve su
-        // rotación responder inmediatamente sin esperar el round-trip al server.
-        // Si no hay dirección este tick, conservamos el yaw anterior — el
-        // personaje queda mirando hacia donde venía caminando.
+        // Si el jugador está atacando, conservamos el yaw del ataque — no
+        // sobreescribimos con la dirección de movimiento hasta que ClearAttackLock()
+        // libere IsAttacking al terminar la animación.
+        // Si no está atacando y hay dirección de movimiento, actualizamos el yaw.
         if (moveDir.sqrMagnitude > 0.01f && !IsAttacking)
             NetBodyYaw = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
 
@@ -262,7 +281,8 @@ public class NetCharacterController : NetworkBehaviour
 
     /// <summary>
     /// Devuelve la dirección normalizada desde el jugador hacia el cursor del mouse
-    /// proyectada en el plano XZ. Usado para apuntar habilidades y ataques.
+    /// proyectada en el plano XZ. Solo válido en la máquina local del cliente.
+    /// Usado para orientar y posicionar proyectiles en el RPC de habilidades.
     /// </summary>
     private Vector3 GetMouseDirection()
     {
@@ -289,6 +309,23 @@ public class NetCharacterController : NetworkBehaviour
         return cachedInventoryToggle != null && cachedInventoryToggle.IsInventoryOpen;
     }
 
+    /// <summary>
+    /// Llamado desde AbilityHolder.RPC_RequestUseAbility() en el host para
+    /// escribir NetBodyYaw con el yaw de ataque del cliente, antes de que
+    /// la habilidad pase a Cooldown. Después del cambio de estado, IsReady
+    /// devuelve false y la escritura desde FixedUpdateNetwork ya no ocurre.
+    /// </summary>
+    public void SetAttackYaw(float yaw)
+    {
+        NetBodyYaw = yaw;
+        IsAttacking = true;
+    }
+
+    /// <summary>
+    /// Libera el lock de ataque para que el personaje pueda volver a rotar
+    /// según la dirección de movimiento. Llamado desde un Animation Event
+    /// al finalizar la animación de ataque.
+    /// </summary>
     public void ClearAttackLock()
     {
         IsAttacking = false;
