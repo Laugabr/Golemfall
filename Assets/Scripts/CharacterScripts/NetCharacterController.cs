@@ -221,6 +221,11 @@ public class NetCharacterController : NetworkBehaviour
 
             charAbilities?.RPC_RequestUseAbility(1, mouseDir, input.AttackYaw);
         }
+        
+        if (input.Buttons.WasPressed(PreviousButtons, InputButton.SecondarySkill) && HasInputAuthority)
+        {
+            charAbilities?.RPC_RequestUseAbility(2, Vector3.zero, 0f);
+        }
 
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.Interact) && HasInputAuthority)
             charPickUp?.TryPickUp();

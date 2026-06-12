@@ -117,6 +117,8 @@ public class AbilityHolder : NetworkBehaviour
 
         if (ability is ProjectileAbility proj)
             ProjectileRuntime.Execute(proj, Runner, Object, direction);
+        else if (ability is UtilityAbilityData util)
+            UtilityRuntime.Execute(util, Runner, Object);
 
         if (ability.activeTime > 0f)
         {

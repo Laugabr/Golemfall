@@ -80,7 +80,7 @@ public class HealthSystem : NetworkBehaviour, IDamageable
         }
     }
 
-    private void Heal(int amount)
+    public virtual void Heal(int amount)
     {
         if (!Object.HasStateAuthority) return;
     
