@@ -10,7 +10,12 @@ public class NwInventoryUI : MonoBehaviour
     [SerializeField] private ItemContainerSlot[] equipSlots;
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] private GameObject inventoryPanel;
-    [SerializeField] private CraftingSystem targetCraftingSystem;
+
+    // Runtime-only: se vincula automáticamente en TryBindToLocalPlayer.
+    // No se expone al Inspector porque en multiplayer el player local
+    // se instancia dinámicamente y no puede asignarse en edit-time.
+    private CraftingSystem targetCraftingSystem;
+
     private int lastCount;
 
     private NetworkInventory targetInventory;
@@ -55,9 +60,6 @@ public class NwInventoryUI : MonoBehaviour
         {
             if (ps.Object == null || !ps.Object.IsValid) continue;
             if (ps.Object.InputAuthority != runner.LocalPlayer) continue;
-
-            else Debug.LogWarning("No CraftingUI found in NwInventoryUI.");
-
 
             targetCraftingSystem = ps.GetComponent<CraftingSystem>();
             if (targetCraftingSystem != null)
