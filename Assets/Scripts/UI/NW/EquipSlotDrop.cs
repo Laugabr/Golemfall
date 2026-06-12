@@ -20,7 +20,14 @@ public class EquipSlotDrop : MonoBehaviour, IDropHandler
 
         inventory.RPC_RequestEquip(itemKey);
 
-        ItemSlot.PlaceInto(dragged.transform, transform);
+        // AssignItem setea currentItem del container destino Y aplica el placement.
+        // Sin esto, el slot tendría el item como child físico pero su currentItem seguiría null,
+        // y el próximo Refresh lo vería como vacío e instanciaría un duplicado encima.
+        var container = GetComponent<ItemContainerSlot>();
+        if (container != null)
+            container.AssignItem(itemSlot);
+        else
+            ItemSlot.PlaceInto(dragged.transform, transform);
 
         UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
     }

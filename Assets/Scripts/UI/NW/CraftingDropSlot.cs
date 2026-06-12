@@ -34,4 +34,13 @@ public class CraftingDropSlot : MonoBehaviour, IDropHandler
             Destroy(CurrentItem.gameObject);
         CurrentItem = null;
     }
+
+    // Nullifica la referencia interna sin destruir el GameObject.
+    // Llamado por ItemSlotDrag.OnEndDrag cuando el item se va de este slot
+    // por drag exitoso a otro container. Distinto de Clear(), que sí
+    // destruye porque el llamador quiere eliminar el item (ej: post-craft).
+    public void ClearReference()
+    {
+        CurrentItem = null;
+    }
 }

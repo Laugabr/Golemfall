@@ -132,7 +132,7 @@ public class NetCharacterAnimator : NetworkBehaviour
         if (animator == null) return;
 
         bool gotInput = GetInput(out NetInputPlayer input);
-        Debug.Log($"[ANIM FUN] HasStateAuth={HasStateAuthority} HasInputAuth={HasInputAuthority} GotInput={gotInput}");
+        //Debug.Log($"[ANIM FUN] HasStateAuth={HasStateAuthority} HasInputAuth={HasInputAuthority} GotInput={gotInput}");
         if (!gotInput) return;
 
         // Si está muerto no procesamos ningún input de animación

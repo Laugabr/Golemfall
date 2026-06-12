@@ -65,6 +65,33 @@ public class NotificationManager : MonoBehaviour
         });
     }
 
+    /// <summary>
+    /// Overload que permite sobrescribir el ícono del SO en runtime.
+    /// Útil cuando el ícono cambia por contexto (ej: notificación de craft
+    /// que muestra el ícono del item resultante en lugar del ícono fijo del SO).
+    /// </summary>
+    public void Show(NotificationData data, Sprite iconOverride, params object[] formatArgs)
+    {
+        if (data == null)
+        {
+            Debug.LogWarning("[NotificationManager] Show llamado con data null.");
+            return;
+        }
+
+        string finalText = (formatArgs != null && formatArgs.Length > 0)
+            ? SafeFormat(data.text, formatArgs)
+            : data.text;
+
+        Enqueue(new NotificationRequest
+        {
+            text = finalText,
+            icon = iconOverride != null ? iconOverride : data.icon,
+            category = data.category,
+            priority = data.priority,
+            duration = data.duration
+        });
+    }
+
     /// <summary>Atajo de conveniencia para toasts ad-hoc desde código.</summary>
     public void ShowToast(string message, float duration = 2f)
     {
