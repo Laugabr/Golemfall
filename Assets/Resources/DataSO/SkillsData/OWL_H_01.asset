@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8416f006126b7744bc636e8ca171e88, type: 3}
   m_Name: OWL_H_01
   m_EditorClassIdentifier: 
-  name: 
-  cooldownTime: 0
-  activeTime: 0
-  aoePrefab: {fileID: 0}
+  name: Healing
+  cooldownTime: 4
+  activeTime: 1.5
+  aoePrefab: {fileID: 4848668221325954981, guid: b0c72130ad6e5904f958232fe18e6204, type: 3}
   aoeRadius: 5
-  healMultiplier: 1
+  healMultiplier: 2
   activeTime: 2
