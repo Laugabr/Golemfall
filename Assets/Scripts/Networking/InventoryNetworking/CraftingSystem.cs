@@ -9,6 +9,12 @@ public class CraftingSystem : NetworkBehaviour
 {
     [SerializeField] private CraftingDatabase database;
 
+    [Header("Feedback")]
+    [Tooltip("NotificationData que define layout/prioridad/duración/template del aviso de craft exitoso. " +
+             "El ícono se sobrescribe en runtime con el del item crafteado. " +
+             "Template sugerido: \"Crafteaste {0}\\n{1}\"  (donde {0}=nombre, {1}=stats).")]
+    [SerializeField] private NotificationData craftedNotification;
+
     public void TryCraft(short itemA, short itemB)
     {
         if (!Object.HasStateAuthority) return;
@@ -58,6 +64,10 @@ public class CraftingSystem : NetworkBehaviour
 
         inv.RPC_UpdateLocalInventory();
         inv.RPC_NotifyInventoryChanged();
+
+        // Notificación de feedback al cliente dueño del craft
+        RPC_NotifyCraftSuccess(recipe.resultItemKey);
+
         Debug.Log("[CRAFT] NotifyInventoryChanged enviado");
         var resultData = ItemData.GetItem(recipe.resultItemKey);
         Debug.Log($"[CRAFT] Resultado obtenido: {resultData?.name ?? "item desconocido"} (key={recipe.resultItemKey})");
@@ -104,5 +114,34 @@ public class CraftingSystem : NetworkBehaviour
         TryCraft(itemA, itemB);
     }
 
-}
+    // Server → InputAuthority. Solo el cliente dueño del player ve la notificación.
+    [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
+    private void RPC_NotifyCraftSuccess(short resultKey)
+    {
+        if (craftedNotification == null)
+        {
+            Debug.LogWarning("[CraftingSystem] craftedNotification no asignada en el Inspector.");
+            return;
+        }
 
+        var data = ItemData.GetItem(resultKey);
+        if (data == null) return;
+
+        if (NotificationManager.Instance == null) return;
+
+        string statsText = FormatStats(data.stats);
+        NotificationManager.Instance.Show(craftedNotification, data.icon, data.displayName, statsText);
+    }
+
+    // Replicado a propósito desde ItemSlot.FormatStats para no acoplar
+    // CraftingSystem al componente de UI.
+    private static string FormatStats(Stats stats)
+    {
+        if (stats == null || stats.statInfo.Count == 0) return "";
+
+        string result = "";
+        foreach (var s in stats.statInfo)
+            result += $"{s.statType}: +{s.statValue}\n";
+        return result.TrimEnd('\n');
+    }
+}
