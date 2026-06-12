@@ -21,9 +21,10 @@ public class CraftingSystem : NetworkBehaviour
         if (database == null) { Debug.LogError("No CraftingDatabase"); return; }
 
         var inv = GetComponent<NetworkInventory>();
+        if (inv == null) { Debug.LogError("No hay NetworkInventory"); return; }
 
         var recipe = database.Find(itemA, itemB);
-        if (recipe == null) if (recipe == null)
+        if (recipe == null)
         {
             Debug.Log("No existe receta");
 
@@ -32,8 +33,6 @@ public class CraftingSystem : NetworkBehaviour
 
             return;
         }
-
-        if (inv == null) { Debug.LogError("No hay NetworkInventory"); return; }
 
         if (!HasMaterials(inv, recipe))
         {
@@ -91,6 +90,13 @@ public class CraftingSystem : NetworkBehaviour
             if (slot.itemKey == key)
             {
                 inv.Items.Remove(slot);
+
+                // Si era la última instancia de ese item y estaba equipado, desequipar.
+                if (!inv.Items.Any(s => s.itemKey == key) && inv.EquippedItems.Contains(key))
+                {
+                    inv.EquippedItems.Remove(key);
+                    inv.GetComponent<PlayerStats>()?.RefreshStats();
+                }
                 return;
             }
         }
@@ -99,18 +105,9 @@ public class CraftingSystem : NetworkBehaviour
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     public void RPC_RequestCraft(short itemA, short itemB, RpcInfo info = default)
     {
-        // 🔒 VALIDACIÓN SERVER SIDE
-        if (!Object.HasStateAuthority) return;
-
-        var inv = GetComponent<NetworkInventory>();
-        if (inv == null) return;
-
-        var recipe = database.Find(itemA, itemB);
-        if (recipe == null) return;
-
-        if (!HasMaterials(inv, recipe)) return;
-
-        // ejecutar craft real
+        // TryCraft ya valida HasStateAuthority, database, NetworkInventory,
+        // existencia de receta y HasMaterials, y notifica al cliente en cada
+        // caso de fallo. Esta RPC solo delega.
         TryCraft(itemA, itemB);
     }
 
