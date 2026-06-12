@@ -217,14 +217,24 @@ public class NetCharacterAnimator : NetworkBehaviour
 
     /// <summary>
     /// Llamado por PlayerHealth cuando el jugador recibe daño.
-    /// Solo corre en StateAuthority — escribe el tick stamp y dispara
-    /// el trigger localmente. Los proxies lo detectan en Render().
+    /// El StateAuthority escribe el tick stamp (para que los proxies lo detecten
+    /// en Render) y dispara el trigger localmente.
+    /// El cliente con InputAuthority dispara el trigger localmente sin escribir
+    /// el tick stamp — no tiene StateAuthority para hacerlo.
     /// </summary>
     public void TriggerTakeDamage()
     {
-        if (!Object.HasStateAuthority) return;
-        NetTakeDamageTick = Runner.Tick;
-        animator.SetTrigger(TakeDamageTriggerHash);
+        if (Object.HasStateAuthority)
+        {
+            NetTakeDamageTick = Runner.Tick;
+            animator.SetTrigger(TakeDamageTriggerHash);
+            return;
+        }
+
+        // El cliente local dispara el trigger directamente — la animación
+        // se ve inmediatamente sin esperar el round-trip al host.
+        if (Object.HasInputAuthority)
+            animator.SetTrigger(TakeDamageTriggerHash);
     }
 
     private void UpdateMovementFlags(Vector2 inputDir)
