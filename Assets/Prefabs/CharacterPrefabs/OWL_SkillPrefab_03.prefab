@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7812011087625206597}
   - component: {fileID: 4470091124215830598}
   - component: {fileID: 467334471359973280}
+  - component: {fileID: -5009458299100021982}
   m_Layer: 0
   m_Name: OWL_SkillPrefab_03
   m_TagString: Untagged
@@ -66,6 +67,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 7812011087625206597}
+  - {fileID: -5009458299100021982}
   ForceRemoteRenderTimeframe: 0
 --- !u!135 &467334471359973280
 SphereCollider:
@@ -88,6 +90,23 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 8.55
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-5009458299100021982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4848668221325954981}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 158639473, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _stateAuthorityChangeErrorCorrectionDelta: 0
+  SyncScale: 0
+  SyncParent: 0
+  _autoAOIOverride: 1
+  DisableSharedModeInterpolation: 0
 --- !u!1001 &993572146758871179
 PrefabInstance:
   m_ObjectHideFlags: 0
