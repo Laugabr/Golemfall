@@ -12,13 +12,13 @@ public class CollectedSlotDrop : MonoBehaviour, IDropHandler
         Debug.Log($"OnDrop — childCount:{transform.childCount}");
         if (transform.childCount > 0) return;
 
+        var itemSlot = dragged.GetComponent<ItemSlot>();
+        if (itemSlot == null) return;
+
         bool cameFromEquip = dragged.originalParent.GetComponent<EquipSlotDrop>() != null;
 
         if (cameFromEquip)
         {
-            var itemSlot = dragged.GetComponent<ItemSlot>();
-            if (itemSlot == null) return;
-
             short itemKey = ItemData.GetKey(itemSlot.GetItemData());
 
             var ui = FindFirstObjectByType<NwInventoryUI>();
@@ -28,7 +28,14 @@ public class CollectedSlotDrop : MonoBehaviour, IDropHandler
             inventory.RPC_RequestUnequip(itemKey);
         }
 
-        ItemSlot.PlaceInto(dragged.transform, transform);
+        // AssignItem setea currentItem del container destino Y aplica el placement.
+        // Sin esto, el slot tendría el item como child físico pero su currentItem seguiría null,
+        // y el próximo Refresh lo vería como vacío e instanciaría un duplicado encima.
+        var container = GetComponent<ItemContainerSlot>();
+        if (container != null)
+            container.AssignItem(itemSlot);
+        else
+            ItemSlot.PlaceInto(dragged.transform, transform);
 
         UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
 

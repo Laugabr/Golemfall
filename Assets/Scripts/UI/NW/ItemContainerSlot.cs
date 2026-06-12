@@ -31,6 +31,15 @@ public class ItemContainerSlot : MonoBehaviour
         currentItem = null;
     }
 
+    // Nullifica la referencia interna sin destruir el GameObject.
+    // Llamado por ItemSlotDrag.OnEndDrag cuando el item se va de este slot
+    // por drag exitoso a otro container. Distinto de ClearSlot(), que sí
+    // destruye porque el llamador quiere eliminar el item de verdad.
+    public void ClearReference()
+    {
+        currentItem = null;
+    }
+
     // Returns the item assigned to this slot (can be null)
     public ItemSlot GetItem()
     {

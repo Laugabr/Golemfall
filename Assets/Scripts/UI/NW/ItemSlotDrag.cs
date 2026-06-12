@@ -47,12 +47,24 @@ public class ItemSlotDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
 
         if (transform.parent == UIRoot.Instance.dragLayer)
         {
-            // Return to original parent if not dropped on a valid slot
+            // Drop falló: vuelve al original. Las referencias del origen no cambian.
             transform.SetParent(originalParent);
             transform.localPosition = originalPos;
-            originalParent = transform.parent;
-
         }
+        else if (transform.parent != originalParent)
+        {
+            // Drop exitoso en otro container: limpiar la referencia del origen.
+            // Sin esto, slots de inventario / crafteo conservan una referencia colgada
+            // al item que ya se fue, causando crafts fantasma, slots que no aceptan drops,
+            // y items destruidos cuando un Refresh limpia el slot anterior.
+            if (originalParent != null)
+            {
+                originalParent.GetComponent<ItemContainerSlot>()?.ClearReference();
+                originalParent.GetComponent<CraftingDropSlot>()?.ClearReference();
+            }
+        }
+
+        originalParent = transform.parent;
     }
 
     // Returns the ID of the item in this slot
