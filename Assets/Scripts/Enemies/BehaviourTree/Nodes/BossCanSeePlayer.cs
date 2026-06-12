@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿/*using UnityEngine;
 
 namespace BehaviourTree
 {
@@ -28,7 +28,7 @@ namespace BehaviourTree
             return canSee ? NodeState.Success : NodeState.Failure;
         }
     }
-}
+}*/
 
 
 

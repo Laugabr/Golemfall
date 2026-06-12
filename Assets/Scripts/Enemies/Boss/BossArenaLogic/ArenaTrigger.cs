@@ -1,19 +1,37 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Trigger de entrada a la arena del boss.
+/// Cuando todos los players registrados en PlayerRegistry están dentro,
+/// activa el BossAI directamente.
+///
+/// Setup en escena:
+///   - Este componente va en un GameObject con un Collider trigger
+///     que cubra la entrada/interior de la arena.
+///   - Asignar la referencia a BossAI en el inspector.
+/// </summary>
 public class ArenaTrigger : MonoBehaviour
 {
-    private HashSet<Transform> playersInside = new();
+    [Header("References")]
+    [SerializeField] private BossAI bossAI;
 
-    public System.Action OnAllPlayersInside;
+    [Header("Settings")]
+    [Tooltip("Si true, el trigger se desactiva después de activar el boss (evita retriggering)")]
+    [SerializeField] private bool disableAfterActivation = true;
+
+    private HashSet<Transform> playersInside = new();
+    private bool hasActivated = false;
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player")) return;
 
-        playersInside.Add(other.transform);
+        // Usamos el root para evitar múltiples colliders del mismo player
+        Transform root = other.transform.root;
+        playersInside.Add(root);
 
-        Debug.Log($"[Arena] Entra: {other.name}");
+        Debug.Log($"[Arena] Entra: {other.name} ({playersInside.Count}/{PlayerRegistry.Players.Count})");
 
         CheckAllInside();
     }
@@ -22,22 +40,31 @@ public class ArenaTrigger : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        playersInside.Remove(other.transform);
+        Transform root = other.transform.root;
+        playersInside.Remove(root);
 
         Debug.Log($"[Arena] Sale: {other.name}");
     }
 
     void CheckAllInside()
     {
+        if (hasActivated) return;
+
         int totalPlayers = PlayerRegistry.Players.Count;
         int inside = playersInside.Count;
 
-        Debug.Log($"[Arena] Dentro: {inside}/{totalPlayers}");
+        if (totalPlayers <= 0) return;
+        if (inside < totalPlayers) return;
 
-        if (totalPlayers > 0 && inside == totalPlayers)
-        {
-            Debug.Log("[Arena] TODOS DENTRO → iniciar combate");
-            OnAllPlayersInside?.Invoke();
-        }
+        Debug.Log("[Arena] TODOS DENTRO → activando boss");
+        hasActivated = true;
+
+        if (bossAI != null)
+            bossAI.ActivateBoss();
+        else
+            Debug.LogError("[Arena] BossAI no asignado en el inspector");
+
+        if (disableAfterActivation)
+            gameObject.SetActive(false);
     }
 }
