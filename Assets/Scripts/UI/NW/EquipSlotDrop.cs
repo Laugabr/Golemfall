@@ -20,8 +20,7 @@ public class EquipSlotDrop : MonoBehaviour, IDropHandler
 
         inventory.RPC_RequestEquip(itemKey);
 
-        dragged.transform.SetParent(transform);
-        dragged.transform.localPosition = Vector3.zero;
+        ItemSlot.PlaceInto(dragged.transform, transform);
 
         UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
     }

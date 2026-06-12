@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class CraftingUI : MonoBehaviour
 {
-    [SerializeField] private Transform slotA;
-    [SerializeField] private Transform slotB;
+    [SerializeField] private CraftingDropSlot slotA;
+    [SerializeField] private CraftingDropSlot slotB;
 
     private NwInventoryUI inventoryUI;
     private CraftingSystem craftingSystem;
@@ -17,11 +17,11 @@ public class CraftingUI : MonoBehaviour
 
     public void OnItemPlaced()
     {
-        if (slotA.childCount == 0 || slotB.childCount == 0)
+        if (slotA.IsEmpty || slotB.IsEmpty)
             return;
 
-        var itemA = slotA.GetChild(0).GetComponent<ItemSlot>();
-        var itemB = slotB.GetChild(0).GetComponent<ItemSlot>();
+        var itemA = slotA.CurrentItem;
+        var itemB = slotB.CurrentItem;
 
         if (itemA == null || itemB == null) return;
 
@@ -62,7 +62,7 @@ public class CraftingUI : MonoBehaviour
 
     void ClearSlots()
     {
-        foreach (Transform t in slotA) Destroy(t.gameObject);
-        foreach (Transform t in slotB) Destroy(t.gameObject);
+        slotA.Clear();
+        slotB.Clear();
     }
 }

@@ -54,5 +54,19 @@ public class ItemSlot : MonoBehaviour
 
         return result.TrimEnd('\n');
     }
-}
 
+    // Single source of truth para colocar un item UI dentro de un container.
+    // Lo usan ItemContainerSlot.AssignItem y todos los IDropHandler
+    // (CraftingDropSlot, EquipSlotDrop, CollectedSlotDrop) para garantizar
+    // que el item quede siempre con la misma posición y escala canónicas,
+    // sin importar por cuál camino llegue al container.
+    public static void PlaceInto(Transform item, Transform target)
+    {
+        item.SetParent(target, false);
+        if (item is RectTransform rt)
+        {
+            rt.anchoredPosition = Vector2.zero;
+            rt.localScale = Vector3.one;
+        }
+    }
+}
