@@ -25,7 +25,7 @@ public class CraftingDropSlot : MonoBehaviour, IDropHandler
         ItemSlot.PlaceInto(dragged.transform, transform);
         CurrentItem = itemSlot;
 
-        craftingUI.OnItemPlaced();
+        craftingUI.UpdatePreview();
     }
 
     public void Clear()
@@ -42,5 +42,6 @@ public class CraftingDropSlot : MonoBehaviour, IDropHandler
     public void ClearReference()
     {
         CurrentItem = null;
+        craftingUI?.UpdatePreview();
     }
 }

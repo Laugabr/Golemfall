@@ -1,13 +1,27 @@
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class CraftingUI : MonoBehaviour
 {
     [SerializeField] private CraftingDropSlot slotA;
     [SerializeField] private CraftingDropSlot slotB;
 
+    [Header("Preview")]
+    [SerializeField] private Image previewIcon;
+    [SerializeField] private TMP_Text previewName;
+    [SerializeField] private TMP_Text previewStats;
+    [SerializeField] private Button craftButton;
+
     private NwInventoryUI inventoryUI;
     private CraftingSystem craftingSystem;
 
+    private void Awake()
+    {
+        if (craftButton != null)
+            craftButton.onClick.AddListener(OnCraftButtonClicked);
+        ShowPreview(null); // estado inicial: sin preview, botón off
+    }
 
     public void SetCraftingSystem(CraftingSystem targetCraftingSystem)
     {
@@ -15,54 +29,76 @@ public class CraftingUI : MonoBehaviour
         craftingSystem = targetCraftingSystem;
     }
 
-    public void OnItemPlaced()
+    // Llamado por CraftingDropSlot al soltar un material o al sacarlo.
+    // Ya NO craftea: solo calcula y muestra el resultado de la receta.
+    public void UpdatePreview()
     {
-        if (slotA.IsEmpty || slotB.IsEmpty)
-            return;
-
-        var itemA = slotA.CurrentItem;
-        var itemB = slotB.CurrentItem;
-
-        if (itemA == null || itemB == null) return;
-
-        short keyA = ItemData.GetKey(itemA.GetItemData());
-        short keyB = ItemData.GetKey(itemB.GetItemData());
-        Debug.Log($"[CRAFT UI] itemA name: {itemA.GetItemData()?.name}, keyA: {keyA}");
-        Debug.Log($"[CRAFT UI] itemB name: {itemB.GetItemData()?.name}, keyB: {keyB}");
-        Debug.Log($"[CRAFT UI] Intentando craftear: keyA={keyA}, keyB={keyB}");
-        Debug.Log($"[CRAFT UI] craftingSystem es null? {craftingSystem == null}");
-
-        if (craftingSystem == null)
+        if (craftingSystem == null || slotA.IsEmpty || slotB.IsEmpty)
         {
-            Debug.LogError("No CraftingSystem found in CraftingUI.");
+            ShowPreview(null);
             return;
         }
 
-        Debug.Log($"HasInputAuthority: {craftingSystem.Object.HasInputAuthority}");
-        RequestCraft(keyA, keyB);
+        var dataA = slotA.CurrentItem?.GetItemData();
+        var dataB = slotB.CurrentItem?.GetItemData();
+        if (dataA == null || dataB == null) { ShowPreview(null); return; }
 
-        ClearSlots(); // opcional pero recomendado
-
-        inventoryUI.ForceRefresh();
+        short resultKey = craftingSystem.PreviewResult(ItemData.GetKey(dataA), ItemData.GetKey(dataB));
+        ShowPreview(resultKey >= 0 ? ItemData.GetItem(resultKey) : null);
     }
-    public void RequestCraft(short a, short b)
+
+    // El craft real ahora ocurre acá, al apretar el botón.
+    public void OnCraftButtonClicked()
     {
-        var inventory = FindFirstObjectByType<NwInventoryUI>()?.GetTargetInventory();
-        if (inventory == null) return;
+        if (craftingSystem == null || slotA.IsEmpty || slotB.IsEmpty) return;
 
-        var crafting = inventory.GetComponent<CraftingSystem>();
-        if (crafting == null) return;
+        var dataA = slotA.CurrentItem?.GetItemData();
+        var dataB = slotB.CurrentItem?.GetItemData();
+        if (dataA == null || dataB == null) return;
 
-        Debug.Log($"HasInputAuthority: {crafting.Object.HasInputAuthority}");
+        craftingSystem.RPC_RequestCraft(ItemData.GetKey(dataA), ItemData.GetKey(dataB));
 
-        crafting.RPC_RequestCraft(a, b);
+        ClearSlots();
+        ShowPreview(null);
+        inventoryUI?.ForceRefresh();
     }
-    //ClearSlots();
 
+    private void ShowPreview(ItemData result)
+    {
+        bool hasResult = result != null;
 
-    void ClearSlots()
+        if (previewIcon != null)
+        {
+            previewIcon.enabled = hasResult;
+            if (hasResult)
+            {
+                previewIcon.sprite = result.icon;
+                previewIcon.color = result.color;
+            }
+        }
+
+        if (previewName != null)
+            previewName.text = hasResult ? result.displayName : "";
+
+        if (previewStats != null)
+            previewStats.text = hasResult ? FormatStats(result.stats) : "";
+
+        if (craftButton != null)
+            craftButton.interactable = hasResult;
+    }
+
+    private void ClearSlots()
     {
         slotA.Clear();
         slotB.Clear();
+    }
+    private static string FormatStats(Stats stats)
+    {
+        if (stats == null || stats.statInfo.Count == 0) return "";
+
+        string result = "";
+        foreach (var s in stats.statInfo)
+            result += $"{s.statType}: +{s.statValue}\n";
+        return result.TrimEnd('\n');
     }
 }

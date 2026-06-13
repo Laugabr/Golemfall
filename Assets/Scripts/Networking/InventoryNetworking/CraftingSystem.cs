@@ -72,6 +72,17 @@ public class CraftingSystem : NetworkBehaviour
         Debug.Log($"[CRAFT] Resultado obtenido: {resultData?.name ?? "item desconocido"} (key={recipe.resultItemKey})");
         Debug.Log("[CRAFT] Exitoso");
     }
+
+    // Consulta read-only del resultado de una receta, para la preview de UI.
+    // No consume materiales ni modifica estado. El craft real sigue yendo
+    // por RPC_RequestCraft, que revalida todo en el server.
+    public short PreviewResult(short a, short b)
+    {
+        if (database == null) return -1;
+        var recipe = database.Find(a, b);
+        return recipe != null ? recipe.resultItemKey : (short)-1;
+    }
+
     private bool HasMaterials(NetworkInventory inv, CraftingRecipe recipe)
     {
         if (recipe.itemA == recipe.itemB)
@@ -83,6 +94,7 @@ public class CraftingSystem : NetworkBehaviour
         return inv.Items.Any(s => s.itemKey == recipe.itemA) &&
             inv.Items.Any(s => s.itemKey == recipe.itemB);
     }
+
     void RemoveItem(NetworkInventory inv, short key)
     {
         foreach (var slot in inv.Items)
