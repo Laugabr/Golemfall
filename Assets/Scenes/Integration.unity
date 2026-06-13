@@ -814,6 +814,7 @@ MonoBehaviour:
   _createRoomButton: {fileID: 3744599629869915440}
   _joinRoomButton: {fileID: 97684031071809463}
   _spawnPoint: {fileID: 1096641627}
+  _Hud: {fileID: 498218521}
   _networkRunner: {fileID: 22420848}
   _networkSceneManagerDefault: {fileID: 22420847}
   _playerPrefab: {fileID: 5404860756821982459, guid: 1b491d839b2dc6249916b81af5964b48, type: 3}
@@ -11998,6 +11999,11 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 2350611383966165715, guid: 31f62f751b9ff6340bd82c555a369ca1, type: 3}
   m_PrefabInstance: {fileID: 1589092919}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &498218521 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4023974688592003640, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
+  m_PrefabInstance: {fileID: 2283671066754051197}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &498359389 stripped
 Transform:
@@ -51514,6 +51520,10 @@ PrefabInstance:
     - target: {fileID: 2362699812181212305, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
       propertyPath: m_Name
       value: CanvasGameplay
+      objectReference: {fileID: 0}
+    - target: {fileID: 4023974688592003640, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8414989706905736984, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
       propertyPath: m_Pivot.x

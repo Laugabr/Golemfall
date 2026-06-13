@@ -14,6 +14,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] private Button _createRoomButton;
     [SerializeField] private Button _joinRoomButton;
     [SerializeField] private Transform _spawnPoint;
+    [SerializeField] private GameObject _Hud;
 
     //private NetworkProjectConfigAsset _networkConfig;
 
@@ -116,6 +117,9 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
 
     if (player == _networkRunner.LocalPlayer)
     {
+        if (_Hud != null)
+        _Hud.SetActive(true);
+
         if (CloudSaveGame.Instance != null)
             CloudSaveGame.Instance.StartGameSave();
     }
