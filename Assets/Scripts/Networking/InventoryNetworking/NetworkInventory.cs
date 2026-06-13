@@ -46,12 +46,12 @@ public class NetworkInventory : NetworkBehaviour
 
     #region CLIENT
 
-        [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
-        public void RPC_UpdateLocalInventory(RpcInfo info = default)
-        {
-            Debug.Log($"[RPC] UpdateLocalInventory recibido — {Items.Count} items");
-            LocalItems = new List<InventorySlot>(Items);
-        }
+    [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
+    public void RPC_UpdateLocalInventory(RpcInfo info = default)
+    {
+        Debug.Log($"[RPC] UpdateLocalInventory recibido — {Items.Count} items");
+        LocalItems = new List<InventorySlot>(Items);
+    }
 
     // Notifica al cliente que el inventario cambió — se setea una sola vez, no en loop
     [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
@@ -71,6 +71,14 @@ public class NetworkInventory : NetworkBehaviour
         if (!Object.HasStateAuthority) return;
 
         if (!Items.Any(s => s.itemKey == itemKey)) return;
+
+        // no exceder la capacidad de EquippedItems (Capacity(3)).
+        // El !Contains evita bloquear un re-equip de algo ya equipado.
+        if (EquippedItems.Count >= 3 && !EquippedItems.Contains(itemKey))
+        {
+            Debug.Log("[SERVER] equip slots full");
+            return;
+        }
 
         if (!EquippedItems.Contains(itemKey))
         {

@@ -7,7 +7,13 @@ public class EquipSlotDrop : MonoBehaviour, IDropHandler
     {
         var dragged = eventData.pointerDrag?.GetComponent<ItemSlotDrag>();
         if (dragged == null) return;
-        if (transform.childCount > 0) return;
+
+        // Ocupación por estado tipado (currentItem), no por childCount físico:
+        // así un child decorativo (background/highlight/VFX) no hace ver el slot
+        // como ocupado. Fallback a childCount solo si no hay ItemContainerSlot.
+        var container = GetComponent<ItemContainerSlot>();
+        bool occupied = container != null ? !container.IsEmpty : transform.childCount > 0;
+        if (occupied) return;
 
         var itemSlot = dragged.GetComponent<ItemSlot>();
         if (itemSlot == null) return;
@@ -20,10 +26,6 @@ public class EquipSlotDrop : MonoBehaviour, IDropHandler
 
         inventory.RPC_RequestEquip(itemKey);
 
-        // AssignItem setea currentItem del container destino Y aplica el placement.
-        // Sin esto, el slot tendría el item como child físico pero su currentItem seguiría null,
-        // y el próximo Refresh lo vería como vacío e instanciaría un duplicado encima.
-        var container = GetComponent<ItemContainerSlot>();
         if (container != null)
             container.AssignItem(itemSlot);
         else
