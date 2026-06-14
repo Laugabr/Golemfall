@@ -92,7 +92,7 @@ public class PlayerStats : CharacterStats
         {
             DirtyStats = false;
             OnStatsChanged?.Invoke();
-            DebugStats("CLIENT UPDATE");
+            //DebugStats("CLIENT UPDATE");
         }
     }
 
