@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4470091124215830598}
   - component: {fileID: 467334471359973280}
   - component: {fileID: -5009458299100021982}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: OWL_SkillPrefab_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -82,7 +82,7 @@ SphereCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
@@ -118,6 +118,14 @@ PrefabInstance:
     - target: {fileID: 406087668005387499, guid: 83ebc41fba3a55e468204494c0ace524, type: 3}
       propertyPath: m_Name
       value: vfx_HealingAoE
+      objectReference: {fileID: 0}
+    - target: {fileID: 406087668005387499, guid: 83ebc41fba3a55e468204494c0ace524, type: 3}
+      propertyPath: m_Layer
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4779137414273788834, guid: 83ebc41fba3a55e468204494c0ace524, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 8166650408978875784, guid: 83ebc41fba3a55e468204494c0ace524, type: 3}
       propertyPath: m_LocalPosition.x
