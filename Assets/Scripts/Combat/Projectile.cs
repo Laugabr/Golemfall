@@ -45,7 +45,7 @@ public class Projectile : NetworkBehaviour
     [Header("VFX (asignar en Inspector)")]
     [SerializeField] private GameObject collisionVFX;   // efecto al expirar sin chocar
     [SerializeField] private GameObject hitTargetVFX;   // efecto al danar un objetivo (opcional)
-
+    private bool IsAoe;
     private HashSet<NetworkObject> hitTargets = new HashSet<NetworkObject>();
     private Collider col;
 
@@ -70,7 +70,7 @@ public class Projectile : NetworkBehaviour
     }
 
     public void Initialize(NetworkObject caster, int damage, float speed, Vector3 dir,
-                           float activeTime, bool destroyOnHit, ProjectileType type, bool showHitVFX)
+                           float activeTime, bool destroyOnHit, ProjectileType type, bool showHitVFX, bool isAoe)
     {
         Owner = caster;
         Damage = damage;
@@ -80,7 +80,7 @@ public class Projectile : NetworkBehaviour
         DestroyOnHit = destroyOnHit;
         Type = type;
         ShowHitVFX = showHitVFX;
-
+        IsAoe = isAoe;
         // Se inicializa acá y no en Spawned() para garantizar que sea -1
         // desde el primer tick, antes de que FixedUpdateNetwork corra.
         HitTick = -1;
@@ -123,55 +123,48 @@ public class Projectile : NetworkBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+private void OnTriggerEnter(Collider other)
+{
+    if (Object == null || !Object.HasStateAuthority) return;
+    if (hasHit && !IsAoe) return; // solo bloquea si NO es aoe
+    if (Owner == null) return;
+    if (other.gameObject.layer == LayerMask.NameToLayer("Ignore Raycast")) return;
+
+    var otherNet = other.GetComponent<NetworkObject>();
+    if (otherNet != null && otherNet == Owner) return;
+    if (otherNet != null && hitTargets.Contains(otherNet)) return; // evita doble daño
+
+    bool damagedTarget = false;
+
+    var damageable = other.GetComponent<IDamageable>();
+    if (damageable != null)
     {
-        if (Object == null || !Object.HasStateAuthority) return;
-        if (hasHit) return;
-        if (Owner == null) return;
-        if (other.gameObject.layer == LayerMask.NameToLayer("Ignore Raycast")) return;
+        if (Type == ProjectileType.Player && !other.CompareTag("Enemy")) goto skip;
+        if (Type == ProjectileType.Enemy && !other.CompareTag("Player")) goto skip;
 
-        var otherNet = other.GetComponent<NetworkObject>();
-        if (otherNet != null && otherNet == Owner) return;
+        if (otherNet != null) hitTargets.Add(otherNet);
 
-        bool damagedTarget = false;
+        damageable.TakeDamage(Damage, Owner.gameObject);
+        damagedTarget = true;
+    }
 
-        var damageable = other.GetComponent<IDamageable>();
-        if (damageable != null)
-        {
-            if (Type == ProjectileType.Player && !other.CompareTag("Enemy")) goto skip;
-            if (Type == ProjectileType.Enemy && !other.CompareTag("Player")) goto skip;
-
-            if (otherNet != null)
-            {
-                if (hitTargets.Contains(otherNet)) return;
-                hitTargets.Add(otherNet);
-            }
-
-            damageable.TakeDamage(Damage, Owner.gameObject);
-            damagedTarget = true;
-        }
-
-    skip:
+skip:
+    if (!IsAoe)
+    {
+        // Comportamiento normal — para en el primer impacto
         hasHit = true;
         col.enabled = false;
-
-        // Guardamos el tick actual para que FixedUpdateNetwork despawnee
-        // en el tick siguiente — garantizando que el RPC del VFX llegue primero.
         HitTick = Runner.Tick;
-
-        // Mandamos el VFX desde el NetworkVFXManager que siempre existe,
-        // garantizando que el RPC llegue al cliente sin importar el Despawn.
-        // Solo si ShowHitVFX es true — el melee lo tiene desactivado.
-        // Usamos la posicion del objetivo como centro del VFX para que
-        // la explosion coincida visualmente con el impacto.
-        if (ShowHitVFX && NetworkVFXManager.Instance != null)
-        {
-            Vector3 vfxPos = damagedTarget ?
-                other.bounds.center :
-                other.ClosestPoint(transform.position);
-            NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(vfxPos, damagedTarget, Type, Direction);
-        }
     }
+
+    if (ShowHitVFX && NetworkVFXManager.Instance != null)
+    {
+        Vector3 vfxPos = damagedTarget ?
+            other.bounds.center :
+            other.ClosestPoint(transform.position);
+        NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(vfxPos, damagedTarget, Type, Direction);
+    }
+}
 
     /// <summary>
     /// Render() corre en TODOS los peers a framerate de pantalla.

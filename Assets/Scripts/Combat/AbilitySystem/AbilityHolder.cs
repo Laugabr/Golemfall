@@ -23,10 +23,17 @@ public class AbilityHolder : NetworkBehaviour
     [Networked, Capacity(4)] private NetworkArray<float> activeTimers => default;
     [Networked, Capacity(4)] private NetworkArray<AbilityState> states => default;
 
+    private PlayerProgressionVisuals _progression;
+
+    public override void Spawned(){
+        _progression = GetComponent<PlayerProgressionVisuals>();
+    }
+
     /// <summary>
     /// Actualiza los timers de cooldown y activeTime cada tick.
     /// Solo corre en el servidor para mantener autoridad sobre los estados.
     /// </summary>
+    /// 
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority) return;
@@ -96,12 +103,12 @@ public class AbilityHolder : NetworkBehaviour
     public void RPC_RequestUseAbility(int index, Vector3 direction, float attackYaw, RpcInfo info = default)
     {
         if (index < 0 || index >= abilities.Length) return;
+        if (states.Get(index) != AbilityState.Ready) return;
 
-        if (states.Get(index) != AbilityState.Ready)
-        {
-            Debug.Log($"[SERVER] Skill {index} en cooldown");
-            return;
-        }
+        // Clientes
+        var progression = GetComponent<PlayerProgressionVisuals>();
+        if (progression != null && !progression.IsAbilityUnlocked(index)) return;
+
 
         var ability = abilities[index];
         if (ability == null) { Debug.LogError("Ability null"); return; }
@@ -141,6 +148,11 @@ public class AbilityHolder : NetworkBehaviour
     public void ExecuteAbilityAuthority(int index, Vector3 direction)
     {
         if (states.Get(index) == AbilityState.Cooldown) return;
+
+        // Host
+        var progression = GetComponent<PlayerProgressionVisuals>();
+        if (progression != null && !progression.IsAbilityUnlocked(index)) return;
+
 
         var ability = abilities[index];
         if (ability == null) return;

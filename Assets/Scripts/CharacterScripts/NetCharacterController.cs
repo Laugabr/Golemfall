@@ -50,6 +50,8 @@ public class NetCharacterController : NetworkBehaviour
     private InventoryToggle cachedInventoryToggle;
     private Camera cachedMainCamera;
     private CameraController cachedCameraController;
+    private PlayerProgressionVisuals _progression;
+
 
     /// <summary>
     /// Yaw (en grados) deseado para el bodyVisuals. Se actualiza cada tick a
@@ -209,7 +211,9 @@ public class NetCharacterController : NetworkBehaviour
         }
 
         // RANGE (FirstSkill) — mismo patrón que BasicAttack
-        if (input.Buttons.WasPressed(PreviousButtons, InputButton.FirstSkill) && HasInputAuthority)
+        if (input.Buttons.WasPressed(PreviousButtons, InputButton.FirstSkill)
+        && HasInputAuthority
+        && (_progression == null || _progression.IsAbilityUnlocked(1)))
         {
             Vector3 mouseDir = GetMouseDirection();
 
@@ -222,7 +226,9 @@ public class NetCharacterController : NetworkBehaviour
             charAbilities?.RPC_RequestUseAbility(1, mouseDir, input.AttackYaw);
         }
         
-        if (input.Buttons.WasPressed(PreviousButtons, InputButton.SecondarySkill) && HasInputAuthority)
+        if (input.Buttons.WasPressed(PreviousButtons, InputButton.SecondarySkill)
+            && HasInputAuthority
+            && (_progression == null || _progression.IsAbilityUnlocked(2)))
         {
             charAbilities?.RPC_RequestUseAbility(2, Vector3.zero, 0f);
         }

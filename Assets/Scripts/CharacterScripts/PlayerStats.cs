@@ -14,12 +14,17 @@ public class PlayerStats : CharacterStats
     // Lista para guardar los puntos ganados por subir de nivel
     private List<StatInfo> baseLevelStats = new();
 
-    private void OnEnable() => BasicEventsManager.OnLevelUp += HandleLevelUp;
-
+    private void OnEnable()
+    {
+        BasicEventsManager.OnLevelUp += HandleLevelUp;
+        Debug.Log($"[PlayerStats] Suscrito a OnLevelUp");
+    }
     private void OnDisable() => BasicEventsManager.OnLevelUp -= HandleLevelUp;
 
     private void HandleLevelUp(int levelId)
     {
+        Debug.Log($"[PlayerStats] HandleLevelUp llamado con levelId {levelId}, HasStateAuthority: {Object.HasStateAuthority}");
+
         if (!Object.HasStateAuthority) return;
 
         // Guard: si no hay datos para ese nivel, ignorar
@@ -56,6 +61,8 @@ public class PlayerStats : CharacterStats
             baseLevelStats = baseStats.statInfo.Select(s => new StatInfo(s.statType, s.statValue)).ToList();
 
         localStats.Clear();
+
+        // 1 — stats base
         foreach (var bs in baseStats.statInfo)
         {
             var existing = localStats.FirstOrDefault(s => s.statType == bs.statType);
@@ -63,6 +70,15 @@ public class PlayerStats : CharacterStats
             else localStats.Add(new StatInfo(bs.statType, bs.statValue));
         }
 
+        // 2 — stats de nivel ← FALTABA ESTO
+        foreach (var ls in baseLevelStats)
+        {
+            var existing = localStats.FirstOrDefault(s => s.statType == ls.statType);
+            if (existing != null) existing.statValue += ls.statValue;
+            else localStats.Add(new StatInfo(ls.statType, ls.statValue));
+        }
+
+        // 3 — modificadores de inventario
         var inv = GetComponent<NetworkInventory>();
         foreach (short key in inv.EquippedItems)
         {
