@@ -14,6 +14,8 @@ public class DestructibleObject : NetworkBehaviour, IDamageable
     [SerializeField] private int experienceReward = 0;
     [SerializeField] private GameEventType trackEvent = GameEventType.BreakBreakable;
 
+    public event System.Action OnDestroyed;
+
     public void TakeDamage(int amount, GameObject source)
     {
         if (!Object.HasStateAuthority) return;
@@ -32,6 +34,7 @@ public class DestructibleObject : NetworkBehaviour, IDamageable
 
         TrackEvents.OnTrackEvent?.Invoke(trackEvent, 1);
 
+        OnDestroyed?.Invoke();
         Runner.Despawn(Object);
     }
 }

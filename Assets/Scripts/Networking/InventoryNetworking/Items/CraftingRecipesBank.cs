@@ -12,6 +12,8 @@ public class CraftingDatabase : ScriptableObject
     {
         foreach (var r in recipes)
         {
+            if (r == null) continue;
+            
             Debug.Log($"[DB] Comparando receta: {r.itemA}+{r.itemB} vs {a}+{b}");
             if ((r.itemA == a && r.itemB == b) ||
                 (r.itemA == b && r.itemB == a))

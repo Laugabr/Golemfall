@@ -3,9 +3,8 @@ using Fusion;
 
 /// <summary>
 /// Gestiona el HP del boss.
-/// Expone HealthPercent (0–1) para que BossAI detecte el cambio de fase.
-/// Solo el host modifica los valores; currentHealth está networkeado para que
-/// las barras de UI en clientes puedan leerlo.
+/// Expone HealthPercent (0-1) para que BossAI detecte el cambio de fase.
+/// ResetBoss() restaura el HP y reactiva la IA para cuando todos los players mueren.
 /// </summary>
 public class BossHealth : NetworkBehaviour
 {
@@ -16,10 +15,10 @@ public class BossHealth : NetworkBehaviour
 
     [Header("References")]
     [SerializeField] private BossAI bossAI;
+    [SerializeField] private ArenaRespawnManager respawnManager;
 
     private bool isDead = false;
 
-    /// <summary>Porcentaje de vida restante entre 0 y 1.</summary>
     public float HealthPercent => maxHealth > 0 ? CurrentHealth / maxHealth : 0f;
 
     public override void Spawned()
@@ -55,5 +54,26 @@ public class BossHealth : NetworkBehaviour
 
         if (bossAI != null)
             bossAI.DisableBoss();
+
+        // Notificamos al manager que el boss murió para desactivar la arena
+        if (respawnManager != null)
+            respawnManager.DeactivateArena();
+    }
+
+    /// <summary>
+    /// Restaura el HP y reactiva el boss. Llamado por ArenaRespawnManager
+    /// cuando todos los players mueren.
+    /// </summary>
+    public void ResetBoss()
+    {
+        if (!Object.HasStateAuthority) return;
+
+        isDead = false;
+        CurrentHealth = maxHealth;
+
+        if (bossAI != null)
+            bossAI.ResetBoss();
+
+        Debug.Log("[BossHealth] Boss reseteado");
     }
 }
