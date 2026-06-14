@@ -36,7 +36,8 @@ public static class ProjectileRuntime
                     data.projectileLifetime,
                     data.destroyOnHit,
                     data.projectileType,
-                    data.showHitVFX       // indica si mostrar explosion al impactar
+                    data.showHitVFX,    
+                    data.isAoe
                 );
             }
         );
