@@ -12,13 +12,12 @@ public class ExperienceUI : MonoBehaviour
     public static ExperienceUI Instance { get; private set; }
 
     [Header("UI References")]
-    [SerializeField] private HoverDetailLabel xpLabel;   // Compacto: "1" | Hover: "Nivel 1 Puntos 93"
+    [SerializeField] private HoverDetailLabel xpLabel;   // Muestra solo el número de nivel
     [SerializeField] private Image xpFillBar;            // Image type: Filled
 
-    // Valores cacheados: nivel y XP total llegan en callbacks distintos,
-    // pero ambos son necesarios para armar el texto detallado.
     private int cachedLevel = 1;
-    private int cachedTotalXp = 0;
+    // Para el detalle "Puntos Y" en hover (ver RefreshLabel):
+    // private int cachedTotalXp = 0;
 
     private void Awake()
     {
@@ -31,8 +30,8 @@ public class ExperienceUI : MonoBehaviour
     // Called by ExperienceManager.OnExperienceChanged via OnChangedRender
     public void UpdateXP(int totalXp, int currentLevel, int xpCurrentLevelStart, int xpNextLevel)
     {
-        cachedTotalXp = totalXp;
         cachedLevel = currentLevel;
+        // cachedTotalXp = totalXp; // descomentar para reactivar el detalle en hover
 
         int xpIntoLevel = totalXp - xpCurrentLevelStart;
         int xpNeeded    = xpNextLevel - xpCurrentLevelStart;
@@ -52,7 +51,13 @@ public class ExperienceUI : MonoBehaviour
 
     private void RefreshLabel()
     {
-        if (xpLabel != null)
-            xpLabel.Set(cachedLevel.ToString(), $"Nivel {cachedLevel} Puntos {cachedTotalXp}");
+        if (xpLabel == null) return;
+
+        // Por ahora solo mostramos el número de nivel, sin detalle en hover.
+        xpLabel.Set(cachedLevel.ToString(), cachedLevel.ToString());
+
+        // Para reactivar el detalle "Nivel X Puntos Y" en hover, comentar la línea
+        // de arriba, descomentar esta y el campo/asignación de cachedTotalXp:
+        // xpLabel.Set(cachedLevel.ToString(), $"Nivel {cachedLevel} Puntos {cachedTotalXp}");
     }
 }

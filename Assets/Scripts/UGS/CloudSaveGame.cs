@@ -8,6 +8,7 @@ public class CloudSaveGame : MonoBehaviour
     public static CloudSaveGame Instance { get; private set; }
 
     [Header("Auto Save")]
+    [SerializeField] private bool enableAutoSave = false; // EXPO: apagado. Reactivar post-expo.
     [SerializeField] private float autoSaveInterval = 60f;
     private float autoSaveTimer;
     private bool gameStarted = false;
@@ -45,11 +46,14 @@ public class CloudSaveGame : MonoBehaviour
             TryApplyPendingExperience();
 
         // Periodic auto save
-        autoSaveTimer += Time.deltaTime;
-        if (autoSaveTimer >= autoSaveInterval)
+        if (enableAutoSave)
         {
-            autoSaveTimer = 0f;
-            _ = SaveGameData();
+            autoSaveTimer += Time.deltaTime;
+            if (autoSaveTimer >= autoSaveInterval)
+            {
+                autoSaveTimer = 0f;
+                _ = SaveGameData();
+            }
         }
     }
 

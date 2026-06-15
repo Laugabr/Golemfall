@@ -1,13 +1,14 @@
+using Fusion;
 using UnityEngine;
 
-public class BossWeakPoint : MonoBehaviour
+public class BossWeakPoint : NetworkBehaviour, IDamageable
 {
     [SerializeField] private BossHealth bossHealth;
 
-    public void TakeDamage(float amount, Transform attacker)
+    public void TakeDamage(int amount, GameObject source)
     {
         Debug.Log("[WeakPoint] Damage recibido");
 
-        bossHealth.TakeDamage(amount, attacker);
+        bossHealth.TakeDamage(amount, source);
     }
 }

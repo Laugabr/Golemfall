@@ -11,7 +11,7 @@ public class DealDamage : NetworkBehaviour
     {
         attacker = atk;
     }
-
+    /*
     public void ApplyDamage(GameObject target)
     {
         if (!Object.HasStateAuthority) return;
@@ -41,5 +41,5 @@ public class DealDamage : NetworkBehaviour
             bossHealth.TakeDamage(damage, attacker);
             return;
         }
-    }
+    }*/
 }
