@@ -2184,11 +2184,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.31, y: 87.3, z: 64.43}
   m_Center: {x: -8, y: -35.4, z: 0.56}
---- !u!4 &55911020 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -5884441139759187861, guid: 5e140a87812bbd04ab943d38e8122542, type: 3}
-  m_PrefabInstance: {fileID: 883179962}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &56208794
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11675,11 +11670,6 @@ Transform:
 Transform:
   m_CorrespondingSourceObject: {fileID: 2664975171880740007, guid: 827e9a4f65bbf304795428b3d0e79a9e, type: 3}
   m_PrefabInstance: {fileID: 609757887}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &425323595 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -5744050511755798326, guid: 5e140a87812bbd04ab943d38e8122542, type: 3}
-  m_PrefabInstance: {fileID: 883179962}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &425445061
 PrefabInstance:
@@ -24503,23 +24493,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5e140a87812bbd04ab943d38e8122542, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.5877853
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5e140a87812bbd04ab943d38e8122542, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.80901694
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5e140a87812bbd04ab943d38e8122542, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5e140a87812bbd04ab943d38e8122542, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5e140a87812bbd04ab943d38e8122542, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 108
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5e140a87812bbd04ab943d38e8122542, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -29547,10 +29537,10 @@ SkinnedMeshRenderer:
   m_SkinnedMotionVectors: 1
   m_Mesh: {fileID: -3686099967196542000, guid: 5e140a87812bbd04ab943d38e8122542, type: 3}
   m_Bones:
-  - {fileID: 425323595}
-  - {fileID: 55911020}
+  - {fileID: 0}
+  - {fileID: 0}
   m_BlendShapeWeights: []
-  m_RootBone: {fileID: 55911020}
+  m_RootBone: {fileID: 0}
   m_AABB:
     m_Center: {x: -0.0015945286, y: -0.27706367, z: -0.08794565}
     m_Extent: {x: 0.037094016, y: 0.052652366, z: 0.0485589}
@@ -33575,6 +33565,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54322c237dd18154ab580ed16b5e7a5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  clearProgressOnStart: 1
 --- !u!114 &1247381038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33604,6 +33595,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34811f76532094a4985787328c1d9fc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableAutoSave: 0
   autoSaveInterval: 60
 --- !u!1001 &1248005854
 PrefabInstance:
