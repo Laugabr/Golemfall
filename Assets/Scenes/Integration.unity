@@ -918,6 +918,7 @@ MonoBehaviour:
   _createRoomButton: {fileID: 3744599629869915440}
   _joinRoomButton: {fileID: 97684031071809463}
   _spawnPoint: {fileID: 1096641627}
+  _Hud: {fileID: 1006579260}
   _networkRunner: {fileID: 22420848}
   _networkSceneManagerDefault: {fileID: 22420847}
   _playerPrefab: {fileID: 5404860756821982459, guid: 1b491d839b2dc6249916b81af5964b48, type: 3}
@@ -26908,6 +26909,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 571900fbea18bb746afda651b9f9dc98, type: 3}
+--- !u!1 &1006579260 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4023974688592003640, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
+  m_PrefabInstance: {fileID: 2283671066754051197}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1007441557 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2664975171880740007, guid: 827e9a4f65bbf304795428b3d0e79a9e, type: 3}
