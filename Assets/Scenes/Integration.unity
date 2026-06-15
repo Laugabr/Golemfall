@@ -31495,9 +31495,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 723824070938833385, guid: 4cab16c4e2a0649489ab49155b9fc1ae, type: 3}
+      propertyPath: npcData
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 7135558974723821348, guid: 4cab16c4e2a0649489ab49155b9fc1ae, type: 3}
       propertyPath: m_Name
-      value: npc1 (2)
+      value: npc4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7135558974723821348, guid: 4cab16c4e2a0649489ab49155b9fc1ae, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8646599323152525172, guid: 4cab16c4e2a0649489ab49155b9fc1ae, type: 3}
       propertyPath: m_LocalPosition.x
@@ -38272,9 +38280,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 723824070938833385, guid: 4cab16c4e2a0649489ab49155b9fc1ae, type: 3}
+      propertyPath: npcData
+      value: 
+      objectReference: {fileID: 11400000, guid: e82f9d8f97d4d1a43a8c24c86c8a12e5, type: 2}
     - target: {fileID: 7135558974723821348, guid: 4cab16c4e2a0649489ab49155b9fc1ae, type: 3}
       propertyPath: m_Name
-      value: npc1
+      value: npc2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7135558974723821348, guid: 4cab16c4e2a0649489ab49155b9fc1ae, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8646599323152525172, guid: 4cab16c4e2a0649489ab49155b9fc1ae, type: 3}
       propertyPath: m_LocalPosition.x
@@ -39206,9 +39222,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 723824070938833385, guid: 4cab16c4e2a0649489ab49155b9fc1ae, type: 3}
+      propertyPath: npcData
+      value: 
+      objectReference: {fileID: 11400000, guid: a89991b24511c05468dfbe47c1239cab, type: 2}
     - target: {fileID: 7135558974723821348, guid: 4cab16c4e2a0649489ab49155b9fc1ae, type: 3}
       propertyPath: m_Name
-      value: npc1 (1)
+      value: npc3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7135558974723821348, guid: 4cab16c4e2a0649489ab49155b9fc1ae, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8646599323152525172, guid: 4cab16c4e2a0649489ab49155b9fc1ae, type: 3}
       propertyPath: m_LocalPosition.x
