@@ -50,8 +50,10 @@ public class NetCharacterController : NetworkBehaviour
     private InventoryToggle cachedInventoryToggle;
     private Camera cachedMainCamera;
     private CameraController cachedCameraController;
-    private PlayerProgressionVisuals _progression;
 
+    // Cache de progresión — se inicializa en Spawned() para no llamar
+    // GetComponent cada tick en FixedUpdateNetwork.
+    private PlayerProgressionVisuals _progression;
 
     /// <summary>
     /// Yaw (en grados) deseado para el bodyVisuals. Se actualiza cada tick a
@@ -68,11 +70,10 @@ public class NetCharacterController : NetworkBehaviour
 
     /// <summary>
     /// Estado de dash autoritativo. Tanto el host como el InputAuthority lo activan
-    /// cuando se cumplen las condiciones (input + cooldown + dirección). En el
-    /// cliente, esto funciona como predicción local: el dash se ve inmediatamente
+    /// cuando se cumplen las condiciones (input + cooldown + dirección + desbloqueado).
+    /// En el cliente, esto funciona como predicción local: el dash se ve inmediatamente
     /// y Fusion sincroniza con el host. El NetCharacterAnimator lo lee para
-    /// decidir si reproducir la animación de dash, evitando que la animación se
-    /// dispare cuando el dash real está en cooldown.
+    /// decidir si reproducir la animación de dash.
     /// </summary>
     [Networked] public NetworkBool IsDashing { get; private set; }
     [Networked] public float NetVerticalVelocity { get; private set; }
@@ -98,6 +99,10 @@ public class NetCharacterController : NetworkBehaviour
 
         if (HasStateAuthority && bodyVisuals != null)
             NetBodyYaw = bodyVisuals.eulerAngles.y;
+
+        // Cacheamos la progresión para chequear desbloqueos sin llamar
+        // GetComponent cada tick en FixedUpdateNetwork.
+        _progression = GetComponent<PlayerProgressionVisuals>();
 
         if (HasInputAuthority)
         {
@@ -161,15 +166,15 @@ public class NetCharacterController : NetworkBehaviour
         }
 
         // ── DASH ────────────────────────────────────────────────────────────────
-        // Se activa solo si: hay flanco de subida en el botón, no hay cooldown y
-        // hay dirección de movimiento.
+        // Se activa solo si: hay flanco de subida en el botón, no hay cooldown,
+        // hay dirección de movimiento, y el dash está desbloqueado por progresión.
         // WasPressed usa PreviousButtons (networked) para detectar el flanco de
-        // forma correcta tanto en simulación normal como en resimulaciones de
-        // rollback — si PreviousButtons fuera una variable local, no sobreviviría
-        // el rollback y WasPressed daría resultados incorrectos.
+        // forma correcta tanto en simulación normal como en resimulaciones de rollback.
+        bool dashUnlocked = _progression == null || _progression.IsDashUnlocked();
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.Dash)
             && DashCooldownTimer <= 0f
-            && input.Direction.magnitude > 0.1f)
+            && input.Direction.magnitude > 0.1f
+            && dashUnlocked)
         {
             IsDashing = true;
             DashTimer = dashDuration;
@@ -178,21 +183,13 @@ public class NetCharacterController : NetworkBehaviour
         }
 
         // ── SALTO ───────────────────────────────────────────────────────────────
-        // Igual que el dash: WasPressed necesita PreviousButtons networked para
-        // que el flanco se detecte correctamente durante resimulaciones.
         float jump = 0f;
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.Jump) && kcc.IsGrounded)
             jump = jumpPower;
 
         // ── HABILIDADES / INTERACCIÓN ────────────────────────────────────────────
 
-        // MELEE (BasicAttack)
-        // La rotación se escribe desde el cliente con HasInputAuthority usando
-        // GetMouseDirection() — igual que antes. El host la escribe via SetAttackYaw()
-        // llamado desde RPC_RequestUseAbility, donde la habilidad todavía está Ready.
-        // Esto resuelve el problema de timing: si escribiéramos NetBodyYaw en FUN
-        // dependiendo de IsReady, el RPC ya habría puesto la habilidad en Cooldown
-        // antes de que el host llegue a ese bloque.
+        // MELEE (BasicAttack) — siempre disponible, sin chequeo de progresión.
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.BasicAttack) ||
             input.Buttons.WasPressed(PreviousButtons, InputButton.MouseButton0))
         {
@@ -210,10 +207,10 @@ public class NetCharacterController : NetworkBehaviour
             }
         }
 
-        // RANGE (FirstSkill) — mismo patrón que BasicAttack
+        // RANGE (FirstSkill) — bloqueado hasta que se desbloquee por progresión.
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.FirstSkill)
-        && HasInputAuthority
-        && (_progression == null || _progression.IsAbilityUnlocked(1)))
+            && HasInputAuthority
+            && (_progression == null || _progression.IsAbilityUnlocked(1)))
         {
             Vector3 mouseDir = GetMouseDirection();
 
@@ -225,7 +222,8 @@ public class NetCharacterController : NetworkBehaviour
 
             charAbilities?.RPC_RequestUseAbility(1, mouseDir, input.AttackYaw);
         }
-        
+
+        // HEAL (SecondarySkill) — bloqueado hasta que se desbloquee por progresión.
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.SecondarySkill)
             && HasInputAuthority
             && (_progression == null || _progression.IsAbilityUnlocked(2)))
@@ -233,6 +231,7 @@ public class NetCharacterController : NetworkBehaviour
             charAbilities?.RPC_RequestUseAbility(2, Vector3.zero, 0f);
         }
 
+        // PICK UP (Interact) — siempre disponible.
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.Interact) && HasInputAuthority)
             charPickUp?.TryPickUp();
 
@@ -263,7 +262,6 @@ public class NetCharacterController : NetworkBehaviour
         // Si el jugador está atacando, conservamos el yaw del ataque — no
         // sobreescribimos con la dirección de movimiento hasta que ClearAttackLock()
         // libere IsAttacking al terminar la animación.
-        // Si no está atacando y hay dirección de movimiento, actualizamos el yaw.
         if (moveDir.sqrMagnitude > 0.01f && !IsAttacking)
             NetBodyYaw = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
 
@@ -290,11 +288,6 @@ public class NetCharacterController : NetworkBehaviour
         );
     }
 
-    /// <summary>
-    /// Devuelve la dirección normalizada desde el jugador hacia el cursor del mouse
-    /// proyectada en el plano XZ. Solo válido en la máquina local del cliente.
-    /// Usado para orientar y posicionar proyectiles en el RPC de habilidades.
-    /// </summary>
     private Vector3 GetMouseDirection()
     {
         Camera cam = cachedMainCamera != null ? cachedMainCamera : Camera.main;
@@ -323,8 +316,7 @@ public class NetCharacterController : NetworkBehaviour
     /// <summary>
     /// Llamado desde AbilityHolder.RPC_RequestUseAbility() en el host para
     /// escribir NetBodyYaw con el yaw de ataque del cliente, antes de que
-    /// la habilidad pase a Cooldown. Después del cambio de estado, IsReady
-    /// devuelve false y la escritura desde FixedUpdateNetwork ya no ocurre.
+    /// la habilidad pase a Cooldown.
     /// </summary>
     public void SetAttackYaw(float yaw)
     {
