@@ -74,7 +74,14 @@ public class GameHUD : MonoBehaviour
             healthFill.fillAmount = (float)current / max;
 
         if (healthLabel != null)
-            healthLabel.Set(current.ToString(), $"{current} / {max}");
+        {
+            // Por ahora la vida NO muestra ningún número, solo la barra.
+            healthLabel.Set("", "");
+
+            // Para reactivar el número (y el detalle "115 / 150" en hover),
+            // comentar la línea de arriba y descomentar esta:
+            // healthLabel.Set(current.ToString(), $"{current} / {max}");
+        }
     }
 
     // ── GUARDADO ─────────────────────────────────
