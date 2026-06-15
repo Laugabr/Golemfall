@@ -30,7 +30,7 @@ public class BossHealth : NetworkBehaviour
         }
     }
 
-    public void TakeDamage(float amount, Transform attacker)
+    public void TakeDamage(float amount, GameObject attacker)
     {
         if (!Object.HasStateAuthority) return;
         if (isDead) return;
@@ -39,7 +39,7 @@ public class BossHealth : NetworkBehaviour
         Debug.Log($"[BossHealth] -{amount} daño → HP: {CurrentHealth}/{maxHealth}");
 
         if (bossAI != null && attacker != null)
-            bossAI.AddAggro(attacker, amount);
+            bossAI.AddAggro(attacker.transform, amount);
 
         if (CurrentHealth <= 0)
             Die();
