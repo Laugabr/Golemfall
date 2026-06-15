@@ -35,6 +35,7 @@ using UnityEngine;
 ///   trigger rangeTrigger
 ///   trigger takeDamageTrigger
 ///   trigger deathTrigger
+///   trigger healTrigger
 /// </summary>
 public class NetCharacterAnimator : NetworkBehaviour
 {
@@ -65,6 +66,13 @@ public class NetCharacterAnimator : NetworkBehaviour
     [Networked] private int NetRangeTick { get; set; }
 
     /// <summary>
+    /// Tick stamp para la animación de curación.
+    /// El StateAuthority lo escribe cuando se dispara el healTrigger.
+    /// Los proxies lo leen en Render() y disparan el trigger cuando cambia.
+    /// </summary>
+    [Networked] private int NetHealTick { get; set; }
+
+    /// <summary>
     /// Tick stamp para el trigger de recibir daño.
     /// Solo el StateAuthority lo escribe via TriggerTakeDamage().
     /// Los proxies lo leen en Render() y disparan el trigger cuando cambia.
@@ -76,6 +84,7 @@ public class NetCharacterAnimator : NetworkBehaviour
     private int _lastJumpTick;
     private int _lastMeleeTick;
     private int _lastRangeTick;
+    private int _lastHealTick;
     private int _lastTakeDamageTick;
 
     // Hashes cacheados de los parámetros del Animator
@@ -87,10 +96,14 @@ public class NetCharacterAnimator : NetworkBehaviour
     private static readonly int JumpTriggerHash = Animator.StringToHash("jumpTrigger");
     private static readonly int MeleeTriggerHash = Animator.StringToHash("meleeTrigger");
     private static readonly int RangeTriggerHash = Animator.StringToHash("rangeTrigger");
+    private static readonly int HealTriggerHash = Animator.StringToHash("healTrigger");
     private static readonly int TakeDamageTriggerHash = Animator.StringToHash("takeDamageTrigger");
     private static readonly int VerticalVelocityHash = Animator.StringToHash("verticalVelocity");
     private static readonly int DeathTriggerHash = Animator.StringToHash("deathTrigger");
     private static readonly int IsDeadHash = Animator.StringToHash("isDead");
+
+    // Cache de progresión para no llamar GetComponent cada tick
+    private PlayerProgressionVisuals _progression;
 
     // Estado del idle randomizer — SOLO en StateAuthority (es no-determinístico)
     private float _serverIdleTimer;
@@ -115,6 +128,10 @@ public class NetCharacterAnimator : NetworkBehaviour
 
         if (abilityHolder == null)
             abilityHolder = GetComponent<AbilityHolder>();
+
+        // Cacheamos la progresión para chequear habilidades desbloqueadas
+        // sin llamar GetComponent cada tick en FixedUpdateNetwork.
+        _progression = GetComponent<PlayerProgressionVisuals>();
     }
 
     public override void Spawned()
@@ -124,6 +141,7 @@ public class NetCharacterAnimator : NetworkBehaviour
         _lastJumpTick = NetJumpTick;
         _lastMeleeTick = NetMeleeTick;
         _lastRangeTick = NetRangeTick;
+        _lastHealTick = NetHealTick;
         _lastTakeDamageTick = NetTakeDamageTick;
     }
 
@@ -132,7 +150,6 @@ public class NetCharacterAnimator : NetworkBehaviour
         if (animator == null) return;
 
         bool gotInput = GetInput(out NetInputPlayer input);
-        //Debug.Log($"[ANIM FUN] HasStateAuth={HasStateAuthority} HasInputAuth={HasInputAuthority} GotInput={gotInput}");
         if (!gotInput) return;
 
         // Si está muerto no procesamos ningún input de animación
@@ -202,6 +219,30 @@ public class NetCharacterAnimator : NetworkBehaviour
 
                 if (HasStateAuthority)
                     NetRangeTick = Runner.Tick;
+            }
+        }
+
+        // HEAL (E / SecondarySkill)
+        // La animación solo se dispara si la habilidad está desbloqueada y lista.
+        // El efecto real (spawn del UtilityAbility) ocurre en el frame 11
+        // via HealAtFrame.cs → AbilityHolder.ExecuteHealEffect().
+        if (input.Buttons.WasPressed(PreviousButtons, InputButton.SecondarySkill))
+        {
+            // Verificamos desbloqueo con el mismo patrón que NetCharacterController
+            // para que animación y lógica estén siempre sincronizadas.
+            bool unlocked = _progression == null || _progression.IsAbilityUnlocked(2);
+
+            float cooldownTime = abilityHolder != null ? abilityHolder.GetCooldownTime(2) : 0f;
+            int cooldownTicks = Mathf.CeilToInt(cooldownTime / Runner.DeltaTime);
+            bool animReady = (Runner.Tick - NetHealTick) > cooldownTicks;
+
+            if (animReady && unlocked && (abilityHolder == null || abilityHolder.IsReady(2)))
+            {
+                animator.SetTrigger(HealTriggerHash);
+                ResetIdleLocal();
+
+                if (HasStateAuthority)
+                    NetHealTick = Runner.Tick;
             }
         }
 
@@ -360,6 +401,13 @@ public class NetCharacterAnimator : NetworkBehaviour
         {
             _lastRangeTick = NetRangeTick;
             animator.SetTrigger(RangeTriggerHash);
+        }
+
+        // Heal — proxies reaccionan al cambio del tick stamp
+        if (NetHealTick != _lastHealTick)
+        {
+            _lastHealTick = NetHealTick;
+            animator.SetTrigger(HealTriggerHash);
         }
 
         // TakeDamage — proxies reaccionan al cambio del tick stamp
