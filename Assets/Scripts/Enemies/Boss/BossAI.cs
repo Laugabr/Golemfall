@@ -136,6 +136,7 @@ public class BossAI : NetworkBehaviour
 
     void SpawnEnemyWave()
     {
+        if (!Object.HasStateAuthority) return;
         if (enemySpawnPoints == null || enemySpawnPoints.Length == 0) return;
 
         spawnedEnemies.RemoveAll(e => e == null || !e.IsValid);

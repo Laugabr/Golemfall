@@ -11,6 +11,7 @@ public class BurnArea : NetworkBehaviour
     private float lastTick;
 
     private DealDamage damage;
+    [SerializeField] private int damageAmount = 5;
 
     private HashSet<GameObject> targetsInside = new();
 
@@ -47,7 +48,7 @@ public class BurnArea : NetworkBehaviour
                 if (target == null) continue;
 
                 Debug.Log("[BurnArea] Tick daño a " + target.name);
-                damage.ApplyDamage(target);
+                target.GetComponent<IDamageable>()?.TakeDamage(damageAmount, gameObject); // Aplica daño al player
             }
         }
     }
