@@ -582,14 +582,14 @@ MonoBehaviour:
   unlocks:
   - requiredLevel: 1
     maskToDisable: {fileID: 2003382550839548575}
-    maskToEnable: {fileID: 255236804348453047}
+    maskToEnable: {fileID: 0}
     abilityIndex: -1
   - requiredLevel: 2
-    maskToDisable: {fileID: 255236804348453047}
-    maskToEnable: {fileID: 8352280875390389740}
+    maskToDisable: {fileID: 0}
+    maskToEnable: {fileID: 0}
     abilityIndex: -1
   - requiredLevel: 3
-    maskToDisable: {fileID: 8352280875390389740}
+    maskToDisable: {fileID: 0}
     maskToEnable: {fileID: 2003382550839548575}
     abilityIndex: -1
   - requiredLevel: 2
@@ -711,11 +711,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 4232364738801912288}
   m_SourcePrefab: {fileID: 100100000, guid: a6a1031802a7a2549ab2221a1fa55529, type: 3}
---- !u!1 &255236804348453047 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3063270692456323525, guid: a6a1031802a7a2549ab2221a1fa55529, type: 3}
-  m_PrefabInstance: {fileID: 2956653779089553778}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2003382550839548575 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3658423880020861933, guid: a6a1031802a7a2549ab2221a1fa55529, type: 3}
@@ -749,11 +744,6 @@ MonoBehaviour:
 --- !u!4 &3351414310437887641 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6a1031802a7a2549ab2221a1fa55529, type: 3}
-  m_PrefabInstance: {fileID: 2956653779089553778}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &8352280875390389740 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6548629434408907934, guid: a6a1031802a7a2549ab2221a1fa55529, type: 3}
   m_PrefabInstance: {fileID: 2956653779089553778}
   m_PrefabAsset: {fileID: 0}
 --- !u!137 &9221935653305143992 stripped
