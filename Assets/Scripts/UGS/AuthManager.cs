@@ -23,6 +23,10 @@ public class AuthManager : MonoBehaviour
     [Header("Config")]
     [SerializeField] private string sceneToLoad = "Integration";
 
+    [Header("Expo Mode")]
+    [Tooltip("Login anónimo automático con cuenta nueva en cada arranque. Desactivar post-expo.")]
+    [SerializeField] private bool expoAutoLogin = true;
+
     async void Start()
     {
         SetButtonsInteractable(false);
@@ -32,6 +36,13 @@ public class AuthManager : MonoBehaviour
         try
         {
             await UnityServices.InitializeAsync();
+
+            if (expoAutoLogin)
+            {
+                await ExpoAutoLogin();
+                return;
+            }
+
             SetButtonsInteractable(true);
             statusText.text = "Listo para iniciar sesión.";
         }
@@ -89,6 +100,26 @@ public class AuthManager : MonoBehaviour
         }
         catch (AuthenticationException e) { HandleError(e); }
         catch (RequestFailedException e) { HandleError(e); }
+    }
+
+    // --- Expo: login anónimo automático con cuenta nueva en cada arranque ---
+    private async Task ExpoAutoLogin()
+    {
+        try
+        {
+            statusText.text = "Iniciando sesión...";
+
+            // Forzar SIEMPRE cuenta anónima nueva, cubriendo ambos estados:
+            if (AuthenticationService.Instance.IsSignedIn)
+                AuthenticationService.Instance.SignOut(clearCredentials: true); // logueado: cierra y borra token
+            else if (AuthenticationService.Instance.SessionTokenExists)
+                AuthenticationService.Instance.ClearSessionToken();             // deslogueado: borra token cacheado
+
+            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            EnterGame();
+        }
+        catch (AuthenticationException e) { SetButtonsInteractable(true); HandleError(e); }
+        catch (RequestFailedException e) { SetButtonsInteractable(true); HandleError(e); }
     }
 
     private void EnterGame()
