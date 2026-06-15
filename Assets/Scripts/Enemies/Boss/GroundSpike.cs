@@ -8,6 +8,7 @@ using Fusion;
 /// </summary>
 public class GroundSpike : NetworkBehaviour
 {
+    [SerializeField] private int damageAmount = 10;
     [SerializeField] private float lifeTime = 2f;
 
     private DealDamage dealDamage;
@@ -25,12 +26,12 @@ public class GroundSpike : NetworkBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!Object.HasStateAuthority) return;
-
         if (other.CompareTag("Player"))
         {
             Debug.Log("[GroundSpike] Hit player");
-            dealDamage?.ApplyDamage(other.gameObject);
+            other.GetComponent<IDamageable>()?.TakeDamage(damageAmount, gameObject); // Aplica da�o al player
         }
+
     }
 
     void Despawn()
