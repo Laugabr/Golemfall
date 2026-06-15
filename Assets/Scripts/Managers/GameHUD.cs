@@ -6,7 +6,7 @@ public class GameHUD : MonoBehaviour
 {
     [Header("Barra de Vida")]
     [SerializeField] private Image healthFill;
-    [SerializeField] private TMP_Text healthText;
+    [SerializeField] private HoverDetailLabel healthLabel;
 
     [Header("Guardado")]
     [SerializeField] private TMP_Text saveStatusText;
@@ -73,8 +73,8 @@ public class GameHUD : MonoBehaviour
         if (healthFill != null && max > 0)
             healthFill.fillAmount = (float)current / max;
 
-        if (healthText != null)
-            healthText.text = $"{current} / {max}";
+        if (healthLabel != null)
+            healthLabel.Set(current.ToString(), $"{current} / {max}");
     }
 
     // ── GUARDADO ─────────────────────────────────
