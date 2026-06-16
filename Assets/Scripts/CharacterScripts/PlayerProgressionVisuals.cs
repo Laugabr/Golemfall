@@ -38,8 +38,8 @@ public class LevelUnlock
 ///     Cada peer las inicializa en Spawned() y las actualiza al subir de nivel.
 ///   - El nivel actual viene de _renderedLevel que SÍ es [Networked] y se
 ///     sincroniza via OnChangedRender cuando el host escribe el nuevo nivel.
-///   - IsAbilityUnlocked() e IsDashUnlocked() son consultados por
-///     NetCharacterController, NetCharacterAnimator y AbilityHolder.
+///   - ApplyUnlocksUpToLevel corre en TODOS los peers para que las máscaras
+///     visuales se vean correctamente en todas las máquinas.
 ///
 /// Configuración recomendada en el Inspector:
 ///   Element 0 — "Dash"       requiredLevel=2  unlockDash=true
@@ -60,15 +60,14 @@ public class PlayerProgressionVisuals : NetworkBehaviour
     /// <summary>
     /// Nivel actual del jugador, sincronizado en red.
     /// El host lo escribe via OnPlayerLevelUp().
-    /// Todos los peers aplican los desbloqueos cuando cambia.
+    /// Todos los peers aplican los desbloqueos cuando cambia via OnChangedRender.
     /// </summary>
     [Networked, OnChangedRender(nameof(OnLevelChanged))]
     private int _renderedLevel { get; set; }
 
     public override void Spawned()
     {
-        // 1. Inicializamos qué está bloqueado según la configuración del Inspector.
-        //    Todo lo que tenga un unlock definido arranca bloqueado.
+        // Inicializamos qué está bloqueado según la configuración del Inspector.
         _lockedAbilities.Clear();
         _dashLocked = false;
 
@@ -81,15 +80,11 @@ public class PlayerProgressionVisuals : NetworkBehaviour
                 _dashLocked = true;
         }
 
-        // 2. El host setea el nivel inicial a 1.
-        //    El cliente recibe _renderedLevel via snapshot — puede ser 0 si
-        //    todavía no llegó, o el valor real si ya había sincronización.
         if (Object.HasStateAuthority)
             _renderedLevel = 1;
 
-        // 3. Aplicamos desbloqueos con el nivel actual.
-        //    Usamos Max(1, _renderedLevel) para que el cliente también aplique
-        //    el nivel mínimo aunque el snapshot todavía no llegó del host.
+        // Usamos Max(1, _renderedLevel) para que el cliente aplique el nivel mínimo
+        // aunque el snapshot todavía no llegó del host.
         ApplyUnlocksUpToLevel(Mathf.Max(1, _renderedLevel));
     }
 
@@ -111,10 +106,9 @@ public class PlayerProgressionVisuals : NetworkBehaviour
 
     /// <summary>
     /// Aplica todos los desbloqueos cuyo nivel requerido sea <= al nivel dado.
-    /// Corre en TODOS los peers — tanto host como cliente necesitan saber
-    /// qué está desbloqueado para que AbilityHolder, NetCharacterController
-    /// y NetCharacterAnimator funcionen correctamente en cada máquina.
-    /// Las máscaras visuales solo se aplican al owner local (HasInputAuthority).
+    /// Corre en TODOS los peers — tanto host como cliente necesitan:
+    ///   - Ver las máscaras de todos los jugadores correctamente
+    ///   - Saber qué habilidades y dash están desbloqueados para validar inputs
     /// </summary>
     private void ApplyUnlocksUpToLevel(int level)
     {
@@ -122,20 +116,19 @@ public class PlayerProgressionVisuals : NetworkBehaviour
         {
             if (level < unlock.requiredLevel) continue;
 
-            // Máscaras — solo visuales, solo para el owner local
-            if (Object.HasInputAuthority)
-            {
-                if (unlock.maskToDisable != null)
-                    unlock.maskToDisable.SetActive(false);
-                if (unlock.maskToEnable != null)
-                    unlock.maskToEnable.SetActive(true);
-            }
+            // Máscaras — todos los peers las aplican para que cada jugador
+            // vea las máscaras correctas de todos los demás jugadores.
+            if (unlock.maskToDisable != null)
+                unlock.maskToDisable.SetActive(false);
+            if (unlock.maskToEnable != null)
+                unlock.maskToEnable.SetActive(true);
 
-            // Desbloquear habilidad — todos los peers necesitan saberlo
+            // Habilidades y dash — todos los peers necesitan saberlo para
+            // que AbilityHolder, NetCharacterController y NetCharacterAnimator
+            // funcionen correctamente en cada máquina.
             if (unlock.abilityIndex >= 0)
                 _lockedAbilities.Remove(unlock.abilityIndex);
 
-            // Desbloquear dash — todos los peers necesitan saberlo
             if (unlock.unlockDash)
                 _dashLocked = false;
         }
