@@ -6,7 +6,7 @@ public class GameHUD : MonoBehaviour
 {
     [Header("Barra de Vida")]
     [SerializeField] private Image healthFill;
-    [SerializeField] private HoverDetailLabel healthLabel;
+    [SerializeField] private TMP_Text healthText;   // "123 / 235"
 
     [Header("Guardado")]
     [SerializeField] private TMP_Text saveStatusText;
@@ -73,15 +73,8 @@ public class GameHUD : MonoBehaviour
         if (healthFill != null && max > 0)
             healthFill.fillAmount = (float)current / max;
 
-        if (healthLabel != null)
-        {
-            // Por ahora la vida NO muestra ningún número, solo la barra.
-            healthLabel.Set("", "");
-
-            // Para reactivar el número (y el detalle "115 / 150" en hover),
-            // comentar la línea de arriba y descomentar esta:
-            // healthLabel.Set(current.ToString(), $"{current} / {max}");
-        }
+        if (healthText != null)
+            healthText.text = $"{current} / {max}";
     }
 
     // ── GUARDADO ─────────────────────────────────
