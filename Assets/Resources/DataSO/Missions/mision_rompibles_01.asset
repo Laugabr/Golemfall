@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   missionId: mision_rompibles_01
   missionName: "Misi\xF3n \"Entrenamiento Ancestral\""
-  description: Destruye 3 nebuflor para entrenar tu ataque
-  xp: 50
+  description: Destruye 4 nebuflor para entrenar tu ataque
+  xp: 100
   coins: 0
   missionSteps:
   - targetId: 7
-    amount: 3
+    amount: 4
     displayText: Destruir nebuflores
   failureSteps: []
   nextMissions:
@@ -27,3 +27,4 @@ MonoBehaviour:
   pausesOtherMissions: 0
   startWithEvent: 1
   startEvent: 16
+  startOnlyOnce: 0

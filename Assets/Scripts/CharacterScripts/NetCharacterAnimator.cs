@@ -102,7 +102,8 @@ public class NetCharacterAnimator : NetworkBehaviour
     private static readonly int DeathTriggerHash = Animator.StringToHash("deathTrigger");
     private static readonly int IsDeadHash = Animator.StringToHash("isDead");
 
-    // Cache de progresión para no llamar GetComponent cada tick
+    // Cache de progresión — se inicializa en Awake() para no llamar
+    // GetComponent cada tick en FixedUpdateNetwork.
     private PlayerProgressionVisuals _progression;
 
     // Estado del idle randomizer — SOLO en StateAuthority (es no-determinístico)
@@ -129,8 +130,8 @@ public class NetCharacterAnimator : NetworkBehaviour
         if (abilityHolder == null)
             abilityHolder = GetComponent<AbilityHolder>();
 
-        // Cacheamos la progresión para chequear habilidades desbloqueadas
-        // sin llamar GetComponent cada tick en FixedUpdateNetwork.
+        // Cacheamos la progresión para chequear desbloqueos sin llamar
+        // GetComponent cada tick en FixedUpdateNetwork.
         _progression = GetComponent<PlayerProgressionVisuals>();
     }
 
@@ -167,8 +168,12 @@ public class NetCharacterAnimator : NetworkBehaviour
             return;
         }
 
-        // Detectar inicio de dash para resetear el idle
-        bool dashing = controller != null && controller.IsDashing;
+        // ── DASH ─────────────────────────────────────────────────────────────
+        // La animación de dash solo se activa si el dash está desbloqueado.
+        // IsDashing ya viene de NetCharacterController que también chequea el desbloqueo,
+        // pero lo validamos acá también para que la animación y la lógica estén sincronizadas.
+        bool dashUnlocked = _progression == null || _progression.IsDashUnlocked();
+        bool dashing = controller != null && controller.IsDashing && dashUnlocked;
         bool dashJustStarted = dashing && !_wasDashingLastTick;
         if (dashJustStarted) ResetIdleLocal();
         _wasDashingLastTick = dashing;
@@ -185,7 +190,7 @@ public class NetCharacterAnimator : NetworkBehaviour
             ResetIdleLocal();
         }
 
-        // MELEE
+        // MELEE — siempre disponible, sin chequeo de progresión.
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.BasicAttack))
         {
             // Calculamos el cooldown en ticks desde el ScriptableObject para no
@@ -205,14 +210,16 @@ public class NetCharacterAnimator : NetworkBehaviour
             }
         }
 
-        // RANGE
+        // RANGE — bloqueado hasta que se desbloquee por progresión.
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.FirstSkill))
         {
+            bool rangeUnlocked = _progression == null || _progression.IsAbilityUnlocked(1);
+
             float cooldownTime = abilityHolder != null ? abilityHolder.GetCooldownTime(1) : 0f;
             int cooldownTicks = Mathf.CeilToInt(cooldownTime / Runner.DeltaTime);
             bool animReady = (Runner.Tick - NetRangeTick) > cooldownTicks;
 
-            if (animReady)
+            if (animReady && rangeUnlocked)
             {
                 animator.SetTrigger(RangeTriggerHash);
                 ResetIdleLocal();
@@ -222,21 +229,18 @@ public class NetCharacterAnimator : NetworkBehaviour
             }
         }
 
-        // HEAL (E / SecondarySkill)
-        // La animación solo se dispara si la habilidad está desbloqueada y lista.
+        // HEAL — bloqueado hasta que se desbloquee por progresión.
         // El efecto real (spawn del UtilityAbility) ocurre en el frame 11
         // via HealAtFrame.cs → AbilityHolder.ExecuteHealEffect().
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.SecondarySkill))
         {
-            // Verificamos desbloqueo con el mismo patrón que NetCharacterController
-            // para que animación y lógica estén siempre sincronizadas.
-            bool unlocked = _progression == null || _progression.IsAbilityUnlocked(2);
+            bool healUnlocked = _progression == null || _progression.IsAbilityUnlocked(2);
 
             float cooldownTime = abilityHolder != null ? abilityHolder.GetCooldownTime(2) : 0f;
             int cooldownTicks = Mathf.CeilToInt(cooldownTime / Runner.DeltaTime);
             bool animReady = (Runner.Tick - NetHealTick) > cooldownTicks;
 
-            if (animReady && unlocked && (abilityHolder == null || abilityHolder.IsReady(2)))
+            if (animReady && healUnlocked && (abilityHolder == null || abilityHolder.IsReady(2)))
             {
                 animator.SetTrigger(HealTriggerHash);
                 ResetIdleLocal();
@@ -247,11 +251,11 @@ public class NetCharacterAnimator : NetworkBehaviour
         }
 
         // ── BOOLEANOS ────────────────────────────────────────────────────────
-        UpdateMovementFlags(input.Direction);
+        UpdateMovementFlags(input.Direction, dashing);
 
         // ── IDLE RANDOMIZER (solo StateAuthority — usa Random no-determinístico)
         if (HasStateAuthority)
-            UpdateIdleRandomizerServer();
+            UpdateIdleRandomizerServer(dashing);
 
         PreviousButtons = input.Buttons;
     }
@@ -278,9 +282,8 @@ public class NetCharacterAnimator : NetworkBehaviour
             animator.SetTrigger(TakeDamageTriggerHash);
     }
 
-    private void UpdateMovementFlags(Vector2 inputDir)
+    private void UpdateMovementFlags(Vector2 inputDir, bool dashing)
     {
-        bool dashing = controller != null && controller.IsDashing;
         bool grounded = kcc.IsGrounded;
         float vertVel = controller != null ? controller.NetVerticalVelocity : 0f;
 
@@ -292,10 +295,8 @@ public class NetCharacterAnimator : NetworkBehaviour
         NetIsFalling = falling;
     }
 
-    private void UpdateIdleRandomizerServer()
+    private void UpdateIdleRandomizerServer(bool dashing)
     {
-        bool dashing = controller != null && controller.IsDashing;
-
         if (!kcc.IsGrounded || kcc.RealVelocity.sqrMagnitude > 0.5f || dashing)
         {
             ResetIdleServer();
@@ -363,7 +364,8 @@ public class NetCharacterAnimator : NetworkBehaviour
     {
         if (animator == null) return;
 
-        bool dashing = controller != null && controller.IsDashing;
+        bool dashUnlocked = _progression == null || _progression.IsDashUnlocked();
+        bool dashing = controller != null && controller.IsDashing && dashUnlocked;
         bool isDead = controller != null && controller.IsDead;
 
         // Booleanos — aplicar siempre, son idempotentes
