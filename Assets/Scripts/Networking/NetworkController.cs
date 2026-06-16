@@ -45,14 +45,12 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
     }
 
     // Create a new room as host
-        private async void CreateRoom()
+ private async void CreateRoom()
     {
-        string sessionName = "Room_" + Guid.NewGuid().ToString().Substring(0, 6).ToUpper();
-
         var gameArg = new StartGameArgs()
         {
             GameMode = GameMode.Host,
-            SessionName = sessionName,
+            SessionName = "Room_01",
             SceneManager = _networkSceneManagerDefault,
             Scene = SceneRef.FromIndex(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex),
         };
@@ -65,6 +63,8 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
             Debug.LogError("Error: " + result.ErrorMessage);
         }
     }
+
+
 
     // Join an existing room as client
     private async void JoinRoom()
