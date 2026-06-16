@@ -85,6 +85,7 @@ public class EnemyHealth : HealthSystem
         _dieScheduled = true;
 
         TrackEvents.OnTrackEvent?.Invoke(GameEventType.KillEnemy, 1);
+        ExperienceManager.GrantKillXpToAll();   // XP grupal a todos los jugadores
 
         netAnimator?.SetDead();
         enemyAI?.DisableAI();
