@@ -6410,6 +6410,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2215151904560294986, guid: 611916aaf20c9e5478f3c34eed113d7a, type: 3}
   m_PrefabInstance: {fileID: 999359975}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &223985885 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2277358006316662517, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
+  m_PrefabInstance: {fileID: 2283671066754051197}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &224049711 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3618404292262786188, guid: 963aa942edafb4f41935b46978e98403, type: 3}
@@ -33550,7 +33561,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthFill: {fileID: 7672112217765408682}
-  healthLabel: {fileID: 1925221321}
+  healthText: {fileID: 223985885}
   saveStatusText: {fileID: 5831508789815384801}
   testDamageAmount: 1
 --- !u!114 &1247381037
@@ -51204,17 +51215,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 70c0070f32de9bc4aae5872746f9f5d7, type: 3}
---- !u!114 &1925221321 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 878446473639080987, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
-  m_PrefabInstance: {fileID: 2283671066754051197}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b570dfec1b71f241b2759ce20b0c674, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1925923910
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -57568,6 +57568,10 @@ PrefabInstance:
     - target: {fileID: 3932200389678002789, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -82.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4023974688592003640, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4172670060504835216, guid: 873a39c17f6ee894e99031743772b0ee, type: 3}
       propertyPath: m_fontSize
