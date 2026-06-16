@@ -1,11 +1,16 @@
 using UnityEngine;
 using Fusion;
 
+/// <summary>
+/// Objeto destructible en red. Solo el StateAuthority procesa el daño.
+/// Usa NetworkVFXManager para mandar el VFX de ruptura a todos los peers
+/// desde un objeto permanente, garantizando que llegue aunque este objeto
+/// ya se haya despawneado cuando el cliente procese el mensaje.
+/// </summary>
 public class DestructibleObject : NetworkBehaviour, IDamageable
 {
     [Header("Feedback")]
     [SerializeField] private HitFeedback hitFeedback;
-    [SerializeField] private GameObject breakEffectPrefab;
 
     [Header("Drop (opcional)")]
     [SerializeField] private NetworkObject dropPrefab;
@@ -23,8 +28,10 @@ public class DestructibleObject : NetworkBehaviour, IDamageable
         if (hitFeedback != null)
             hitFeedback.FlashHit();
 
-        if (breakEffectPrefab != null)
-            Instantiate(breakEffectPrefab, transform.position, Quaternion.identity);
+        // VFX de ruptura via NetworkVFXManager — llega al cliente aunque
+        // este objeto ya se haya despawneado cuando el RPC se procese.
+        if (NetworkVFXManager.Instance != null)
+            NetworkVFXManager.Instance.RPC_SpawnDestructibleBreakVFX(transform.position);
 
         if (dropPrefab != null)
             Runner.Spawn(dropPrefab, transform.position + Vector3.up * 0.5f, Quaternion.identity);
@@ -34,6 +41,8 @@ public class DestructibleObject : NetworkBehaviour, IDamageable
 
         TrackEvents.OnTrackEvent?.Invoke(trackEvent, 1);
 
+        // Disparamos el evento local en el host antes del despawn.
+        // El cliente recibe la notificación via RPC_DisableDoor en OnDestroyUnlockCollider.
         OnDestroyed?.Invoke();
         Runner.Despawn(Object);
     }
