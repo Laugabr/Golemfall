@@ -24,9 +24,23 @@ public class NetCharacterController : NetworkBehaviour
     [SerializeField] private float dashSpeed = 20f;
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1f;
+
+    /// <summary>
+    /// Máximo de dashes permitidos en el aire antes de tocar el piso.
+    /// Configurable desde el Inspector — 2 por defecto.
+    /// </summary>
+    [SerializeField] private int maxAirDashes = 2;
+
     [Networked] private float DashTimer { get; set; }
     [Networked] private float DashCooldownTimer { get; set; }
     [Networked] private Vector3 DashDirection { get; set; }
+
+    /// <summary>
+    /// Contador de dashes realizados en el aire desde la última vez que tocó el piso.
+    /// Se resetea a 0 cuando kcc.IsGrounded es true.
+    /// DEBE ser [Networked] para sobrevivir rollbacks — mismo patrón que DashTimer.
+    /// </summary>
+    [Networked] private int AirDashCount { get; set; }
 
     [Header("Health")]
     [SerializeField] private PlayerHealth charHealth;
@@ -166,16 +180,28 @@ public class NetCharacterController : NetworkBehaviour
         }
 
         // ── DASH ────────────────────────────────────────────────────────────────
-        // Se activa solo si: hay flanco de subida en el botón, no hay cooldown,
-        // hay dirección de movimiento, y el dash está desbloqueado por progresión.
-        // WasPressed usa PreviousButtons (networked) para detectar el flanco de
-        // forma correcta tanto en simulación normal como en resimulaciones de rollback.
+        // Resetea el contador de dashes en el aire al tocar el piso.
+        // Así el jugador puede volver a dashear en el aire después de aterrizar.
+        if (kcc.IsGrounded)
+            AirDashCount = 0;
+
         bool dashUnlocked = _progression == null || _progression.IsDashUnlocked();
+
+        // Permite dashear si está en el piso O si no superó el límite de dashes en el aire.
+        // Esto da hasta maxAirDashes dashes consecutivos en el aire antes de tener
+        // que tocar el piso para resetear el contador.
+        bool canAirDash = kcc.IsGrounded || AirDashCount < maxAirDashes;
+
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.Dash)
             && DashCooldownTimer <= 0f
             && input.Direction.magnitude > 0.1f
-            && dashUnlocked)
+            && dashUnlocked
+            && canAirDash)
         {
+            // Si está en el aire incrementamos el contador antes de dashear
+            if (!kcc.IsGrounded)
+                AirDashCount++;
+
             IsDashing = true;
             DashTimer = dashDuration;
             DashCooldownTimer = dashCooldown;
@@ -183,6 +209,8 @@ public class NetCharacterController : NetworkBehaviour
         }
 
         // ── SALTO ───────────────────────────────────────────────────────────────
+        // WasPressed necesita PreviousButtons networked para que el flanco se
+        // detecte correctamente durante resimulaciones de rollback.
         float jump = 0f;
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.Jump) && kcc.IsGrounded)
             jump = jumpPower;
