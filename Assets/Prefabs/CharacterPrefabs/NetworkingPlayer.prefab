@@ -180,7 +180,6 @@ MonoBehaviour:
   dashSpeed: 35
   dashDuration: 0.15
   dashCooldown: 1
-  maxAirDashes: 2
   charHealth: {fileID: 0}
   playerIndex: 0
   _IsDashing:
@@ -580,7 +579,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 722b36e921a98d34ab3b1f79ff5e1aa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  unlocks: []
+  unlocks:
+  - displayName: Dash
+    requiredLevel: 2
+    abilityIndex: -1
+    unlockDash: 1
+    maskToDisable: {fileID: 0}
+    maskToEnable: {fileID: 0}
+  - displayName: Ataque Rango
+    requiredLevel: 2
+    abilityIndex: 1
+    unlockDash: 0
+    maskToDisable: {fileID: 0}
+    maskToEnable: {fileID: 0}
+  - displayName: "M\xE1scara 2"
+    requiredLevel: 3
+    abilityIndex: -1
+    unlockDash: 0
+    maskToDisable: {fileID: 255236804348453047}
+    maskToEnable: {fileID: 8352280875390389740}
+  - displayName: "Curaci\xF3n"
+    requiredLevel: 5
+    abilityIndex: 2
+    unlockDash: 0
+    maskToDisable: {fileID: 0}
+    maskToEnable: {fileID: 0}
+  - displayName: "M\xE1scara 3"
+    requiredLevel: 7
+    abilityIndex: -1
+    unlockDash: 0
+    maskToDisable: {fileID: 8352280875390389740}
+    maskToEnable: {fileID: 2003382550839548575}
   abilityHolder: {fileID: 6449719640617588220}
   expManager: {fileID: 5306823183112004080}
 --- !u!1 &8269205730414287776
@@ -691,6 +720,16 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 4232364738801912288}
   m_SourcePrefab: {fileID: 100100000, guid: a6a1031802a7a2549ab2221a1fa55529, type: 3}
+--- !u!1 &255236804348453047 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3063270692456323525, guid: a6a1031802a7a2549ab2221a1fa55529, type: 3}
+  m_PrefabInstance: {fileID: 2956653779089553778}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &2003382550839548575 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3658423880020861933, guid: a6a1031802a7a2549ab2221a1fa55529, type: 3}
+  m_PrefabInstance: {fileID: 2956653779089553778}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2338844570038414432 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -8539640401088260846, guid: a6a1031802a7a2549ab2221a1fa55529, type: 3}
@@ -719,6 +758,11 @@ MonoBehaviour:
 --- !u!4 &3351414310437887641 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6a1031802a7a2549ab2221a1fa55529, type: 3}
+  m_PrefabInstance: {fileID: 2956653779089553778}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8352280875390389740 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6548629434408907934, guid: a6a1031802a7a2549ab2221a1fa55529, type: 3}
   m_PrefabInstance: {fileID: 2956653779089553778}
   m_PrefabAsset: {fileID: 0}
 --- !u!137 &9221935653305143992 stripped
