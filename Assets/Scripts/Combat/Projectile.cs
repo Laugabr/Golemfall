@@ -51,7 +51,9 @@ public class Projectile : NetworkBehaviour
 
     // Variable local — evita que el VFX de expiracion se instancie mas de una vez por peer
     private bool _vfxExpiredPlayed;
-
+    private bool onExpireAoe = false;
+    private NetworkObject onExpirePrefab = null;
+    private bool _aoeSpawned = false; // ← flag para evitar spawnear el AOE varias veces
     private void Awake()
     {
         col = GetComponent<Collider>();
@@ -70,7 +72,7 @@ public class Projectile : NetworkBehaviour
     }
 
     public void Initialize(NetworkObject caster, int damage, float speed, Vector3 dir,
-                           float activeTime, bool destroyOnHit, ProjectileType type, bool showHitVFX, bool isAoe)
+                           float activeTime, bool destroyOnHit, ProjectileType type, bool showHitVFX, bool isAoe, bool isOnExpireAoe, NetworkObject onExpirePrefabNW)
     {
         Owner = caster;
         Damage = damage;
@@ -84,6 +86,8 @@ public class Projectile : NetworkBehaviour
         // Se inicializa acá y no en Spawned() para garantizar que sea -1
         // desde el primer tick, antes de que FixedUpdateNetwork corra.
         HitTick = -1;
+        onExpireAoe = isOnExpireAoe;
+        onExpirePrefab = onExpirePrefabNW;
 
         if (col == null) col = GetComponent<Collider>();
         col.enabled = true;
@@ -103,6 +107,7 @@ public class Projectile : NetworkBehaviour
         {
             ExpirePosition = transform.position;
             Expired = true;
+            SpawnOnExpireAoe(ExpirePosition);
         }
 
         // Tick 2 — Despawn un tick despues para que Render() lo detecte primero
@@ -156,6 +161,7 @@ skip:
         col.enabled = false;
         HitTick = Runner.Tick;
     }
+    if(onExpireAoe) SpawnOnExpireAoe(transform.position); // ← al impactar si es AOE de expiracion
 
     if (ShowHitVFX && NetworkVFXManager.Instance != null)
     {
@@ -165,6 +171,40 @@ skip:
         NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(vfxPos, damagedTarget, Type, Direction);
     }
 }
+    private void SpawnOnExpireAoe(Vector3 position)
+    {
+    if (!onExpireAoe || onExpirePrefab == null) return;
+    if (_aoeSpawned) return; // ← guard inmediato
+        _aoeSpawned = true;
+
+        var cachedOwner = Owner;
+        var cachedDamage = Damage;
+        var cachedType = Type;
+        var cachedShowVFX = ShowHitVFX;
+
+        Runner.Spawn(
+            onExpirePrefab,
+            position,
+            Quaternion.identity,
+            inputAuthority: null,
+            (r, obj) =>
+            {
+                obj.GetComponent<Projectile>()?.Initialize(
+                    cachedOwner,
+                    cachedDamage,
+                    0f,
+                    Vector3.zero,
+                    1f,
+                    false,
+                    cachedType,
+                    cachedShowVFX,
+                    true,
+                    false,
+                    null
+                );
+            }
+        );
+    }
 
     /// <summary>
     /// Render() corre en TODOS los peers a framerate de pantalla.

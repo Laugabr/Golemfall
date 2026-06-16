@@ -14,6 +14,9 @@ public class ProjectileAbility : Ability
 
     [Header("AOE")]
     public bool isAoe = false;
+    [Header("On Expire AOE")]
+    public bool spawnOnExpireAoe = false;
+    public NetworkObject onExpirePrefab;
 }
 
 public enum ProjectileType

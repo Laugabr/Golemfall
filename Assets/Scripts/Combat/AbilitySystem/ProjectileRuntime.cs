@@ -37,7 +37,9 @@ public static class ProjectileRuntime
                     data.destroyOnHit,
                     data.projectileType,
                     data.showHitVFX,    
-                    data.isAoe
+                    data.isAoe,
+                    data.spawnOnExpireAoe,
+                    data.onExpirePrefab
                 );
             }
         );
