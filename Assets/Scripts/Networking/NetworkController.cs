@@ -45,7 +45,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
     }
 
     // Create a new room as host
- private async void CreateRoom()
+    private async void CreateRoom()
     {
         var gameArg = new StartGameArgs()
         {
@@ -88,44 +88,44 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
 
     // ========== Callbacks ==========
     // Called when a player joins the session
-  public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
-{
-    Debug.Log("Player joined: " + player);
-    if (_lobbyPanel)
-        _lobbyPanel.SetActive(false);
-    else
-        Debug.LogWarning("LobbyPanel destruido o no asignado");
-
-    if (!_networkRunner.IsServer) return;
-
-    var playerSpawned = _networkRunner.Spawn(
-        _playerPrefab,
-        _spawnPoint.position,
-        Quaternion.identity,
-        player
-    );
-
-    _players.Add(player, playerSpawned);
-
-    int playerIndex = _players.Count - 1;
-    var colorSetting = playerSpawned.GetComponentInChildren<PlayerColorSetting>(true);
-    if (colorSetting != null)
-        colorSetting.PlayerIndex = playerIndex;
-    else
-        Debug.LogWarning("[NetworkController] No se encontró PlayerColorSetting en el prefab.");
-
-    PlayerRegistry.Register(playerSpawned.transform);
-    Debug.Log($"[NetworkController] Player Registrado. Total: {PlayerRegistry.Players.Count}");
-
-    if (player == _networkRunner.LocalPlayer)
+    public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
     {
-        if (_Hud != null)
-        _Hud.SetActive(true);
+        Debug.Log("Player joined: " + player);
+        if (_lobbyPanel)
+            _lobbyPanel.SetActive(false);
+        else
+            Debug.LogWarning("LobbyPanel destruido o no asignado");
 
-        if (CloudSaveGame.Instance != null)
-            CloudSaveGame.Instance.StartGameSave();
+        // El spawn de jugadores y el guardado los maneja solo el servidor.
+        if (_networkRunner.IsServer)
+        {
+            var playerSpawned = _networkRunner.Spawn(
+                _playerPrefab,
+                _spawnPoint.position,
+                Quaternion.identity,
+                player
+            );
+
+            _players.Add(player, playerSpawned);
+
+            int playerIndex = _players.Count - 1;
+            var colorSetting = playerSpawned.GetComponentInChildren<PlayerColorSetting>(true);
+            if (colorSetting != null)
+                colorSetting.PlayerIndex = playerIndex;
+            else
+                Debug.LogWarning("[NetworkController] No se encontró PlayerColorSetting en el prefab.");
+
+            PlayerRegistry.Register(playerSpawned.transform);
+            Debug.Log($"[NetworkController] Player Registrado. Total: {PlayerRegistry.Players.Count}");
+
+            if (player == _networkRunner.LocalPlayer && CloudSaveGame.Instance != null)
+                CloudSaveGame.Instance.StartGameSave();
+        }
+
+        // El HUD se activa para el jugador local, sea host o cliente.
+        if (player == runner.LocalPlayer && _Hud != null)
+            _Hud.SetActive(true);
     }
-}
 
     // Called when a player leaves the session
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
@@ -136,7 +136,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         {
             _networkRunner.Despawn(playerSpawned);
         }
-        
+
         // Limpia los fakes de un jugador que se desconectó
         var obj = runner.GetPlayerObject(player);
         if (obj != null)
