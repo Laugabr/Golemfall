@@ -2,7 +2,7 @@ using UnityEngine;
 using Fusion;
 
 /// <summary>
-/// Objeto destructible en red. Solo el StateAuthority procesa el daÒo.
+/// Objeto destructible en red. Solo el StateAuthority procesa el da√±o.
 /// Usa NetworkVFXManager para mandar el VFX de ruptura a todos los peers
 /// desde un objeto permanente, garantizando que llegue aunque este objeto
 /// ya se haya despawneado cuando el cliente procese el mensaje.
@@ -15,8 +15,7 @@ public class DestructibleObject : NetworkBehaviour, IDamageable
     [Header("Drop (opcional)")]
     [SerializeField] private NetworkObject dropPrefab;
 
-    [Header("Rewards (opcional)")]
-    [SerializeField] private int experienceReward = 0;
+    [Header("Tracking")]
     [SerializeField] private GameEventType trackEvent = GameEventType.BreakBreakable;
 
     public event System.Action OnDestroyed;
@@ -28,7 +27,7 @@ public class DestructibleObject : NetworkBehaviour, IDamageable
         if (hitFeedback != null)
             hitFeedback.FlashHit();
 
-        // VFX de ruptura via NetworkVFXManager ó llega al cliente aunque
+        // VFX de ruptura via NetworkVFXManager ‚Äî llega al cliente aunque
         // este objeto ya se haya despawneado cuando el RPC se procese.
         if (NetworkVFXManager.Instance != null)
             NetworkVFXManager.Instance.RPC_SpawnDestructibleBreakVFX(transform.position);
@@ -36,13 +35,15 @@ public class DestructibleObject : NetworkBehaviour, IDamageable
         if (dropPrefab != null)
             Runner.Spawn(dropPrefab, transform.position + Vector3.up * 0.5f, Quaternion.identity);
 
-        if (experienceReward > 0)
-            BasicEventsManager.OnExperienceGain?.Invoke(experienceReward);
+        // XP individual: solo el jugador que rompi√≥ el objeto.
+        // El source viene del Projectile.Owner (el jugador que dispar√≥).
+        var breaker = source != null ? source.GetComponentInParent<ExperienceManager>() : null;
+        breaker?.GrantBreakXp();
 
-        TrackEvents.OnTrackEvent?.Invoke(trackEvent, 1);
+        TrackEvents.OnTrackEvent?.Invoke(trackEvent, 1);   // tracking de misiones
 
         // Disparamos el evento local en el host antes del despawn.
-        // El cliente recibe la notificaciÛn via RPC_DisableDoor en OnDestroyUnlockCollider.
+        // El cliente recibe la notificaci√≥n via RPC_DisableDoor en OnDestroyUnlockCollider.
         OnDestroyed?.Invoke();
         Runner.Despawn(Object);
     }
