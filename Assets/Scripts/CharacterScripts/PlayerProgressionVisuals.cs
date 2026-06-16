@@ -92,7 +92,9 @@ public class PlayerProgressionVisuals : NetworkBehaviour
         if (Object.HasStateAuthority)
             _renderedLevel = 1;
 
-        ApplyUnlocksUpToLevel(_renderedLevel);
+        // Usamos max(1, _renderedLevel) para que el cliente también
+        // aplique el nivel mínimo aunque _renderedLevel llegue tarde del host.
+        ApplyUnlocksUpToLevel(Mathf.Max(1, _renderedLevel));
     }
 
     /// <summary>
