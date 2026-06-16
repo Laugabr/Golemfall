@@ -24,23 +24,9 @@ public class NetCharacterController : NetworkBehaviour
     [SerializeField] private float dashSpeed = 20f;
     [SerializeField] private float dashDuration = 0.2f;
     [SerializeField] private float dashCooldown = 1f;
-
-    /// <summary>
-    /// Máximo de dashes permitidos en el aire antes de tocar el piso.
-    /// Configurable desde el Inspector — 2 por defecto.
-    /// </summary>
-    [SerializeField] private int maxAirDashes = 2;
-
     [Networked] private float DashTimer { get; set; }
     [Networked] private float DashCooldownTimer { get; set; }
     [Networked] private Vector3 DashDirection { get; set; }
-
-    /// <summary>
-    /// Contador de dashes realizados en el aire desde la última vez que tocó el piso.
-    /// Se resetea a 0 cuando kcc.IsGrounded es true.
-    /// DEBE ser [Networked] para sobrevivir rollbacks — mismo patrón que DashTimer.
-    /// </summary>
-    [Networked] private int AirDashCount { get; set; }
 
     [Header("Health")]
     [SerializeField] private PlayerHealth charHealth;
@@ -64,10 +50,8 @@ public class NetCharacterController : NetworkBehaviour
     private InventoryToggle cachedInventoryToggle;
     private Camera cachedMainCamera;
     private CameraController cachedCameraController;
-
-    // Cache de progresión — se inicializa en Spawned() para no llamar
-    // GetComponent cada tick en FixedUpdateNetwork.
     private PlayerProgressionVisuals _progression;
+
 
     /// <summary>
     /// Yaw (en grados) deseado para el bodyVisuals. Se actualiza cada tick a
@@ -84,10 +68,11 @@ public class NetCharacterController : NetworkBehaviour
 
     /// <summary>
     /// Estado de dash autoritativo. Tanto el host como el InputAuthority lo activan
-    /// cuando se cumplen las condiciones (input + cooldown + dirección + desbloqueado).
-    /// En el cliente, esto funciona como predicción local: el dash se ve inmediatamente
+    /// cuando se cumplen las condiciones (input + cooldown + dirección). En el
+    /// cliente, esto funciona como predicción local: el dash se ve inmediatamente
     /// y Fusion sincroniza con el host. El NetCharacterAnimator lo lee para
-    /// decidir si reproducir la animación de dash.
+    /// decidir si reproducir la animación de dash, evitando que la animación se
+    /// dispare cuando el dash real está en cooldown.
     /// </summary>
     [Networked] public NetworkBool IsDashing { get; private set; }
     [Networked] public float NetVerticalVelocity { get; private set; }
@@ -113,10 +98,6 @@ public class NetCharacterController : NetworkBehaviour
 
         if (HasStateAuthority && bodyVisuals != null)
             NetBodyYaw = bodyVisuals.eulerAngles.y;
-
-        // Cacheamos la progresión para chequear desbloqueos sin llamar
-        // GetComponent cada tick en FixedUpdateNetwork.
-        _progression = GetComponent<PlayerProgressionVisuals>();
 
         if (HasInputAuthority)
         {
@@ -180,25 +161,16 @@ public class NetCharacterController : NetworkBehaviour
         }
 
         // ── DASH ────────────────────────────────────────────────────────────────
-        // Resetea el contador de dashes en el aire al tocar el piso.
-        // Así el jugador puede volver a dashear en el aire después de aterrizar.
-        if (kcc.IsGrounded)
-            AirDashCount = 0;
-
-        // Permite dashear si está en el piso O si no superó el límite de dashes en el aire.
-        // Esto da hasta maxAirDashes dashes consecutivos en el aire antes de tener
-        // que tocar el piso para resetear el contador.
-        bool canAirDash = kcc.IsGrounded || AirDashCount < maxAirDashes;
-
+        // Se activa solo si: hay flanco de subida en el botón, no hay cooldown y
+        // hay dirección de movimiento.
+        // WasPressed usa PreviousButtons (networked) para detectar el flanco de
+        // forma correcta tanto en simulación normal como en resimulaciones de
+        // rollback — si PreviousButtons fuera una variable local, no sobreviviría
+        // el rollback y WasPressed daría resultados incorrectos.
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.Dash)
             && DashCooldownTimer <= 0f
-            && input.Direction.magnitude > 0.1f
-            && canAirDash)
+            && input.Direction.magnitude > 0.1f)
         {
-            // Si está en el aire incrementamos el contador antes de dashear
-            if (!kcc.IsGrounded)
-                AirDashCount++;
-
             IsDashing = true;
             DashTimer = dashDuration;
             DashCooldownTimer = dashCooldown;
@@ -206,15 +178,21 @@ public class NetCharacterController : NetworkBehaviour
         }
 
         // ── SALTO ───────────────────────────────────────────────────────────────
-        // WasPressed necesita PreviousButtons networked para que el flanco se
-        // detecte correctamente durante resimulaciones de rollback.
+        // Igual que el dash: WasPressed necesita PreviousButtons networked para
+        // que el flanco se detecte correctamente durante resimulaciones.
         float jump = 0f;
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.Jump) && kcc.IsGrounded)
             jump = jumpPower;
 
         // ── HABILIDADES / INTERACCIÓN ────────────────────────────────────────────
 
-        // MELEE (BasicAttack) — siempre disponible, sin chequeo de progresión.
+        // MELEE (BasicAttack)
+        // La rotación se escribe desde el cliente con HasInputAuthority usando
+        // GetMouseDirection() — igual que antes. El host la escribe via SetAttackYaw()
+        // llamado desde RPC_RequestUseAbility, donde la habilidad todavía está Ready.
+        // Esto resuelve el problema de timing: si escribiéramos NetBodyYaw en FUN
+        // dependiendo de IsReady, el RPC ya habría puesto la habilidad en Cooldown
+        // antes de que el host llegue a ese bloque.
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.BasicAttack) ||
             input.Buttons.WasPressed(PreviousButtons, InputButton.MouseButton0))
         {
@@ -232,10 +210,10 @@ public class NetCharacterController : NetworkBehaviour
             }
         }
 
-        // RANGE (FirstSkill) — bloqueado hasta que se desbloquee por progresión.
+        // RANGE (FirstSkill) — mismo patrón que BasicAttack
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.FirstSkill)
-            && HasInputAuthority
-            && (_progression == null || _progression.IsAbilityUnlocked(1)))
+        && HasInputAuthority
+        && (_progression == null || _progression.IsAbilityUnlocked(1)))
         {
             Vector3 mouseDir = GetMouseDirection();
 
@@ -247,8 +225,7 @@ public class NetCharacterController : NetworkBehaviour
 
             charAbilities?.RPC_RequestUseAbility(1, mouseDir, input.AttackYaw);
         }
-
-        // HEAL (SecondarySkill) — bloqueado hasta que se desbloquee por progresión.
+        
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.SecondarySkill)
             && HasInputAuthority
             && (_progression == null || _progression.IsAbilityUnlocked(2)))
@@ -256,7 +233,6 @@ public class NetCharacterController : NetworkBehaviour
             charAbilities?.RPC_RequestUseAbility(2, Vector3.zero, 0f);
         }
 
-        // PICK UP (Interact) — siempre disponible.
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.Interact) && HasInputAuthority)
             charPickUp?.TryPickUp();
 
@@ -287,6 +263,7 @@ public class NetCharacterController : NetworkBehaviour
         // Si el jugador está atacando, conservamos el yaw del ataque — no
         // sobreescribimos con la dirección de movimiento hasta que ClearAttackLock()
         // libere IsAttacking al terminar la animación.
+        // Si no está atacando y hay dirección de movimiento, actualizamos el yaw.
         if (moveDir.sqrMagnitude > 0.01f && !IsAttacking)
             NetBodyYaw = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
 
@@ -313,6 +290,11 @@ public class NetCharacterController : NetworkBehaviour
         );
     }
 
+    /// <summary>
+    /// Devuelve la dirección normalizada desde el jugador hacia el cursor del mouse
+    /// proyectada en el plano XZ. Solo válido en la máquina local del cliente.
+    /// Usado para orientar y posicionar proyectiles en el RPC de habilidades.
+    /// </summary>
     private Vector3 GetMouseDirection()
     {
         Camera cam = cachedMainCamera != null ? cachedMainCamera : Camera.main;
@@ -341,7 +323,8 @@ public class NetCharacterController : NetworkBehaviour
     /// <summary>
     /// Llamado desde AbilityHolder.RPC_RequestUseAbility() en el host para
     /// escribir NetBodyYaw con el yaw de ataque del cliente, antes de que
-    /// la habilidad pase a Cooldown.
+    /// la habilidad pase a Cooldown. Después del cambio de estado, IsReady
+    /// devuelve false y la escritura desde FixedUpdateNetwork ya no ocurre.
     /// </summary>
     public void SetAttackYaw(float yaw)
     {
