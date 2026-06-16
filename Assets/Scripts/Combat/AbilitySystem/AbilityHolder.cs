@@ -238,6 +238,23 @@ public class AbilityHolder : NetworkBehaviour
         uint ownerId = Object.Id.Raw;
         fake.Initialize(ownerId, direction, ability.projectileSpeed, ability.projectileLifetime);
     }
+
+    public void SpawnFakeProjectilePublic(int index, Vector3 direction)
+{
+    if (fakePrefabs == null || index >= fakePrefabs.Length) return;
+    var prefab = fakePrefabs[index];
+    if (prefab == null) return;
+
+    var ability = abilities[index] as ProjectileAbility;
+    if (ability == null) return;
+
+    Vector3 spawnPos = transform.position + Vector3.up * 1f;
+    var go = Instantiate(prefab, spawnPos, Quaternion.LookRotation(direction));
+    var fake = go.AddComponent<FakeProjectile>();
+
+    uint ownerId = Object.Id.Raw;
+    fake.Initialize(ownerId, direction, ability.projectileSpeed, ability.projectileLifetime);
+}
 }
 
 /// <summary>

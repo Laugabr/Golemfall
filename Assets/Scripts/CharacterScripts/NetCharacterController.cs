@@ -217,39 +217,54 @@ public class NetCharacterController : NetworkBehaviour
 
         // ── HABILIDADES / INTERACCIÓN ────────────────────────────────────────────
 
-        // MELEE (BasicAttack) — siempre disponible, sin chequeo de progresión.
-        if (input.Buttons.WasPressed(PreviousButtons, InputButton.BasicAttack) ||
-            input.Buttons.WasPressed(PreviousButtons, InputButton.MouseButton0))
+    // MELEE (BasicAttack)
+    bool basicAttackPressed = input.Buttons.WasPressed(PreviousButtons, InputButton.BasicAttack) ||
+                            input.Buttons.WasPressed(PreviousButtons, InputButton.MouseButton0);
+
+    if (basicAttackPressed && HasInputAuthority && !IsInventoryOpen())
+    {
+        Vector3 mouseDir = GetMouseDirection();
+
+        if (mouseDir.sqrMagnitude > 0.01f && charAbilities != null && charAbilities.IsReady(0))
         {
-            if (HasInputAuthority && !IsInventoryOpen())
+            NetBodyYaw = Mathf.Atan2(mouseDir.x, mouseDir.z) * Mathf.Rad2Deg;
+            IsAttacking = true;
+
+            if (HasStateAuthority)
+                charAbilities.ExecuteAbilityAuthority(0, mouseDir);
+            else
             {
-                Vector3 mouseDir = GetMouseDirection();
-
-                if (mouseDir.sqrMagnitude > 0.01f && (charAbilities == null || charAbilities.IsReady(0)))
-                {
-                    NetBodyYaw = Mathf.Atan2(mouseDir.x, mouseDir.z) * Mathf.Rad2Deg;
-                    IsAttacking = true;
-                }
-
-                charAbilities?.RPC_RequestUseAbility(0, mouseDir, input.AttackYaw);
+                charAbilities.SpawnFakeProjectilePublic(0, mouseDir);
+                charAbilities.RPC_RequestUseAbility(0, mouseDir, input.AttackYaw);
             }
         }
+    }
 
-        // RANGE (FirstSkill) — bloqueado hasta que se desbloquee por progresión.
-        if (input.Buttons.WasPressed(PreviousButtons, InputButton.FirstSkill)
-            && HasInputAuthority
-            && (_progression == null || _progression.IsAbilityUnlocked(1)))
+
+    // RANGE (FirstSkill)
+    if (input.Buttons.WasPressed(PreviousButtons, InputButton.FirstSkill)
+        && HasInputAuthority
+        && (_progression == null || _progression.IsAbilityUnlocked(1)))
+    {
+        Vector3 mouseDir = GetMouseDirection();
+
+        if (mouseDir.sqrMagnitude > 0.01f && (charAbilities == null || charAbilities.IsReady(1)))
         {
-            Vector3 mouseDir = GetMouseDirection();
+            NetBodyYaw = Mathf.Atan2(mouseDir.x, mouseDir.z) * Mathf.Rad2Deg;
+            IsAttacking = true;
 
-            if (mouseDir.sqrMagnitude > 0.01f && (charAbilities == null || charAbilities.IsReady(1)))
+            if (HasStateAuthority)
+                charAbilities?.ExecuteAbilityAuthority(1, mouseDir);
+            else
             {
-                NetBodyYaw = Mathf.Atan2(mouseDir.x, mouseDir.z) * Mathf.Rad2Deg;
-                IsAttacking = true;
+                if (charAbilities != null && charAbilities.IsReady(1))
+                    charAbilities.SpawnFakeProjectilePublic(1, mouseDir);
+                charAbilities?.RPC_RequestUseAbility(1, mouseDir, input.AttackYaw);
             }
-
+        }
+        else if (!HasStateAuthority)
             charAbilities?.RPC_RequestUseAbility(1, mouseDir, input.AttackYaw);
-        }
+    }
 
         // HEAL (SecondarySkill) — bloqueado hasta que se desbloquee por progresión.
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.SecondarySkill)
