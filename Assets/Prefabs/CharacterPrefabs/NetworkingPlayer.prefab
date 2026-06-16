@@ -178,8 +178,9 @@ MonoBehaviour:
   charPickUp: {fileID: 1370004718390460943}
   charAbilities: {fileID: 6449719640617588220}
   dashSpeed: 35
-  dashDuration: 0.15
+  dashDuration: 0.25
   dashCooldown: 1
+  maxAirDashes: 2
   charHealth: {fileID: 0}
   playerIndex: 0
   _IsDashing:
@@ -610,8 +611,6 @@ MonoBehaviour:
     unlockDash: 0
     maskToDisable: {fileID: 8352280875390389740}
     maskToEnable: {fileID: 2003382550839548575}
-  abilityHolder: {fileID: 6449719640617588220}
-  expManager: {fileID: 5306823183112004080}
 --- !u!1 &8269205730414287776
 GameObject:
   m_ObjectHideFlags: 0
