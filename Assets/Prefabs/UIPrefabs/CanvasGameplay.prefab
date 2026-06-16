@@ -3145,7 +3145,6 @@ GameObject:
   - component: {fileID: 6654032829338178366}
   - component: {fileID: 986514574406236024}
   - component: {fileID: 3995565103548287033}
-  - component: {fileID: 878446473639080987}
   m_Layer: 5
   m_Name: healthImage
   m_TagString: Untagged
@@ -3210,19 +3209,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &878446473639080987
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3356847710234458416}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b570dfec1b71f241b2759ce20b0c674, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  label: {fileID: 2277358006316662517}
 --- !u!1 &3515623244417911839
 GameObject:
   m_ObjectHideFlags: 0
@@ -3288,7 +3274,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 155 / 230
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: de32ba29c06d63b4c89c450659fba6ad, type: 2}
   m_sharedMaterial: {fileID: 4869215907664705947, guid: de32ba29c06d63b4c89c450659fba6ad, type: 2}
@@ -3696,7 +3682,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 10
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: de32ba29c06d63b4c89c450659fba6ad, type: 2}
   m_sharedMaterial: {fileID: 4869215907664705947, guid: de32ba29c06d63b4c89c450659fba6ad, type: 2}
@@ -3841,7 +3827,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6497405370637626114
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3929,7 +3915,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83ffd5d49a48ba641bcdde5c76aaf744, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xpLabel: {fileID: 2465382982559998465}
+  levelText: {fileID: 3911999307881483487}
+  xpText: {fileID: 1141272215995043041}
   xpFillBar: {fileID: 7293569832679868595}
 --- !u!114 &2232176892931607906
 MonoBehaviour:
@@ -6334,7 +6321,6 @@ GameObject:
   - component: {fileID: 8481244814650134838}
   - component: {fileID: 6290517238826701034}
   - component: {fileID: 5735590602173960295}
-  - component: {fileID: 2465382982559998465}
   m_Layer: 5
   m_Name: xpImage
   m_TagString: Untagged
@@ -6399,19 +6385,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &2465382982559998465
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6495449832627737726}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b570dfec1b71f241b2759ce20b0c674, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  label: {fileID: 3911999307881483487}
 --- !u!1 &6516228722284371311
 GameObject:
   m_ObjectHideFlags: 0
@@ -6836,7 +6809,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 2340
+  m_text: 0
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: de32ba29c06d63b4c89c450659fba6ad, type: 2}
   m_sharedMaterial: {fileID: 4869215907664705947, guid: de32ba29c06d63b4c89c450659fba6ad, type: 2}
