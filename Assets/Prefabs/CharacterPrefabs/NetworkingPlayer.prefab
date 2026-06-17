@@ -524,11 +524,11 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  maxLevel: 10
+  maxLevel: 20
   xpPerKillEnemy: 20
-  xpPerBreakBreakable: 3
-  xpPerCollectItem: 5
-  xpPerCollectSpecial: 10
+  xpPerBreakBreakable: 5
+  xpPerCollectItem: 7
+  xpPerCollectSpecial: 30
   _TotalExperience: 0
   _CurrentLevel: 0
 --- !u!114 &3552617195862820046
@@ -594,7 +594,7 @@ MonoBehaviour:
     maskToDisable: {fileID: 0}
     maskToEnable: {fileID: 0}
   - displayName: "M\xE1scara 2"
-    requiredLevel: 3
+    requiredLevel: 10
     abilityIndex: -1
     unlockDash: 0
     maskToDisable: {fileID: 255236804348453047}
@@ -606,7 +606,7 @@ MonoBehaviour:
     maskToDisable: {fileID: 0}
     maskToEnable: {fileID: 0}
   - displayName: "M\xE1scara 3"
-    requiredLevel: 7
+    requiredLevel: 15
     abilityIndex: -1
     unlockDash: 0
     maskToDisable: {fileID: 8352280875390389740}
