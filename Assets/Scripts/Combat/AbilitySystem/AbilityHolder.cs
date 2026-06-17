@@ -14,10 +14,11 @@ using UnityEngine;
 ///     llamado desde EnemyAI. Los enemigos nunca tienen InputAuthority.
 ///
 /// Flujo para HABILIDAD DE CURACIÓN (SecondarySkill / E):
-///   - El RPC valida, activa el cooldown y guarda los datos de curación.
-///   - El efecto real (spawn del UtilityAbility) se dispara en el frame 11
-///     de la animación via HealAtFrame.cs → ExecuteHealEffect().
-///   - Solo el StateAuthority ejecuta el spawn.
+///   - El RPC valida, activa el cooldown y ejecuta el spawn INMEDIATAMENTE
+///     en el servidor, igual que los proyectiles.
+///   - Se eliminó el patrón HealAtFrame → _healPending porque el delay del
+///     RPC causaba que la animación en el servidor ya hubiera pasado el frame
+///     11 antes de que _healPending se seteara, impidiendo que el efecto ocurra.
 /// </summary>
 public class AbilityHolder : NetworkBehaviour
 {
@@ -30,11 +31,6 @@ public class AbilityHolder : NetworkBehaviour
     [Networked, Capacity(4)] private NetworkArray<AbilityState> states => default;
 
     private PlayerProgressionVisuals _progression;
-
-    // Datos de curación pendiente — guardados por el RPC y ejecutados
-    // en el frame 11 de la animación via HealAtFrame.cs
-    private bool _healPending;
-    private UtilityAbilityData _pendingHealData;
 
     public override void Spawned()
     {
@@ -54,7 +50,6 @@ public class AbilityHolder : NetworkBehaviour
             switch (states[i])
             {
                 case AbilityState.Active:
-                    // Descuenta el tiempo activo y pasa a cooldown cuando termina
                     float active = activeTimers[i] - Runner.DeltaTime;
                     activeTimers.Set(i, active);
                     if (active <= 0)
@@ -65,7 +60,6 @@ public class AbilityHolder : NetworkBehaviour
                     break;
 
                 case AbilityState.Cooldown:
-                    // Descuenta el cooldown y pasa a Ready cuando termina
                     float cd = cooldowns[i] - Runner.DeltaTime;
                     cooldowns.Set(i, cd);
                     if (cd <= 0)
@@ -77,9 +71,6 @@ public class AbilityHolder : NetworkBehaviour
 
     /// <summary>
     /// Punto de entrada para usar una habilidad desde el jugador.
-    /// El servidor ejecuta directo. El cliente manda un RPC y spawna
-    /// un proyectil visual falso para feedback inmediato.
-    /// NO usar para enemigos, usar ExecuteAbilityAuthority() en su lugar.
     /// </summary>
     public void TryUseAbility(int index, Vector3 direction)
     {
@@ -101,11 +92,8 @@ public class AbilityHolder : NetworkBehaviour
 
     /// <summary>
     /// RPC del cliente al servidor para validar y ejecutar la habilidad.
-    /// El servidor rechaza si la habilidad no está en estado Ready.
-    ///
-    /// Para la habilidad de curación (UtilityAbilityData), el RPC solo
-    /// activa el cooldown y guarda los datos — el spawn real ocurre en
-    /// el frame 11 de la animación via HealAtFrame → ExecuteHealEffect().
+    /// Todas las habilidades (proyectiles Y curación) se ejecutan inmediatamente
+    /// en el servidor cuando llega el RPC — no hay delay de frame.
     /// </summary>
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     public void RPC_RequestUseAbility(int index, Vector3 direction, float attackYaw, RpcInfo info = default)
@@ -121,24 +109,22 @@ public class AbilityHolder : NetworkBehaviour
 
         Debug.Log($"[SERVER] Player {info.Source} usa skill {index}");
 
-        // Escribimos el yaw de ataque ANTES de cambiar el estado de la habilidad.
-        // Si lo hiciéramos después, IsReady ya devolvería false y el
-        // NetCharacterController no podría escribir NetBodyYaw desde FUN.
         var netController = GetComponent<NetCharacterController>();
         if (netController != null && attackYaw != 0f)
             netController.SetAttackYaw(attackYaw);
 
         if (ability is ProjectileAbility proj)
         {
-            // Proyectiles: ejecutan inmediatamente
             ProjectileRuntime.Execute(proj, Runner, Object, direction);
         }
         else if (ability is UtilityAbilityData util)
         {
-            // Curación: guardamos los datos y esperamos al frame 11 de la animación.
-            // HealAtFrame.cs llama ExecuteHealEffect() cuando llega al frame correcto.
-            _healPending = true;
-            _pendingHealData = util;
+            // Curación: ejecuta inmediatamente en el servidor igual que proyectiles.
+            // Luego notifica al NetCharacterAnimator para que escriba NetHealTick
+            // con StateAuthority — esto garantiza que los proxies detecten el cambio
+            // en Render() y disparen la animación de curación correctamente.
+            UtilityRuntime.Execute(util, Runner, Object);
+            GetComponent<NetCharacterAnimator>()?.TriggerHealAnimation();
         }
 
         if (ability.activeTime > 0f)
@@ -151,22 +137,6 @@ public class AbilityHolder : NetworkBehaviour
             states.Set(index, AbilityState.Cooldown);
             cooldowns.Set(index, ability.cooldownTime);
         }
-    }
-
-    /// <summary>
-    /// Llamado por HealAtFrame en el frame 11 de la animación HealAbility.
-    /// Solo ejecuta en el StateAuthority — spawna el UtilityAbility con los
-    /// datos guardados por el RPC.
-    /// </summary>
-    public void ExecuteHealEffect()
-    {
-        if (!Object.HasStateAuthority) return;
-        if (!_healPending || _pendingHealData == null) return;
-
-        UtilityRuntime.Execute(_pendingHealData, Runner, Object);
-
-        _healPending = false;
-        _pendingHealData = null;
     }
 
     /// <summary>
@@ -185,6 +155,8 @@ public class AbilityHolder : NetworkBehaviour
 
         if (ability is ProjectileAbility proj)
             ProjectileRuntime.Execute(proj, Runner, Object, direction);
+        else if (ability is UtilityAbilityData util)
+            UtilityRuntime.Execute(util, Runner, Object);
 
         if (ability.activeTime > 0f)
         {
@@ -198,30 +170,18 @@ public class AbilityHolder : NetworkBehaviour
         }
     }
 
-    /// <summary>
-    /// Devuelve true si la habilidad está lista para usarse.
-    /// </summary>
     public bool IsReady(int index)
     {
         if (index < 0 || index >= abilities.Length) return false;
         return states.Get(index) == AbilityState.Ready;
     }
 
-    /// <summary>
-    /// Devuelve el cooldown time de la habilidad desde el ScriptableObject.
-    /// Usado por NetCharacterAnimator para calcular el cooldown en ticks sin
-    /// depender de IsReady, que puede estar desactualizado en el mismo tick
-    /// en que se ejecuta el RPC.
-    /// </summary>
     public float GetCooldownTime(int index)
     {
         if (index < 0 || index >= abilities.Length) return 0f;
         return abilities[index].cooldownTime;
     }
 
-    /// <summary>
-    /// Spawna un proyectil visual local sin red para feedback inmediato en el cliente.
-    /// </summary>
     private void SpawnFakeProjectile(int index, Vector3 direction)
     {
         if (fakePrefabs == null || index >= fakePrefabs.Length) return;
@@ -240,12 +200,6 @@ public class AbilityHolder : NetworkBehaviour
     }
 }
 
-/// <summary>
-/// Estados posibles de una habilidad.
-/// Ready: disponible para usar.
-/// Active: ejecutándose, esperando que termine el activeTime.
-/// Cooldown: en espera, no se puede usar hasta que termine el cooldownTime.
-/// </summary>
 enum AbilityState
 {
     Ready,

@@ -9,18 +9,8 @@ using UnityEngine;
 ///   - Tanto el StateAuthority (host) como el InputAuthority (cliente local) corren
 ///     FixedUpdateNetwork() y tienen acceso al input vía GetInput().
 ///   - El cliente con InputAuthority predice la animación INMEDIATAMENTE, sin esperar
-///     la confirmación del server. Esto hace que el jugador local sienta sus inputs
-///     responsivos (sin los ~100ms de delay de ida + vuelta al server).
-///   - Los proxies (otros jugadores) leen las [Networked] en Render() — no predicen.
-///
-/// SEPARACIÓN OWNER vs PROXY (clave para evitar doble disparo):
-///   - El owner (HasInputAuthority || HasStateAuthority) dispara triggers desde
-///     FixedUpdateNetwork() detectando WasPressed sobre el input. Nunca los lee
-///     desde la [Networked] en Render() — esa variable solo existe para
-///     transmitir al resto.
-///   - Los proxies (!HasInputAuthority && !HasStateAuthority) hacen lo opuesto:
-///     ignoran el input y solo reaccionan a cambios de las [Networked] en Render().
-///   - Resultado: cada peer dispara cada trigger exactamente UNA vez.
+///     la confirmación del server.
+///   - Los proxies leen las [Networked] en Render().
 ///
 /// Animator parameters expected:
 ///   bool    isWalking
@@ -48,46 +38,33 @@ public class NetCharacterAnimator : NetworkBehaviour
     [SerializeField] private float chanceToChange = 0.15f;
     [SerializeField] private float variantDuration = 4f;
 
-    // ── Variables networked — leídas por proxies en Render() ─────────────────
     [Networked] private NetworkBool NetIsWalking { get; set; }
     [Networked] private NetworkBool NetIsGrounded { get; set; }
     [Networked] private NetworkBool NetIsFalling { get; set; }
     [Networked] private int NetIdleType { get; set; }
-
-    // DEBE ser [Networked] para sobrevivir rollbacks. Mismo patrón que
-    // PreviousButtons en NetCharacterController — si fuera variable local,
-    // WasPressed daría resultados incorrectos durante resimulaciones y las
-    // animaciones de ataque no se dispararían en el cliente.
     [Networked] private NetworkButtons PreviousButtons { get; set; }
 
-    // Tick stamps para triggers — cuando cambian, el proxy dispara el trigger una vez
     [Networked] private int NetJumpTick { get; set; }
     [Networked] private int NetMeleeTick { get; set; }
     [Networked] private int NetRangeTick { get; set; }
 
     /// <summary>
     /// Tick stamp para la animación de curación.
-    /// El StateAuthority lo escribe cuando se dispara el healTrigger.
-    /// Los proxies lo leen en Render() y disparan el trigger cuando cambia.
+    /// Escrito por el owner (HasInputAuthority || HasStateAuthority).
+    /// El StateAuthority también lo escribe via TriggerHealAnimation()
+    /// llamado desde AbilityHolder.RPC_RequestUseAbility() para garantizar
+    /// que los proxies vean la animación aunque el cliente sea quien inició.
     /// </summary>
     [Networked] private int NetHealTick { get; set; }
 
-    /// <summary>
-    /// Tick stamp para el trigger de recibir daño.
-    /// Solo el StateAuthority lo escribe via TriggerTakeDamage().
-    /// Los proxies lo leen en Render() y disparan el trigger cuando cambia.
-    /// El owner (host) lo dispara directamente en TriggerTakeDamage().
-    /// </summary>
     [Networked] private int NetTakeDamageTick { get; set; }
 
-    // Último tick observado por los PROXIES — detecta cambios en Render()
     private int _lastJumpTick;
     private int _lastMeleeTick;
     private int _lastRangeTick;
     private int _lastHealTick;
     private int _lastTakeDamageTick;
 
-    // Hashes cacheados de los parámetros del Animator
     private static readonly int IsWalking = Animator.StringToHash("isWalking");
     private static readonly int IsDashing = Animator.StringToHash("isDashing");
     private static readonly int IsGrounded = Animator.StringToHash("isGrounded");
@@ -102,14 +79,10 @@ public class NetCharacterAnimator : NetworkBehaviour
     private static readonly int DeathTriggerHash = Animator.StringToHash("deathTrigger");
     private static readonly int IsDeadHash = Animator.StringToHash("isDead");
 
-    // Cache de progresión — se inicializa en Awake() para no llamar
-    // GetComponent cada tick en FixedUpdateNetwork.
     private PlayerProgressionVisuals _progression;
 
-    // Estado del idle randomizer — SOLO en StateAuthority (es no-determinístico)
     private float _serverIdleTimer;
     private bool _serverIsInVariant;
-
     private bool _wasDashingLastTick;
     private bool _wasDeadLastFrame;
 
@@ -120,30 +93,36 @@ public class NetCharacterAnimator : NetworkBehaviour
     {
         if (animator == null)
             animator = GetComponentInChildren<Animator>();
-
         if (kcc == null)
             kcc = GetComponent<SimpleKCC>();
-
         if (controller == null)
             controller = GetComponent<NetCharacterController>();
-
         if (abilityHolder == null)
             abilityHolder = GetComponent<AbilityHolder>();
-
-        // Cacheamos la progresión para chequear desbloqueos sin llamar
-        // GetComponent cada tick en FixedUpdateNetwork.
         _progression = GetComponent<PlayerProgressionVisuals>();
     }
 
     public override void Spawned()
     {
-        // Inicializar last-seen ticks para que un proxy que entra tarde no
-        // dispare triggers viejos al recibir el primer snapshot.
         _lastJumpTick = NetJumpTick;
         _lastMeleeTick = NetMeleeTick;
         _lastRangeTick = NetRangeTick;
         _lastHealTick = NetHealTick;
         _lastTakeDamageTick = NetTakeDamageTick;
+    }
+
+    /// <summary>
+    /// Llamado por AbilityHolder.RPC_RequestUseAbility() en el servidor
+    /// cuando el cliente usa la curación. Escribe NetHealTick con autoridad
+    /// para que los proxies detecten el cambio en Render() y disparen la animación.
+    /// El servidor también dispara el trigger localmente para verse en el host.
+    /// </summary>
+    public void TriggerHealAnimation()
+    {
+        if (!Object.HasStateAuthority) return;
+        NetHealTick = Runner.Tick;
+        animator.SetTrigger(HealTriggerHash);
+        ResetIdleLocal();
     }
 
     public override void FixedUpdateNetwork()
@@ -153,33 +132,22 @@ public class NetCharacterAnimator : NetworkBehaviour
         bool gotInput = GetInput(out NetInputPlayer input);
         if (!gotInput) return;
 
-        // Si está muerto no procesamos ningún input de animación
         if (controller != null && controller.IsDead)
         {
             PreviousButtons = input.Buttons;
             return;
         }
 
-        // Solo aplicar cambios al Animator durante ticks Forward.
-        // Durante resimulación los triggers se dispararían múltiples veces.
         if (!Runner.IsForward)
         {
             PreviousButtons = input.Buttons;
             return;
         }
 
-        // ── DASH ─────────────────────────────────────────────────────────────
-        // La animación de dash solo se activa si el dash está desbloqueado.
-        // IsDashing ya viene de NetCharacterController que también chequea el desbloqueo,
-        // pero lo validamos acá también para que la animación y la lógica estén sincronizadas.
-        bool dashUnlocked = _progression == null || _progression.IsDashUnlocked();
-        bool dashing = controller != null && controller.IsDashing && dashUnlocked;
+        bool dashing = controller != null && controller.IsDashing;
         bool dashJustStarted = dashing && !_wasDashingLastTick;
         if (dashJustStarted) ResetIdleLocal();
         _wasDashingLastTick = dashing;
-
-        // ── TRIGGERS DEL OWNER ───────────────────────────────────────────────
-        // El owner dispara triggers acá. Los proxies los leen en Render().
 
         // JUMP
         bool jumpPressed = input.Buttons.WasPressed(PreviousButtons, InputButton.Jump);
@@ -190,12 +158,9 @@ public class NetCharacterAnimator : NetworkBehaviour
             ResetIdleLocal();
         }
 
-        // MELEE — siempre disponible, sin chequeo de progresión.
+        // MELEE
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.BasicAttack))
         {
-            // Calculamos el cooldown en ticks desde el ScriptableObject para no
-            // hardcodear el valor acá. Así si cambia el cooldown de la habilidad
-            // se refleja automáticamente sin tocar el animator.
             float cooldownTime = abilityHolder != null ? abilityHolder.GetCooldownTime(0) : 0.7f;
             int cooldownTicks = Mathf.CeilToInt(cooldownTime / Runner.DeltaTime);
             bool animReady = (Runner.Tick - NetMeleeTick) > cooldownTicks;
@@ -204,17 +169,15 @@ public class NetCharacterAnimator : NetworkBehaviour
             {
                 animator.SetTrigger(MeleeTriggerHash);
                 ResetIdleLocal();
-
-                if (HasStateAuthority)
+                if (HasStateAuthority || HasInputAuthority)
                     NetMeleeTick = Runner.Tick;
             }
         }
 
-        // RANGE — bloqueado hasta que se desbloquee por progresión.
+        // RANGE
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.FirstSkill))
         {
             bool rangeUnlocked = _progression == null || _progression.IsAbilityUnlocked(1);
-
             float cooldownTime = abilityHolder != null ? abilityHolder.GetCooldownTime(1) : 0f;
             int cooldownTicks = Mathf.CeilToInt(cooldownTime / Runner.DeltaTime);
             bool animReady = (Runner.Tick - NetRangeTick) > cooldownTicks;
@@ -223,50 +186,43 @@ public class NetCharacterAnimator : NetworkBehaviour
             {
                 animator.SetTrigger(RangeTriggerHash);
                 ResetIdleLocal();
-
-                if (HasStateAuthority)
+                if (HasStateAuthority || HasInputAuthority)
                     NetRangeTick = Runner.Tick;
             }
         }
 
-        // HEAL — bloqueado hasta que se desbloquee por progresión.
-        // El efecto real (spawn del UtilityAbility) ocurre en el frame 11
-        // via HealAtFrame.cs → AbilityHolder.ExecuteHealEffect().
+        // HEAL
+        // El cliente dispara la animación localmente para feedback inmediato.
+        // El servidor escribe NetHealTick via TriggerHealAnimation() llamado
+        // desde AbilityHolder.RPC_RequestUseAbility() para que los proxies lo vean.
         if (input.Buttons.WasPressed(PreviousButtons, InputButton.SecondarySkill))
         {
             bool healUnlocked = _progression == null || _progression.IsAbilityUnlocked(2);
-
             float cooldownTime = abilityHolder != null ? abilityHolder.GetCooldownTime(2) : 0f;
             int cooldownTicks = Mathf.CeilToInt(cooldownTime / Runner.DeltaTime);
             bool animReady = (Runner.Tick - NetHealTick) > cooldownTicks;
 
             if (animReady && healUnlocked && (abilityHolder == null || abilityHolder.IsReady(2)))
             {
-                animator.SetTrigger(HealTriggerHash);
-                ResetIdleLocal();
-
-                if (HasStateAuthority)
-                    NetHealTick = Runner.Tick;
+                // El owner dispara la animación localmente para verse inmediato.
+                // El servidor la dispara via TriggerHealAnimation() para los proxies.
+                if (HasInputAuthority)
+                {
+                    animator.SetTrigger(HealTriggerHash);
+                    ResetIdleLocal();
+                    NetHealTick = Runner.Tick; // predicción local del cliente
+                }
             }
         }
 
-        // ── BOOLEANOS ────────────────────────────────────────────────────────
-        UpdateMovementFlags(input.Direction, dashing);
+        UpdateMovementFlags(input.Direction);
 
-        // ── IDLE RANDOMIZER (solo StateAuthority — usa Random no-determinístico)
         if (HasStateAuthority)
-            UpdateIdleRandomizerServer(dashing);
+            UpdateIdleRandomizerServer();
 
         PreviousButtons = input.Buttons;
     }
 
-    /// <summary>
-    /// Llamado por PlayerHealth cuando el jugador recibe daño.
-    /// El StateAuthority escribe el tick stamp (para que los proxies lo detecten
-    /// en Render) y dispara el trigger localmente.
-    /// El cliente con InputAuthority dispara el trigger localmente sin escribir
-    /// el tick stamp — no tiene StateAuthority para hacerlo.
-    /// </summary>
     public void TriggerTakeDamage()
     {
         if (Object.HasStateAuthority)
@@ -276,14 +232,13 @@ public class NetCharacterAnimator : NetworkBehaviour
             return;
         }
 
-        // El cliente local dispara el trigger directamente — la animación
-        // se ve inmediatamente sin esperar el round-trip al host.
         if (Object.HasInputAuthority)
             animator.SetTrigger(TakeDamageTriggerHash);
     }
 
-    private void UpdateMovementFlags(Vector2 inputDir, bool dashing)
+    private void UpdateMovementFlags(Vector2 inputDir)
     {
+        bool dashing = controller != null && controller.IsDashing;
         bool grounded = kcc.IsGrounded;
         float vertVel = controller != null ? controller.NetVerticalVelocity : 0f;
 
@@ -295,8 +250,10 @@ public class NetCharacterAnimator : NetworkBehaviour
         NetIsFalling = falling;
     }
 
-    private void UpdateIdleRandomizerServer(bool dashing)
+    private void UpdateIdleRandomizerServer()
     {
+        bool dashing = controller != null && controller.IsDashing;
+
         if (!kcc.IsGrounded || kcc.RealVelocity.sqrMagnitude > 0.5f || dashing)
         {
             ResetIdleServer();
@@ -339,9 +296,7 @@ public class NetCharacterAnimator : NetworkBehaviour
 
     private void ResetIdleServer()
     {
-        if (NetIdleType != 0)
-            NetIdleType = 0;
-
+        if (NetIdleType != 0) NetIdleType = 0;
         _serverIsInVariant = false;
         _serverIdleTimer = 2f;
     }
@@ -354,21 +309,13 @@ public class NetCharacterAnimator : NetworkBehaviour
             NetIdleType = 0;
     }
 
-    /// <summary>
-    /// Render corre en TODOS los peers a framerate de pantalla.
-    /// Booleanos: se aplican para todos los peers (son idempotentes).
-    /// Triggers: SOLO los proxies los leen acá. El owner ya los disparó en FUN
-    /// o via TriggerTakeDamage().
-    /// </summary>
     public override void Render()
     {
         if (animator == null) return;
 
-        bool dashUnlocked = _progression == null || _progression.IsDashUnlocked();
-        bool dashing = controller != null && controller.IsDashing && dashUnlocked;
+        bool dashing = controller != null && controller.IsDashing;
         bool isDead = controller != null && controller.IsDead;
 
-        // Booleanos — aplicar siempre, son idempotentes
         animator.SetBool(IsWalking, NetIsWalking);
         animator.SetBool(IsDashing, dashing);
         animator.SetBool(IsGrounded, NetIsGrounded);
@@ -379,12 +326,10 @@ public class NetCharacterAnimator : NetworkBehaviour
         if (controller != null)
             animator.SetFloat(VerticalVelocityHash, controller.NetVerticalVelocity);
 
-        // Trigger de muerte — solo una vez al pasar de vivo a muerto
         if (isDead && !_wasDeadLastFrame)
             animator.SetTrigger(DeathTriggerHash);
         _wasDeadLastFrame = isDead;
 
-        // Triggers — SOLO proxies los leen acá
         if (IsOwner) return;
 
         if (NetJumpTick != _lastJumpTick)
@@ -405,14 +350,12 @@ public class NetCharacterAnimator : NetworkBehaviour
             animator.SetTrigger(RangeTriggerHash);
         }
 
-        // Heal — proxies reaccionan al cambio del tick stamp
         if (NetHealTick != _lastHealTick)
         {
             _lastHealTick = NetHealTick;
             animator.SetTrigger(HealTriggerHash);
         }
 
-        // TakeDamage — proxies reaccionan al cambio del tick stamp
         if (NetTakeDamageTick != _lastTakeDamageTick)
         {
             _lastTakeDamageTick = NetTakeDamageTick;
@@ -420,7 +363,5 @@ public class NetCharacterAnimator : NetworkBehaviour
         }
     }
 
-    // Llamado por Animation Event en ani_player_jumpStart.
-    // No-op, se mantiene para silenciar el warning.
     private void FinalizeJump() { }
 }
