@@ -14,6 +14,6 @@ public class EventDebugger : MonoBehaviour
 
     void DebugEvent(GameEventType id, int amount)
     {
-        //Debug.Log($"EVENT RECEIVED → {id} | amount: {amount}");
+        Debug.Log($"EVENT RECEIVED → {id} | amount: {amount}");
     }
 }

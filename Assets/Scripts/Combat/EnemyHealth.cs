@@ -26,6 +26,7 @@ public class EnemyHealth : HealthSystem
             CurrentHealth = MaxHealth;
             healthBar?.SetMaxHealth(MaxHealth);
             healthBar?.SetHealth(CurrentHealth);
+            Debug.Log($"[EnemySpawn] {gameObject.name} en pos {transform.position}");
         }
 
         if (netAnimator == null) netAnimator = GetComponent<NetEnemyAnimator>();
