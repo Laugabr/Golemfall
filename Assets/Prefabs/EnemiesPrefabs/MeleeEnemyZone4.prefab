@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: -176365332237324104}
   - component: {fileID: 4893276438459544745}
   - component: {fileID: 2598499195944361799}
+  - component: {fileID: 7805138824664700524}
   m_Layer: 8
   m_Name: MeleeEnemyZone4
   m_TagString: Enemy
@@ -247,6 +248,33 @@ MonoBehaviour:
   idleVariantCount: 1
   chanceToChange: 0.15
   variantDuration: 4
+--- !u!54 &7805138824664700524
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5323926401402589627}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 80
+  m_CollisionDetection: 0
 --- !u!1 &5828352303755625452
 GameObject:
   m_ObjectHideFlags: 0
