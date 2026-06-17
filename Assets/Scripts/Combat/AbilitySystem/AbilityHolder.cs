@@ -14,33 +14,34 @@ using UnityEngine;
 ///     llamado desde EnemyAI. Los enemigos nunca tienen InputAuthority.
 ///
 /// Flujo para HABILIDAD DE CURACIÓN (SecondarySkill / E):
-///   - El RPC valida, activa el cooldown y ejecuta el spawn INMEDIATAMENTE
-///     en el servidor, igual que los proyectiles.
-///   - Se eliminó el patrón HealAtFrame → _healPending porque el delay del
-///     RPC causaba que la animación en el servidor ya hubiera pasado el frame
-///     11 antes de que _healPending se seteara, impidiendo que el efecto ocurra.
+///   - El RPC valida, activa el cooldown y guarda los datos en _healPending.
+///   - El servidor dispara la animación via TriggerHealAnimation() en NetCharacterAnimator.
+///   - HealAtFrame detecta el frame 11 en el servidor y llama ExecuteHealEffect().
+///   - El VFX se manda via NetworkVFXManager.RPC_SpawnHealVFX().
+///   - Este patrón garantiza que la curación y el VFX coincidan con la pose máxima
+///     sin depender de cálculos de ticks — basta con cambiar targetFrame en el Inspector.
 /// </summary>
 public class AbilityHolder : NetworkBehaviour
 {
     [SerializeField] private Ability[] abilities;
-    [SerializeField] private GameObject[] fakePrefabs; // mismo orden que abilities[]
+    [SerializeField] private GameObject[] fakePrefabs;
 
-    // Arrays networked para sincronizar el estado de cada habilidad a todos los peers
     [Networked, Capacity(4)] private NetworkArray<float> cooldowns => default;
     [Networked, Capacity(4)] private NetworkArray<float> activeTimers => default;
     [Networked, Capacity(4)] private NetworkArray<AbilityState> states => default;
 
     private PlayerProgressionVisuals _progression;
 
+    // Datos de curación pendiente — guardados por el RPC y ejecutados
+    // en el frame 11 via HealAtFrame.cs → ExecuteHealEffect()
+    private bool _healPending;
+    private UtilityAbilityData _pendingHealData;
+
     public override void Spawned()
     {
         _progression = GetComponent<PlayerProgressionVisuals>();
     }
 
-    /// <summary>
-    /// Actualiza los timers de cooldown y activeTime cada tick.
-    /// Solo corre en el servidor para mantener autoridad sobre los estados.
-    /// </summary>
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority) return;
@@ -69,9 +70,6 @@ public class AbilityHolder : NetworkBehaviour
         }
     }
 
-    /// <summary>
-    /// Punto de entrada para usar una habilidad desde el jugador.
-    /// </summary>
     public void TryUseAbility(int index, Vector3 direction)
     {
         if (index < 0 || index >= abilities.Length) return;
@@ -92,8 +90,8 @@ public class AbilityHolder : NetworkBehaviour
 
     /// <summary>
     /// RPC del cliente al servidor para validar y ejecutar la habilidad.
-    /// Todas las habilidades (proyectiles Y curación) se ejecutan inmediatamente
-    /// en el servidor cuando llega el RPC — no hay delay de frame.
+    /// Para la curación: guarda los datos y dispara la animación en el servidor.
+    /// HealAtFrame se encarga de ejecutar el efecto en el frame correcto.
     /// </summary>
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     public void RPC_RequestUseAbility(int index, Vector3 direction, float attackYaw, RpcInfo info = default)
@@ -119,11 +117,12 @@ public class AbilityHolder : NetworkBehaviour
         }
         else if (ability is UtilityAbilityData util)
         {
-            // Curación: ejecuta inmediatamente en el servidor igual que proyectiles.
-            // Luego notifica al NetCharacterAnimator para que escriba NetHealTick
-            // con StateAuthority — esto garantiza que los proxies detecten el cambio
-            // en Render() y disparen la animación de curación correctamente.
-            UtilityRuntime.Execute(util, Runner, Object);
+            // Guardamos los datos y disparamos la animación en el servidor.
+            // HealAtFrame detecta el frame 11 y llama ExecuteHealEffect().
+            // Como TriggerHealAnimation() dispara la animación en el mismo tick
+            // que llega el RPC, el timing entre animación y frame 11 es perfecto.
+            _healPending = true;
+            _pendingHealData = util;
             GetComponent<NetCharacterAnimator>()?.TriggerHealAnimation();
         }
 
@@ -140,9 +139,21 @@ public class AbilityHolder : NetworkBehaviour
     }
 
     /// <summary>
-    /// Ejecución directa con StateAuthority.
-    /// Usado por los enemigos desde EnemyAI.FireProjectile().
+    /// Llamado por HealAtFrame en el frame configurado de la animación HealAbility.
+    /// Solo ejecuta en StateAuthority — spawna el UtilityAbility con los datos
+    /// guardados por el RPC.
     /// </summary>
+    public void ExecuteHealEffect()
+    {
+        if (!Object.HasStateAuthority) return;
+        if (!_healPending || _pendingHealData == null) return;
+
+        UtilityRuntime.Execute(_pendingHealData, Runner, Object);
+
+        _healPending = false;
+        _pendingHealData = null;
+    }
+
     public void ExecuteAbilityAuthority(int index, Vector3 direction)
     {
         if (states.Get(index) == AbilityState.Cooldown) return;
