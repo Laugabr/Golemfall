@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: mat_MeleeAttackFire
+  m_Name: mat_levelUpFire
   m_Shader: {fileID: -6465566751694194690, guid: 776092056c305f147a067c7a2862cce1, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -63,10 +63,10 @@ Material:
     - _Blend: 0
     - _CastShadows: 1
     - _Cull: 0
-    - _Depth_Fade_Distance: 0.1
+    - _Depth_Fade_Distance: 0
     - _DstBlend: 10
-    - _Fire_Noise_Intensity: 0.15
-    - _Fire_Noise_UV_Distortion_Intensity: 0.74
+    - _Fire_Noise_Intensity: -0.37
+    - _Fire_Noise_UV_Distortion_Intensity: 0.39
     - _QueueControl: 0
     - _QueueOffset: 0
     - _SrcBlend: 5
@@ -76,9 +76,9 @@ Material:
     - _ZWrite: 0
     - _ZWriteControl: 0
     m_Colors:
-    - _Fire_Color_A: {r: 0.98039216, g: 0, b: 0.67345583, a: 0.6392157}
-    - _Fire_Color_B: {r: 4.538031, g: 0.12805074, b: 0, a: 1}
-    - _Fire_Noise_UV_Distortion_Tiling_and_Offset_Speed: {r: 5, g: 0.68, b: 0, a: 2}
-    - _SmoothStep: {r: 0.44, g: 0.88, b: 0, a: 0}
+    - _Fire_Color_A: {r: 0, g: 1.5241997, b: 3.9215686, a: 0.6392157}
+    - _Fire_Color_B: {r: 0, g: 9.602354, b: 0.19905697, a: 1}
+    - _Fire_Noise_UV_Distortion_Tiling_and_Offset_Speed: {r: 1, g: 1, b: 0, a: -2}
+    - _SmoothStep: {r: 0.16, g: 0.65, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

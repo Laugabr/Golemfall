@@ -64,7 +64,10 @@ public class PlayerProgressionVisuals : NetworkBehaviour
     /// </summary>
     [Networked, OnChangedRender(nameof(OnLevelChanged))]
     private int _renderedLevel { get; set; }
+    [Header("Level Up VFX")]
+    [SerializeField] private ParticleSystem levelUpVFX;
 
+    
     public override void Spawned()
     {
         // Inicializamos qué está bloqueado según la configuración del Inspector.
@@ -97,6 +100,17 @@ public class PlayerProgressionVisuals : NetworkBehaviour
     {
         if (!Object.HasStateAuthority) return;
         _renderedLevel = newLevel;
+
+        RPC_PlayLevelUpVFX();
+
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_PlayLevelUpVFX()
+    {
+        // Todos los peers ven el VFX del jugador que subió de nivel
+        // porque el RPC corre en el objeto de ESE jugador específico
+        levelUpVFX?.Play();
     }
 
     private void OnLevelChanged()

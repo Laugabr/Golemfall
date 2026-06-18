@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-852056324558826171
+--- !u!114 &-6240587723662249840
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,30 +20,27 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: mat_MeleeAttackFire
-  m_Shader: {fileID: -6465566751694194690, guid: 776092056c305f147a067c7a2862cce1, type: 3}
+  m_Name: mat_ErosionVoronoiWalkDust
+  m_Shader: {fileID: -6465566751694194690, guid: e75f01b7e762bc242bed173943d17a54, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - _SURFACE_TYPE_TRANSPARENT
+  - _ALPHATEST_ON
+  - _RECEIVE_SHADOWS_OFF
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: 2450
   stringTagMap:
-    RenderType: Transparent
+    RenderType: TransparentCutout
   disabledShaderPasses:
-  - DepthOnly
+  - SHADOWCASTER
   - MOTIONVECTORS
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _Fire_Noise:
-        m_Texture: {fileID: 2800000, guid: e4cc4bbfa116d2c49a815ebe98e9620a, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -58,27 +55,31 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AlphaClip: 0
-    - _AlphaToMask: 0
+    - _AlphaClip: 1
+    - _AlphaToMask: 1
     - _Blend: 0
-    - _CastShadows: 1
-    - _Cull: 0
-    - _Depth_Fade_Distance: 0.1
-    - _DstBlend: 10
-    - _Fire_Noise_Intensity: 0.15
-    - _Fire_Noise_UV_Distortion_Intensity: 0.74
+    - _BlendModePreserveSpecular: 1
+    - _CastShadows: 0
+    - _Cull: 1
+    - _DEPTH_intensity: 2.15
+    - _DstBlend: 0
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _SrcBlend: 5
-    - _Surface: 1
-    - _UV_Masking_Bottom_0_Legt_1: -0.024
+    - _ReceiveShadows: 0
+    - _Smoothnes: 1
+    - _SrcBlend: 1
+    - _Surface: 0
+    - _VertexAmouint: 0.119
+    - _VertexSca_e: 1.66
+    - _VoronoiScale: 4
+    - _VoronoiSpeed: 4
+    - _WorkflowMode: 1
     - _ZTest: 4
-    - _ZWrite: 0
+    - _ZWrite: 1
     - _ZWriteControl: 0
     m_Colors:
-    - _Fire_Color_A: {r: 0.98039216, g: 0, b: 0.67345583, a: 0.6392157}
-    - _Fire_Color_B: {r: 4.538031, g: 0.12805074, b: 0, a: 1}
-    - _Fire_Noise_UV_Distortion_Tiling_and_Offset_Speed: {r: 5, g: 0.68, b: 0, a: 2}
-    - _SmoothStep: {r: 0.44, g: 0.88, b: 0, a: 0}
+    - _Color: {r: 1.4915065, g: 8.205224, b: 0, a: 0}
+    - _Emission: {r: 0.011538665, g: 0, b: 0.06666667, a: 0}
+    - _VertexSpeed: {r: 0.1, g: 0.1, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
