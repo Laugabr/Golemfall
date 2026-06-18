@@ -10,6 +10,7 @@ public class InventoryToggle : MonoBehaviour
 
     private void Update()
     {
+        // I: toggle (abrir/cerrar).
         if (Input.GetKeyDown(KeyCode.I))
         {
             var runner = FindFirstObjectByType<NetworkRunner>();
@@ -22,5 +23,20 @@ public class InventoryToggle : MonoBehaviour
                 EventSystem.current.SetSelectedGameObject(null);
             }
         }
+        // Escape: solo cierra si está abierto (no abre).
+        else if (Input.GetKeyDown(KeyCode.Escape) && IsInventoryOpen)
+        {
+            Close();
+        }
+    }
+
+    /// <summary>Cierra el panel del inventario. No hace nada si ya está cerrado.</summary>
+    public void Close()
+    {
+        if (inventoryPanel == null) return;
+
+        inventoryPanel.SetActive(false);
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(null);
     }
 }
