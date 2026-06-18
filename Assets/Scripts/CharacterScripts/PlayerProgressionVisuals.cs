@@ -67,7 +67,7 @@ public class PlayerProgressionVisuals : NetworkBehaviour
     [Header("Level Up VFX")]
     [SerializeField] private ParticleSystem levelUpVFX;
 
-    
+
     public override void Spawned()
     {
         // Inicializamos qué está bloqueado según la configuración del Inspector.
@@ -101,6 +101,7 @@ public class PlayerProgressionVisuals : NetworkBehaviour
         if (!Object.HasStateAuthority) return;
         _renderedLevel = newLevel;
 
+        if(newLevel > 0)
         RPC_PlayLevelUpVFX();
 
     }
