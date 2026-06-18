@@ -11,6 +11,7 @@ public class EnemyHealth : HealthSystem
 
     private int _lastObservedHealth = -1;
     private bool _dieScheduled;
+    private GameObject _lastDamageSource;
 
     public override void Spawned()
     {
@@ -77,6 +78,13 @@ public class EnemyHealth : HealthSystem
         return 0;
     }
 
+    public override void TakeDamage(int amount, GameObject source)
+    {
+        // Guardamos el origen antes de que base pueda disparar Die()
+        _lastDamageSource = source;
+        base.TakeDamage(amount, source);
+    }
+
     public override void Die()
     {
         Debug.Log($"Enemy {gameObject.name} murió");
@@ -85,8 +93,14 @@ public class EnemyHealth : HealthSystem
         if (_dieScheduled) return;
         _dieScheduled = true;
 
-        TrackEvents.OnTrackEvent?.Invoke(GameEventType.KillEnemy, 1);
-        ExperienceManager.GrantKillXpToAll();   // XP grupal a todos los jugadores
+        // Solo cuenta como kill si el golpe letal vino de un jugador.
+        // Muertes ambientales (agua, caídas) igual despawnean, pero no cuentan.
+        bool killedByPlayer = _lastDamageSource != null && _lastDamageSource.CompareTag("Player");
+        if (killedByPlayer)
+        {
+            TrackEvents.OnTrackEvent?.Invoke(GameEventType.KillEnemy, 1);
+            ExperienceManager.GrantKillXpToAll();   // XP grupal a todos los jugadores
+        }
 
         netAnimator?.SetDead();
         enemyAI?.DisableAI();
