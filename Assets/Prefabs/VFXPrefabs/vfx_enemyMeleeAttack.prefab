@@ -14704,7 +14704,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 43a944ea591d9c848a8e58d2a41226ad, type: 2}
+  - {fileID: 2100000, guid: c95567e81f904fe48932f99770ee194d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -34341,6 +34341,10 @@ PrefabInstance:
     - target: {fileID: 1845404757312605518, guid: 58652ef6ab8ca544d899b5d7ae43f19c, type: 3}
       propertyPath: m_Name
       value: ps_tinySparks (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1845404757312605518, guid: 58652ef6ab8ca544d899b5d7ae43f19c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3289691031933389850, guid: 58652ef6ab8ca544d899b5d7ae43f19c, type: 3}
       propertyPath: m_LocalPosition.x
