@@ -37,8 +37,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 5, y: 5, z: 5}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 7645634245766572622}
   - {fileID: 3513886675532977578}
@@ -117,7 +117,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2.57
-  m_BaseOffset: -0.04
+  m_BaseOffset: 0.98
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!114 &2036515683476400331
@@ -189,8 +189,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4, y: 4, z: 4}
-  m_Center: {x: 0, y: 1.5, z: 0}
+  m_Size: {x: 2.1709783, y: 2.5887773, z: 2.1104372}
+  m_Center: {x: 0.0009748459, y: 0.24725266, z: 0.16543579}
 --- !u!95 &2986504931908971064
 Animator:
   serializedVersion: 7
@@ -561,6 +561,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -2956749069778482950, guid: 7a84ec6515776104fb19d9b40fd394ae, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 621c06ea013c6a548892e4e3c81be14b, type: 2}
     - target: {fileID: 919132149155446097, guid: 7a84ec6515776104fb19d9b40fd394ae, type: 3}
       propertyPath: m_Name
       value: EnemiesAnimations
