@@ -131,6 +131,16 @@ namespace Game.CameraSystem
         [SerializeField] private float minFinalPitch = 5f;
 
         // ─────────────────────────────────────────────────────────────────────────
+        // Encuadre vertical del player
+        // ─────────────────────────────────────────────────────────────────────────
+
+        [Header("Encuadre vertical del player")]
+        [Tooltip("Baja al player en pantalla manteniéndolo centrado en horizontal. Es una fracción " +
+                 "estable ante zoom y pitch. 0 = mira a los pies (player arriba). Típico: 0.1–0.25.")]
+        [Min(0f)]
+        [SerializeField] private float verticalScreenOffset = 0.5f;
+
+        // ─────────────────────────────────────────────────────────────────────────
         // Debug
         // ─────────────────────────────────────────────────────────────────────────
 
@@ -482,7 +492,6 @@ namespace Game.CameraSystem
         private void ApplyTransform(bool instant)
         {
             // El pitch final nunca puede ir por debajo de minFinalPitch.
-            // El pitch final nunca puede ir por debajo de minFinalPitch.
             // Esto evita que la cámara termine por debajo del player aunque el preset
             // o el offset manual lo permitan.
             float finalPitch    = Mathf.Max(basePitch + smoothPitchOffset, minFinalPitch);
@@ -496,7 +505,12 @@ namespace Game.CameraSystem
 
             Quaternion rot          = Quaternion.Euler(finalPitch, finalYaw, 0f);
             Vector3 offsetFromFocus = rot * Vector3.back * finalDistance;
-            Vector3 desiredCamPos   = focusPoint + offsetFromFocus;
+
+            // Punto de mira desplazado en el eje vertical de pantalla (rot * up) y escalado
+            // por la distancia → el player conserva su posición vertical en pantalla en
+            // cualquier zoom o pitch. Lo baja en pantalla sin descentrarlo en horizontal.
+            Vector3 aimPoint        = focusPoint + (rot * Vector3.up) * (verticalScreenOffset * finalDistance);
+            Vector3 desiredCamPos   = aimPoint + offsetFromFocus;
 
             transform.position = desiredCamPos;
             transform.rotation = rot;

@@ -23,6 +23,8 @@ public class MissionPanelUI : MonoBehaviour
     [SerializeField] private string completedColor = "#7CFF7C";
     [SerializeField] private string pendingColor = "#FFFFFF";
 
+    public bool IsOpen => panel != null && panel.activeSelf;
+
     private void Start()
     {
         // DEBUG 1: ¿el script existe y arranca?
@@ -33,6 +35,13 @@ public class MissionPanelUI : MonoBehaviour
 
     private void Update()
     {
+        // Escape: solo cierra si está abierto (no abre).
+        if (Input.GetKeyDown(KeyCode.Escape) && IsOpen)
+        {
+            Close();
+            return;
+        }
+
         if (!Input.GetKeyDown(toggleKey)) return;
 
         // DEBUG 2: ¿se detecta la tecla?
@@ -79,6 +88,16 @@ public class MissionPanelUI : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(null);
 
         if (newState) RefreshMissions();
+    }
+
+    /// <summary>Cierra el panel de misiones. No hace nada si ya está cerrado.</summary>
+    public void Close()
+    {
+        if (panel == null) return;
+
+        panel.SetActive(false);
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(null);
     }
 
     private void OnMissionChanged(MissionData _)
