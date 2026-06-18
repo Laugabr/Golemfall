@@ -194,7 +194,7 @@ skip:
                     cachedDamage,
                     0f,
                     Vector3.zero,
-                    1f,
+                    .5f,
                     false,
                     cachedType,
                     cachedShowVFX,
