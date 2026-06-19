@@ -36,6 +36,21 @@ public class DialogueBoxView : MonoBehaviour
         if (panel != null) panel.SetActive(false);
     }
 
+    private void Update()
+    {
+        // Escape mientras hay diálogo activo: hace lo mismo que F (avanzar de línea
+        // o cerrar al terminar), pero NUNCA abre. Lector único: este componente es
+        // una sola instancia, así que un Escape => un Advance(). Gateamos por
+        // IsInDialogue (no por panel.activeSelf) porque al terminar el diálogo el
+        // State pasa a Idle ANTES del fade-out, evitando avanzar durante el cierre.
+        if (Input.GetKeyDown(KeyCode.Escape)
+            && DialogueController.Instance != null
+            && DialogueController.Instance.IsInDialogue)
+        {
+            DialogueController.Instance.Advance();
+        }
+    }
+
     private void OnEnable()
     {
         if (DialogueController.Instance != null)
