@@ -16,6 +16,10 @@ public class DialogueController : MonoBehaviour
     private DialogueData _currentDialogue;
     private int _currentLineIndex;
 
+    // Frame en el que se avanzó/arrancó por última vez. Evita que varios llamados
+    // a Advance() en el mismo frame salteen líneas (p. ej. dos NPCs con el mismo NpcData).
+    private int _lastAdvanceFrame = -1;
+
     public bool IsInDialogue => State != DialogueState.Idle;
     public NpcData CurrentNpc => _currentNpc;
 
@@ -40,21 +44,23 @@ public class DialogueController : MonoBehaviour
     }
 
     // Llamado desde Fase 5 cuando el player interactúa con un NPC.
-    public void StartDialogue(NpcData npc)
+    // Devuelve true solo si ESTE llamado fue el que arrancó el diálogo,
+    // para que el llamador pueda saber si es el "dueño" del diálogo activo.
+    public bool StartDialogue(NpcData npc)
     {
         if (IsInDialogue)
         {
             // Ya hay un diálogo activo — ignorar el segundo llamado
-            return;
+            return false;
         }
 
-        if (npc == null) return;
+        if (npc == null) return false;
 
         var dialogue = npc.GetEligibleDialogue();
         if (dialogue == null || dialogue.lines == null || dialogue.lines.Count == 0)
         {
             Debug.Log($"DialogueController: NPC {npc.npcId} no tiene diálogo elegible.");
-            return;
+            return false;
         }
 
         _currentNpc = npc;
@@ -67,17 +73,26 @@ public class DialogueController : MonoBehaviour
         {
             // Todas las líneas estaban vacías
             EndDialogue();
-            return;
+            return false;
         }
+
+        // Marcar el frame del arranque para que un Advance en el mismo frame no
+        // se "coma" la primera línea.
+        _lastAdvanceFrame = Time.frameCount;
 
         OnDialogueStarted?.Invoke(_currentNpc, _currentDialogue.lines[_currentLineIndex]);
         Debug.Log($"DialogueController: dialogue '{_currentDialogue.dialogueId}' started. Line: {_currentDialogue.lines[_currentLineIndex].text}");
+        return true;
     }
 
     // Llamado cuando el player aprieta el botón de avanzar.
     public void Advance()
     {
         if (!IsInDialogue) return;
+
+        // Candado por frame: si ya se avanzó/arrancó en este frame, ignorar.
+        if (Time.frameCount == _lastAdvanceFrame) return;
+        _lastAdvanceFrame = Time.frameCount;
 
         if (!MoveToNextValidLine())
         {
