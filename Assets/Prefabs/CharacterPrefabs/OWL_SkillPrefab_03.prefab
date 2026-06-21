@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4470091124215830598}
   - component: {fileID: 467334471359973280}
   - component: {fileID: -5009458299100021982}
-  m_Layer: 2
+  m_Layer: 3
   m_Name: OWL_SkillPrefab_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -119,14 +119,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: vfx_HealingAoE
       objectReference: {fileID: 0}
-    - target: {fileID: 406087668005387499, guid: 83ebc41fba3a55e468204494c0ace524, type: 3}
-      propertyPath: m_Layer
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4779137414273788834, guid: 83ebc41fba3a55e468204494c0ace524, type: 3}
-      propertyPath: m_Layer
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 8166650408978875784, guid: 83ebc41fba3a55e468204494c0ace524, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -166,14 +158,6 @@ PrefabInstance:
     - target: {fileID: 8166650408978875784, guid: 83ebc41fba3a55e468204494c0ace524, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8716703928491072717, guid: 83ebc41fba3a55e468204494c0ace524, type: 3}
-      propertyPath: looping
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8716703928491072717, guid: 83ebc41fba3a55e468204494c0ace524, type: 3}
-      propertyPath: InitialModule.startSize.scalar
-      value: 400
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
