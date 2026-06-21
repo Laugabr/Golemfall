@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: mat_AtlasMultiUV
+  m_Name: mat_AtlasMultiUV1
   m_Shader: {fileID: -6465566751694194690, guid: 1059e2096cb637044a3b25d219b70119, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -38,7 +38,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _mainText:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: cb35dc8169136e54db50e8bd72d12b16, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -57,6 +57,7 @@ Material:
     m_Floats:
     - _QueueControl: 0
     - _QueueOffset: 0
-    m_Colors: []
+    m_Colors:
+    - _EmissiveColor: {r: 0.9245283, g: 0.69056165, b: 0.49279103, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
