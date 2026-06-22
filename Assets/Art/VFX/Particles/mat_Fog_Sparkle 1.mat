@@ -24,16 +24,20 @@ Material:
   m_Shader: {fileID: -6465566751694194690, guid: ede150f7cf75e8649a5c5b0c9da21e0c, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords:
   - _EMISSION
   m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
+  m_CustomRenderQueue: 4000
+  stringTagMap:
+    RenderType: Transparent
   disabledShaderPasses:
   - MOTIONVECTORS
+  - DepthOnly
+  - SHADOWCASTER
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -60,11 +64,22 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AlphaClip: 0
+    - _AlphaToMask: 0
+    - _Blend: 0
+    - _CastShadows: 0
+    - _Cull: 2
     - _Depth_Fade_Distance: -0.28
+    - _DstBlend: 10
     - _Fog_Power: 2.16
     - _Luminosity_Intensity: 3.24
-    - _QueueControl: 0
+    - _QueueControl: 1
     - _QueueOffset: 0
+    - _SrcBlend: 5
+    - _Surface: 1
+    - _ZTest: 8
+    - _ZWrite: 0
+    - _ZWriteControl: 2
     m_Colors:
     - _Fog_Layer_1_Tiling_and_Offset_Speed: {r: 1.71, g: 1, b: 0.1, a: 0.07}
     - _Fog_Layer_2_Tiling_and_Offset_Speed: {r: 0.03, g: 1.2, b: -0.02, a: -0.07}

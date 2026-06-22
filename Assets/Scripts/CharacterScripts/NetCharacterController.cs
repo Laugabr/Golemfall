@@ -98,13 +98,15 @@ public class NetCharacterController : NetworkBehaviour
     /// un Animation Event al terminar la animación de ataque.
     /// </summary>
     [Networked] private NetworkBool IsAttacking { get; set; }
-
+    private CapsuleCollider capsuleCollider;
     private void Awake()
     {
         charStats = GetComponent<CharacterStats>();
         charPickUp = GetComponent<CharacterPickUp>();
         charAbilities = GetComponent<AbilityHolder>();
         charHealth = GetComponent<PlayerHealth>();
+        capsuleCollider = GetComponent<CapsuleCollider>();
+
     }
 
     public override void Spawned()
@@ -144,6 +146,8 @@ public class NetCharacterController : NetworkBehaviour
     {
         if (!GetInput(out NetInputPlayer input)) return;
         if (charStats == null || charStats.localStats.Count == 0) return;
+
+
 
         float previousY = transform.position.y;
 
@@ -314,6 +318,8 @@ public class NetCharacterController : NetworkBehaviour
         bodyVisuals.rotation = Quaternion.Slerp(
             bodyVisuals.rotation, target, rotationSpeed * Time.deltaTime
         );
+                if(HasInputAuthority)
+            Shader.SetGlobalVector("_Player", transform.position + Vector3.up * capsuleCollider.radius);
     }
 
     private Vector3 GetMouseDirection()

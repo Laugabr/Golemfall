@@ -7,6 +7,13 @@ public class InstantKillZone : NetworkBehaviour
     [SerializeField] private bool killPlayers = true;
     [SerializeField] private bool killEnemies = true;
 
+    private Collider collider;
+
+    void Awake()
+    {
+        collider = GetComponent<Collider>();
+    }
+
     public  void OnTriggerEnter(Collider other)
     {
         if (!Object.HasStateAuthority) return;
