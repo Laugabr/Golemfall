@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5700882235760856281}
   - component: {fileID: 8919767937745302709}
   - component: {fileID: 1429299801095526591}
+  - component: {fileID: -5563633939369985148}
   m_Layer: 0
   m_Name: obj_MountainPackage01
   m_TagString: Untagged
@@ -87,6 +88,22 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!208 &-5563633939369985148
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 915902515355902592}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 44.072002, y: 30.180002, z: 23.373001}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0.19800001, y: 29.810001, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!1 &3442482606129708602
 GameObject:
   m_ObjectHideFlags: 0

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5995694996134052281}
   - component: {fileID: 1566686776637348443}
   - component: {fileID: 8026487258668236414}
+  - component: {fileID: -2601281225992998881}
   m_Layer: 0
   m_Name: obj_TreeBig_04
   m_TagString: Untagged
@@ -87,6 +88,22 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!208 &-2601281225992998881
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1797777426691730301}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 8.082001, y: 8.110001, z: 5.9950004}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.051000003, y: 7.9680004, z: 0.010000001}
+  m_TimeToStationary: 0.5
 --- !u!1 &8333242786933896329
 GameObject:
   m_ObjectHideFlags: 0

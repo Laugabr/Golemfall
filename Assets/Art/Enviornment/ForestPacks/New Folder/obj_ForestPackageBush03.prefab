@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3618404292262786188}
   - component: {fileID: 5027791391211682850}
   - component: {fileID: 5652026824562811685}
+  - component: {fileID: 1260054104184385153}
   m_Layer: 0
   m_Name: obj_ForestPackageBush03
   m_TagString: Untagged
@@ -88,6 +89,22 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!208 &1260054104184385153
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 298343213701218084}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 4.9570003, y: 1.8820001, z: 5.5990005}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 1.044, y: 1.547, z: -1.7500001}
+  m_TimeToStationary: 0.5
 --- !u!1 &1197118485380739692
 GameObject:
   m_ObjectHideFlags: 0

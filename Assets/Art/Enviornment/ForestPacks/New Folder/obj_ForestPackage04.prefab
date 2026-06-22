@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2269561066278781118}
   - component: {fileID: 847991433769927840}
   - component: {fileID: 3582893532121929558}
+  - component: {fileID: -8271765343163328573}
   m_Layer: 0
   m_Name: obj_ForestPackage04
   m_TagString: Untagged
@@ -89,6 +90,22 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!208 &-8271765343163328573
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3881041575609416166}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 9.602, y: 9.440001, z: 18.836}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.117000006, y: 9.034, z: -0.28300002}
+  m_TimeToStationary: 0.5
 --- !u!1 &4408224078441745256
 GameObject:
   m_ObjectHideFlags: 0

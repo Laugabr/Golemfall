@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2526754494581340056}
   - component: {fileID: 4090472973722603943}
   - component: {fileID: 8577572213700860341}
+  - component: {fileID: -1902471737587672311}
   m_Layer: 0
   m_Name: obj_ForestPackageRock02
   m_TagString: Untagged
@@ -88,6 +89,22 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!208 &-1902471737587672311
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1801050990860031485}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 3.3320003, y: 2.732, z: 4.597}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -0.53300005, y: 2.588, z: 0.794}
+  m_TimeToStationary: 0.5
 --- !u!1 &7529512940022162661
 GameObject:
   m_ObjectHideFlags: 0

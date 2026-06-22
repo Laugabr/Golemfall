@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 2635618716127725654}
   - component: {fileID: 2702616490290888862}
   - component: {fileID: 4865874593474529207}
+  - component: {fileID: 2219777725558040771}
   m_Layer: 0
   m_Name: obj_MountainPackageRock03
   m_TagString: Untagged
@@ -87,6 +88,22 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!208 &2219777725558040771
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 240828727908139692}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 95.201004, y: 60.198, z: 31.103}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 5.1000004, y: 59.477, z: -1.3460001}
+  m_TimeToStationary: 0.5
 --- !u!1 &3606201704357596564
 GameObject:
   m_ObjectHideFlags: 0
