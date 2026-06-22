@@ -1,5 +1,6 @@
 using Fusion;
 using UnityEngine;
+using Golemfall.Abilities;
 
 /// <summary>
 /// Maneja las habilidades del personaje o enemigo en red.
@@ -211,9 +212,3 @@ public class AbilityHolder : NetworkBehaviour
     }
 }
 
-enum AbilityState
-{
-    Ready,
-    Active,
-    Cooldown
-}
