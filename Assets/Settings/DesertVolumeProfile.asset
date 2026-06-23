@@ -15,13 +15,13 @@ MonoBehaviour:
   active: 1
   lift:
     m_OverrideState: 1
-    m_Value: {x: 0.906824, y: 0.97061044, z: 1, w: 0}
+    m_Value: {x: 0.9667662, y: 0.9657199, z: 1, w: 0}
   gamma:
     m_OverrideState: 1
-    m_Value: {x: 0.9054726, y: 1, z: 0.934209, w: 0}
+    m_Value: {x: 0.9266528, y: 1, z: 0.9347848, w: 0}
   gain:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 1, z: 1, w: 0}
+    m_Value: {x: 1, y: 0.9663675, z: 0.9604536, w: 0}
 --- !u!114 &-8270506406425502121
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -366,7 +366,7 @@ MonoBehaviour:
     m_Value: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 1
   scatter:
     m_OverrideState: 1
     m_Value: 0.668
@@ -375,7 +375,7 @@ MonoBehaviour:
     m_Value: 65472
   tint:
     m_OverrideState: 1
-    m_Value: {r: 0.19272874, g: 0.5754717, b: 0.42150337, a: 1}
+    m_Value: {r: 0.8962264, g: 0.38288918, b: 0.2494215, a: 1}
   highQualityFiltering:
     m_OverrideState: 1
     m_Value: 0
@@ -443,7 +443,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
-  m_Name: DefaultVolumeProfile
+  m_Name: DesertVolumeProfile
   m_EditorClassIdentifier: 
   components:
   - {fileID: -9167874883656233139}
@@ -480,10 +480,10 @@ MonoBehaviour:
   active: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 4
+    m_Value: 2
   tintColor:
     m_OverrideState: 1
-    m_Value: {r: 0.7688679, g: 0.89848316, b: 1, a: 1}
+    m_Value: {r: 1, g: 0.47272673, b: 0, a: 1}
   bloomMip:
     m_OverrideState: 1
     m_Value: 1
@@ -547,10 +547,10 @@ MonoBehaviour:
   active: 1
   shadows:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 1, z: 1, w: 0}
+    m_Value: {x: 1, y: 0.9707863, z: 0.9668497, w: 0}
   midtones:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 1, z: 1, w: 0}
+    m_Value: {x: 1, y: 0.9560411, z: 0.9401307, w: 0}
   highlights:
     m_OverrideState: 1
     m_Value: {x: 1, y: 0.92370236, z: 0.81909156, w: 0}
@@ -852,7 +852,7 @@ MonoBehaviour:
   active: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 0.071
 --- !u!114 &6940869943325143175
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -881,13 +881,13 @@ MonoBehaviour:
   active: 1
   color:
     m_OverrideState: 1
-    m_Value: {r: 0.04227483, g: 0.3584906, b: 0.24639706, a: 1}
+    m_Value: {r: 0.35686275, g: 0.043137252, b: 0.04605931, a: 1}
   center:
     m_OverrideState: 1
     m_Value: {x: 0.5, y: 0.5}
   intensity:
     m_OverrideState: 1
-    m_Value: 0.428
+    m_Value: 0.414
   smoothness:
     m_OverrideState: 1
     m_Value: 0.205

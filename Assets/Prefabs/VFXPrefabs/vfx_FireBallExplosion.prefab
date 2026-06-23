@@ -10110,8 +10110,8 @@ ParticleSystem:
     startSpeed:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 4
-      minScalar: 3
+      scalar: 7
+      minScalar: 6
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -10229,7 +10229,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 0.4
-      minScalar: 0.1
+      minScalar: 0.5
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -10609,7 +10609,7 @@ ParticleSystem:
     angle: 18.18
     length: 5
     boxThickness: {x: 0, y: 0, z: 0}
-    radiusThickness: 1
+    radiusThickness: 0.13
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
@@ -10692,7 +10692,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 0.37
+      value: 4.96
       mode: 0
       spread: 0
       speed:
@@ -20020,7 +20020,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 0.06
-      minScalar: 0.04
+      minScalar: 0.1
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -20483,7 +20483,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 0.37
+      value: 4.28
       mode: 0
       spread: 0
       speed:
@@ -29774,7 +29774,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 3
+      scalar: 4
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -29828,7 +29828,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 7
-      minScalar: 3
+      minScalar: 10
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -29946,7 +29946,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 0.06
-      minScalar: 0.1
+      minScalar: 0.5
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -30210,7 +30210,7 @@ ParticleSystem:
     startRotation:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 1.6161748
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -30326,7 +30326,7 @@ ParticleSystem:
     angle: 18.18
     length: 5
     boxThickness: {x: 0, y: 0, z: 0}
-    radiusThickness: 1
+    radiusThickness: 0.37
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
@@ -30397,7 +30397,7 @@ ParticleSystem:
     m_SpriteRenderer: {fileID: 0}
     m_UseMeshMaterialIndex: 0
     m_UseMeshColors: 1
-    alignToDirection: 0
+    alignToDirection: 1
     m_Texture: {fileID: 0}
     m_TextureClipChannel: 3
     m_TextureClipThreshold: 0
@@ -30409,7 +30409,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 0.37
+      value: 4
       mode: 0
       spread: 0
       speed:
@@ -30638,8 +30638,8 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 3
-        scalar: 6
-        minScalar: 3
+        scalar: 9
+        minScalar: 6
         maxCurve:
           serializedVersion: 2
           m_Curve:
@@ -32414,14 +32414,14 @@ ParticleSystem:
     strength:
       serializedVersion: 2
       minMaxState: 1
-      scalar: 1
+      scalar: 2
       minScalar: 1
       maxCurve:
         serializedVersion: 2
         m_Curve:
         - serializedVersion: 3
-          time: 0
-          value: 0
+          time: 0.14555359
+          value: 0.061309814
           inSlope: 2
           outSlope: 2
           tangentMode: 0
@@ -34538,7 +34538,7 @@ ParticleSystemRenderer:
   m_NormalDirection: 1
   m_ShadowBias: 0
   m_RenderAlignment: 0
-  m_Pivot: {x: 0, y: 0, z: 0}
+  m_Pivot: {x: 0.5, y: 0, z: 0}
   m_Flip: {x: 0, y: 0, z: 0}
   m_EnableGPUInstancing: 1
   m_ApplyActiveColorSpace: 1
