@@ -23,6 +23,9 @@
         },
         {
             "m_Id": "7d2d947f937d439a9b8265c85e57915c"
+        },
+        {
+            "m_Id": "510e3f03d5384f8ea540f11b07211b99"
         }
     ],
     "m_Keywords": [],
@@ -218,6 +221,9 @@
         },
         {
             "m_Id": "20759fb7bba04324817216013b6a29a9"
+        },
+        {
+            "m_Id": "157f0851eddd4aac9a00bbc51ef63395"
         }
     ],
     "m_GroupDatas": [],
@@ -263,6 +269,20 @@
                     "m_Id": "7aecf2f5c82f478e8324b113bd68a013"
                 },
                 "m_SlotId": 2
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "157f0851eddd4aac9a00bbc51ef63395"
+                },
+                "m_SlotId": 0
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "20759fb7bba04324817216013b6a29a9"
+                },
+                "m_SlotId": 0
             }
         },
         {
@@ -1670,6 +1690,42 @@
     "m_Value": 0.0,
     "m_DefaultValue": 0.0,
     "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
+    "m_ObjectId": "157f0851eddd4aac9a00bbc51ef63395",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "Property",
+    "m_DrawState": {
+        "m_Expanded": true,
+        "m_Position": {
+            "serializedVersion": "2",
+            "x": -266.46380615234377,
+            "y": 950.3153686523438,
+            "width": 0.0,
+            "height": 0.0
+        }
+    },
+    "m_Slots": [
+        {
+            "m_Id": "9269ab334e514d97ae9d1f1e5758266f"
+        }
+    ],
+    "synonyms": [],
+    "m_Precision": 0,
+    "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
+    "m_PreviewMode": 0,
+    "m_CustomColors": {
+        "m_SerializableColors": []
+    },
+    "m_Property": {
+        "m_Id": "510e3f03d5384f8ea540f11b07211b99"
+    }
 }
 
 {
@@ -3680,10 +3736,10 @@
     "m_CustomSlotLabel": "",
     "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "overrideHLSLDeclaration": true,
+    "hlslDeclarationOverride": 2,
     "m_Hidden": false,
-    "m_Value": 0.0010000000474974514,
+    "m_Value": 0.23000000417232514,
     "m_FloatType": 0,
     "m_RangeValues": {
         "x": 0.0,
@@ -3881,6 +3937,34 @@
     "m_Value": 0.0,
     "m_DefaultValue": 0.0,
     "m_Labels": []
+}
+
+{
+    "m_SGVersion": 1,
+    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
+    "m_ObjectId": "510e3f03d5384f8ea540f11b07211b99",
+    "m_Guid": {
+        "m_GuidSerialized": "7cc5c5da-e02c-4308-bd2a-e5841cce4add"
+    },
+    "m_Name": "AlphaClip",
+    "m_DefaultRefNameVersion": 1,
+    "m_RefNameGeneratedByDisplayName": "AlphaClip",
+    "m_DefaultReferenceName": "_AlphaClip",
+    "m_OverrideReferenceName": "",
+    "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_DismissedVersion": 0,
+    "m_Precision": 0,
+    "overrideHLSLDeclaration": false,
+    "hlslDeclarationOverride": 0,
+    "m_Hidden": false,
+    "m_Value": 0.0,
+    "m_FloatType": 1,
+    "m_RangeValues": {
+        "x": 0.0,
+        "y": 1.0
+    }
 }
 
 {
@@ -5904,6 +5988,21 @@
 {
     "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
+    "m_ObjectId": "9269ab334e514d97ae9d1f1e5758266f",
+    "m_Id": 0,
+    "m_DisplayName": "AlphaClip",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Out",
+    "m_StageCapability": 3,
+    "m_Value": 0.0,
+    "m_DefaultValue": 0.0,
+    "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
     "m_ObjectId": "92718a9013134c668dfe2ac2235c386a",
     "m_Id": 2,
     "m_DisplayName": "G",
@@ -6628,6 +6727,9 @@
         },
         {
             "m_Id": "7d2d947f937d439a9b8265c85e57915c"
+        },
+        {
+            "m_Id": "510e3f03d5384f8ea540f11b07211b99"
         }
     ]
 }

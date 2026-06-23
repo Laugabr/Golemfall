@@ -1,6 +1,8 @@
 using UnityEngine;
+using Fusion;
 
-public class AimDirectionIndicator : MonoBehaviour
+
+public class AimDirectionIndicator : NetworkBehaviour
 {
     [SerializeField] private Transform indicatorSprite;
     [SerializeField] private float heightOffset = 0.05f;
@@ -10,6 +12,14 @@ public class AimDirectionIndicator : MonoBehaviour
     private void Start()
     {
         _cam = Camera.main;
+    }
+
+    public override void Spawned()
+    {
+        if (!Object.HasInputAuthority)
+        {
+            indicatorSprite.gameObject.SetActive(false);
+        }
     }
 
     private void Update()
