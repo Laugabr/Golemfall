@@ -13,10 +13,8 @@ MonoBehaviour:
   m_Name: mision_explorar_01
   m_EditorClassIdentifier: 
   missionId: mision_explorar_01
-  missionName: Mision "Secretos del Bosque"
-  description: "El bosque esconde antiguos recursos que pueden ayudarte en tu viaje.
-    Explora, destruye objetos rompibles y encuentra el fragmento escondido m\xE1s
-    adelante."
+  missionName: "Misi\xF3n: \"Lo que brilla, brilla por algo\""
+  description: "Encontrar un objeto m\xE1gico escondido dentro de las nebuflores"
   xp: 100
   coins: 0
   missionSteps:
@@ -25,7 +23,8 @@ MonoBehaviour:
     displayText: "Recolectar objeto m\xE1gico"
   failureSteps: []
   nextMissions:
-  - {fileID: 11400000, guid: 831acafcc5bc0fc47ae6cdd01e385f14, type: 2}
+  - {fileID: 11400000, guid: d46778471c225df4c9cfac61a841c5cc, type: 2}
   pausesOtherMissions: 0
   startWithEvent: 0
   startEvent: 0
+  startOnlyOnce: 0

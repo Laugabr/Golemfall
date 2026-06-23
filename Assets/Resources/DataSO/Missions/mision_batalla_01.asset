@@ -13,18 +13,16 @@ MonoBehaviour:
   m_Name: mision_batalla_01
   m_EditorClassIdentifier: 
   missionId: mision_batalla_01
-  missionName: "Misi\xF3n \"Cacer\xEDa de Golems\""
-  description: "Las criaturas corruptas se est\xE1n multiplicando. Derrota 4 enemigos
-    m\xE1s y despeja el camino."
+  missionName: "Misi\xF3n: \"Uno no alcanza\""
+  description: Matar 5 enemigos golems
   xp: 200
   coins: 0
   missionSteps:
   - targetId: 0
     amount: 5
-    displayText: Derrota golems
+    displayText: Golems eliminados
   failureSteps: []
-  nextMissions:
-  - {fileID: 11400000, guid: d46778471c225df4c9cfac61a841c5cc, type: 2}
+  nextMissions: []
   pausesOtherMissions: 0
   startWithEvent: 1
   startEvent: 0

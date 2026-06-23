@@ -13,16 +13,17 @@ MonoBehaviour:
   m_Name: mision_explorar_02
   m_EditorClassIdentifier: 
   missionId: mision_explorar_02
-  missionName: '"Reliquias Perdidas"'
-  description: "Profundiza tu exploraci\xF3n y descubre 4 nuevos tesoros."
+  missionName: "Misi\xF3n: \"Objetos m\xE1gicos\""
+  description: "Recolectar 7 objetos m\xE1gicos"
   xp: 150
   coins: 0
   missionSteps:
   - targetId: 1
-    amount: 4
-    displayText: Encuentra tesoros
+    amount: 7
+    displayText: "Objetos m\xE1gicos encontrados"
   failureSteps: []
   nextMissions: []
   pausesOtherMissions: 0
-  startWithEvent: 0
-  startEvent: 0
+  startWithEvent: 1
+  startEvent: 1
+  startOnlyOnce: 1
