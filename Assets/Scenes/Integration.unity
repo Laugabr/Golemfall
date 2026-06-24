@@ -55605,6 +55605,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 906198133}
     m_Modifications:
+    - target: {fileID: 3701110549322941722, guid: 7ecda584ba2f98243b7538703e9fd580, type: 3}
+      propertyPath: InitialModule.maxNumParticles
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 4599987150163409805, guid: 7ecda584ba2f98243b7538703e9fd580, type: 3}
       propertyPath: m_Name
       value: vfx_Fog_Big
@@ -98151,7 +98155,7 @@ Terrain:
   m_GroupingID: 0
   m_RenderingLayerMask: 1
   m_AllowAutoConnect: 1
-  m_EnableHeightmapRayTracing: 1
+  m_EnableHeightmapRayTracing: 0
   m_EnableTreesAndDetailsRayTracing: 0
   m_TreeMotionVectorModeOverride: 3
 --- !u!4 &2114180297
