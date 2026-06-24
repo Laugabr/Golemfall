@@ -230,7 +230,26 @@ namespace Game.CameraSystem
         /// de movimiento del jugador.
         /// </summary>
         public float WorldYaw => baseYaw + smoothYawOffset;
+        private CameraShake cameraShake;
+        public static CameraController Local { get; private set; }
 
+        private void Awake()
+        {
+            if(Local != null)
+            {
+                Debug.LogWarning("[CameraController] Ya existe una instancia Local. Se reemplaza la referencia.");
+                Destroy(this);
+            }
+
+            Local = this;
+            
+            cameraShake = GetComponent<CameraShake>();
+
+        }
+        public void Shake(float duration, float intensity)
+        {
+            cameraShake?.Shake(duration, intensity);
+        }
         /// <summary>
         /// Setea el target al que sigue la cámara.
         /// En Fusion 2: llamar solo desde el cliente con HasInputAuthority.
@@ -544,7 +563,10 @@ namespace Game.CameraSystem
                 adjustedDistance = GetCollisionAdjustedDistance(aimPoint, camDirection, finalDistance);
             }
 
+            Vector3 shakeOffset = cameraShake != null ? cameraShake.Offset : Vector3.zero;
+
             Vector3 desiredCamPos = aimPoint + camDirection * adjustedDistance;
+            desiredCamPos += shakeOffset;
 
             transform.position = desiredCamPos;
             transform.rotation = rot;

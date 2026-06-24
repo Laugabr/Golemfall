@@ -45,6 +45,7 @@ public class PlayerHealth : HealthSystem
         NeedsRespawn = true;
     }
 
+
     public override void Spawned()
     {
         base.Spawned();
@@ -66,12 +67,6 @@ public class PlayerHealth : HealthSystem
             Debug.LogError($"PlayerHealth requires SimpleKCC on {gameObject.name}");
 
         SetAlive(true);
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.K))
-            TakeDamage(999, gameObject);
     }
 
     /// <summary>
@@ -146,11 +141,23 @@ public class PlayerHealth : HealthSystem
     /// </summary>
     public override void CurrentHealthChanged()
     {
-        base.CurrentHealthChanged();
+    base.CurrentHealthChanged();
 
-        // Solo dispara si está vivo y recibió daño (no al curarse ni al spawnar)
-        if (!IsDead && CurrentHealth < MaxHealth && CurrentHealth > 0)
-            netAnimator?.TriggerTakeDamage();
+    Debug.Log($"CurrentHealthChanged {Object.HasInputAuthority}");
+
+    if (!IsDead && CurrentHealth < MaxHealth && CurrentHealth > 0)
+    {
+        Debug.Log("Intentando shake");
+
+        netAnimator?.TriggerTakeDamage();
+
+        if (Object.HasInputAuthority)
+        {
+            Debug.Log("Tiene InputAuthority");
+
+            CameraController.Local?.Shake(0.15f, 0.25f);
+        }
+    }
     }
 
     private void OnIsDeadChanged()

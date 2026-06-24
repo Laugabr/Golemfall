@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Fusion;
+using Game.CameraSystem;
 using UnityEngine;
 
 public class Projectile : NetworkBehaviour
@@ -63,12 +64,7 @@ public class Projectile : NetworkBehaviour
     public override void Spawned()
     {
         // Solo el cliente que disparo destruye su proyectil falso local
-        if (Object.HasStateAuthority || !Object.HasInputAuthority) return;
-
-        uint ownerId = Owner.Id.Raw;
-        var fake = FakeProjectileRegistry.Dequeue(ownerId);
-
-        if (fake != null) Destroy(fake.gameObject);
+        
     }
 
     public void Initialize(NetworkObject caster, int damage, float speed, Vector3 dir,
@@ -151,6 +147,10 @@ private void OnTriggerEnter(Collider other)
 
         damageable.TakeDamage(Damage, Owner.gameObject);
         damagedTarget = true;
+        if (Object.HasStateAuthority && Owner != null && Owner.HasInputAuthority)
+        {
+            CameraController.Local?.Shake(0.08f, 0.2f);
+        }
     }
 
 skip:

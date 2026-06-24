@@ -55,6 +55,7 @@ public class HealthSystem : NetworkBehaviour, IDamageable
 
     private void OnCurrentHealthChanged()
     {
+        
         localCurrentHealth = CurrentHealth;
 
         CurrentHealthChanged();
