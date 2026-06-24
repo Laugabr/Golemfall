@@ -147,6 +147,33 @@ namespace Game.CameraSystem
         [Header("Debug")]
         [Tooltip("Dibuja la zona muerta y el focus point en la Scene view.")]
         [SerializeField] private bool drawGizmos = true;
+        // ─────────────────────────────────────────────────────────────────────────
+        // Colisión de cámara (evita atravesar paredes/objetos)
+        // ─────────────────────────────────────────────────────────────────────────
+
+        [Header("Colisión de cámara")]
+        [Tooltip("Capas contra las que la cámara puede chocar (paredes, props, terreno). NO incluir la capa del player.")]
+        [SerializeField] private LayerMask collisionMask = ~0;
+
+        [Tooltip("Radio de la esfera usada para el SphereCast. Simula el 'volumen' de la cámara para que no clipee bordes.")]
+        [Min(0.01f)]
+        [SerializeField] private float collisionRadius = 0.3f;
+
+        [Tooltip("Distancia mínima a la que se puede acercar la cámara al focusPoint cuando hay colisión.")]
+        [Min(0.05f)]
+        [SerializeField] private float minCollisionDistance = 0.5f;
+
+        [Tooltip("Margen que se resta a la distancia del hit para que la cámara no quede pegada/clipeando contra la superficie.")]
+        [Min(0f)]
+        [SerializeField] private float collisionSkin = 0.15f;
+
+        [Tooltip("Suavizado de la distancia por colisión. Al acercarse es instantáneo (evita clip), al alejarse usa este tiempo.")]
+        [Min(0f)]
+        [SerializeField] private float collisionSmoothTime = 0.05f;
+
+        // Estado interno de colisión
+        private float currentCollisionDistance;
+        private float collisionDistanceVelocity;
 
         // ─────────────────────────────────────────────────────────────────────────
         // Estado interno
@@ -491,26 +518,33 @@ namespace Game.CameraSystem
 
         private void ApplyTransform(bool instant)
         {
-            // El pitch final nunca puede ir por debajo de minFinalPitch.
-            // Esto evita que la cámara termine por debajo del player aunque el preset
-            // o el offset manual lo permitan.
             float finalPitch    = Mathf.Max(basePitch + smoothPitchOffset, minFinalPitch);
             float finalYaw      = baseYaw   + smoothYawOffset;
-            // Distancia final: preset + zoom del usuario, clampeada contra los topes globales.
             float finalDistance = Mathf.Clamp(
                 baseDistance + smoothZoomOffset,
                 zoomDistanceRange.x,
                 zoomDistanceRange.y
             );
 
-            Quaternion rot          = Quaternion.Euler(finalPitch, finalYaw, 0f);
-            Vector3 offsetFromFocus = rot * Vector3.back * finalDistance;
+            Quaternion rot   = Quaternion.Euler(finalPitch, finalYaw, 0f);
+            Vector3 aimPoint = focusPoint + (rot * Vector3.up) * (verticalScreenOffset * finalDistance);
 
-            // Punto de mira desplazado en el eje vertical de pantalla (rot * up) y escalado
-            // por la distancia → el player conserva su posición vertical en pantalla en
-            // cualquier zoom o pitch. Lo baja en pantalla sin descentrarlo en horizontal.
-            Vector3 aimPoint        = focusPoint + (rot * Vector3.up) * (verticalScreenOffset * finalDistance);
-            Vector3 desiredCamPos   = aimPoint + offsetFromFocus;
+            // Dirección desde el punto de mira hacia donde "debería" estar la cámara (sin colisión).
+            Vector3 camDirection = rot * Vector3.back;
+
+            // Si es instant (Start/SnapToTarget), saltamos la suavización de colisión.
+            float adjustedDistance;
+            if (instant)
+            {
+                adjustedDistance = GetCollisionAdjustedDistance(aimPoint, camDirection, finalDistance);
+                currentCollisionDistance = adjustedDistance;
+            }
+            else
+            {
+                adjustedDistance = GetCollisionAdjustedDistance(aimPoint, camDirection, finalDistance);
+            }
+
+            Vector3 desiredCamPos = aimPoint + camDirection * adjustedDistance;
 
             transform.position = desiredCamPos;
             transform.rotation = rot;
@@ -532,5 +566,43 @@ namespace Game.CameraSystem
             Gizmos.color = Color.yellow;
             Gizmos.DrawSphere(center, 0.2f);
         }
+
+        /// <summary>
+        /// Calcula la distancia máxima libre de obstáculos entre aimPoint y la dirección de la cámara.
+        /// Usa SphereCast para evitar que la cámara atraviese paredes/objetos.
+        /// </summary>
+        private float GetCollisionAdjustedDistance(Vector3 aimPoint, Vector3 camDirection, float desiredDistance)
+        {
+            float resultDistance = desiredDistance;
+
+            if (Physics.SphereCast(
+                    aimPoint,
+                    collisionRadius,
+                    camDirection,
+                    out RaycastHit hit,
+                    desiredDistance,
+                    collisionMask,
+                    QueryTriggerInteraction.Ignore))
+            {
+                resultDistance = Mathf.Max(hit.distance - collisionSkin, minCollisionDistance);
+            }
+
+            // Acercarse (cuando aparece un obstáculo) debe ser instantáneo para no clipear.
+            // Alejarse (cuando el obstáculo desaparece) se suaviza para evitar "pops".
+            if (resultDistance < currentCollisionDistance || collisionSmoothTime <= 0f)
+            {
+                currentCollisionDistance = resultDistance;
+                collisionDistanceVelocity = 0f;
+            }
+            else
+            {
+                currentCollisionDistance = Mathf.SmoothDamp(
+                    currentCollisionDistance, resultDistance, ref collisionDistanceVelocity, collisionSmoothTime
+                );
+            }
+
+            return currentCollisionDistance;
+        }
     }
+    
 }
