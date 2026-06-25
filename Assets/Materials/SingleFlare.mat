@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-852056324558826171
+--- !u!114 &-880421438119754096
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: mat_VenomBallHead
-  m_Shader: {fileID: -6465566751694194690, guid: 776092056c305f147a067c7a2862cce1, type: 3}
+  m_Name: SingleFlare
+  m_Shader: {fileID: -6465566751694194690, guid: 42b4feec7243c5a4db34c3e4ec6eaaac, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
@@ -30,18 +30,19 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: -1
   stringTagMap:
     RenderType: Transparent
   disabledShaderPasses:
-  - DepthOnly
   - MOTIONVECTORS
+  - DepthOnly
+  - SHADOWCASTER
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _Fire_Noise:
-        m_Texture: {fileID: 2800000, guid: e4cc4bbfa116d2c49a815ebe98e9620a, type: 3}
+    - _Main_Text:
+        m_Texture: {fileID: 2800000, guid: 4c288c2be7a4dee45a89ced5a56a4db0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -61,24 +62,19 @@ Material:
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _Blend: 0
-    - _CastShadows: 1
-    - _Cull: 2
-    - _Depth_Fade_Distance: 0
+    - _CastShadows: 0
+    - _Cull: 0
     - _DstBlend: 10
-    - _Fire_Noise_Intensity: 1.12
-    - _Fire_Noise_UV_Distortion_Intensity: 2.16
+    - _Intensitu: 6.12
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _Rotation: 90
     - _SrcBlend: 5
     - _Surface: 1
-    - _UV_Masking_Bottom_0_Legt_1: -0.063
-    - _ZTest: 4
+    - _ZTest: 8
     - _ZWrite: 0
-    - _ZWriteControl: 0
+    - _ZWriteControl: 2
     m_Colors:
-    - _Fire_Color_A: {r: 0.31476846, g: 1.9999999, b: 0.028301833, a: 0}
-    - _Fire_Color_B: {r: 1.8695991, g: 2.3541584, b: 0, a: 0}
-    - _Fire_Noise_UV_Distortion_Tiling_and_Offset_Speed: {r: 1.64, g: 1.48, b: 0, a: 2}
-    - _SmoothStep: {r: 0.54, g: -0.01, b: 0, a: 0}
+    - _Vector2: {r: 0, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
