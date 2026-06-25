@@ -41,20 +41,27 @@ public class NetworkVFXManager : NetworkBehaviour
         Quaternion rot = hitDirection != Vector3.zero ?
             Quaternion.LookRotation(-hitDirection) : Quaternion.identity;
 
-        GameObject vfxToSpawn = type == ProjectileType.Player ?
-            projectileCollisionVFX : enemyProjectileCollisionVFX;
-
-        if (vfxToSpawn != null)
+        if (damagedTarget)
         {
-            Vector3 finalPos = position + hitDirection.normalized * 2.5f;
-            var vfx = Instantiate(vfxToSpawn, finalPos, rot);
-            Destroy(vfx, 5f);
+            // Hubo daño real -> solo el VFX de impacto a objetivo, nada de colisión genérica
+            if (type == ProjectileType.Player && projectileHitTargetVFX != null)
+            {
+                var vfx = Instantiate(projectileHitTargetVFX, position, rot);
+                Destroy(vfx, 5f);
+            }
         }
-
-        if (type == ProjectileType.Player && damagedTarget && projectileHitTargetVFX != null)
+        else
         {
-            var vfx = Instantiate(projectileHitTargetVFX, position, rot);
-            Destroy(vfx, 5f);
+            // No hubo daño (pegó contra pared, objeto no dañable, etc) -> VFX de colisión genérico
+            GameObject vfxToSpawn = type == ProjectileType.Player ?
+                projectileCollisionVFX : enemyProjectileCollisionVFX;
+
+            if (vfxToSpawn != null)
+            {
+                Vector3 finalPos = position + hitDirection.normalized * 2.5f;
+                var vfx = Instantiate(vfxToSpawn, finalPos, rot);
+                Destroy(vfx, 5f);
+            }
         }
     }
 

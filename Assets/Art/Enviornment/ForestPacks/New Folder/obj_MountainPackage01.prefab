@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 5700882235760856281}
   - component: {fileID: -5563633939369985148}
   - component: {fileID: 1811538941167052213}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: obj_MountainPackage01
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -89,7 +89,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3826740197915255351}
   - component: {fileID: 6637494104025106277}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -185,6 +185,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: obj_MountainPackage01_LOD0
       objectReference: {fileID: 0}
+    - target: {fileID: 9168146368192054201, guid: ba117122a796ef14db42bac4c97f8c47, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -211,6 +215,10 @@ PrefabInstance:
     - target: {fileID: 6476309428619063406, guid: 198a9941e474ab842adadc6233937c42, type: 3}
       propertyPath: m_Name
       value: obj_MountainPackage01_LOD1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6476309428619063406, guid: 198a9941e474ab842adadc6233937c42, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
       objectReference: {fileID: 0}
     - target: {fileID: 7946836866725938761, guid: 198a9941e474ab842adadc6233937c42, type: 3}
       propertyPath: m_LocalPosition.x

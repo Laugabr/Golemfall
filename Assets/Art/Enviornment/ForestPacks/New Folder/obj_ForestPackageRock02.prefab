@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3116968155135285280}
   - component: {fileID: 3410876133049002328}
   - component: {fileID: 6721954085288076337}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: obj_ForestPackageRock02_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,9 +97,9 @@ GameObject:
   - component: {fileID: 2526754494581340056}
   - component: {fileID: -1902471737587672311}
   - component: {fileID: 5517662625038040958}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: obj_ForestPackageRock02
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -178,7 +178,7 @@ GameObject:
   - component: {fileID: 6296707517627639185}
   - component: {fileID: 301931658243509936}
   - component: {fileID: 1196745252734933080}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: obj_ForestPackageRock02_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -264,7 +264,7 @@ GameObject:
   - component: {fileID: 9092382866192943667}
   - component: {fileID: 865152439726531494}
   - component: {fileID: 7873325248307421904}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -339,7 +339,7 @@ GameObject:
   - component: {fileID: 552530492830877563}
   - component: {fileID: 5074151119714003063}
   - component: {fileID: 7139000442854079058}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: obj_ForestPackageRock02_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -465,6 +465,10 @@ PrefabInstance:
     - target: {fileID: 7372056107013474907, guid: 94245ba039eda00499911dc0b78f88fe, type: 3}
       propertyPath: m_Name
       value: vfx_lilBugs (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7372056107013474907, guid: 94245ba039eda00499911dc0b78f88fe, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 8951321662618123566, guid: 94245ba039eda00499911dc0b78f88fe, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b

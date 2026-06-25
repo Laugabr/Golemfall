@@ -208,7 +208,7 @@ public class AbilityHolder : NetworkBehaviour
         var fake = go.AddComponent<FakeProjectile>();
 
         uint ownerId = Object.Id.Raw;
-        fake.Initialize(ownerId, direction, ability.projectileSpeed, ability.projectileLifetime);
+        fake.Initialize(ownerId, direction, ability.projectileSpeed, ability.objectLifeTime);
     }
 }
 

@@ -15,10 +15,14 @@ MonoBehaviour:
   name: Ranged
   cooldownTime: 2.5
   activeTime: 0
-  projectileLifetime: 4
+  colliderLifeTime: 4
+  objectLifeTime: 4
   projectilePrefab: {fileID: -166465162631183935, guid: 6fefd4c0b08b1974fbcffae66d01ae9d, type: 3}
   projectileSpeed: 20
   damageMultiplier: 1
   destroyOnHit: 1
   projectileType: 1
   showHitVFX: 1
+  isAoe: 0
+  spawnOnExpireAoe: 0
+  onExpirePrefab: {fileID: 0}

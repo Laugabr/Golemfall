@@ -9,11 +9,25 @@ public class Projectile : NetworkBehaviour
     [Networked] private Vector3 Direction { get; set; }
     [Networked] private float Speed { get; set; }
     [Networked] private int Damage { get; set; }
-    [Networked] private float ActiveTime { get; set; }
     [Networked] private bool hasHit { get; set; }
     [Networked] private NetworkObject Owner { get; set; }
     [Networked] private ProjectileType Type { get; set; }
     [Networked] private bool DestroyOnHit { get; set; }
+
+    /// <summary>
+    /// Tiempo de vida visual del GameObject completo (incluye los hijos VFX
+    /// del prefab, como trails/swishes). Puede ser MAYOR que el tiempo de vida
+    /// del collider, para que el efecto visual del proyectil siga viendose
+    /// un rato despues de que deja de detectar colisiones.
+    /// Se cuenta desde el momento en que el collider se desactiva (por hit
+    /// o por expiracion), no desde el spawn.
+    /// </summary>
+
+    /// <summary>
+    /// Cuenta regresiva hacia el Despawn real del GameObject, una vez que
+    /// el collider ya se desactivo. -1 significa que todavia no arranco.
+    /// </summary>
+
 
     /// <summary>
     /// Si es true, manda el VFX de explosion al impactar via NetworkVFXManager.
@@ -48,6 +62,15 @@ public class Projectile : NetworkBehaviour
     [SerializeField] private GameObject hitTargetVFX;   // efecto al danar un objetivo (opcional)
     private bool IsAoe;
     private HashSet<NetworkObject> hitTargets = new HashSet<NetworkObject>();
+
+    // ── Guard de VFX de impacto, por-target ──────────────────────────────────
+    // No-AOE: el collider se desactiva en el primer hit, asi que esta lista
+    // nunca pasa de 1 elemento -> el VFX sale una sola vez.
+    // AOE: el collider sigue activo, asi que cada enemigo nuevo agrega su
+    // propia entrada -> un VFX por enemigo golpeado, sin duplicarse si el
+    // mismo enemigo dispara OnTriggerEnter mas de una vez (colliders compuestos).
+    private HashSet<NetworkObject> vfxSentTo = new HashSet<NetworkObject>();
+
     private Collider col;
 
     // Variable local — evita que el VFX de expiracion se instancie mas de una vez por peer
@@ -55,6 +78,10 @@ public class Projectile : NetworkBehaviour
     private bool onExpireAoe = false;
     private NetworkObject onExpirePrefab = null;
     private bool _aoeSpawned = false; // ← flag para evitar spawnear el AOE varias veces
+    [Networked] private TickTimer ColliderTimer { get; set; }
+    [Networked] private TickTimer ObjectTimer { get; set; }
+    [Networked] private NetworkBool _vfxExpireSent { get; set; }
+
     private void Awake()
     {
         col = GetComponent<Collider>();
@@ -68,13 +95,16 @@ public class Projectile : NetworkBehaviour
     }
 
     public void Initialize(NetworkObject caster, int damage, float speed, Vector3 dir,
-                           float activeTime, bool destroyOnHit, ProjectileType type, bool showHitVFX, bool isAoe, bool isOnExpireAoe, NetworkObject onExpirePrefabNW)
+                           float colliderLifeTime, float objectLifeTime, bool destroyOnHit, ProjectileType type, bool showHitVFX, bool isAoe, bool isOnExpireAoe, NetworkObject onExpirePrefabNW)
     {
         Owner = caster;
         Damage = damage;
         Speed = speed;
         Direction = dir.normalized;
-        ActiveTime = activeTime;
+        ColliderTimer = TickTimer.CreateFromSeconds(Runner, colliderLifeTime);
+        ObjectTimer = TickTimer.CreateFromSeconds(Runner, objectLifeTime);
+
+        HitTick = -1;
         DestroyOnHit = destroyOnHit;
         Type = type;
         ShowHitVFX = showHitVFX;
@@ -89,98 +119,127 @@ public class Projectile : NetworkBehaviour
         col.enabled = true;
     }
 
-    public override void FixedUpdateNetwork()
+        public override void FixedUpdateNetwork()
+        {
+            if (!Object.HasStateAuthority)
+                return;
+
+            if (!hasHit)
+                transform.position += Direction * Speed * Runner.DeltaTime;
+
+            // Un solo bloque — con el RPC adentro
+            if (col.enabled && ColliderTimer.Expired(Runner))
+            {
+                col.enabled = false;
+                ExpirePosition = transform.position;
+                Expired = true;
+                SpawnOnExpireAoe(ExpirePosition);
+
+                if (ShowHitVFX && NetworkVFXManager.Instance != null && !_vfxExpireSent)
+                {
+                    _vfxExpireSent = true;
+                    NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(
+                        ExpirePosition, false, Type, Direction);
+                }
+            }
+
+            if (DestroyOnHit && hasHit && HitTick != -1 && Runner.Tick > HitTick)
+            {
+                Runner.Despawn(Object);
+                return;
+            }
+
+            if (ObjectTimer.Expired(Runner))
+            {
+                Runner.Despawn(Object);
+                return;
+            }
+        }
+
+    /// <summary>
+    /// Arranca la cuenta regresiva hacia el Despawn real del GameObject,
+    /// usando ObjectLifeTime. El collider ya deberia estar desactivado
+    /// para este punto (por hit o por expiracion).
+    /// </summary>
+private bool _wallHitVFXSent = false;
+
+    private void OnTriggerEnter(Collider other)
     {
-        if (!Object.HasStateAuthority) return;
+        if (Object == null || !Object.HasStateAuthority) return;
+        if (hasHit && !IsAoe) return; // solo bloquea si NO es aoe
+        if (Owner == null) return;
+        if (other.gameObject.layer == LayerMask.NameToLayer("Ignore Raycast")) return;
 
-        ActiveTime -= Runner.DeltaTime;
-        transform.position += Direction * Speed * Runner.DeltaTime;
+        var otherNet = other.GetComponent<NetworkObject>();
+        if (otherNet != null && otherNet == Owner) return;
+        if (otherNet != null && hitTargets.Contains(otherNet)) return; // evita doble daño
 
-        // ── Expiracion por tiempo ────────────────────────────────────────────
-        // Tick 1 — activamos el flag y guardamos la posicion
-        // Cubre tanto proyectiles normales como melee (DestroyOnHit=false)
-        if (ActiveTime <= 0f && !Expired)
+        bool damagedTarget = false;
+
+        var damageable = other.GetComponent<IDamageable>();
+        
+
+        if (damageable == null && ShowHitVFX && collisionVFX != null && !_wallHitVFXSent)
         {
-            ExpirePosition = transform.position;
-            Expired = true;
-            SpawnOnExpireAoe(ExpirePosition);
+            _wallHitVFXSent = true;
+            Vector3 vfxPos = other.ClosestPoint(transform.position);
+            var vfx = Instantiate(collisionVFX, vfxPos, Quaternion.identity);
+            vfx.transform.SetParent(null);
+        }
+        
+        if (damageable != null)
+        {
+            if (Type == ProjectileType.Player && !other.CompareTag("Enemy")) goto skip;
+            if (Type == ProjectileType.Enemy && !other.CompareTag("Player")) goto skip;
+
+            if (otherNet != null) hitTargets.Add(otherNet);
+
+            damageable.TakeDamage(Damage, Owner.gameObject);
+            damagedTarget = true;
+            if (Object.HasStateAuthority && Owner != null && Owner.HasInputAuthority)
+            {
+                CameraController.Local?.Shake(0.08f, 0.2f);
+            }
         }
 
-        // Tick 2 — Despawn un tick despues para que Render() lo detecte primero
-        if (Expired && ActiveTime <= -Runner.DeltaTime)
+    skip:
+        if (!IsAoe)
         {
-            Runner.Despawn(Object);
-            return;
+            hasHit = true;
+            col.enabled = false;
+            Speed = 0f;      // Solo se frena si DestroyOnHit + no AOE
+            HitTick = Runner.Tick;
         }
+        if (onExpireAoe) SpawnOnExpireAoe(transform.position); // ← al impactar si es AOE de expiracion
 
-        // ── Hit diferido ─────────────────────────────────────────────────────
-        // OnTriggerEnter guarda el tick en que ocurrio el hit (HitTick).
-        // Esperamos a que el tick actual sea MAYOR al tick del hit para
-        // garantizar que el Despawn ocurre en el tick siguiente, no en el mismo.
-        if (DestroyOnHit && HitTick >= 0 && Runner.Tick > HitTick)
+        // ── VFX de impacto ────────────────────────────────────────────────────
+        // Solo si efectivamente hizo daño a ESTE target, y solo una vez por target.
+        // No-AOE: como el collider se desactiva arriba, esto corre como mucho una vez.
+        // AOE: corre una vez por cada enemigo distinto golpeado.
+        // El VFX de melee/AOE se maneja por separado en LocalMeleeHitVFX.cs,
+        // que detecta la colision de forma local en cada peer.
+        if (damagedTarget && ShowHitVFX && NetworkVFXManager.Instance != null)
         {
-            Runner.Despawn(Object);
-            return;
+            bool alreadySent = otherNet != null && vfxSentTo.Contains(otherNet);
+            if (!alreadySent)
+            {
+                if (otherNet != null) vfxSentTo.Add(otherNet);
+                
+                Vector3 vfxPos = other.bounds.center;
+                NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(vfxPos, damagedTarget, Type, Direction);
+            }
         }
     }
 
-private void OnTriggerEnter(Collider other)
-{
-    if (Object == null || !Object.HasStateAuthority) return;
-    if (hasHit && !IsAoe) return; // solo bloquea si NO es aoe
-    if (Owner == null) return;
-    if (other.gameObject.layer == LayerMask.NameToLayer("Ignore Raycast")) return;
-
-    var otherNet = other.GetComponent<NetworkObject>();
-    if (otherNet != null && otherNet == Owner) return;
-    if (otherNet != null && hitTargets.Contains(otherNet)) return; // evita doble daño
-
-    bool damagedTarget = false;
-
-    var damageable = other.GetComponent<IDamageable>();
-    if (damageable != null)
-    {
-        if (Type == ProjectileType.Player && !other.CompareTag("Enemy")) goto skip;
-        if (Type == ProjectileType.Enemy && !other.CompareTag("Player")) goto skip;
-
-        if (otherNet != null) hitTargets.Add(otherNet);
-
-        damageable.TakeDamage(Damage, Owner.gameObject);
-        damagedTarget = true;
-        if (Object.HasStateAuthority && Owner != null && Owner.HasInputAuthority)
-        {
-            CameraController.Local?.Shake(0.08f, 0.2f);
-        }
-    }
-
-skip:
-    if (!IsAoe)
-    {
-        // Comportamiento normal — para en el primer impacto
-        hasHit = true;
-        col.enabled = false;
-        HitTick = Runner.Tick;
-    }
-    if(onExpireAoe) SpawnOnExpireAoe(transform.position); // ← al impactar si es AOE de expiracion
-
-    if (ShowHitVFX && NetworkVFXManager.Instance != null)
-    {
-        Vector3 vfxPos = damagedTarget ?
-            other.bounds.center :
-            other.ClosestPoint(transform.position);
-        NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(vfxPos, damagedTarget, Type, Direction);
-    }
-}
     private void SpawnOnExpireAoe(Vector3 position)
     {
-    if (!onExpireAoe || onExpirePrefab == null) return;
-    if (_aoeSpawned) return; // ← guard inmediato
+        if (!onExpireAoe || onExpirePrefab == null) return;
+        if (_aoeSpawned) return; // ← guard inmediato
         _aoeSpawned = true;
 
         var cachedOwner = Owner;
         var cachedDamage = Damage;
         var cachedType = Type;
-        var cachedShowVFX = ShowHitVFX;
 
         Runner.Spawn(
             onExpirePrefab,
@@ -195,9 +254,10 @@ skip:
                     0f,
                     Vector3.zero,
                     .5f,
+                    .5f,
                     false,
                     cachedType,
-                    cachedShowVFX,
+                    false,
                     true,
                     false,
                     null
@@ -208,20 +268,15 @@ skip:
 
     /// <summary>
     /// Render() corre en TODOS los peers a framerate de pantalla.
-    /// Solo maneja el VFX de expiracion por tiempo — los hits los maneja
-    /// el NetworkVFXManager via RPC.
+    /// Maneja el VFX de expiracion por tiempo — los hits los maneja
+    /// el NetworkVFXManager via RPC, o LocalMeleeHitVFX.cs para el caso melee.
+    /// El collider y el Despawn real ahora tienen tiempos independientes
+    /// (ver ActiveTime/ObjectLifeTime en FixedUpdateNetwork), asi que el VFX
+    /// de expiracion sigue siendo visible mientras el objeto vive su
+    /// ObjectLifeTime extra.
     /// </summary>
     public override void Render()
     {
-        if (Expired && !_vfxExpiredPlayed)
-        {
-            _vfxExpiredPlayed = true;
 
-            if (collisionVFX != null)
-            {
-                var vfx = Instantiate(collisionVFX, ExpirePosition, Quaternion.identity);
-                Destroy(vfx, 5f);
-            }
-        }
     }
 }

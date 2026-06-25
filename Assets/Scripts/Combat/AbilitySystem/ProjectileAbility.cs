@@ -4,7 +4,8 @@ using Fusion;
 [CreateAssetMenu(menuName = "Abilities/Projectile Ability")]
 public class ProjectileAbility : Ability
 {
-    public float projectileLifetime = 3f;
+    public float colliderLifeTime = 3f;
+    public float objectLifeTime = 3f;
     public NetworkObject projectilePrefab;
     public float projectileSpeed = 10f;
     public float damageMultiplier = 1f;
