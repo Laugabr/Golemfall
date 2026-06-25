@@ -15,8 +15,8 @@ MonoBehaviour:
   name: VenomBall
   cooldownTime: 1.3
   activeTime: 0
-  colliderLifeTime: 1
-  objectLifeTime: 1
+  colliderLifeTime: 0.6
+  objectLifeTime: 0.6
   projectilePrefab: {fileID: -166465162631183935, guid: 9e680d33671141840a3fbe3bd70cdb6f, type: 3}
   projectileSpeed: 25
   damageMultiplier: 0.8
