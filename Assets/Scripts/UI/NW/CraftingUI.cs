@@ -98,7 +98,7 @@ public class CraftingUI : MonoBehaviour
 
         string result = "";
         foreach (var s in stats.statInfo)
-            result += $"{s.statType}: +{s.statValue}\n";
+            result += $"{s.statType}: {s.statValue:+#;-#;0}\n";
         return result.TrimEnd('\n');
     }
 }

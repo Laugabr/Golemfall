@@ -9,8 +9,8 @@ public class ItemSlot : MonoBehaviour
     [SerializeField] TMP_Text nameText;
     [SerializeField] TMP_Text statsText;
 
-    private ItemData itemData; 
-    
+    private ItemData itemData;
+
     // Set the UI elements based on the given ItemData
     public void SetData(ItemData data)
     {
@@ -49,7 +49,7 @@ public class ItemSlot : MonoBehaviour
 
         foreach (var s in stats.statInfo)
         {
-            result += $"{s.statType}: +{s.statValue}\n";
+            result += $"{s.statType}: {s.statValue:+#;-#;0}\n";
         }
 
         return result.TrimEnd('\n');
