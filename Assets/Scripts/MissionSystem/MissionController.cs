@@ -78,6 +78,10 @@ public class MissionController : NetworkBehaviour
         // El servidor ya la inició arriba, no la repite
         if (Object.HasStateAuthority) return;
 
+        // Evita duplicados: este RPC puede llegar dos veces al mismo cliente
+        // (broadcast inicial de Spawned + reenvío de RPC_RequestSync).
+        if (_currentMissions.Any(m => m.missionId == missionId)) return;
+
         var missionData = Resources.Load<MissionData>($"{MISSION_PATH}{missionId}");
         if (missionData == null)
         {
@@ -88,28 +92,14 @@ public class MissionController : NetworkBehaviour
         StartNewMission(missionData);
     }
 
-    // El servidor avisa a TODOS que hubo progreso
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_AllClientsUpdateProgress(GameEventType id, int progress, RpcInfo info = default)
-    {
-        // El servidor ya procesó la lógica en TrackStep, solo actualiza UI
-        if (Object.HasStateAuthority) return;
-
-        ClientTrackStep(id, progress);
-    }
-
     // Cualquier cliente puede mandar un evento de juego al servidor
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_ServerReceiveEvent(GameEventType stepId, int progress, RpcInfo info = default)
     {
         if (!Object.HasStateAuthority) return;
 
-        var status = TrackStep(stepId, progress);
-
-        if (status != MissionStatus.kNone)
-        {
-            RPC_AllClientsUpdateProgress(stepId, progress);
-        }
+        // El estado absoluto se sincroniza dentro de TrackStep (kHasProgress).
+        TrackStep(stepId, progress);
     }
 
     // El cliente recién unido pide sincronizarse con el estado actual
@@ -152,12 +142,19 @@ public class MissionController : NetworkBehaviour
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_AllClientsRemoveMission(string missionId, RpcInfo info = default)
+    private void RPC_AllClientsRemoveMission(string missionId, bool completed, RpcInfo info = default)
     {
         if (Object.HasStateAuthority) return;
 
         var mission = _currentMissions.FirstOrDefault(m => m.missionId == missionId);
         if (mission == null) return;
+
+        // El cliente ya no detecta complete/failed por su cuenta (lo decide el server),
+        // así que el evento se dispara acá para que UI y notificaciones reaccionen.
+        if (completed)
+            MissionEvents.OnMissionComplete?.Invoke(mission);
+        else
+            MissionEvents.OnMissionFailed?.Invoke(mission);
 
         _currentMissions.Remove(mission);
         Destroy(mission);
@@ -216,15 +213,8 @@ public class MissionController : NetworkBehaviour
     {
         if (!Object.HasStateAuthority) return;
 
-        var status = TrackStep(stepId, progress);
-
-        // Solo sincronizar progreso parcial, no el evento que completa la misión
-        if (status == MissionStatus.kHasProgress)
-        {
-            RPC_AllClientsUpdateProgress(stepId, progress);
-        }
-        // kComplete y kFailed no necesitan sync aquí
-        // porque RPC_AllClientsRemoveMission y RPC_AllClientsStartMission ya lo manejan
+        // El sync (progreso absoluto y remove) se maneja dentro de TrackStep.
+        TrackStep(stepId, progress);
     }
 
     // SERVER LOGIC
@@ -279,6 +269,7 @@ public class MissionController : NetworkBehaviour
 
                 case MissionStatus.kHasProgress:
                     MissionEvents.OnMissionProgress?.Invoke(mission);
+                    SyncMissionStepsToClients(mission);
                     globalStatus = MissionStatus.kHasProgress;
                     break;
 
@@ -287,7 +278,7 @@ public class MissionController : NetworkBehaviour
                     _completedMissionIds.Add(mission.missionId);
                     MissionEvents.OnMissionComplete?.Invoke(mission);
                     globalStatus = MissionStatus.kComplete;
-                    RPC_AllClientsRemoveMission(mission.missionId);
+                    RPC_AllClientsRemoveMission(mission.missionId, true);
 
                     if (mission.xp > 0)
                     {
@@ -316,7 +307,7 @@ public class MissionController : NetworkBehaviour
                     Debug.Log($"Mission Failed: {mission.missionId}");
                     MissionEvents.OnMissionFailed?.Invoke(mission);
                     globalStatus = MissionStatus.kFailed;
-                    RPC_AllClientsRemoveMission(mission.missionId);
+                    RPC_AllClientsRemoveMission(mission.missionId, false);
 
                     if (mission == pausingMission)
                     {
@@ -349,27 +340,14 @@ public class MissionController : NetworkBehaviour
         return globalStatus;
     }
 
-    // CLIENT ONLY: update mission UI
-    private void ClientTrackStep(GameEventType stepId, int progress)
+    // SERVER: envía el estado absoluto de los steps de una misión a todos los clientes.
+    // Reusa el mismo RPC que RPC_RequestSync en vez de mandar deltas incrementales,
+    // así el cliente nunca "suma" por su cuenta y no se puede desfasar el conteo.
+    private void SyncMissionStepsToClients(MissionData mission)
     {
-        foreach (var mission in _currentMissions.ToList())
+        for (int i = 0; i < mission.missionSteps.Count; i++)
         {
-            // Solo procesar misiones que ya existían antes de este evento
-            // ignorar misiones que acaban de empezar en este mismo tick
-            mission.UpdateProgress(stepId, progress, out var status);
-
-            switch (status)
-            {
-                case MissionStatus.kHasProgress:
-                    MissionEvents.OnMissionProgress?.Invoke(mission);
-                    break;
-                case MissionStatus.kComplete:
-                    MissionEvents.OnMissionComplete?.Invoke(mission);
-                    break;
-                case MissionStatus.kFailed:
-                    MissionEvents.OnMissionFailed?.Invoke(mission);
-                    break;
-            }
+            RPC_SyncMissionProgress(mission.missionId, i, mission.missionSteps[i].currentAmount);
         }
     }
 }

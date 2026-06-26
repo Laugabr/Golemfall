@@ -43,22 +43,24 @@ public class NetworkVFXManager : NetworkBehaviour
 
         if (damagedTarget)
         {
-            // Hubo daño real -> solo el VFX de impacto a objetivo, nada de colisión genérica
-            if (type == ProjectileType.Player && projectileHitTargetVFX != null)
+            GameObject vfxToSpawn = type == ProjectileType.Player ?
+                projectileHitTargetVFX : enemyProjectileCollisionVFX;
+
+            if (vfxToSpawn != null)
             {
-                var vfx = Instantiate(projectileHitTargetVFX, position, rot);
+                Vector3 finalPos = position + hitDirection.normalized * 2.5f + Vector3.up * 0.2f;
+                var vfx = Instantiate(vfxToSpawn, finalPos, rot);
                 Destroy(vfx, 5f);
             }
         }
         else
         {
-            // No hubo daño (pegó contra pared, objeto no dañable, etc) -> VFX de colisión genérico
             GameObject vfxToSpawn = type == ProjectileType.Player ?
                 projectileCollisionVFX : enemyProjectileCollisionVFX;
 
             if (vfxToSpawn != null)
             {
-                Vector3 finalPos = position + hitDirection.normalized * 2.5f;
+                Vector3 finalPos = position + hitDirection.normalized * 5f;
                 var vfx = Instantiate(vfxToSpawn, finalPos, rot);
                 Destroy(vfx, 5f);
             }
