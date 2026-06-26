@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: ENM_ULTRARANGEDSKILL_02
   m_EditorClassIdentifier: 
   name: Ranged
-  cooldownTime: 0.7
+  cooldownTime: 0.5
   activeTime: 0
-  colliderLifeTime: 3
-  objectLifeTime: 3
+  colliderLifeTime: 0.5
+  objectLifeTime: 0.5
   projectilePrefab: {fileID: -166465162631183935, guid: 3683f033dc6e2134eb256ebe4684de50, type: 3}
-  projectileSpeed: 40
+  projectileSpeed: 70
   damageMultiplier: 1
   destroyOnHit: 1
   projectileType: 1
