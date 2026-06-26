@@ -78,8 +78,6 @@ public class EnemyAI : NetworkBehaviour
     private PatrolNode _patrolNode;
     private Vector3 _lastMoveDirection;
 
-    private Transform _transform;
-
     /// <summary>
     /// Verifica si el enemigo puede atacar consultando el AbilityHolder.
     /// El cooldown lo maneja el ScriptableObject de la habilidad, no el EnemyAI.
@@ -109,8 +107,6 @@ public class EnemyAI : NetworkBehaviour
 
         if (_enemyAnimator == null)
             _enemyAnimator = GetComponentInChildren<Animator>();
-
-        _transform = transform;
     }
 
     public override void Spawned()
@@ -148,7 +144,7 @@ public class EnemyAI : NetworkBehaviour
         // La velocidad se controla en un solo lugar según el estado actual
         if (_hasTarget)
             _agent.speed = _chaseSpeed;
-        else if (Vector3.Distance(_transform.position, HomePosition) > _patrolRadius * 1.5f)
+        else if (Vector3.Distance(transform.position, HomePosition) > _patrolRadius * 1.5f)
             _agent.speed = _returnSpeed;  // volviendo a casa
         else
             _agent.speed = _patrolSpeed;  // patrullando normal
@@ -162,8 +158,8 @@ public class EnemyAI : NetworkBehaviour
 
         if (_agent.hasPath && !_agent.pathPending && !IsInAttackAnimation)
         {
-            _transform.position += _agent.desiredVelocity * Runner.DeltaTime;
-            _agent.nextPosition = _transform.position;
+            transform.position += _agent.desiredVelocity * Runner.DeltaTime;
+            _agent.nextPosition = transform.position;
         }
         else if (IsInAttackAnimation)
         {
@@ -175,11 +171,11 @@ public class EnemyAI : NetworkBehaviour
         // Rotación suave hacia el jugador cuando hay target activo
         if (_hasTarget && CurrentTarget != null)
         {
-            Vector3 dir = CurrentTarget.position - _transform.position;
+            Vector3 dir = CurrentTarget.position - transform.position;
             dir.y = 0f;
             if (dir.sqrMagnitude > 0.01f)
-                _transform.rotation = Quaternion.Slerp(
-                    _transform.rotation,
+                transform.rotation = Quaternion.Slerp(
+                    transform.rotation,
                     Quaternion.LookRotation(dir),
                     Runner.DeltaTime * 10f
                 );
@@ -195,7 +191,7 @@ public class EnemyAI : NetworkBehaviour
     {
         if (!Object.HasStateAuthority) return;
         if (_agent != null && _agent.isOnNavMesh)
-            _transform.position = _agent.nextPosition;
+            transform.position = _agent.nextPosition;
     }
 
     /// <summary>
@@ -246,7 +242,7 @@ public class EnemyAI : NetworkBehaviour
 
         if (CurrentTarget != null)
         {
-            var health = NetworkController.Instance.GetPlayerHealth(CurrentTarget);
+            var health = CurrentTarget.GetComponent<PlayerHealth>();
             bool isDead = health != null && health.IsDead;
             float distFromHome = Vector3.Distance(HomePosition, CurrentTarget.position);
 
@@ -258,10 +254,6 @@ public class EnemyAI : NetworkBehaviour
             return;
         }
 
-        if ((Runner.Tick.Raw + Object.Id.Raw) % 4 != 0)
-            return;
-
-            
         float minDist = float.MaxValue;
         Transform closest = null;
 
@@ -270,10 +262,10 @@ public class EnemyAI : NetworkBehaviour
             var playerObj = kvp.Value;
             if (playerObj == null) continue;
 
-            var health = NetworkController.Instance.GetPlayerHealth(playerObj.transform);
+            var health = playerObj.GetComponent<PlayerHealth>();
             if (health != null && health.IsDead) continue;
 
-            float dist = Vector3.Distance(_transform.position, playerObj.transform.position);
+            float dist = Vector3.Distance(transform.position, playerObj.transform.position);
             if (dist < minDist && dist <= _visionRange)
             {
                 minDist = dist;
@@ -326,7 +318,7 @@ public class EnemyAI : NetworkBehaviour
         if (!Object.HasStateAuthority) return;
         if (CurrentTarget == null) return;
 
-        Vector3 shootPos = _shootPoint != null ? _shootPoint.position : _transform.position + Vector3.up * 1f;
+        Vector3 shootPos = _shootPoint != null ? _shootPoint.position : transform.position + Vector3.up * 1f;
         Vector3 targetPos = CurrentTarget.position + Vector3.up * 1f;
 
         // Si el jugador está en el suelo, igualamos la Y para disparar horizontal
@@ -364,6 +356,6 @@ public class EnemyAI : NetworkBehaviour
         Gizmos.DrawWireSphere(home, _chaseRadius);
 
         Gizmos.color = Color.magenta;
-        Gizmos.DrawWireSphere(_transform.position, _attackRange);
+        Gizmos.DrawWireSphere(transform.position, _attackRange);
     }
 }

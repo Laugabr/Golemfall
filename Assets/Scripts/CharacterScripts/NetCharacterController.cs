@@ -68,7 +68,6 @@ public class NetCharacterController : NetworkBehaviour
     // Cache de progresión — se inicializa en Spawned() para no llamar
     // GetComponent cada tick en FixedUpdateNetwork.
     private PlayerProgressionVisuals _progression;
-    private Transform _transform; // cache para evitar GetComponent<Transform>() cada tick
 
     /// <summary>
     /// Yaw (en grados) deseado para el bodyVisuals. Se actualiza cada tick a
@@ -107,7 +106,6 @@ public class NetCharacterController : NetworkBehaviour
         charAbilities = GetComponent<AbilityHolder>();
         charHealth = GetComponent<PlayerHealth>();
         capsuleCollider = GetComponent<CapsuleCollider>();
-        _transform = transform; 
 
     }
 
@@ -131,7 +129,7 @@ public class NetCharacterController : NetworkBehaviour
             {
                 cachedCameraController = cachedMainCamera.GetComponent<CameraController>();
                 if (cachedCameraController != null)
-                    cachedCameraController.SetTarget(_transform);
+                    cachedCameraController.SetTarget(transform);
                 else
                     Debug.LogWarning("[NetCharacterController] Main Camera no tiene CameraController.");
             }
@@ -140,7 +138,7 @@ public class NetCharacterController : NetworkBehaviour
             // para que pueda calcular AttackYaw relativo a la posición real del jugador.
             var inputManager = FindFirstObjectByType<NetworkInputManager>();
             if (inputManager != null)
-                inputManager.SetLocalPlayer(_transform);
+                inputManager.SetLocalPlayer(transform);
         }
     }
 
@@ -151,7 +149,7 @@ public class NetCharacterController : NetworkBehaviour
 
 
 
-        float previousY = _transform.position.y;
+        float previousY = transform.position.y;
 
         if (DashCooldownTimer > 0f)
             DashCooldownTimer -= Runner.DeltaTime;
@@ -181,7 +179,7 @@ public class NetCharacterController : NetworkBehaviour
             kcc.Move(Vector3.zero);
 
             if (HasStateAuthority && Runner.DeltaTime > 0f)
-                NetVerticalVelocity = (_transform.position.y - previousY) / Runner.DeltaTime;
+                NetVerticalVelocity = (transform.position.y - previousY) / Runner.DeltaTime;
             return;
         }
 
@@ -300,7 +298,7 @@ public class NetCharacterController : NetworkBehaviour
             NetBodyYaw = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
 
         if (HasStateAuthority && Runner.DeltaTime > 0f)
-            NetVerticalVelocity = (_transform.position.y - previousY) / Runner.DeltaTime;
+            NetVerticalVelocity = (transform.position.y - previousY) / Runner.DeltaTime;
 
         // Guardamos los botones de este tick para detectar flancos en el siguiente.
         // Al ser [Networked], Fusion los restaura correctamente durante rollbacks.
@@ -321,15 +319,15 @@ public class NetCharacterController : NetworkBehaviour
             bodyVisuals.rotation, target, rotationSpeed * Time.deltaTime
         );
                 if(HasInputAuthority)
-            Shader.SetGlobalVector("_Player", _transform.position + Vector3.up * capsuleCollider.radius);
+            Shader.SetGlobalVector("_Player", transform.position + Vector3.up * capsuleCollider.radius);
     }
 
     private Vector3 GetMouseDirection()
     {
         Camera cam = cachedMainCamera != null ? cachedMainCamera : Camera.main;
-        if (cam == null) return _transform.forward;
+        if (cam == null) return transform.forward;
 
-        Plane plane = new Plane(Vector3.up, _transform.position);
+        Plane plane = new Plane(Vector3.up, transform.position);
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
 
         if (plane.Raycast(ray, out float dist))

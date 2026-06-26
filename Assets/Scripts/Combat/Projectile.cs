@@ -82,13 +82,10 @@ public class Projectile : NetworkBehaviour
     [Networked] private TickTimer ObjectTimer { get; set; }
     [Networked] private NetworkBool _vfxExpireSent { get; set; }
 
-    private Transform _transform;
-
     private void Awake()
     {
         col = GetComponent<Collider>();
         col.enabled = false;
-        _transform = transform;
     }
 
     public override void Spawned()
@@ -128,13 +125,13 @@ public class Projectile : NetworkBehaviour
                 return;
 
             if (!hasHit)
-                _transform.position += Direction * Speed * Runner.DeltaTime;
+                transform.position += Direction * Speed * Runner.DeltaTime;
 
             // Un solo bloque — con el RPC adentro
             if (col.enabled && ColliderTimer.Expired(Runner))
             {
                 col.enabled = false;
-                ExpirePosition = _transform.position;
+                ExpirePosition = transform.position;
                 Expired = true;
                 SpawnOnExpireAoe(ExpirePosition);
 
@@ -185,7 +182,7 @@ private bool _wallHitVFXSent = false;
         if (damageable == null && ShowHitVFX && collisionVFX != null && !_wallHitVFXSent)
         {
             _wallHitVFXSent = true;
-            Vector3 vfxPos = other.ClosestPoint(_transform.position);
+            Vector3 vfxPos = other.ClosestPoint(transform.position);
             var vfx = Instantiate(collisionVFX, vfxPos, Quaternion.identity);
             vfx.transform.SetParent(null);
         }

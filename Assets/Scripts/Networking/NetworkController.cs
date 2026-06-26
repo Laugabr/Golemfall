@@ -29,20 +29,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
     {
         Instance = this;
     }
-    // NetworkController.cs
-    private Dictionary<Transform, PlayerHealth> _playerHealthCache = new();
 
-    public void RegisterPlayer(PlayerRef player, NetworkObject playerObj)
-    {
-        _players[player] = playerObj;
-        _playerHealthCache[playerObj.transform] = playerObj.GetComponent<PlayerHealth>();
-    }
-
-    public PlayerHealth GetPlayerHealth(Transform playerTransform)
-    {
-        _playerHealthCache.TryGetValue(playerTransform, out var health);
-        return health;
-    }
     private void Start()
     {
         // Assign UI button callbacks
@@ -119,7 +106,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
                 player
             );
 
-            RegisterPlayer(player, playerSpawned); // was: _players.Add(player, playerSpawned);
+            _players.Add(player, playerSpawned);
 
             int playerIndex = _players.Count - 1;
             var colorSetting = playerSpawned.GetComponentInChildren<PlayerColorSetting>(true);
@@ -136,6 +123,10 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
             if (player == runner.LocalPlayer && _Hud != null)
             _Hud.SetActive(true);
         }
+
+        // El HUD se activa para el jugador local, sea host o cliente.
+        if (player == runner.LocalPlayer && _Hud != null)
+            _Hud.SetActive(true);
     }
 
     // Called when a player leaves the session
@@ -145,7 +136,6 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
 
         if (_players.Remove(player, out var playerSpawned))
         {
-            _playerHealthCache.Remove(playerSpawned.transform);
             _networkRunner.Despawn(playerSpawned);
         }
 
