@@ -50,7 +50,7 @@ public class ExperienceManager : NetworkBehaviour
     // Kill (grupal) y Break (individual por atacante) se otorgan server-side
     // en su punto de resolución, NO acá. Este handler solo cubre los eventos
     // que dispara localmente el jugador (collects).
-    private void ServerHandleEvent(GameEventType eventType, int amount)
+    private void ServerHandleEvent(GameEventType eventType, int amount, string key)
     {
         if (!Object.HasStateAuthority) return;
 

@@ -34,7 +34,7 @@ public class MissionEventBridge : NetworkBehaviour
         TrackEvents.OnTrackEvent -= OnLocalEvent;
     }
 
-    private void OnLocalEvent(GameEventType stepId, int progress)
+    private void OnLocalEvent(GameEventType stepId, int progress, string key)
     {
         if (_missionController == null) return;
 
@@ -42,7 +42,7 @@ public class MissionEventBridge : NetworkBehaviour
         if (Runner.IsServer) return;
 
         // Send event to server so it can process group mission progress
-        _missionController.RPC_ServerReceiveEvent(stepId, progress);
+        _missionController.RPC_ServerReceiveEvent(stepId, progress, key);
 
         // Individual XP: send to server for this player only
         int xp = GetXpForEvent(stepId) * progress;

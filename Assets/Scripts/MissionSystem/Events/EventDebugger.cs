@@ -12,7 +12,7 @@ public class EventDebugger : MonoBehaviour
         TrackEvents.OnTrackEvent -= DebugEvent;
     }
 
-    void DebugEvent(GameEventType id, int amount)
+    void DebugEvent(GameEventType id, int amount, string key)
     {
         Debug.Log($"EVENT RECEIVED → {id} | amount: {amount}");
     }

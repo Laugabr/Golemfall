@@ -21,13 +21,13 @@ public class MissionData : ScriptableObject
     //public Vector3 teleportDestination;
     //public Scene teleportDestiny;
 
-    public void UpdateProgress(GameEventType id, int progress, out MissionStatus status)
+    public void UpdateProgress(GameEventType id, int progress, string key, out MissionStatus status)
     {
         status = MissionStatus.kNone;
         var allComplete = true;
         foreach (var steps in missionSteps)
         {
-            if(steps.TryUpdateProgress(id, progress))
+            if(steps.TryUpdateProgress(id, progress, key))
             {
                 status = MissionStatus.kHasProgress;
             }
@@ -42,7 +42,7 @@ public class MissionData : ScriptableObject
 
         foreach (var steps in failureSteps)
         {
-             if(steps.TryUpdateProgress(id, progress))
+             if(steps.TryUpdateProgress(id, progress, key))
             {
                 status = MissionStatus.kHasProgress;
             }

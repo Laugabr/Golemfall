@@ -7,6 +7,10 @@ public class MissionStep
     public GameEventType targetId;
     public int amount;
 
+    [Tooltip("Key opcional para objetivos específicos (ej: 'z1_redtree'). " +
+             "Vacío = cuenta cualquier evento de este tipo (wildcard).")]
+    public string targetKey;
+
     [Tooltip("Texto para mostrar en el panel. Si está vacío, usa targetId.")]
     public string displayText;
 
@@ -15,19 +19,26 @@ public class MissionStep
 
     public string DisplayLabel => string.IsNullOrEmpty(displayText) ? targetId.ToString() : displayText;
 
-    public bool TryUpdateProgress(GameEventType id, int progress)
+    public bool TryUpdateProgress(GameEventType id, int progress, string key)
     {
         if (isComplete) return false;
         if (id != targetId) return false;
 
+        // Matching del key:
+        //  - targetKey vacío     -> wildcard: cuenta cualquier evento de este tipo (con o sin key).
+        //  - targetKey con valor -> match exacto: solo cuenta si el key del evento coincide.
+        if (!string.IsNullOrEmpty(targetKey) && targetKey != key)
+            return false;
+
         currentAmount += progress;
 
-        Debug.Log($"Step [{targetId}] progress: {currentAmount}/{amount}");
+        string label = string.IsNullOrEmpty(targetKey) ? targetId.ToString() : $"{targetId}:{targetKey}";
+        Debug.Log($"Step [{label}] progress: {currentAmount}/{amount}");
 
         if (currentAmount >= amount)
         {
             isComplete = true;
-            Debug.Log($"Step [{targetId}] COMPLETED");
+            Debug.Log($"Step [{label}] COMPLETED");
         }
         return true;
     }

@@ -40,7 +40,7 @@ public class DestructibleObject : NetworkBehaviour, IDamageable
         var breaker = source != null ? source.GetComponentInParent<ExperienceManager>() : null;
         breaker?.GrantBreakXp();
 
-        TrackEvents.OnTrackEvent?.Invoke(trackEvent, 1);   // tracking de misiones
+        TrackEvents.OnTrackEvent?.Invoke(trackEvent, 1, "");   // tracking de misiones
 
         // Disparamos el evento local en el host antes del despawn.
         // El cliente recibe la notificación via RPC_DisableDoor en OnDestroyUnlockCollider.

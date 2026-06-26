@@ -94,12 +94,12 @@ public class MissionController : NetworkBehaviour
 
     // Cualquier cliente puede mandar un evento de juego al servidor
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void RPC_ServerReceiveEvent(GameEventType stepId, int progress, RpcInfo info = default)
+    public void RPC_ServerReceiveEvent(GameEventType stepId, int progress, string key, RpcInfo info = default)
     {
         if (!Object.HasStateAuthority) return;
 
         // El estado absoluto se sincroniza dentro de TrackStep (kHasProgress).
-        TrackStep(stepId, progress);
+        TrackStep(stepId, progress, key);
     }
 
     // El cliente recién unido pide sincronizarse con el estado actual
@@ -217,7 +217,8 @@ public class MissionController : NetworkBehaviour
     }
 
     // Arranque imperativo por id, con guard de duplicado / one-shot. Solo host.
-    private void StartMissionById(string missionId)
+    // Público para que lo puedan llamar triggers de escena (ej: MissionTriggerVolume).
+    public void StartMissionById(string missionId)
     {
         if (!Object.HasStateAuthority) return;
 
@@ -255,16 +256,16 @@ public class MissionController : NetworkBehaviour
         MissionEvents.OnMissionStarted?.Invoke(newMission);
     }
 
-    private void ServerTrackStep(GameEventType stepId, int progress)
+    private void ServerTrackStep(GameEventType stepId, int progress, string key)
     {
         if (!Object.HasStateAuthority) return;
 
         // El sync (progreso absoluto y remove) se maneja dentro de TrackStep.
-        TrackStep(stepId, progress);
+        TrackStep(stepId, progress, key);
     }
 
     // SERVER LOGIC
-    public MissionStatus TrackStep(GameEventType stepId, int progress)
+    public MissionStatus TrackStep(GameEventType stepId, int progress, string key)
     {
         if (!Object.HasStateAuthority)
             return MissionStatus.kNone;
@@ -306,7 +307,7 @@ public class MissionController : NetworkBehaviour
             if (missionsPaused && mission != pausingMission)
                 continue;
 
-            mission.UpdateProgress(stepId, progress, out var status);
+            mission.UpdateProgress(stepId, progress, key, out var status);
 
             switch (status)
             {

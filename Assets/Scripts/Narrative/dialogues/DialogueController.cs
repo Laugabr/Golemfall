@@ -131,7 +131,7 @@ public class DialogueController : MonoBehaviour
         // Disparar evento configurado en el diálogo (puede iniciar misiones, etc.)
         if (finished != null && finished.triggerEventOnComplete)
         {
-            TrackEvents.OnTrackEvent?.Invoke(finished.onCompleteEvent, finished.onCompleteAmount);
+            TrackEvents.OnTrackEvent?.Invoke(finished.onCompleteEvent, finished.onCompleteAmount, "");
             Debug.Log($"DialogueController: dialogue '{finished.dialogueId}' end → event {finished.onCompleteEvent} ({finished.onCompleteAmount})");
         }
 

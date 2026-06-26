@@ -13,6 +13,13 @@ public class EnemyHealth : HealthSystem
     private bool _dieScheduled;
     private GameObject _lastDamageSource;
 
+    // Key de objetivo fija del prefab (ej: golemtruoso). Vac�o = enemigo com�n.
+    [SerializeField] private string defaultMissionKey = "";
+    // Key transitorio seteado por una MissionKillZone mientras est� dentro.
+    private string _missionKey = "";
+    public void SetMissionKey(string key) => _missionKey = key;
+    public void ClearMissionKey(string key) { if (_missionKey == key) _missionKey = ""; }
+
     public override void Spawned()
     {
         var charStats = GetComponent<CharacterStats>();
@@ -98,7 +105,8 @@ public class EnemyHealth : HealthSystem
         bool killedByPlayer = _lastDamageSource != null && _lastDamageSource.CompareTag("Player");
         if (killedByPlayer)
         {
-            TrackEvents.OnTrackEvent?.Invoke(GameEventType.KillEnemy, 1);
+            string missionKey = string.IsNullOrEmpty(_missionKey) ? defaultMissionKey : _missionKey;
+            TrackEvents.OnTrackEvent?.Invoke(GameEventType.KillEnemy, 1, missionKey);
             ExperienceManager.GrantKillXpToAll();   // XP grupal a todos los jugadores
         }
 
