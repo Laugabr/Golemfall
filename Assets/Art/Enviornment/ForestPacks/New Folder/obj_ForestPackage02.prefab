@@ -17,7 +17,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &1492970344979688398
 Transform:
@@ -158,6 +158,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: vfx_lilBugs (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 7372056107013474907, guid: 94245ba039eda00499911dc0b78f88fe, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     - target: {fileID: 8951321662618123566, guid: 94245ba039eda00499911dc0b78f88fe, type: 3}
       propertyPath: ShapeModule.radius.value
       value: 18.34
@@ -272,6 +276,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: vfx_lilBugs
       objectReference: {fileID: 0}
+    - target: {fileID: 7372056107013474907, guid: 94245ba039eda00499911dc0b78f88fe, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -333,6 +341,10 @@ PrefabInstance:
     - target: {fileID: 7372056107013474907, guid: 94245ba039eda00499911dc0b78f88fe, type: 3}
       propertyPath: m_Name
       value: vfx_lilBugs (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7372056107013474907, guid: 94245ba039eda00499911dc0b78f88fe, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     - target: {fileID: 8951321662618123566, guid: 94245ba039eda00499911dc0b78f88fe, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
