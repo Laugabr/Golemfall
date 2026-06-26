@@ -229,7 +229,7 @@ private bool _wallHitVFXSent = false;
             {
                 if (otherNet != null) vfxSentTo.Add(otherNet);
 
-                Vector3 vfxPos = other.bounds.center;
+                Vector3 vfxPos = other.ClosestPoint(_transform.position);
                 // Mandamos "true" para que el VFX use la rama de impacto a objetivo (sin
                 // offset), ya que golpeó algo dañable (un jugador) aunque no se aplicara
                 // daño real por el bloqueo de PvP. damagedTarget ya no sirve para esto.
@@ -260,8 +260,8 @@ private bool _wallHitVFXSent = false;
                     cachedDamage,
                     0f,
                     Vector3.zero,
-                    .5f,
-                    .5f,
+                    .3f,
+                    .3f,
                     false,
                     cachedType,
                     false,
