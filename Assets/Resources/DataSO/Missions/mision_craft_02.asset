@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c263c045ef8f3a743a149ef9a8e1cfdf, type: 3}
-  m_Name: mision_habilidad_01
+  m_Name: mision_craft_02
   m_EditorClassIdentifier: 
-  missionId: mision_habilidad_01
-  missionName: '"Probate el  power nuevo"'
-  description: Curar 300 puntos de vida
-  xp: 100
+  missionId: mision_craft_02
+  missionName: '"Reina de las Reliquias"'
+  description: Craftear 7 reliquias
+  xp: 250
   coins: 0
   missionSteps:
   - targetId: 0
-    amount: 300
-    displayText: Cantidad curada
+    amount: 7
+    displayText: Reliquias crafteadas
   failureSteps: []
   nextMissions: []
   pausesOtherMissions: 0
-  startWithEvent: 1
+  startWithEvent: 0
   startEvent: 0
-  startOnlyOnce: 1
+  startOnlyOnce: 0

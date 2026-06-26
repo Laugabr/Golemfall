@@ -22,7 +22,8 @@ MonoBehaviour:
     amount: 7
     displayText: "Enemigos eliminados zona \xE1rbol rojo"
   failureSteps: []
-  nextMissions: []
+  nextMissions:
+  - {fileID: 11400000, guid: 56880d95a54dee04d9c0d5bf8d6f96ae, type: 2}
   pausesOtherMissions: 0
   startWithEvent: 0
   startEvent: 0
