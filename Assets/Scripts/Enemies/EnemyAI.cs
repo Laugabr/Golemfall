@@ -352,10 +352,10 @@ public class EnemyAI : NetworkBehaviour
     /// </summary>
     private void OnDrawGizmosSelected()
     {
-        Vector3 home = Application.isPlaying ? HomePosition : _transform.position;
+        Vector3 home = Application.isPlaying ? HomePosition : transform.position;
 
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(_transform.position, _visionRange);
+        Gizmos.DrawWireSphere(transform.position, _visionRange);
 
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(home, _patrolRadius);
