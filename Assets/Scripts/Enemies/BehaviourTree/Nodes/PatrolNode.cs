@@ -7,7 +7,7 @@ namespace BehaviourTree
     /// Nodo de patrullaje aleatorio dentro de un radio fijo desde la HomePosition del enemigo.
     /// El enemigo camina a puntos aleatorios, espera unos segundos y repite.
     /// Si se aleja demasiado de casa, vuelve antes de seguir patrullando.
-    /// Si se queda trabado en un punto, cambia de destino automáticamente.
+    /// Si se queda trabado en un punto, cambia de destino automï¿½ticamente.
     /// </summary>
     public class PatrolNode : Node
     {
@@ -15,10 +15,10 @@ namespace BehaviourTree
         private EnemyAI _ai;
 
         private float _waitTimer = 0f;       // tiempo restante de espera en el punto actual
-        private bool _isWaiting = false;     // true cuando el enemigo está esperando en un punto
+        private bool _isWaiting = false;     // true cuando el enemigo estï¿½ esperando en un punto
         private bool _hasDestination = false; // true cuando el agente tiene un destino activo
-        private float _stuckTimer = 0f;      // acumula tiempo para detectar si el enemigo está trabado
-        private const float StuckTimeout = 3f; // segundos antes de considerar que está trabado
+        private float _stuckTimer = 0f;      // acumula tiempo para detectar si el enemigo estï¿½ trabado
+        private const float StuckTimeout = 3f; // segundos antes de considerar que estï¿½ trabado
 
         public PatrolNode(NavMeshAgent agent, EnemyAI ai)
         {
@@ -28,30 +28,26 @@ namespace BehaviourTree
 
         public override NodeState Evaluate()
         {
-            // Si el enemigo detectó al jugador, el patrullaje cede paso a la persecución
             if (_ai.HasTarget)
                 return state = NodeState.Failure;
 
-            float distFromHome = Vector3.Distance(
-                _agent.transform.position,
-                _ai.HomePosition
-            );
-
-            // Si el enemigo se alejó demasiado de su zona (por ejemplo tras un empujón),
-            // vuelve a HomePosition antes de seguir patrullando
-            if (distFromHome > _ai.PatrolRadius * 1.5f)
+            // Only check "too far from home" while actually moving â€” not while waiting in place
+            if (!_isWaiting)
             {
-                _agent.SetDestination(_ai.HomePosition);
-                _hasDestination = false;
-                _stuckTimer = 0f;
-                return state = NodeState.Running;
+                float distFromHome = Vector3.Distance(_agent.transform.position, _ai.HomePosition);
+                if (distFromHome > _ai.PatrolRadius * 1.5f)
+                {
+                    _agent.SetDestination(_ai.HomePosition);
+                    _hasDestination = false;
+                    _stuckTimer = 0f;
+                    return state = NodeState.Running;
+                }
             }
 
-            // Fase de espera: el enemigo llegó a un punto y espera PatrolWaitTime segundos
             if (_isWaiting)
             {
                 _waitTimer -= Time.deltaTime;
-                _agent.ResetPath(); // detiene el agente mientras espera
+                _agent.ResetPath();
 
                 if (_waitTimer <= 0f)
                     _isWaiting = false;
@@ -59,12 +55,10 @@ namespace BehaviourTree
                 return state = NodeState.Running;
             }
 
-            // Fase de movimiento: el enemigo se mueve hacia el destino actual
             if (_hasDestination)
             {
                 _stuckTimer += Time.deltaTime;
 
-                // Llegó al destino O lleva demasiado tiempo sin llegar (trabado)
                 if ((!_agent.pathPending && _agent.remainingDistance <= 0.5f) || _stuckTimer >= StuckTimeout)
                 {
                     _isWaiting = true;
@@ -76,7 +70,6 @@ namespace BehaviourTree
                 return state = NodeState.Running;
             }
 
-            // Sin destino: elige un punto aleatorio dentro del patrolRadius y se dirige allí
             Vector3 randomPoint = GetRandomPointInRadius();
             _agent.SetDestination(randomPoint);
             _hasDestination = true;
@@ -100,7 +93,7 @@ namespace BehaviourTree
 
         /// <summary>
         /// Genera un punto aleatorio dentro del patrolRadius desde HomePosition
-        /// que sea válido en el NavMesh. Intenta hasta 5 veces antes de
+        /// que sea vï¿½lido en el NavMesh. Intenta hasta 5 veces antes de
         /// devolver HomePosition como fallback.
         /// </summary>
         private Vector3 GetRandomPointInRadius()

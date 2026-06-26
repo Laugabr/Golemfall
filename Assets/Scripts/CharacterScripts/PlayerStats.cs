@@ -126,8 +126,4 @@ public class PlayerStats : CharacterStats
         Debug.Log(s);
     }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.P)) DebugStats(Object.HasStateAuthority ? "SERVER" : "CLIENT");
-    }
 }
