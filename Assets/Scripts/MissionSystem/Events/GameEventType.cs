@@ -7,7 +7,7 @@ public enum GameEventType
     TalkNPC = 4,
     TalkNPC1 = 5,
     TalkNPC2 = 6,
-    TalkNPC3 = 7,
+    Break = 7,
     TalkNPC4 = 8,
     TalkNPC5 = 9,
     KillNPC = 10,

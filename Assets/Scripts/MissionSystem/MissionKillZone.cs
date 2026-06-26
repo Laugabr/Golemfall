@@ -31,7 +31,13 @@ public class MissionKillZone : MonoBehaviour
         if (col != null) col.isTrigger = true;
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other) => Tag(other);
+
+    // Necesario porque muchos enemigos ya nacen DENTRO de la zona:
+    // OnTriggerEnter no dispara para ellos, pero OnTriggerStay sí.
+    private void OnTriggerStay(Collider other) => Tag(other);
+
+    private void Tag(Collider other)
     {
         var enemy = other.GetComponentInParent<EnemyHealth>();
         if (enemy == null || enemy.Object == null) return;

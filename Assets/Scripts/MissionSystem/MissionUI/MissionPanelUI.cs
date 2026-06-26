@@ -137,7 +137,6 @@ public class MissionPanelUI : MonoBehaviour
 
         if (mission.missionSteps != null && mission.missionSteps.Count > 0)
         {
-            sb.Append('\n').Append(objetivosHeader).Append('\n');
             foreach (var step in mission.missionSteps)
                 AppendStepLine(sb, step);
         }

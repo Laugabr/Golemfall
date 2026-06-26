@@ -7304,37 +7304,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a093e2e7dcfd424489a851fcd1dc9438, type: 3}
---- !u!1 &140838622
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 140838623}
-  m_Layer: 0
-  m_Name: enemies
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &140838623
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 140838622}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -100, y: 22.708115, z: 701}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &141122857
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -38478,6 +38447,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 826692929}
+  - {fileID: 1511412542}
   - {fileID: 874375793}
   - {fileID: 846219918}
   - {fileID: 1786972161}
@@ -41848,6 +41818,73 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a4e4a07aa385c8b4aa077dbd3df17f27, type: 3}
+--- !u!1 &872436623
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 872436625}
+  - component: {fileID: 872436624}
+  - component: {fileID: 872436626}
+  m_Layer: 8
+  m_Name: TriggerMissionBatalla05
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!65 &872436624
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 872436623}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 43.036026, y: 17.545145, z: 8.783871}
+  m_Center: {x: -4.761405, y: 3.9524477, z: 2.0535855}
+--- !u!4 &872436625
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 872436623}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: 0.3362807, z: -0, w: 0.94176185}
+  m_LocalPosition: {x: -409.1, y: -50.840652, z: 512.9}
+  m_LocalScale: {x: 5, y: 5, z: 5}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 39.301, z: 0}
+--- !u!114 &872436626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 872436623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93d20fe89e23b05499a42242833297c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  missionToStart: mision_batalla_05
 --- !u!1001 &873242032
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -72707,6 +72744,73 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b18e1a64d2e26984f9ecf3cb747ee599, type: 3}
+--- !u!1 &1511412541
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1511412542}
+  - component: {fileID: 1511412544}
+  - component: {fileID: 1511412543}
+  m_Layer: 6
+  m_Name: KillZoneMisionBatalla02
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1511412542
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511412541}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.596225, z: -0, w: -0.8028174}
+  m_LocalPosition: {x: 82, y: -30.4, z: 116.1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 807878027}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1511412543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511412541}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5aeed102073a4e8488f0dafdff4f90a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectiveKey: z1_redtree
+--- !u!135 &1511412544
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511412541}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 27.689034
+  m_Center: {x: 6.4702835, y: 0, z: 5.921715}
 --- !u!1001 &1511586154
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -97955,16 +98059,80 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
       propertyPath: allMissions.Array.size
-      value: 6
+      value: 18
       objectReference: {fileID: 0}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: fd74751076871cf40b42d08e4fa8cd8d, type: 2}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: d46778471c225df4c9cfac61a841c5cc, type: 2}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 8ebf963733277844cb9a69413379fba3, type: 2}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: e5819d24db6a6624a992ec9e28edcee3, type: 2}
     - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
       propertyPath: 'allMissions.Array.data[4]'
       value: 
-      objectReference: {fileID: 11400000, guid: 831acafcc5bc0fc47ae6cdd01e385f14, type: 2}
+      objectReference: {fileID: 11400000, guid: 706e038cd3e9eb849b9c89c6a853384a, type: 2}
     - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
       propertyPath: 'allMissions.Array.data[5]'
       value: 
-      objectReference: {fileID: 11400000, guid: d46778471c225df4c9cfac61a841c5cc, type: 2}
+      objectReference: {fileID: 11400000, guid: 2c304cef4847ff54e9026654c2fa43a7, type: 2}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[6]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 937114a442a991f41a287799746c0a47, type: 2}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[7]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 2e864344f49cd1c4880f4f29352025d9, type: 2}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[8]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 831acafcc5bc0fc47ae6cdd01e385f14, type: 2}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[9]'
+      value: 
+      objectReference: {fileID: 11400000, guid: f23e39d4898914c418e3acb4a2535235, type: 2}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[10]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 33cb21a545da17e4fbc18e329613d29c, type: 2}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[11]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 749d945333ddfa243b691b46d4edb366, type: 2}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[12]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 144dd500e4b95bb45974eb09291042ed, type: 2}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[13]'
+      value: 
+      objectReference: {fileID: 11400000, guid: c137dc5105a58a9489fb61a703b3edc6, type: 2}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[14]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 5166e7cc41bb5d045b84206eb651cdb9, type: 2}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[15]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 56880d95a54dee04d9c0d5bf8d6f96ae, type: 2}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[16]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 78163667059981c4891965abec0fe6ba, type: 2}
+    - target: {fileID: 25034565664445392, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
+      propertyPath: 'allMissions.Array.data[17]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 2d9de71e51d15474f9c9fd9c0a87ed16, type: 2}
     - target: {fileID: 1909043636491219545, guid: 37638ec633e8a4c4c894b4feb2ed6601, type: 3}
       propertyPath: m_LocalPosition.x
       value: 35.558453
@@ -101737,15 +101905,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4881478733651182327, guid: 5ee94982ebef2c842acd071f43edd4fd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 125
+      value: -75
       objectReference: {fileID: 0}
     - target: {fileID: 4881478733651182327, guid: 5ee94982ebef2c842acd071f43edd4fd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 104.3
+      value: -5
       objectReference: {fileID: 0}
     - target: {fileID: 4881478733651182327, guid: 5ee94982ebef2c842acd071f43edd4fd, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 891
+      value: -25
       objectReference: {fileID: 0}
     - target: {fileID: 4881478733651182327, guid: 5ee94982ebef2c842acd071f43edd4fd, type: 3}
       propertyPath: m_LocalRotation.w
@@ -102301,7 +102469,6 @@ SceneRoots:
   - {fileID: 2114180297}
   - {fileID: 1491788069}
   - {fileID: 807878027}
-  - {fileID: 140838623}
   - {fileID: 2071927641}
   - {fileID: 1446934397}
   - {fileID: 2141458153}
@@ -103202,6 +103369,7 @@ SceneRoots:
   - {fileID: 278548277}
   - {fileID: 967469472}
   - {fileID: 1913083711}
+  - {fileID: 872436625}
   - {fileID: 2060639684}
   - {fileID: 1124366529}
   - {fileID: 1134639353}

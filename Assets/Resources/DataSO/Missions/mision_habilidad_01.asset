@@ -20,10 +20,11 @@ MonoBehaviour:
   missionSteps:
   - targetId: 19
     amount: 300
+    targetKey: 
     displayText: Cantidad curada
   failureSteps: []
   nextMissions: []
   pausesOtherMissions: 0
-  startWithEvent: 1
+  startWithEvent: 0
   startEvent: 0
-  startOnlyOnce: 1
+  startOnlyOnce: 0
