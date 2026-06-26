@@ -213,20 +213,24 @@ private bool _wallHitVFXSent = false;
         if (onExpireAoe) SpawnOnExpireAoe(transform.position); // ← al impactar si es AOE de expiracion
 
         // ── VFX de impacto ────────────────────────────────────────────────────
-        // Solo si efectivamente hizo daño a ESTE target, y solo una vez por target.
-        // No-AOE: como el collider se desactiva arriba, esto corre como mucho una vez.
-        // AOE: corre una vez por cada enemigo distinto golpeado.
-        // El VFX de melee/AOE se maneja por separado en LocalMeleeHitVFX.cs,
-        // que detecta la colision de forma local en cada peer.
-        if (damagedTarget && ShowHitVFX && NetworkVFXManager.Instance != null)
+        // Usamos "damageable != null" en lugar de "damagedTarget" para que el VFX
+        // se dispare aunque el daño haya sido bloqueado (ej: PvP entre jugadores,
+        // bloqueado arriba por el chequeo de Type+Tag que salta a este label).
+        // damagedTarget se sigue pasando al RPC para que elija el VFX correcto
+        // (impacto a objetivo vs colisión genérica) según corresponda.
+        // Solo una vez por target — igual que antes.
+        if (damageable != null && ShowHitVFX && NetworkVFXManager.Instance != null)
         {
             bool alreadySent = otherNet != null && vfxSentTo.Contains(otherNet);
             if (!alreadySent)
             {
                 if (otherNet != null) vfxSentTo.Add(otherNet);
-                
+
                 Vector3 vfxPos = other.bounds.center;
-                NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(vfxPos, damagedTarget, Type, Direction);
+                // Mandamos "true" para que el VFX use la rama de impacto a objetivo (sin
+                // offset), ya que golpeó algo dañable (un jugador) aunque no se aplicara
+                // daño real por el bloqueo de PvP. damagedTarget ya no sirve para esto.
+                NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(vfxPos, true, Type, Direction);
             }
         }
     }
