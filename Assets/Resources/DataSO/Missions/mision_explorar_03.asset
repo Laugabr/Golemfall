@@ -18,12 +18,14 @@ MonoBehaviour:
   xp: 200
   coins: 0
   missionSteps:
-  - targetId: 0
+  - targetId: 1
     amount: 2
+    targetKey: goldenegg
     displayText: Huevo dorado recolectado
   failureSteps: []
   nextMissions: []
   pausesOtherMissions: 0
-  startWithEvent: 0
-  startEvent: 0
-  startOnlyOnce: 0
+  startWithEvent: 1
+  startEventKey: goldenegg
+  startEvent: 1
+  startOnlyOnce: 1

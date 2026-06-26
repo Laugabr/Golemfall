@@ -18,6 +18,7 @@ public class ItemData : ScriptableObject
     public GameObject worldPrefab; // Prefab instantiated when item is dropped in the world
     public bool isEquipable = true; // Whether the item can be equipped
     public Stats stats;  // Stat modifiers provided by the item
+    public string missionKey; // Vacio = item comun. Ej: "goldenegg", "crystalflower"
 
     public static ItemData GetItem(short key)
     {

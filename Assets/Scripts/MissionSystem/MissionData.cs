@@ -15,6 +15,7 @@ public class MissionData : ScriptableObject
     public List<MissionData> nextMissions;
     public bool pausesOtherMissions;
     public bool startWithEvent;
+    public string startEventKey; // Vacio = arranca con cualquier key. Ej: "goldenegg"
     public GameEventType startEvent;
     public bool startOnlyOnce;
     //public bool allowTeleportParty;

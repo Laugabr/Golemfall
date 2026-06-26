@@ -277,6 +277,11 @@ public class MissionController : NetworkBehaviour
         {
             if (mission.startWithEvent && mission.startEvent == stepId)
             {
+                // Si la misión define un startEventKey, solo arranca cuando el key coincide.
+                // Vacío = arranca con cualquier key (comodín).
+                if (!string.IsNullOrEmpty(mission.startEventKey) && mission.startEventKey != key)
+                    continue;
+
                 bool alreadyRunning = _currentMissions.Any(m => m.missionId == mission.missionId);
                 bool blockedAsOneShot = mission.startOnlyOnce && _completedMissionIds.Contains(mission.missionId);
 
