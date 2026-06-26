@@ -16,6 +16,10 @@ public class NwInventoryUI : MonoBehaviour
     // se instancia dinámicamente y no puede asignarse en edit-time.
     private CraftingSystem targetCraftingSystem;
 
+    // Cache del CraftingUI (mismo GameObject). Usado por Refresh para excluir
+    // del inventario las keys que están ocupando un slot de craft.
+    private CraftingUI craftingUI;
+
     private int lastCount;
 
     private NetworkInventory targetInventory;
@@ -25,6 +29,8 @@ public class NwInventoryUI : MonoBehaviour
 
     private void Start()
     {
+        craftingUI = GetComponent<CraftingUI>();
+
         runner = FindFirstObjectByType<NetworkRunner>();
         if (runner == null)
         {
@@ -66,8 +72,8 @@ public class NwInventoryUI : MonoBehaviour
             {
                 Debug.Log("[CraftingSystem] Vinculado al inventario local.");
 
-                CraftingUI craftingUI = GetComponent<CraftingUI>();
-                if(craftingUI != null)  craftingUI.SetCraftingSystem(targetCraftingSystem);
+                if (craftingUI == null) craftingUI = GetComponent<CraftingUI>();
+                if (craftingUI != null) craftingUI.SetCraftingSystem(targetCraftingSystem);
 
                 Refresh();
             }
@@ -148,7 +154,8 @@ public class NwInventoryUI : MonoBehaviour
 
         var currentKeys = targetInventory.LocalItems
             .Select(s => s.itemKey)
-            .Where(k => !targetInventory.EquippedItems.Contains(k))
+            .Where(k => !targetInventory.EquippedItems.Contains(k)
+                        && (craftingUI == null || !craftingUI.IsKeyInCraft(k)))
             .ToList();
 
         foreach (var key in currentKeys)
@@ -193,4 +200,24 @@ public class NwInventoryUI : MonoBehaviour
     }
 
     public NetworkInventory GetTargetInventory() => targetInventory;
+
+    // --- Quick-move (doble-click) ---
+
+    // Primer slot de inventario vacío, o null si no hay.
+    public ItemContainerSlot GetFirstEmptyInventorySlot()
+    {
+        if (inventorySlots == null) return null;
+        foreach (var s in inventorySlots)
+            if (s != null && s.IsEmpty) return s;
+        return null;
+    }
+
+    // Primer slot de equip vacío, o null si no hay.
+    public ItemContainerSlot GetFirstEmptyEquipSlot()
+    {
+        if (equipSlots == null) return null;
+        foreach (var s in equipSlots)
+            if (s != null && s.IsEmpty) return s;
+        return null;
+    }
 }

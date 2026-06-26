@@ -63,6 +63,27 @@ public class CraftingUI : MonoBehaviour
         inventoryUI?.ForceRefresh();
     }
 
+    // --- Quick-move (doble-click) ---
+
+    // Primer slot de craft vacío, o null si ambos están ocupados.
+    public CraftingDropSlot GetFirstEmptyCraftSlot()
+    {
+        if (slotA != null && slotA.IsEmpty) return slotA;
+        if (slotB != null && slotB.IsEmpty) return slotB;
+        return null;
+    }
+
+    // True si la key está ocupando alguno de los slots de craft.
+    // Lo usa NwInventoryUI.Refresh para no re-dibujar en inventario un item
+    // que está en craft.
+    public bool IsKeyInCraft(short key)
+    {
+        if (key < 0) return false;
+        if (slotA != null && !slotA.IsEmpty && slotA.GetOccupiedKey() == key) return true;
+        if (slotB != null && !slotB.IsEmpty && slotB.GetOccupiedKey() == key) return true;
+        return false;
+    }
+
     private void ShowPreview(ItemData result)
     {
         bool hasResult = result != null;

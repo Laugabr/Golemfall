@@ -4,6 +4,7 @@ using Game.CameraSystem;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 /// <summary>
@@ -24,6 +25,13 @@ using UnityEngine.InputSystem;
 ///   muy rápido, el botón puede presionarse y soltarse entre dos ticks de Fusion
 ///   y el input se pierde. _mouseLButtonPressed acumula el click con GetMouseButtonDown
 ///   y lo mantiene hasta que OnInput lo consume, garantizando que Fusion siempre lo vea.
+///
+/// NOTA sobre el clic izquierdo sobre UI:
+///   El ataque melee (clic izq.) se ignora cuando el puntero está sobre la UI
+///   (EventSystem.IsPointerOverGameObject). Sin esto, tocar un slot del inventario
+///   también disparaba el ataque y competía con el drag/click de la UI, haciendo
+///   que arrastrar items se sintiera peleado. Solo se gatea el clic izquierdo;
+///   el input de teclado (movimiento, salto, dash, skills) no se ve afectado.
 ///
 /// NOTA sobre CameraYaw y AttackYaw:
 ///   Cada cliente envía el yaw de su cámara y el yaw de ataque junto al input para
@@ -65,7 +73,13 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
         Keyboard keyboard = Keyboard.current;
         NetworkButtons buttons = default;
 
-        if (Input.GetMouseButtonDown(0))
+        // El clic izquierdo no debe atacar si el puntero está sobre la UI
+        // (slots de inventario/crafteo, etc.). Cubre todo el panel porque su
+        // Background tiene Raycast Target activo.
+        bool pointerOverUI = EventSystem.current != null
+            && EventSystem.current.IsPointerOverGameObject();
+
+        if (!pointerOverUI && Input.GetMouseButtonDown(0))
             _mouseLButtonPressed = true;
 
         if (keyboard != null)
@@ -89,7 +103,8 @@ public class NetworkInputManager : SimulationBehaviour, IBeforeUpdate, INetworkR
         Mouse mouse = Mouse.current;
         if (mouse != null)
         {
-            accumulatedInput.Buttons.Set(InputButton.BasicAttack, mouse.leftButton.isPressed);
+            bool attackHeld = !pointerOverUI && mouse.leftButton.isPressed;
+            accumulatedInput.Buttons.Set(InputButton.BasicAttack, attackHeld);
             accumulatedInput.Buttons.Set(InputButton.MouseButton0, _mouseLButtonPressed);
         }
 

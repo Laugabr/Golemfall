@@ -150,6 +150,7 @@ GameObject:
   - component: {fileID: 1827899481084996264}
   - component: {fileID: 1086707890500092958}
   - component: {fileID: 4157977198765345655}
+  - component: {fileID: 4267795615357018554}
   - component: {fileID: 3894861175164617994}
   m_Layer: 5
   m_Name: itemSlot
@@ -263,6 +264,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2e8c04ce27060f64dbc960df9f1b5c2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4267795615357018554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2404482117328291837}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1e0009432ee2bb4095f2b9961affb60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!225 &3894861175164617994
