@@ -179,6 +179,9 @@ public class MissionController : NetworkBehaviour
             TrackEvents.OnTrackEvent += ServerTrackStep;
             isTrackingEvents = true;
         }
+
+        // Gatillo de activación por nivel (hardcodeado): nivel 5 → habilidad01
+        BasicEventsManager.OnLevelUp += OnLevelUp;
     }
 
     private void OnDestroy()
@@ -188,6 +191,38 @@ public class MissionController : NetworkBehaviour
             TrackEvents.OnTrackEvent -= ServerTrackStep;
             isTrackingEvents = false;
         }
+
+        BasicEventsManager.OnLevelUp -= OnLevelUp;
+    }
+
+    // Activación por nivel. Por ahora solo Habilidad01 al llegar a nivel 5.
+    // Si en el futuro hay más misiones por nivel, conviene moverlo a data (MissionData).
+    private void OnLevelUp(int level)
+    {
+        if (!Object.HasStateAuthority) return;
+        if (level != 5) return;
+
+        StartMissionById("mision_habilidad_01");
+    }
+
+    // Arranque imperativo por id, con guard de duplicado / one-shot. Solo host.
+    private void StartMissionById(string missionId)
+    {
+        if (!Object.HasStateAuthority) return;
+
+        bool running = _currentMissions.Any(m => m.missionId == missionId);
+        bool done = _completedMissionIds.Contains(missionId);
+        if (running || done) return;
+
+        var mission = Resources.Load<MissionData>($"{MISSION_PATH}{missionId}");
+        if (mission == null)
+        {
+            Debug.LogError($"Mission {missionId} not found");
+            return;
+        }
+
+        StartNewMission(mission);
+        RPC_AllClientsStartMission(missionId);
     }
 
     public void StartNewMission(MissionData missionData)

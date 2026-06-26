@@ -60,6 +60,7 @@ public class UtilityAbility : NetworkBehaviour
         if (netObj == null || _healed.Contains(netObj)) return;
 
         health.Heal(HealAmount);
+        TrackEvents.OnTrackEvent?.Invoke(GameEventType.Heal, HealAmount);
         _healed.Add(netObj);
     }
 

@@ -18,6 +18,7 @@ public enum GameEventType
     StartMisionGoldenEgg = 15,
     StartMisionRompibles1 = 16,
     StartMisionRompibles2 = 17,
-    KillBoss = 18
+    KillBoss = 18,
+    Heal = 19
 }
 //Advertencia: Unity serializa los enums por su valor numérico, no por su nombre. 
