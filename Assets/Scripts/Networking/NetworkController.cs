@@ -48,7 +48,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         // Assign UI button callbacks
         _createRoomButton.onClick.AddListener(CreateRoom);
         _joinRoomButton.onClick.AddListener(JoinRoom);
-
+        
     }
 
     //Gets called On Destroy to debug 
@@ -133,6 +133,8 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
 
             if (player == _networkRunner.LocalPlayer && CloudSaveGame.Instance != null)
                 CloudSaveGame.Instance.StartGameSave();
+            if (player == runner.LocalPlayer && _Hud != null)
+            _Hud.SetActive(true);
         }
     }
 
