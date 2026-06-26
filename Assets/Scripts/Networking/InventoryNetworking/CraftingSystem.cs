@@ -71,6 +71,7 @@ public class CraftingSystem : NetworkBehaviour
         var resultData = ItemData.GetItem(recipe.resultItemKey);
         Debug.Log($"[CRAFT] Resultado obtenido: {resultData?.name ?? "item desconocido"} (key={recipe.resultItemKey})");
         Debug.Log("[CRAFT] Exitoso");
+        TrackEvents.OnTrackEvent?.Invoke(GameEventType.CraftItem, 1);
     }
 
     // Consulta read-only del resultado de una receta, para la preview de UI.

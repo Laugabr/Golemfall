@@ -180,8 +180,9 @@ public class MissionController : NetworkBehaviour
             isTrackingEvents = true;
         }
 
-        // Gatillo de activación por nivel (hardcodeado): nivel 5 → habilidad01
-        BasicEventsManager.OnLevelUp += OnLevelUp;
+        // Gatillos de activación hardcodeados
+        BasicEventsManager.OnLevelUp += OnLevelUp;                       // nivel 5 → habilidad01
+        BasicEventsManager.OnInventoryCountChanged += OnInventoryCount;  // 2 items → craft01
     }
 
     private void OnDestroy()
@@ -193,6 +194,7 @@ public class MissionController : NetworkBehaviour
         }
 
         BasicEventsManager.OnLevelUp -= OnLevelUp;
+        BasicEventsManager.OnInventoryCountChanged -= OnInventoryCount;
     }
 
     // Activación por nivel. Por ahora solo Habilidad01 al llegar a nivel 5.
@@ -203,6 +205,15 @@ public class MissionController : NetworkBehaviour
         if (level != 5) return;
 
         StartMissionById("mision_habilidad_01");
+    }
+
+    // Activación por inventario. Craft01 arranca cuando algún jugador junta 2 items.
+    private void OnInventoryCount(int count)
+    {
+        if (!Object.HasStateAuthority) return;
+        if (count < 2) return;
+
+        StartMissionById("mision_craft_01");
     }
 
     // Arranque imperativo por id, con guard de duplicado / one-shot. Solo host.

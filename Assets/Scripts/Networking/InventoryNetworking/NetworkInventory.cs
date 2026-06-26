@@ -8,7 +8,7 @@ public class NetworkInventory : NetworkBehaviour
     // IsDirty ya no es [Networked] — es local, se setea via RPC
     public bool IsDirty { get; set; }
 
-    [Networked, Capacity(12)]
+    [Networked, Capacity(9)]
     public NetworkLinkedList<InventorySlot> Items => default;
 
     public List<InventorySlot> LocalItems;
@@ -22,7 +22,7 @@ public class NetworkInventory : NetworkBehaviour
     {
         if (!Object.HasStateAuthority) return false;
 
-        if (Items.Count >= 12)
+        if (Items.Count >= 9)
         {
             Debug.Log("[SERVER] full inventory");
             return false;
@@ -38,7 +38,8 @@ public class NetworkInventory : NetworkBehaviour
         RPC_UpdateLocalInventory();
         RPC_NotifyInventoryChanged();
 
-        Debug.Log($"[SERVER] Item added ({Items.Count}/12)");
+        Debug.Log($"[SERVER] Item added ({Items.Count}/9)");
+        BasicEventsManager.OnInventoryCountChanged?.Invoke(Items.Count);
         return true;
     }
 
