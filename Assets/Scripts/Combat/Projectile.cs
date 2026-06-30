@@ -219,23 +219,38 @@ private bool _wallHitVFXSent = false;
         // damagedTarget se sigue pasando al RPC para que elija el VFX correcto
         // (impacto a objetivo vs colisión genérica) según corresponda.
         // Solo una vez por target — igual que antes.
-        if (damageable != null && ShowHitVFX && NetworkVFXManager.Instance != null)
+    if (damageable != null && ShowHitVFX && NetworkVFXManager.Instance != null)
+    {
+        bool alreadySent = otherNet != null && vfxSentTo.Contains(otherNet);
+        if (!alreadySent)
         {
-            bool alreadySent = otherNet != null && vfxSentTo.Contains(otherNet);
-            if (!alreadySent)
-            {
-                if (otherNet != null) vfxSentTo.Add(otherNet);
+            if (otherNet != null) vfxSentTo.Add(otherNet);
 
-                Vector3 vfxPos = other.ClosestPoint(transform.position);
-                // Mandamos "true" para que el VFX use la rama de impacto a objetivo (sin
-                // offset), ya que golpeó algo dañable (un jugador) aunque no se aplicara
-                // daño real por el bloqueo de PvP. damagedTarget ya no sirve para esto.
-                NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(vfxPos, true, Type, Direction);
-            }
+            Vector3 vfxPos = other.ClosestPoint(transform.position);
+            
+            // RPC para que TODOS los peers vean el VFX + shake
+            RPC_SpawnMeleeHitVFX(vfxPos);
         }
     }
+    }
 
-    private void SpawnOnExpireAoe(Vector3 position)
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_SpawnMeleeHitVFX(Vector3 hitPosition)
+    {
+        // VFX visual en todos los peers
+        if (NetworkVFXManager.Instance != null)
+        {
+            NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(
+                hitPosition, true, Type, Direction
+            );
+        }
+
+        // Camera shake en el cliente local (si tiene InputAuthority)
+        if (HasInputAuthority)
+        {
+            CameraController.Local?.Shake(0.08f, 0.2f);
+        }
+    }    private void SpawnOnExpireAoe(Vector3 position)
     {
         if (!onExpireAoe || onExpirePrefab == null) return;
         if (_aoeSpawned) return; // ← guard inmediato

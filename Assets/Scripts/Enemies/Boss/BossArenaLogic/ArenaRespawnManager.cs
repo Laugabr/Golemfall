@@ -4,37 +4,28 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// Gestiona el respawn de players dentro de la arena y detecta
-/// cuando todos están muertos para resetear la pelea.
+/// Gestiona el respawn de players y detecta cuando todos están muertos
+/// para resetear la pelea del boss.
 ///
 /// Setup en escena:
 ///   - Mismo GO que ArenaTrigger, o GO separado.
-///   - Asignar BossAI, BossHealth y los puntos de respawn en el inspector.
+///   - Asignar BossAI y BossHealth en el inspector.
 ///   - Se activa cuando BossAI.ActivateBoss() es llamado (via ActivateForArena()).
 ///
 /// Integración con PlayerHealth:
 ///   - ActivateForArena() prende arenaFightActive en cada player trackeado,
-///     así Die() los deja muertos en vez de auto-respawnear (ver PlayerHealth.Die()),
-///     y cachea su _lastSpawnPoint ACTUAL (el de afuera de la arena) antes de
-///     que pase nada más, para poder devolverlos ahí en el wipe.
-///   - El wipe (ResetFightRoutine) usa ForceRespawn() con ese punto cacheado —
-///     NO con un punto de la arena. Los players nunca respawnean dentro de
-///     la arena; esperan muertos hasta que cae el último, y ahí vuelven todos
-///     juntos a donde estaban antes de entrar a pelear.
-///   - El teleport grupal al ENTRAR a la arena (TeleportPlayersIntoArena) es
-///     un caso aparte — ahí sí se usa respawnPoints, porque ese teleport es
-///     para meter al grupo adentro, no para revivirlos.
-///   - DeactivateArena() apaga arenaFightActive, asi si el boss muere con
-///     algún player muerto, ese player vuelve a respawnear solo (normal).
+///     así Die() los deja muertos en vez de auto-respawnear (ver PlayerHealth.Die()).
+///   - Cachea el _lastSpawnPoint de cada player ANTES de que entren a la arena,
+///     para poder devolverlos ahí en el wipe.
+///   - El wipe (ResetFightRoutine) usa ForceRespawn() con ese punto cacheado.
+///   - DeactivateArena() apaga arenaFightActive y revive cualquier muerto
+///     esperando el wipe (en caso de que el boss muera antes del wipe).
 /// </summary>
 public class ArenaRespawnManager : NetworkBehaviour
 {
     [Header("References")]
     [SerializeField] private BossAI bossAI;
     [SerializeField] private BossHealth bossHealth;
-
-    [Header("Respawn Points (dentro de la arena, solo para el teleport de entrada)")]
-    [SerializeField] private Transform[] respawnPoints;
 
     [Tooltip("Delay extra antes de resetear el boss cuando todos mueren")]
     [SerializeField] private float resetDelay = 2f;
@@ -47,7 +38,7 @@ public class ArenaRespawnManager : NetworkBehaviour
 
     // Punto de spawn de cada player ANTES de entrar a la arena (su último
     // checkpoint real). Se cachea al activar la pelea y se usa en el wipe
-    // para devolverlos ahí — nunca a un punto dentro de la arena.
+    // para devolverlos ahí.
     private Dictionary<PlayerHealth, Vector3> originalSpawnPoints = new();
 
     // =============================
@@ -67,6 +58,36 @@ public class ArenaRespawnManager : NetworkBehaviour
 
         // Recolectar todos los PlayerHealth del registro
         trackedPlayers.Clear();
+        // No limpiar originalSpawnPoints — ya fue cacheado en CacheSpawnPoints()
+
+        foreach (var playerTransform in PlayerRegistry.Players)
+        {
+            if (playerTransform == null) continue;
+            var health = playerTransform.GetComponent<PlayerHealth>();
+            if (health != null)
+                trackedPlayers.Add(health);
+        }
+
+        // A partir de acá, morir no auto-respawnea — se espera el wipe.
+        foreach (var health in trackedPlayers)
+            health.SetArenaFightActive(true);
+
+        Debug.Log($"[ArenaRespawn] Activado — tracking {trackedPlayers.Count} players");
+    }
+
+    // =============================
+    // CACHEO DE SPAWN POINTS
+    // =============================
+
+    /// <summary>
+    /// Cachea los spawn points ACTUALES de cada player ANTES de que sean
+    /// teletransportados/entren a la arena. Llamar antes de que pase nada
+    /// para garantizar que se guarden los puntos "verdaderos" de afuera.
+    /// </summary>
+    public void CacheSpawnPoints()
+    {
+        if (!Object.HasStateAuthority) return;
+
         originalSpawnPoints.Clear();
 
         foreach (var playerTransform in PlayerRegistry.Players)
@@ -75,18 +96,10 @@ public class ArenaRespawnManager : NetworkBehaviour
             var health = playerTransform.GetComponent<PlayerHealth>();
             if (health == null) continue;
 
-            trackedPlayers.Add(health);
-
-            // Cacheamos SU spawn point actual (de afuera de la arena) antes
-            // de tocar nada más. Este es el punto al que van a volver cuando
-            // todos mueran — no uno de la arena.
+            // Guardar el punto ACTUAL antes de que sea pisado por nada
             originalSpawnPoints[health] = health._lastSpawnPoint;
-
-            // A partir de acá, morir no auto-respawnea — se espera el wipe.
-            health.SetArenaFightActive(true);
+            Debug.Log($"[ArenaRespawn] Cached spawn point para {health.gameObject.name}: {health._lastSpawnPoint}");
         }
-
-        Debug.Log($"[ArenaRespawn] Activado — tracking {trackedPlayers.Count} players");
     }
 
     // =============================
@@ -140,9 +153,7 @@ public class ArenaRespawnManager : NetworkBehaviour
 
         if (!Object.HasStateAuthority) yield break;
 
-        // Wipe total → reabrimos la arena. Open() es idempotente: si el
-        // boss murió casi al mismo tiempo (DisableBoss también la abre),
-        // el segundo Open() no hace nada, no hay riesgo de pisarse.
+        // Wipe total → reabrimos la arena
         if (bossAI != null)
             bossAI.RequestOpenArenaGate();
 
@@ -150,8 +161,7 @@ public class ArenaRespawnManager : NetworkBehaviour
         bossHealth?.ResetBoss();
 
         // 2. Revivir + teletransportar a todos los players a su punto de
-        //    ANTES de entrar a la arena (cacheado en ActivateForArena),
-        //    nunca a un respawnPoint dentro de la arena.
+        //    ANTES de entrar a la arena (cacheado en CacheSpawnPoints).
         foreach (var health in trackedPlayers)
         {
             if (health == null) continue;
@@ -171,56 +181,9 @@ public class ArenaRespawnManager : NetworkBehaviour
     }
 
     // =============================
-    // TELETRANSPORTE AL ENTRAR (nuevo diseño)
-    // =============================
-
-    /// <summary>
-    /// Teletransporta a todos los players registrados (excepto el que ya
-    /// entró caminando, si se indica) a un punto dentro de la arena.
-    /// Pensado para llamarse desde ArenaTrigger en cuanto el primer player
-    /// entra, así no hace falta que todo el grupo camine hasta la entrada.
-    ///
-    /// Esto es independiente del sistema de respawn por muerte: simplemente
-    /// mueve players vivos al entrar. Usa TeleportTo() (no toca vida/IsDead).
-    /// </summary>
-    public void TeleportPlayersIntoArena(Transform exclude)
-    {
-        if (!Object.HasStateAuthority) return;
-        if (respawnPoints == null || respawnPoints.Length == 0)
-        {
-            Debug.LogWarning("[ArenaRespawn] Sin puntos de respawn configurados, no se puede teletransportar al grupo");
-            return;
-        }
-
-        int pointIndex = 0;
-        int teleported = 0;
-
-        foreach (var playerTransform in PlayerRegistry.Players)
-        {
-            if (playerTransform == null) continue;
-            if (playerTransform == exclude) continue; // este ya entró caminando
-
-            var health = playerTransform.GetComponent<PlayerHealth>();
-            if (health == null) continue;
-
-            Vector3 point = respawnPoints[pointIndex % respawnPoints.Length].position;
-            health.TeleportTo(point);
-
-            pointIndex++;
-            teleported++;
-        }
-
-        Debug.Log($"[ArenaRespawn] Teletransportados {teleported} players al resto del grupo dentro de la arena");
-    }
-
-    // =============================
     // DESACTIVACIÓN (boss muerto)
     // =============================
 
-    /// <summary>
-    /// Llamar cuando el boss muere para restaurar el comportamiento normal
-    /// de respawn individual en los players.
-    /// </summary>
     /// <summary>
     /// Llamar cuando el boss muere para restaurar el comportamiento normal
     /// de respawn individual en los players. Si hay players muertos
@@ -229,11 +192,9 @@ public class ArenaRespawnManager : NetworkBehaviour
     public void DeactivateArena()
     {
         if (!Object.HasStateAuthority) return;
+        if (isResetting) return; // guard: si está reseteando la pelea, no interfieran
 
         // Revivir cualquier player que quedó muerto esperando el wipe.
-        // Esto pasa si el boss murió antes de que corra ResetFightRoutine
-        // (ej. ambos se mataron al mismo tiempo), o si querés permitir
-        // que el boss se derrote sin wipe de todo el grupo.
         foreach (var health in trackedPlayers)
         {
             if (health == null) continue;
@@ -242,15 +203,14 @@ public class ArenaRespawnManager : NetworkBehaviour
             {
                 Vector3 point = originalSpawnPoints.TryGetValue(health, out var cached)
                     ? cached
-                    : health._lastSpawnPoint; // fallback por las dudas
+                    : health._lastSpawnPoint;
 
                 health.ForceRespawn(point);
                 Debug.Log($"[ArenaRespawn] {health.gameObject.name} revivido en punto de salida");
             }
         }
 
-        // Apagamos el flag DESPUÉS de revivir, para que los ForceRespawn() 
-        // funcionen normalmente sin interferencia de arenaFightActive.
+        // Apagamos el flag para que vuelva el comportamiento normal de respawn
         foreach (var health in trackedPlayers)
         {
             if (health == null) continue;
