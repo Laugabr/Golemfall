@@ -170,6 +170,9 @@ public class BossAI : NetworkBehaviour
         RegisterAllPlayers();
         ScheduleNextAttack();
 
+        // Spawnear el weak point (una sola vez) con sus puntos posibles
+        attackHandler.InitializeWeakPoint();
+
         // Notificar al manager para que empiece a trackear los players
         if (respawnManager != null)
             respawnManager.ActivateForArena();
@@ -204,6 +207,10 @@ public class BossAI : NetworkBehaviour
 
         RegisterAllPlayers();
         ScheduleNextAttack();
+
+        // No vuelve a spawnear nada (ya existe), pero por si ResetBoss()
+        // se llamara antes de una ActivateBoss() previa, lo cubrimos igual.
+        attackHandler.InitializeWeakPoint();
 
         Debug.Log("[BossAI] Boss reseteado — vuelve a fase 1");
     }

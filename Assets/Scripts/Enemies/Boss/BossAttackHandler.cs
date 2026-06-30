@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Fusion;
 using System.Collections;
+using System.Collections.Generic;
 
 /// <summary>
 /// Ejecuta los ataques físicos del boss.
@@ -9,10 +10,17 @@ using System.Collections;
 ///   Elige N puntos aleatorios de groundPoints (Fisher-Yates).
 ///   Fase 1 → menos picos; Fase 2 → más picos.
 ///   Cada punto primero muestra un TelegraphZone y luego spawnea el spike.
+///   Estos sí se spawnean/despawnean por ataque (GroundSpike se autodestruye
+///   por lifeTime, eso está bien).
 ///
 /// Falling Teeth:
-///   Lanza los dientes del techo en orden aleatorio con delays escalonados.
-///   El diente se resetea al techo solo después de impactar (ver FallingTeeth.cs).
+///   A diferencia de los picos, los dientes son un POOL FIJO: se instancian
+///   UNA SOLA VEZ (uno por ceilingPoint) cuando el boss se activa, y nunca
+///   se despawnean. Cada ataque simplemente le ordena a los dientes ya
+///   existentes que vuelvan a caer (StartFalling()), en lugar de crear
+///   instancias nuevas. Esto evita que el mapa se llene de dientes
+///   acumulados, ya que FallingTeeth.cs está diseñado para resetearse y
+///   reutilizarse, no para destruirse.
 /// </summary>
 public class BossAttackHandler : NetworkBehaviour
 {
@@ -20,10 +28,25 @@ public class BossAttackHandler : NetworkBehaviour
     [SerializeField] private NetworkObject groundSpikePrefab;
     [SerializeField] private NetworkObject fallingToothPrefab;
     [SerializeField] private NetworkObject telegraphPrefab;
+    [SerializeField] private NetworkObject weakPointPrefab;
 
     [Header("Spawn Points")]
     [SerializeField] private Transform[] groundPoints;
     [SerializeField] private Transform[] ceilingPoints;
+
+    [Header("Weak Point — puntos donde puede aparecer")]
+    [Tooltip("Los puntos del mapa entre los que el weak point se mueve (3 recomendado)")]
+    [SerializeField] private Transform[] weakPointPositions;
+
+    // Instancia única del weak point. Igual que con los dientes, se
+    // spawnea una sola vez y nunca se vuelve a instanciar: simplemente
+    // se mueve entre weakPointPositions (eso lo maneja BossWeakPoint).
+    private NetworkObject weakPointInstance;
+
+    // Pool de dientes ya instanciados, uno por ceilingPoint.
+    // Se llena una sola vez en InitializeTeethPool().
+    private List<FallingTeeth> teethPool = new();
+    private bool teethPoolInitialized = false;
 
     [Header("Telegraph")]
     [SerializeField] private float telegraphTime = 1.5f;
@@ -73,34 +96,112 @@ public class BossAttackHandler : NetworkBehaviour
     // TECHO
     // =============================
 
-    public void SpawnFallingTeeth(int phase)
+    /// <summary>
+    /// Instancia el pool de dientes una sola vez, uno por ceilingPoint.
+    /// Se llama automáticamente la primera vez que se necesita el ataque.
+    /// Los dientes quedan estáticos en el techo (isFalling = false) hasta
+    /// que SpawnFallingTeeth() los active.
+    /// </summary>
+    void InitializeTeethPool()
     {
+        if (teethPoolInitialized) return;
         if (!Object.HasStateAuthority) return;
         if (ceilingPoints == null || ceilingPoints.Length == 0) return;
 
-        float delay = phase == 2 ? phase2ToothDelay : phase1ToothDelay;
-        int[] indices = ShuffledIndices(ceilingPoints.Length);
+        foreach (var point in ceilingPoints)
+        {
+            if (point == null) continue;
 
-        StartCoroutine(SpawnTeethSequence(indices, delay));
+            var obj = Runner.Spawn(fallingToothPrefab, point.position, Quaternion.identity);
+            var tooth = obj.GetComponent<FallingTeeth>();
+
+            if (tooth != null)
+                teethPool.Add(tooth);
+            else
+                Debug.LogWarning("[BossAttackHandler] fallingToothPrefab sin componente FallingTeeth");
+        }
+
+        teethPoolInitialized = true;
+        Debug.Log($"[BossAttackHandler] Pool de dientes inicializado: {teethPool.Count} dientes");
     }
 
-    IEnumerator SpawnTeethSequence(int[] indices, float delayBetween)
+    /// <summary>
+    /// Hace caer los dientes ya existentes en el pool, en orden aleatorio
+    /// y con delays escalonados. NO instancia objetos nuevos — reusa el
+    /// mismo pool siempre, por eso el conteo de dientes en el mapa nunca crece.
+    /// </summary>
+    public void SpawnFallingTeeth(int phase)
+    {
+        if (!Object.HasStateAuthority) return;
+
+        InitializeTeethPool();
+        if (teethPool.Count == 0) return;
+
+        float delay = phase == 2 ? phase2ToothDelay : phase1ToothDelay;
+        int[] indices = ShuffledIndices(teethPool.Count);
+
+        StartCoroutine(DropTeethSequence(indices, delay));
+    }
+
+    IEnumerator DropTeethSequence(int[] indices, float delayBetween)
     {
         foreach (int i in indices)
         {
-            var point = ceilingPoints[i];
-            if (point == null) continue;
-
             if (!Object.HasStateAuthority) yield break;
 
-            Vector3 pos = point.position;
+            var tooth = teethPool[i];
 
-            var telegraphObj = Runner.Spawn(telegraphPrefab, pos, Quaternion.identity);
+            // Si el diente está null (despawneado externamente) o todavía
+            // está cayendo/en cooldown de un ataque anterior, lo saltamos
+            // en vez de generar uno nuevo.
+            if (tooth == null) continue;
+
+            var telegraphObj = Runner.Spawn(telegraphPrefab, tooth.transform.position, Quaternion.identity);
             var telegraph = telegraphObj.GetComponent<TelegraphZone>();
-            telegraph.Init(telegraphTime, () => Runner.Spawn(fallingToothPrefab, pos, Quaternion.identity));
+            telegraph.Init(telegraphTime, () =>
+            {
+                if (tooth != null)
+                    tooth.StartFalling();
+            });
 
             yield return new WaitForSeconds(Random.Range(delayBetween, delayBetween * 2f));
         }
+    }
+
+    // =============================
+    // WEAK POINT
+    // =============================
+
+    /// <summary>
+    /// Instancia el weak point una sola vez (igual patrón que el pool de
+    /// dientes) y le pasa los puntos del mapa entre los que puede moverse.
+    /// Llamar al activar/resetear el boss. Si ya existe, no hace nada.
+    /// </summary>
+    public void InitializeWeakPoint()
+    {
+        if (!Object.HasStateAuthority) return;
+        if (weakPointInstance != null) return;
+        if (weakPointPrefab == null)
+        {
+            Debug.LogWarning("[BossAttackHandler] weakPointPrefab no asignado");
+            return;
+        }
+        if (weakPointPositions == null || weakPointPositions.Length == 0)
+        {
+            Debug.LogWarning("[BossAttackHandler] weakPointPositions vacío");
+            return;
+        }
+
+        Vector3 startPos = weakPointPositions[0].position;
+        weakPointInstance = Runner.Spawn(weakPointPrefab, startPos, Quaternion.identity);
+
+        var weakPoint = weakPointInstance.GetComponent<BossWeakPoint>();
+        if (weakPoint != null)
+            weakPoint.Setup(weakPointPositions);
+        else
+            Debug.LogWarning("[BossAttackHandler] weakPointPrefab sin componente BossWeakPoint");
+
+        Debug.Log($"[BossAttackHandler] Weak point inicializado con {weakPointPositions.Length} puntos posibles");
     }
 
     // =============================
