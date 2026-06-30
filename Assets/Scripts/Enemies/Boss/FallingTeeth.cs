@@ -22,6 +22,9 @@ public class FallingTeeth : NetworkBehaviour
     [Tooltip("Tiempo que espera en el suelo antes de volver al techo")]
     [SerializeField] private float resetDelay = 2f;
 
+    [Header("Damage")]
+    [SerializeField] private int damageAmount = 10;
+
     // Posición inicial (techo), guardada al spawnear
     private Vector3 ceilingOrigin;
 
@@ -58,24 +61,12 @@ public class FallingTeeth : NetworkBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!Object.HasStateAuthority) return;
-        if (hasHit) return;
-        if (!isFalling) return;
+        if (other.CompareTag("Player"))
+        {
+            Debug.Log("[GroundSpike] Hit player");
+            other.GetComponent<IDamageable>()?.TakeDamage(damageAmount, gameObject); // Aplica da�o al player
+        }
 
-        bool hitPlayer = other.CompareTag("Player");
-        bool hitGround = other.CompareTag("Ground");
-
-        if (!hitPlayer && !hitGround) return;
-
-        hasHit = true;
-        isFalling = false;
-
-        Debug.Log($"[FallingTooth] Impacto con {other.name}");
-
-        if (hitPlayer && dealDamage != null)
-            dealDamage.SetAttacker(transform); // Si necesitas aplicar daño, reemplaza esta línea por la llamada correcta
-
-        // Inicia el ciclo de regreso al techo
-        Invoke(nameof(ResetToOrigin), resetDelay);
     }
 
     /// <summary>

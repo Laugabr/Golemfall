@@ -221,13 +221,36 @@ public class ArenaRespawnManager : NetworkBehaviour
     /// Llamar cuando el boss muere para restaurar el comportamiento normal
     /// de respawn individual en los players.
     /// </summary>
+    /// <summary>
+    /// Llamar cuando el boss muere para restaurar el comportamiento normal
+    /// de respawn individual en los players. Si hay players muertos
+    /// esperando el wipe, los revivimos ahora en su último spawn point.
+    /// </summary>
     public void DeactivateArena()
     {
         if (!Object.HasStateAuthority) return;
 
-        // Apagamos el flag ANTES de limpiar la lista: si quedó algún player
-        // muerto esperando el wipe (ej. el boss murió justo en ese momento),
-        // vuelve al comportamiento normal de auto-respawn individual.
+        // Revivir cualquier player que quedó muerto esperando el wipe.
+        // Esto pasa si el boss murió antes de que corra ResetFightRoutine
+        // (ej. ambos se mataron al mismo tiempo), o si querés permitir
+        // que el boss se derrote sin wipe de todo el grupo.
+        foreach (var health in trackedPlayers)
+        {
+            if (health == null) continue;
+
+            if (health.IsDead)
+            {
+                Vector3 point = originalSpawnPoints.TryGetValue(health, out var cached)
+                    ? cached
+                    : health._lastSpawnPoint; // fallback por las dudas
+
+                health.ForceRespawn(point);
+                Debug.Log($"[ArenaRespawn] {health.gameObject.name} revivido en punto de salida");
+            }
+        }
+
+        // Apagamos el flag DESPUÉS de revivir, para que los ForceRespawn() 
+        // funcionen normalmente sin interferencia de arenaFightActive.
         foreach (var health in trackedPlayers)
         {
             if (health == null) continue;
@@ -239,6 +262,6 @@ public class ArenaRespawnManager : NetworkBehaviour
         trackedPlayers.Clear();
         originalSpawnPoints.Clear();
 
-        Debug.Log("[ArenaRespawn] Arena desactivada — boss muerto");
+        Debug.Log("[ArenaRespawn] Arena desactivada — boss muerto, players revividos");
     }
 }
