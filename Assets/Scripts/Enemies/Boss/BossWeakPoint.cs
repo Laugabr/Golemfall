@@ -2,13 +2,13 @@ using Fusion;
 using UnityEngine;
 
 /// <summary>
-/// Punto débil del boss. Es UN SOLO prefab (no se spawnea uno por punto):
-/// el boss lo instancia una única vez y, mediante Setup(), le pasa los
+/// Punto dï¿½bil del boss. Es UN SOLO prefab (no se spawnea uno por punto):
+/// el boss lo instancia una ï¿½nica vez y, mediante Setup(), le pasa los
 /// puntos del mapa donde puede ubicarse. Cada moveInterval segundos se
 /// teletransporta a uno de esos puntos (sin repetir el actual si hay
-/// más de uno disponible).
+/// mï¿½s de uno disponible).
 ///
-/// Requiere un NetworkTransform (u otro componente de sync de posición)
+/// Requiere un NetworkTransform (u otro componente de sync de posiciï¿½n)
 /// en el mismo prefab para que el movimiento se replique a todos los
 /// clientes correctamente.
 /// </summary>
@@ -17,22 +17,28 @@ public class BossWeakPoint : NetworkBehaviour, IDamageable
     [SerializeField] private BossHealth bossHealth;
 
     [Header("Movimiento")]
-    [Tooltip("Cada cuánto tiempo (segundos) el weak point cambia de lugar")]
+    [Tooltip("Cada cuï¿½nto tiempo (segundos) el weak point cambia de lugar")]
     [SerializeField] private float moveInterval = 10f;
 
-    // Puntos posibles, asignados en runtime vía Setup() porque el prefab
+    // Puntos posibles, asignados en runtime vï¿½a Setup() porque el prefab
     // (asset) no puede referenciar Transforms de la escena directamente.
     private Transform[] weakPointPositions;
 
     [Networked] private int currentPointIndex { get; set; } = -1;
     [Networked] private TickTimer moveTimer { get; set; }
 
+
+    void Awake()
+    {
+        bossHealth = GetComponentInParent<BossHealth>();
+    }
     /// <summary>
-    /// Llamado por BossAttackHandler justo después de spawnear el prefab,
-    /// para indicarle entre qué puntos del mapa puede moverse.
+    /// Llamado por BossAttackHandler justo despuï¿½s de spawnear el prefab,
+    /// para indicarle entre quï¿½ puntos del mapa puede moverse.
     /// </summary>
     public void Setup(Transform[] points)
     {
+        
         weakPointPositions = points;
 
         if (!Object.HasStateAuthority) return;
@@ -74,8 +80,8 @@ public class BossWeakPoint : NetworkBehaviour, IDamageable
         var target = weakPointPositions[newIndex];
         if (target == null)
         {
-            // Si ese punto está mal asignado, reprogramamos el intento
-            // pronto en vez de dejar al weak point trabado ahí.
+            // Si ese punto estï¿½ mal asignado, reprogramamos el intento
+            // pronto en vez de dejar al weak point trabado ahï¿½.
             moveTimer = TickTimer.CreateFromSeconds(Runner, 0.5f);
             return;
         }
@@ -86,7 +92,7 @@ public class BossWeakPoint : NetworkBehaviour, IDamageable
 
         moveTimer = TickTimer.CreateFromSeconds(Runner, moveInterval);
 
-        Debug.Log($"[WeakPoint] Se movió al punto {newIndex} ({target.name})");
+        Debug.Log($"[WeakPoint] Se moviï¿½ al punto {newIndex} ({target.name})");
     }
 
     public void TakeDamage(int amount, GameObject source)
