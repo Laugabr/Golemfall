@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Fusion;
 using UnityEngine;
 
 /// <summary>
@@ -13,13 +14,19 @@ using UnityEngine;
 /// para que se cierre tanto en la primera activación como en cada
 /// reintento tras un wipe — este trigger solo dispara una vez.
 ///
+/// Requiere NetworkObject en el mismo GameObject (aunque no tenga estado
+/// networked propio) para poder chequear HasStateAuthority y así evitar
+/// que la lógica corra en clientes que no son el host — los colliders de
+/// esta zona existen localmente en todas las máquinas, así que sin este
+/// chequeo OnTriggerEnter se ejecutaría también en clientes.
+///
 /// Setup en escena:
 ///   - Este componente va en un GameObject con un Collider trigger
-///     que cubra la entrada/interior de la arena.
+///     que cubra la entrada/interior de la arena, y un NetworkObject.
 ///   - Asignar BossAI y ArenaRespawnManager (este último para el teleport
 ///     del resto del grupo) en el inspector.
 /// </summary>
-public class ArenaTrigger : MonoBehaviour
+public class ArenaTrigger : NetworkBehaviour
 {
     [Header("References")]
     [SerializeField] private BossAI bossAI;
@@ -34,6 +41,11 @@ public class ArenaTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        // Solo el host procesa la activación de la arena — evita logs/ejecución
+        // duplicada en clientes (los colliders de esta zona existen localmente
+        // en todas las máquinas, así que sin este check el evento físico
+        // dispararía igual en cada una).
+        if (!Object.HasStateAuthority) return;
         if (hasActivated) return;
         if (!other.CompareTag("Player")) return;
 
@@ -64,6 +76,7 @@ public class ArenaTrigger : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
+        if (!Object.HasStateAuthority) return;
         if (!other.CompareTag("Player")) return;
 
         Transform root = other.transform.root;
