@@ -142,6 +142,53 @@ public class ArenaRespawnManager : NetworkBehaviour
     }
 
     // =============================
+    // TELETRANSPORTE AL ENTRAR (nuevo diseño)
+    // =============================
+
+    /// <summary>
+    /// Teletransporta a todos los players registrados (excepto el que ya
+    /// entró caminando, si se indica) a un punto dentro de la arena.
+    /// Pensado para llamarse desde ArenaTrigger en cuanto el primer player
+    /// entra, así no hace falta que todo el grupo camine hasta la entrada.
+    ///
+    /// NOTA: usa el mismo mecanismo que ResetFightRoutine() (SetLastSpawnPoint
+    /// + NeedsRespawn), que en este código está pensado para el respawn post
+    /// muerte. Si NeedsRespawn dispara algo no deseado en un player vivo
+    /// (ej. resetear vida), avisame y lo cambiamos por un método de
+    /// teleport dedicado en PlayerHealth.
+    /// </summary>
+    public void TeleportPlayersIntoArena(Transform exclude)
+    {
+        if (!Object.HasStateAuthority) return;
+        if (respawnPoints == null || respawnPoints.Length == 0)
+        {
+            Debug.LogWarning("[ArenaRespawn] Sin puntos de respawn configurados, no se puede teletransportar al grupo");
+            return;
+        }
+
+        int pointIndex = 0;
+        int teleported = 0;
+
+        foreach (var playerTransform in PlayerRegistry.Players)
+        {
+            if (playerTransform == null) continue;
+            if (playerTransform == exclude) continue; // este ya entró caminando
+
+            var health = playerTransform.GetComponent<PlayerHealth>();
+            if (health == null) continue;
+
+            Vector3 point = respawnPoints[pointIndex % respawnPoints.Length].position;
+            health.SetLastSpawnPoint(point);
+            health.NeedsRespawn = true;
+
+            pointIndex++;
+            teleported++;
+        }
+
+        Debug.Log($"[ArenaRespawn] Teletransportados {teleported} players al resto del grupo dentro de la arena");
+    }
+
+    // =============================
     // RESPAWN INDIVIDUAL
     // =============================
 

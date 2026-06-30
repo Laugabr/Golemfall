@@ -3,8 +3,10 @@ using UnityEngine;
 
 /// <summary>
 /// Trigger de entrada a la arena del boss.
-/// Cuando todos los players registrados en PlayerRegistry están dentro,
-/// activa el BossAI directamente.
+/// En cuanto el PRIMER player entra, se teletransporta automáticamente a
+/// todo el resto del grupo (registrado en PlayerRegistry) adentro de la
+/// arena, sin importar dónde estén — ya no hace falta que cada uno camine
+/// hasta acá. Una vez que están todos (vía teleport), activa el BossAI.
 ///
 /// Nota: el cierre/apertura de la puerta de la arena (ArenaGate) NO se
 /// maneja acá. Vive en BossAI, atado a cada ActivateBoss()/ResetBoss(),
@@ -14,12 +16,14 @@ using UnityEngine;
 /// Setup en escena:
 ///   - Este componente va en un GameObject con un Collider trigger
 ///     que cubra la entrada/interior de la arena.
-///   - Asignar la referencia a BossAI en el inspector.
+///   - Asignar BossAI y ArenaRespawnManager (este último para el teleport
+///     del resto del grupo) en el inspector.
 /// </summary>
 public class ArenaTrigger : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private BossAI bossAI;
+    [SerializeField] private ArenaRespawnManager respawnManager;
 
     [Header("Settings")]
     [Tooltip("Si true, el trigger se desactiva después de activar el boss (evita retriggering)")]
@@ -30,13 +34,30 @@ public class ArenaTrigger : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (hasActivated) return;
         if (!other.CompareTag("Player")) return;
 
         // Usamos el root para evitar múltiples colliders del mismo player
         Transform root = other.transform.root;
         playersInside.Add(root);
 
-        Debug.Log($"[Arena] Entra: {other.name} ({playersInside.Count}/{PlayerRegistry.Players.Count})");
+        Debug.Log($"[Arena] Entra: {other.name} → trayendo al resto del grupo");
+
+        // Nuevo diseño: en vez de esperar a que cada player camine hasta
+        // acá, en cuanto entra el primero traemos a todo el resto.
+        if (respawnManager != null)
+            respawnManager.TeleportPlayersIntoArena(root);
+        else
+            Debug.LogWarning("[Arena] ArenaRespawnManager no asignado — no se puede teletransportar al resto del grupo");
+
+        // Los marcamos como "dentro" directamente: el teleport es networked
+        // y puede tardar uno o más ticks en reflejarse físicamente, así que
+        // no dependemos del OnTriggerEnter de cada uno para confirmarlo.
+        foreach (var player in PlayerRegistry.Players)
+        {
+            if (player != null)
+                playersInside.Add(player);
+        }
 
         CheckAllInside();
     }
