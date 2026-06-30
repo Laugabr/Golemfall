@@ -196,8 +196,9 @@ public class BossAttackHandler : NetworkBehaviour
         weakPointInstance = Runner.Spawn(weakPointPrefab, startPos, Quaternion.identity);
 
         var weakPoint = weakPointInstance.GetComponent<BossWeakPoint>();
-        if (weakPoint != null)
-            weakPoint.Setup(weakPointPositions);
+            if (weakPoint != null){
+                weakPoint.Setup(weakPointPositions);
+                weakPoint.bossHealth = GetComponent<BossHealth>();}
         else
             Debug.LogWarning("[BossAttackHandler] weakPointPrefab sin componente BossWeakPoint");
 

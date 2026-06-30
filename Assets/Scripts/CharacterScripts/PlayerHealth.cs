@@ -9,26 +9,32 @@ public class PlayerHealth : HealthSystem
     [SerializeField] private float timeToRespawn = 5f;
     [SerializeField] private GameObject bodyVisualsGO;
     [SerializeField] private Collider playerCollider;
-
-    /// <summary>
-    /// Referencia al animador networked del personaje.
-    /// Se usa para disparar la animación de recibir daño en todos los peers.
-    /// </summary>
     [SerializeField] private NetCharacterAnimator netAnimator;
 
     [Networked, OnChangedRender(nameof(OnIsDeadChanged))]
     public NetworkBool IsDead { get; private set; }
 
-    /// <summary>
-    /// Flag networked que el ArenaRespawnManager setea en true cuando quiere
-    /// teletransportar al player a un punto dentro de la arena.
-    /// Se lee en FixedUpdateNetwork (tick-accurate) en lugar de Update
-    /// para que el teleport esté sincronizado con la simulación de Fusion.
-    /// </summary>
     [Networked] public NetworkBool NeedsRespawn { get; set; }
 
     [SerializeField] public Vector3 _lastSpawnPoint;
     private SimpleKCC simplekcc;
+
+    [Header("Arena")]
+    [Tooltip("Mientras está en true, Die() NO dispara el respawn individual " +
+             "automático: el player se queda muerto/desactivado. Lo prende/apaga " +
+             "el ArenaRespawnManager al activar/desactivar la pelea contra el boss.")]
+    [SerializeField] private bool arenaFightActive = false;
+
+    public bool IsArenaFightActive => arenaFightActive;
+
+    /// <summary>
+    /// Llamado por ArenaRespawnManager al activar/desactivar la pelea.
+    /// Mientras esté en true, las muertes no auto-respawnean (ver Die()).
+    /// </summary>
+    public void SetArenaFightActive(bool active)
+    {
+        arenaFightActive = active;
+    }
 
     private IEnumerator RespawnRoutine()
     {
@@ -41,10 +47,8 @@ public class PlayerHealth : HealthSystem
         CurrentHealth = MaxHealth;
         IsDead = false;
 
-        // Activa el respawn; FixedUpdateNetwork lo consume en el próximo tick
         NeedsRespawn = true;
     }
-
 
     public override void Spawned()
     {
@@ -69,30 +73,15 @@ public class PlayerHealth : HealthSystem
         SetAlive(true);
     }
 
-    /// <summary>
-    /// Loop principal de red. Solo corre en el host (StateAuthority).
-    /// Acá consumimos NeedsRespawn en lugar de en Update porque:
-    /// - FixedUpdateNetwork es determinista y tick-accurate.
-    /// - Garantiza que el teleport ocurre en el mismo tick en que Fusion
-    ///   ya procesó el cambio de estado del player (muerte, HP, etc).
-    /// - Evita condiciones de carrera entre el sistema de respawn y
-    ///   otras lógicas que lean la posición del player en la misma frame.
-    /// </summary>
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority) return;
         if (!NeedsRespawn) return;
 
-        // Consumimos el flag inmediatamente para que no se ejecute dos veces
         NeedsRespawn = false;
 
-        // Teletransportamos al player a la posición seteada por ArenaRespawnManager
-        // o por el checkpoint normal del mundo (SetLastSpawnPoint).
-        // SimpleKCC.SetPosition es el método correcto para mover el KCC
-        // sin que el motor de física lo corrija en el mismo tick.
         simplekcc.SetPosition(_lastSpawnPoint);
 
-        // Reactivamos visuals y collider por si Die() los desactivó
         bodyVisualsGO?.SetActive(true);
         playerCollider.enabled = true;
 
@@ -130,34 +119,61 @@ public class PlayerHealth : HealthSystem
         Debug.Log($"[SERVER] {gameObject.name} murió.");
         IsDead = true;
 
-        if (Object.HasStateAuthority)
-            StartCoroutine(RespawnRoutine());
+        // En pelea de arena: NO se respawnea solo. Se queda muerto/desactivado
+        // (lo maneja OnIsDeadChanged) hasta que ArenaRespawnManager detecte que
+        // todos murieron y llame ForceRespawn() en cada uno.
+        if (arenaFightActive)
+        {
+            Debug.Log($"[SERVER] {gameObject.name} queda muerto esperando wipe de arena");
+            return;
+        }
+
+        StartCoroutine(RespawnRoutine());
     }
 
     /// <summary>
-    /// Se llama via OnChangedRender cada vez que CurrentHealth cambia.
-    /// Dispara la animación de recibir daño si el jugador está vivo y perdió vida.
-    /// Solo aplica cuando el daño viene del servidor (StateAuthority).
+    /// Llamado por ArenaRespawnManager cuando detecta que TODOS los players
+    /// murieron durante la pelea (wipe). Respawnea a este player de inmediato
+    /// en spawnPoint, sin pasar por el delay de RespawnRoutine() (ese timing
+    ////efecto de wipe ya lo maneja el manager).
     /// </summary>
+    public void ForceRespawn(Vector3 spawnPoint)
+    {
+        if (!Object.HasStateAuthority) return;
+
+        StopAllCoroutines(); // por si había una RespawnRoutine vieja colgada
+
+        _lastSpawnPoint = spawnPoint;
+
+        CurrentHealth = MaxHealth;
+        IsDead = false;
+        NeedsRespawn = true;
+    }
+    /// <summary>
+    /// Teletransporta a un player VIVO a un punto, sin tocar IsDead/CurrentHealth.
+    /// Pensado para el teleport grupal al entrar a la arena (ArenaRespawnManager.
+    /// TeleportPlayersIntoArena), donde el player no murió, solo hay que moverlo.
+    /// Distinto de ForceRespawn(), que sí resetea vida/estado porque asume que
+    /// el player venía muerto esperando el wipe.
+    /// </summary>
+    public void TeleportTo(Vector3 point)
+    {
+        if (!Object.HasStateAuthority) return;
+
+        _lastSpawnPoint = point;
+        NeedsRespawn = true;
+    }
     public override void CurrentHealthChanged()
     {
-    base.CurrentHealthChanged();
+        base.CurrentHealthChanged();
 
-    Debug.Log($"CurrentHealthChanged {Object.HasInputAuthority}");
-
-    if (!IsDead && CurrentHealth < MaxHealth && CurrentHealth > 0)
-    {
-        Debug.Log("Intentando shake");
-
-        netAnimator?.TriggerTakeDamage();
-
-        if (Object.HasInputAuthority)
+        if (!IsDead && CurrentHealth < MaxHealth && CurrentHealth > 0)
         {
-            Debug.Log("Tiene InputAuthority");
+            netAnimator?.TriggerTakeDamage();
 
-            CameraController.Local?.Shake(0.15f, 0.25f);
+            if (Object.HasInputAuthority)
+                CameraController.Local?.Shake(0.15f, 0.25f);
         }
-    }
     }
 
     private void OnIsDeadChanged()
@@ -165,13 +181,19 @@ public class PlayerHealth : HealthSystem
         if (IsDead)
         {
             playerCollider.enabled = false;
-            var kcc = GetComponent<Fusion.Addons.SimpleKCC.SimpleKCC>();
+            var kcc = GetComponent<SimpleKCC>();
             if (kcc != null) kcc.SetGravity(0f);
+
+            // Desactivamos visuals acá también (antes solo lo hacía
+            // RespawnRoutine() al final del timer, pero ahora en arena
+            // el player puede quedarse muerto indefinidamente).
+            if (bodyVisualsGO != null)
+                bodyVisualsGO.SetActive(false);
         }
         else
         {
             SetAlive(true);
-            var kcc = GetComponent<Fusion.Addons.SimpleKCC.SimpleKCC>();
+            var kcc = GetComponent<SimpleKCC>();
             if (kcc != null) kcc.SetGravity(Physics.gravity.y * 3f);
 
             if (Object.HasInputAuthority)

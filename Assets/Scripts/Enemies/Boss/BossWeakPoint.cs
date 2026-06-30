@@ -14,7 +14,7 @@ using UnityEngine;
 /// </summary>
 public class BossWeakPoint : NetworkBehaviour, IDamageable
 {
-    [SerializeField] private BossHealth bossHealth;
+    [SerializeField] public BossHealth bossHealth;
 
     [Header("Movimiento")]
     [Tooltip("Cada cu�nto tiempo (segundos) el weak point cambia de lugar")]
