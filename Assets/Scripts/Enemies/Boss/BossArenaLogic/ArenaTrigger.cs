@@ -5,7 +5,8 @@ using UnityEngine;
 /// Trigger de entrada a la arena del boss.
 /// En cuanto el PRIMER player entra:
 ///   1. Cachea los spawn points actuales de todo el grupo (para el wipe).
-///   2. Activa al boss (BossAI.ActivateBoss() — esto cierra la puerta
+///   2. Teletransporta al resto del grupo adentro de la arena.
+///   3. Activa al boss (BossAI.ActivateBoss() — esto cierra la puerta
 ///      y arranca el tracking de ArenaRespawnManager internamente).
 ///
 /// Setup en escena:
@@ -31,15 +32,21 @@ public class ArenaTrigger : NetworkBehaviour
         if (hasActivated) return;
         if (!other.CompareTag("Player")) return;
 
-        Debug.Log($"[Arena] Entra: {other.name} → activando boss");
+        Transform root = other.transform.root;
 
-        // 1. Cachear los spawn points ANTES de que pase nada
+        Debug.Log($"[Arena] Entra: {other.name} → trayendo al resto del grupo");
+
+        // 1. Cachear los spawn points ANTES de teletransportar
         if (respawnManager != null)
             respawnManager.CacheSpawnPoints();
         else
             Debug.LogWarning("[Arena] ArenaRespawnManager no asignado");
 
-        // 2. Activar el boss (internamente llama ActivateForArena)
+        // 2. Teletransportar al resto del grupo adentro
+        if (respawnManager != null)
+            respawnManager.TeleportPlayersIntoArena(root);
+
+        // 3. Activar el boss (internamente llama ActivateForArena)
         if (bossAI != null)
             bossAI.ActivateBoss();
         else
