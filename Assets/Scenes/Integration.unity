@@ -23389,6 +23389,7 @@ GameObject:
   - component: {fileID: 468121811}
   - component: {fileID: 468121810}
   - component: {fileID: 468121813}
+  - component: {fileID: 468121814}
   m_Layer: 2
   m_Name: SEPARATE FROM BOSS ArenaTrigger
   m_TagString: Untagged
@@ -23436,7 +23437,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bossAI: {fileID: 1561269582}
-  respawnManager: {fileID: 0}
+  respawnManager: {fileID: 1561269586}
   disableAfterActivation: 1
 --- !u!4 &468121812
 Transform:
@@ -23474,6 +23475,25 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 53.2
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &468121814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 468121808}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 2077960954
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 468121811}
+  ForceRemoteRenderTimeframe: 0
 --- !u!1001 &468962340
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -76631,17 +76651,8 @@ PrefabInstance:
       propertyPath: SortKey
       value: 1349173204
       objectReference: {fileID: 0}
-    - target: {fileID: 5877145660600481446, guid: bcb68dc6144e8ae488b472ac6889a3dd, type: 3}
-      propertyPath: NetworkedBehaviours.Array.size
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 6069216331686664743, guid: bcb68dc6144e8ae488b472ac6889a3dd, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 6069216331686664743, guid: bcb68dc6144e8ae488b472ac6889a3dd, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bcb68dc6144e8ae488b472ac6889a3dd, type: 3}
@@ -76654,6 +76665,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fd1865db33922b7409ebbfa329556525, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1561269586 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4050175373825568047, guid: bcb68dc6144e8ae488b472ac6889a3dd, type: 3}
+  m_PrefabInstance: {fileID: 1561269581}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d36d580c35f4f36439f1b3cbd67b4c9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &1563015177
