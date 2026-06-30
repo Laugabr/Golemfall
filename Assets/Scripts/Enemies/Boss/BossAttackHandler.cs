@@ -220,4 +220,17 @@ public class BossAttackHandler : NetworkBehaviour
         }
         return indices;
     }
+    /// <summary>
+    /// Desactiva el weak point existente (deja de moverse, de recibir
+    /// daño, y se oculta). Llamado por BossAI.DisableBoss() cuando el
+    /// boss muere. No hace nada si todavía no se instanció.
+    /// </summary>
+    public void DeactivateWeakPoint()
+    {
+        if (!Object.HasStateAuthority) return;
+        if (weakPointInstance == null) return;
+
+        var weakPoint = weakPointInstance.GetComponent<BossWeakPoint>();
+        weakPoint?.Deactivate();
+    }
 }

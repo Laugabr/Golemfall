@@ -311,7 +311,7 @@ public class BossAI : NetworkBehaviour
     // MUERTE DEL BOSS
     // =============================
 
-    public void DisableBoss()
+public void DisableBoss()
     {
         if (!Object.HasStateAuthority) return;
 
@@ -324,6 +324,10 @@ public class BossAI : NetworkBehaviour
             Runner.Despawn(enemy);
         }
         spawnedEnemies.Clear();
+
+        // Apagamos el weak point: deja de moverse y de recibir daño,
+        // y se oculta en todos los peers.
+        attackHandler.DeactivateWeakPoint();
 
         // Fin de la pelea: dejamos de trackear muertes/respawn de arena...
         if (respawnManager != null)
@@ -360,6 +364,7 @@ public class BossAI : NetworkBehaviour
         else
             Debug.Log("[BossAI] Arena gate spawneada");
     }
+    
 
     void OpenArenaGate()
     {
