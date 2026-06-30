@@ -17,6 +17,13 @@ using System.Collections.Generic;
 ///   - VisionRange: radio desde el enemigo donde detecta al jugador.
 ///   - PatrolRadius: radio desde HomePosition donde patrulla aleatoriamente.
 ///   - ChaseRadius: radio desde HomePosition hasta donde persigue al jugador.
+///
+/// NOTA sobre spawn dinámico (ej: BossAI.SpawnEnemyWave):
+///   Cuando este enemigo se instancia en runtime en una posición arbitraria,
+///   el NavMeshAgent puede no "engancharse" al NavMesh en el mismo frame.
+///   Spawned() ahora usa NavMesh.SamplePosition + Agent.Warp para garantizar
+///   que el agente arranque sobre la malla, y FixedUpdateNetwork reintenta
+///   el enganche si todavía no se logró, en vez de quedar congelado para siempre.
 /// </summary>
 public class EnemyAI : NetworkBehaviour
 {
@@ -54,7 +61,12 @@ public class EnemyAI : NetworkBehaviour
     [Header("Patrol")]
     [SerializeField] private float _patrolWaitTime = 2f;
 
-    // Propiedades públicas de solo lectura para los nodos del behaviour tree
+    [Header("NavMesh Snap (spawn dinámico)")]
+    [Tooltip("Radio de búsqueda para encontrar NavMesh cerca del punto de spawn")]
+    [SerializeField] private float navMeshSnapRadius = 3f;
+    [Tooltip("Cuántos ticks reintenta engancharse al NavMesh antes de avisar en consola")]
+    [SerializeField] private int navMeshRetryWarningTicks = 60;
+
     public float PatrolSpeed => _patrolSpeed;
     public float PatrolRadius => _patrolRadius;
     public float ChaseRadius => _chaseRadius;
@@ -69,7 +81,6 @@ public class EnemyAI : NetworkBehaviour
     public bool HasTarget => _hasTarget;
     public bool IsInAttackAnimation { get; set; }
 
-    // Posición inicial del enemigo al spawnear, usada como centro del territorio
     public Vector3 HomePosition { get; private set; }
 
     private Node rootNode;
@@ -78,20 +89,16 @@ public class EnemyAI : NetworkBehaviour
     private PatrolNode _patrolNode;
     private Vector3 _lastMoveDirection;
 
-    /// <summary>
-    /// Verifica si el enemigo puede atacar consultando el AbilityHolder.
-    /// El cooldown lo maneja el ScriptableObject de la habilidad, no el EnemyAI.
-    /// </summary>
+    // Contador de ticks esperando engancharse al NavMesh (spawn dinámico)
+    private int _navMeshRetryTicks = 0;
+    private bool _navMeshWarningLogged = false;
+
     public bool CanAttack()
     {
         if (_abilityHolder == null) return false;
         return _abilityHolder.IsReady(0);
     }
 
-    /// <summary>
-    /// Ya no necesita registrar nada, AbilityHolder maneja el cooldown automáticamente.
-    /// Se mantiene para no romper los nodos que la llaman.
-    /// </summary>
     public void RegisterAttack() { }
 
     private void Awake()
@@ -111,12 +118,10 @@ public class EnemyAI : NetworkBehaviour
 
     public override void Spawned()
     {
-        // Guardamos la posición inicial como centro del territorio del enemigo
         HomePosition = transform.position;
 
         if (!Object.HasStateAuthority)
         {
-            // Los clientes no corren la IA, solo reciben la posición replicada
             _agent.enabled = false;
             return;
         }
@@ -124,13 +129,60 @@ public class EnemyAI : NetworkBehaviour
         _agent.enabled = true;
         _agent.speed = _patrolSpeed;
         _agent.autoBraking = false;
+
+        // Intentamos enganchar el agente al NavMesh inmediatamente.
+        // Si el punto de spawn no está exactamente sobre la malla (común con
+        // spawn dinámico desde puntos colocados a mano), esto lo corrige.
+        TrySnapToNavMesh();
+
         BuildTree();
+    }
+
+    /// <summary>
+    /// Busca el punto de NavMesh más cercano dentro de navMeshSnapRadius
+    /// y mueve el agente ahí con Warp (que no respeta colisiones físicas,
+    /// ideal para el primer posicionamiento).
+    /// Devuelve true si logró engancharse.
+    /// </summary>
+    bool TrySnapToNavMesh()
+    {
+        if (_agent.isOnNavMesh) return true;
+
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, navMeshSnapRadius, NavMesh.AllAreas))
+        {
+            _agent.Warp(hit.position);
+            transform.position = hit.position;
+            return _agent.isOnNavMesh;
+        }
+
+        return false;
     }
 
     public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority) return;
-        if (!_agent.isOnNavMesh) return;
+
+        // Si todavía no está enganchado al NavMesh (puede pasar el primer
+        // tick tras un spawn dinámico), reintentamos en vez de cortar para
+        // siempre. Esto resuelve el caso de enemigos spawneados por BossAI
+        // que quedaban congelados sin moverse ni atacar.
+        if (!_agent.isOnNavMesh)
+        {
+            _navMeshRetryTicks++;
+
+            if (!TrySnapToNavMesh())
+            {
+                if (_navMeshRetryTicks == navMeshRetryWarningTicks && !_navMeshWarningLogged)
+                {
+                    _navMeshWarningLogged = true;
+                    Debug.LogWarning(
+                        $"[EnemyAI] '{name}' no logra engancharse al NavMesh tras {_navMeshRetryTicks} ticks. " +
+                        $"Verificá que el punto de spawn ({transform.position}) esté sobre el NavMesh bakeado " +
+                        $"(radio de búsqueda actual: {navMeshSnapRadius}m).");
+                }
+                return;
+            }
+        }
 
         UpdateTarget();
 
@@ -141,13 +193,12 @@ public class EnemyAI : NetworkBehaviour
 
         _wasHavingTarget = _hasTarget;
 
-        // La velocidad se controla en un solo lugar según el estado actual
         if (_hasTarget)
             _agent.speed = _chaseSpeed;
         else if (Vector3.Distance(transform.position, HomePosition) > _patrolRadius * 1.5f)
-            _agent.speed = _returnSpeed;  // volviendo a casa
+            _agent.speed = _returnSpeed;
         else
-            _agent.speed = _patrolSpeed;  // patrullando normal
+            _agent.speed = _patrolSpeed;
 
         rootNode?.Evaluate();
 
@@ -238,8 +289,6 @@ public class EnemyAI : NetworkBehaviour
     /// </summary>
     void UpdateTarget()
     {
-        if (NetworkController.Instance == null) return;
-
         if (CurrentTarget != null)
         {
             var health = CurrentTarget.GetComponent<PlayerHealth>();
@@ -257,19 +306,18 @@ public class EnemyAI : NetworkBehaviour
         float minDist = float.MaxValue;
         Transform closest = null;
 
-        foreach (var kvp in NetworkController.Instance._players)
+        foreach (var playerTransform in PlayerRegistry.Players)
         {
-            var playerObj = kvp.Value;
-            if (playerObj == null) continue;
+            if (playerTransform == null) continue;
 
-            var health = playerObj.GetComponent<PlayerHealth>();
+            var health = playerTransform.GetComponent<PlayerHealth>();
             if (health != null && health.IsDead) continue;
 
-            float dist = Vector3.Distance(transform.position, playerObj.transform.position);
+            float dist = Vector3.Distance(transform.position, playerTransform.position);
             if (dist < minDist && dist <= _visionRange)
             {
                 minDist = dist;
-                closest = playerObj.transform;
+                closest = playerTransform;
             }
         }
 
@@ -357,5 +405,10 @@ public class EnemyAI : NetworkBehaviour
 
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, _attackRange);
+
+        // Radio de snap al NavMesh — útil para verificar si un punto de spawn
+        // queda dentro de alcance de la malla
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, navMeshSnapRadius);
     }
 }
