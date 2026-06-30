@@ -114,6 +114,12 @@ public class ArenaRespawnManager : NetworkBehaviour
 
         if (!Object.HasStateAuthority) yield break;
 
+        // Wipe total → reabrimos la arena. Open() es idempotente: si el
+        // boss murió casi al mismo tiempo (DisableBoss también la abre),
+        // el segundo Open() no hace nada, no hay riesgo de pisarse.
+        if (bossAI != null)
+            bossAI.RequestOpenArenaGate();
+
         // 1. Resetear el boss
         bossHealth?.ResetBoss();
 

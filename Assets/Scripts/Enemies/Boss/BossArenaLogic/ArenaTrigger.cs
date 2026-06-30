@@ -6,6 +6,11 @@ using UnityEngine;
 /// Cuando todos los players registrados en PlayerRegistry están dentro,
 /// activa el BossAI directamente.
 ///
+/// Nota: el cierre/apertura de la puerta de la arena (ArenaGate) NO se
+/// maneja acá. Vive en BossAI, atado a cada ActivateBoss()/ResetBoss(),
+/// para que se cierre tanto en la primera activación como en cada
+/// reintento tras un wipe — este trigger solo dispara una vez.
+///
 /// Setup en escena:
 ///   - Este componente va en un GameObject con un Collider trigger
 ///     que cubra la entrada/interior de la arena.

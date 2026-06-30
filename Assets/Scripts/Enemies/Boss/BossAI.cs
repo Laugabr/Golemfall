@@ -34,6 +34,17 @@ public class BossAI : NetworkBehaviour
     [Header("Phase Threshold")]
     [SerializeField] private float phase2HealthThreshold = 0.5f;
 
+    [Header("Arena Gate")]
+    [Tooltip("Prefab (NetworkObject) de la puerta/barrera de la arena")]
+    [SerializeField] private NetworkObject arenaGatePrefab;
+    [Tooltip("Dónde spawnear la puerta. Si se deja vacío, se usa la posición del propio boss")]
+    [SerializeField] private Transform arenaGateSpawnPoint;
+
+    // Instancia única del prefab. Se spawnea una sola vez (lazy, en la
+    // primera vez que se necesita abrir/cerrar) y se reutiliza siempre.
+    private NetworkObject arenaGateInstance;
+    private ArenaGate arenaGate;
+
     [Networked] private bool isActive { get; set; }
     [Networked] private int currentPhase { get; set; }
 
@@ -57,6 +68,10 @@ public class BossAI : NetworkBehaviour
 
         currentPhase = 1;
         isActive = false;
+
+        // La puerta existe desde el arranque, abierta (estado default),
+        // para que los players puedan entrar a la arena la primera vez.
+        InitializeArenaGate();
 
         Debug.Log("[BossAI] Spawned — esperando activación");
     }
@@ -173,6 +188,9 @@ public class BossAI : NetworkBehaviour
         // Spawnear el weak point (una sola vez) con sus puntos posibles
         attackHandler.InitializeWeakPoint();
 
+        // Cerrar la puerta de la arena en cada activación del boss
+        CloseArenaGate();
+
         // Notificar al manager para que empiece a trackear los players
         if (respawnManager != null)
             respawnManager.ActivateForArena();
@@ -211,6 +229,12 @@ public class BossAI : NetworkBehaviour
         // No vuelve a spawnear nada (ya existe), pero por si ResetBoss()
         // se llamara antes de una ActivateBoss() previa, lo cubrimos igual.
         attackHandler.InitializeWeakPoint();
+
+        // ArenaRespawnManager abre la puerta brevemente al detectar el wipe
+        // (ver ResetFightRoutine); acá, al reactivar al boss, la volvemos
+        // a cerrar — así queda cerrada mientras la pelea esté en curso,
+        // sea la primera vez o un reintento.
+        CloseArenaGate();
 
         Debug.Log("[BossAI] Boss reseteado — vuelve a fase 1");
     }
@@ -301,9 +325,62 @@ public class BossAI : NetworkBehaviour
         }
         spawnedEnemies.Clear();
 
+        // Fin de la pelea: dejamos de trackear muertes/respawn de arena...
+        if (respawnManager != null)
+            respawnManager.DeactivateArena();
+
+        // ...y reabrimos la puerta. Open() es idempotente (no hace nada si
+        // ya estaba abierta), así que no hay problema si en paralelo
+        // ArenaRespawnManager también intenta abrirla por un wipe casi
+        // simultáneo: el segundo Open() simplemente no hace nada.
+        OpenArenaGate();
+
         enabled = false;
         Debug.Log("[BossAI] DESACTIVADO");
     }
+
+    void InitializeArenaGate()
+    {
+        if (!Object.HasStateAuthority) return;
+        if (arenaGateInstance != null) return;
+        if (arenaGatePrefab == null)
+        {
+            Debug.LogWarning("[BossAI] arenaGatePrefab no asignado");
+            return;
+        }
+
+        Vector3 pos = arenaGateSpawnPoint != null ? arenaGateSpawnPoint.position : transform.position;
+        Quaternion rot = arenaGateSpawnPoint != null ? arenaGateSpawnPoint.rotation : Quaternion.identity;
+
+        arenaGateInstance = Runner.Spawn(arenaGatePrefab, pos, rot);
+        arenaGate = arenaGateInstance.GetComponent<ArenaGate>();
+
+        if (arenaGate == null)
+            Debug.LogWarning("[BossAI] arenaGatePrefab no tiene componente ArenaGate");
+        else
+            Debug.Log("[BossAI] Arena gate spawneada");
+    }
+
+    void OpenArenaGate()
+    {
+        InitializeArenaGate();
+        if (arenaGate != null)
+            arenaGate.Open();
+    }
+
+    void CloseArenaGate()
+    {
+        InitializeArenaGate();
+        if (arenaGate != null)
+            arenaGate.Close();
+    }
+
+    /// <summary>
+    /// Punto de entrada público para que otros sistemas (ej. ArenaRespawnManager
+    /// en un wipe) puedan abrir la puerta sin tener su propia referencia al
+    /// prefab/instancia — todo el ciclo de vida de la gate vive acá.
+    /// </summary>
+    public void RequestOpenArenaGate() => OpenArenaGate();
 
     // =============================
     // UTILIDAD
