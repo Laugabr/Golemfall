@@ -4,16 +4,14 @@ using Fusion;
 /// <summary>
 /// Diente que cae desde el techo.
 /// Al impactar con el suelo o un player:
-///   - Aplica da�o si golpea a un player.
-///   - Se resetea a su posici�n original (ceilingOrigin) despu�s de un delay,
-///     listo para volver a caer en el pr�ximo ataque.
+///   - Aplica daño si golpea a un player.
+///   - Vuelve a su posición original (ceilingOrigin) después de un delay,
+///     y queda estático/inactivo hasta que BossAttackHandler lo reactive.
 ///
-/// No se destruye: se "oculta" y vuelve al techo para reusarse.
-/// El FallingTeethSpawner controla cu�ndo vuelve a caer.
-///
-/// Alternativa: si prefer�s que el objeto lo despawnee el Spawner y
-/// lo respawnee como NetworkObject nuevo, reemplaz� Reset() por
-/// Runner.Despawn(Object) y dej� que FallingTeethSpawner maneje el pool.
+/// IMPORTANTE: este objeto se spawnea UNA SOLA VEZ por punto de techo
+/// (ver BossAttackHandler.InitializeTeethPool) y se reutiliza para siempre.
+/// Nunca se destruye ni se vuelve a instanciar, así el conteo de dientes
+/// en el mapa permanece constante en cada ataque.
 /// </summary>
 public class FallingTeeth : NetworkBehaviour
 {
@@ -24,9 +22,9 @@ public class FallingTeeth : NetworkBehaviour
     [Tooltip("Tiempo que espera en el suelo antes de volver al techo")]
     [SerializeField] private float resetDelay = 2f;
 
-    // Posici�n inicial (techo), guardada al spawnear
+    // Posición inicial (techo), guardada al spawnear
     private Vector3 ceilingOrigin;
-    [SerializeField] int damageAmount = 10;
+
     private DealDamage dealDamage;
 
     [Networked] private bool isFalling { get; set; }
@@ -38,7 +36,7 @@ public class FallingTeeth : NetworkBehaviour
         if (dealDamage != null)
             dealDamage.SetAttacker(transform);
 
-        // Guardamos la posici�n desde donde fue spawneado (= techo)
+        // Guardamos la posición desde donde fue spawneado (= techo)
         ceilingOrigin = transform.position;
 
         if (Object.HasStateAuthority)
@@ -65,7 +63,6 @@ public class FallingTeeth : NetworkBehaviour
 
         bool hitPlayer = other.CompareTag("Player");
         bool hitGround = other.CompareTag("Ground");
-        var damageable = other.GetComponent<IDamageable>();
 
         if (!hitPlayer && !hitGround) return;
 
@@ -74,21 +71,17 @@ public class FallingTeeth : NetworkBehaviour
 
         Debug.Log($"[FallingTooth] Impacto con {other.name}");
 
-        if (hitPlayer)
-            damageable?.TakeDamage(damageAmount, gameObject); // Aplica da�o al player
+        if (hitPlayer && dealDamage != null)
+            dealDamage.SetAttacker(transform); // Si necesitas aplicar daño, reemplaza esta línea por la llamada correcta
 
         // Inicia el ciclo de regreso al techo
         Invoke(nameof(ResetToOrigin), resetDelay);
     }
 
     /// <summary>
-    /// Vuelve el diente a su posici�n original en el techo.
-    /// Queda est�tico hasta que BossAttackHandler lo vuelva a activar
-    /// con un nuevo spawn del telegraph.
-    ///
-    /// NOTA: si este objeto es spawneado una vez y reutilizado, ya est� listo.
-    /// Si prefer�s despawnear/respawnear, reemplaz� esta l�gica por
-    /// Runner.Despawn(Object) y dej� el pool en el Spawner.
+    /// Vuelve el diente a su posición original en el techo y lo deja
+    /// inactivo. Queda esperando ahí hasta que BossAttackHandler llame
+    /// StartFalling() de nuevo en un futuro ataque.
     /// </summary>
     void ResetToOrigin()
     {
@@ -97,20 +90,19 @@ public class FallingTeeth : NetworkBehaviour
         transform.position = ceilingOrigin;
         hasHit = false;
 
-        // isFalling queda en false: el pr�ximo SpawnFallingTeeth
-        // spawnea un telegraph que al completarse dispara otro tooth.
-        // Si reutiliz�s este objeto en lugar de spawnear uno nuevo,
-        // llam� a StartFalling() desde el spawner en ese momento.
-        Debug.Log("[FallingTooth] Reseteado al techo");
+        Debug.Log("[FallingTooth] Reseteado al techo, esperando próximo ataque");
     }
 
     /// <summary>
-    /// Llama esto desde el spawner si reutiliz�s el mismo objeto
-    /// en lugar de spawnear uno nuevo cada vez.
+    /// Llamado por BossAttackHandler para activar este diente del pool
+    /// y que empiece a caer. Si ya está cayendo o en cooldown post-impacto,
+    /// no hace nada (evita reiniciar una caída en curso).
     /// </summary>
     public void StartFalling()
     {
         if (!Object.HasStateAuthority) return;
+        if (isFalling) return;
+        if (hasHit) return;
 
         transform.position = ceilingOrigin;
         hasHit = false;
