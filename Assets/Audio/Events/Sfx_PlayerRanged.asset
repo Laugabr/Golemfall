@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4510da6fd8a29c40be2075a903d567e, type: 3}
   m_Name: Sfx_PlayerRanged
   m_EditorClassIdentifier: 
-  clips: []
+  clips:
+  - {fileID: 8300000, guid: 6e00d3a7426214f43a3da82cdfc75362, type: 3}
   volume: 1
   pitchMin: 1
   pitchMax: 1
   loop: 0
   is3D: 1
   maxDistance: 25
-  mixerGroup: {fileID: 0}
+  mixerGroup: {fileID: -310158625271403409, guid: e59c7a5ffc26ca74695bd57bf635bb63, type: 2}

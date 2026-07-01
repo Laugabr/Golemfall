@@ -12,11 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4510da6fd8a29c40be2075a903d567e, type: 3}
   m_Name: Sfx_Footstep
   m_EditorClassIdentifier: 
-  clips: []
+  clips:
+  - {fileID: 8300000, guid: dc5ce5232dfe8504ba1aa31493b5c5f4, type: 3}
+  - {fileID: 8300000, guid: 23982cc598805964c84cbcd9bb51bc54, type: 3}
+  - {fileID: 8300000, guid: 8f44504af5436cd4faabf863f1113e63, type: 3}
   volume: 1
-  pitchMin: 1
-  pitchMax: 1
+  pitchMin: 0.95
+  pitchMax: 1.05
   loop: 0
   is3D: 1
   maxDistance: 25
-  mixerGroup: {fileID: 0}
+  mixerGroup: {fileID: -310158625271403409, guid: e59c7a5ffc26ca74695bd57bf635bb63, type: 2}
