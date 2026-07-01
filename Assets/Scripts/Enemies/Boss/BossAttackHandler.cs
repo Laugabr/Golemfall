@@ -165,11 +165,10 @@ public class BossAttackHandler : NetworkBehaviour
 
             float speed = fallSpeed;
 
-            if (tooth != null)
-            {
-                tooth.SetFallSpeed(speed);
-                tooth.StartFalling();
-            }
+
+            tooth.SetFallSpeed(speed);
+            tooth.StartFalling();
+            
 
 
             yield return new WaitForSeconds(Random.Range(delayBetween, delayBetween * 2f));
