@@ -66,7 +66,7 @@ public class FallingTeeth : NetworkBehaviour
             Debug.Log("[FallingTooth] Hit player");
             other.GetComponent<IDamageable>()?.TakeDamage(damageAmount, gameObject);
         }
-        else
+        else if(hitGround)
         {
             Debug.Log("[FallingTooth] Hit suelo");
         }
