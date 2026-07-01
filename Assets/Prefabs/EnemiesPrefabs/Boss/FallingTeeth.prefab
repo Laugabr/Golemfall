@@ -72,6 +72,7 @@ MonoBehaviour:
   fallSpeed: 10
   resetDelay: 2
   damageAmount: 30
+  visualsRoot: {fileID: 6378009787663364648}
 --- !u!136 &2184844377861852035
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -120,7 +121,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2932198764634517812}
   serializedVersion: 4
-  m_Mass: 0.0000001
+  m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -135,9 +136,9 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 80
+  m_Constraints: 64
   m_CollisionDetection: 0
 --- !u!1001 &6071511789717065593
 PrefabInstance:
@@ -207,5 +208,10 @@ PrefabInstance:
 --- !u!4 &6037337742538696850 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d258f63936fe5f74a8fc0ab8938a643d, type: 3}
+  m_PrefabInstance: {fileID: 6071511789717065593}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &6378009787663364648 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: d258f63936fe5f74a8fc0ab8938a643d, type: 3}
   m_PrefabInstance: {fileID: 6071511789717065593}
   m_PrefabAsset: {fileID: 0}

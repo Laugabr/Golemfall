@@ -39,13 +39,14 @@ public class FallingTeeth : NetworkBehaviour
         }
     }
 
-    public override void FixedUpdateNetwork()
+        public override void FixedUpdateNetwork()
     {
         if (!Object.HasStateAuthority) return;
         if (!isFalling) return;
         if (hasHit) return;
 
         transform.position += Vector3.down * fallSpeed * Runner.DeltaTime;
+        Debug.Log($"[FallingTooth] Cayendo, nueva pos Y: {transform.position.y}, speed: {fallSpeed}");
     }
 
     private void OnTriggerEnter(Collider other)
@@ -91,9 +92,11 @@ public class FallingTeeth : NetworkBehaviour
 
     public void StartFalling()
     {
-        if (!Object.HasStateAuthority) return;
-        if (isFalling) return;
-        if (hasHit) return;
+    Debug.Log($"[FallingTooth] StartFalling() llamado en {gameObject.name} — HasStateAuthority: {Object.HasStateAuthority}, isFalling: {isFalling}, hasHit: {hasHit}");
+
+    if (!Object.HasStateAuthority) return;
+    if (isFalling) return;
+    if (hasHit) return;
 
         visualsRoot.SetActive(true); // Mostrar visuales mientras está en el techo
 
