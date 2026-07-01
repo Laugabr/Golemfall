@@ -63,15 +63,13 @@ public class BossWeakPoint : NetworkBehaviour, IDamageable
 
         if (!Object.HasStateAuthority) return;
 
-        IsActive = true;
-
         if (weakPointPositions == null || weakPointPositions.Length == 0)
         {
             Debug.LogWarning("[WeakPoint] Setup() llamado sin puntos asignados");
             return;
         }
 
-        MoveToRandomPoint();
+        Activate();
     }
 
     public override void FixedUpdateNetwork()
@@ -151,10 +149,9 @@ public class BossWeakPoint : NetworkBehaviour, IDamageable
     /// Reactiva el weak point para una nueva pelea (ej. si el boss
     /// se puede re-pelear desde cero). Vuelve a elegir un punto al azar.
     /// </summary>
-    public void Reactivate()
+    public void Activate()
     {
         if (!Object.HasStateAuthority) return;
-        if (IsActive) return;
         if (weakPointPositions == null || weakPointPositions.Length == 0) return;
 
         IsActive = true;

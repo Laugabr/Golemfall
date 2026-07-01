@@ -176,22 +176,26 @@ public class BossAI : NetworkBehaviour
     // ACTIVACIÓN
     // =============================
 
-    public void ActivateBoss()
+        public void ActivateBoss()
     {
         if (!Object.HasStateAuthority) return;
         if (isActive) return;
 
+        currentPhase = 1;
+        attacksSinceLastWave = 0;
+        nextAttackTime = 0f;
+
+        aggroTable.Clear();
+
         isActive = true;
+
         RegisterAllPlayers();
         ScheduleNextAttack();
 
-        // Spawnear el weak point (una sola vez) con sus puntos posibles
         attackHandler.InitializeWeakPoint();
 
-        // Cerrar la puerta de la arena en cada activación del boss
         CloseArenaGate();
 
-        // Notificar al manager para que empiece a trackear los players
         if (respawnManager != null)
             respawnManager.ActivateForArena();
 
@@ -402,4 +406,33 @@ public void DisableBoss()
         }
         return indices;
     }
+public void DeactivateAfterWipe()
+{
+    if (!Object.HasStateAuthority) return;
+
+    isActive = false;
+    currentPhase = 1;
+    attacksSinceLastWave = 0;
+    nextAttackTime = 0f;
+
+    CurrentTarget = null;
+    aggroTable.Clear();
+
+    // Despawnear enemigos de las oleadas
+    foreach (var enemy in spawnedEnemies)
+    {
+        if (enemy == null || !enemy.IsValid) continue;
+        Runner.Despawn(enemy);
+    }
+
+    spawnedEnemies.Clear();
+
+    // Apagar weak point
+    attackHandler?.DeactivateWeakPoint();
+
+    // Abrir la puerta
+    OpenArenaGate();
+
+    Debug.Log("[BossAI] Pelea cancelada por wipe. Esperando que vuelvan a entrar.");
+}
 }

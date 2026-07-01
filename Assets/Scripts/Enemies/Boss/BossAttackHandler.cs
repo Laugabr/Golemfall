@@ -177,33 +177,52 @@ public class BossAttackHandler : NetworkBehaviour
     /// dientes) y le pasa los puntos del mapa entre los que puede moverse.
     /// Llamar al activar/resetear el boss. Si ya existe, no hace nada.
     /// </summary>
-    public void InitializeWeakPoint()
+public void InitializeWeakPoint()
+{
+    if (!Object.HasStateAuthority) return;
+
+    // Si ya existe simplemente lo reactivamos
+    if (weakPointInstance != null)
     {
-        if (!Object.HasStateAuthority) return;
-        if (weakPointInstance != null) return;
-        if (weakPointPrefab == null)
-        {
-            Debug.LogWarning("[BossAttackHandler] weakPointPrefab no asignado");
-            return;
-        }
-        if (weakPointPositions == null || weakPointPositions.Length == 0)
-        {
-            Debug.LogWarning("[BossAttackHandler] weakPointPositions vacío");
-            return;
-        }
-
-        Vector3 startPos = weakPointPositions[0].position;
-        weakPointInstance = Runner.Spawn(weakPointPrefab, startPos, Quaternion.identity);
-
-        var weakPoint = weakPointInstance.GetComponent<BossWeakPoint>();
-            if (weakPoint != null){
-                weakPoint.Setup(weakPointPositions);
-                weakPoint.bossHealth = GetComponent<BossHealth>();}
-        else
-            Debug.LogWarning("[BossAttackHandler] weakPointPrefab sin componente BossWeakPoint");
-
-        Debug.Log($"[BossAttackHandler] Weak point inicializado con {weakPointPositions.Length} puntos posibles");
+        var existing = weakPointInstance.GetComponent<BossWeakPoint>();
+        existing?.Activate();
+        return;
     }
+
+    if (weakPointPrefab == null)
+    {
+        Debug.LogWarning("[BossAttackHandler] weakPointPrefab no asignado");
+        return;
+    }
+
+    if (weakPointPositions == null || weakPointPositions.Length == 0)
+    {
+        Debug.LogWarning("[BossAttackHandler] weakPointPositions vacío");
+        return;
+    }
+
+    Vector3 startPos = weakPointPositions[0].position;
+
+    weakPointInstance = Runner.Spawn(
+        weakPointPrefab,
+        startPos,
+        Quaternion.identity);
+
+    var weakPoint = weakPointInstance.GetComponent<BossWeakPoint>();
+
+    if (weakPoint != null)
+    {
+        weakPoint.Setup(weakPointPositions);
+        weakPoint.bossHealth = GetComponent<BossHealth>();
+        weakPoint.Activate();
+    }
+    else
+    {
+        Debug.LogWarning("[BossAttackHandler] weakPointPrefab sin componente BossWeakPoint");
+    }
+
+    Debug.Log("[BossAttackHandler] WeakPoint inicializado");
+}
 
     // =============================
     // UTILIDAD
@@ -231,6 +250,16 @@ public class BossAttackHandler : NetworkBehaviour
         if (weakPointInstance == null) return;
 
         var weakPoint = weakPointInstance.GetComponent<BossWeakPoint>();
-        weakPoint?.Deactivate();
+        if (weakPoint != null)
+            weakPoint.Deactivate();
     }
+    public void ReactivateWeakPoint()
+{
+    if (!Object.HasStateAuthority) return;
+    if (weakPointInstance == null) return;
+
+    var weakPoint = weakPointInstance.GetComponent<BossWeakPoint>();
+    if (weakPoint != null)
+        weakPoint.Activate();
+}
 }

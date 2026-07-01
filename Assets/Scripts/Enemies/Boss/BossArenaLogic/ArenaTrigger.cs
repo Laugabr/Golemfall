@@ -1,30 +1,23 @@
 ﻿using Fusion;
 using UnityEngine;
 
-/// <summary>
-/// Trigger de entrada a la arena del boss.
-/// En cuanto el PRIMER player entra:
-///   1. Cachea los spawn points actuales de todo el grupo (para el wipe).
-///   2. Teletransporta al resto del grupo adentro de la arena.
-///   3. Activa al boss (BossAI.ActivateBoss() — esto cierra la puerta
-///      y arranca el tracking de ArenaRespawnManager internamente).
-///
-/// Setup en escena:
-///   - Este componente va en un GameObject con un Collider trigger
-///     en la entrada/interior de la arena, y un NetworkObject.
-///   - Asignar BossAI y ArenaRespawnManager en el inspector.
-/// </summary>
 public class ArenaTrigger : NetworkBehaviour
 {
     [Header("References")]
     [SerializeField] private BossAI bossAI;
     [SerializeField] private ArenaRespawnManager respawnManager;
 
-    [Header("Settings")]
-    [Tooltip("Si true, el trigger se desactiva después de activar el boss (evita retriggering)")]
-    [SerializeField] private bool disableAfterActivation = true;
-
     private bool hasActivated = false;
+
+    private void Update()
+    {
+        // Si el boss ya no está activo (murió o hubo wipe),
+        // permitimos volver a activar el trigger.
+        if (hasActivated && bossAI != null && !bossAI.IsActive)
+        {
+            hasActivated = false;
+        }
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -32,29 +25,19 @@ public class ArenaTrigger : NetworkBehaviour
         if (hasActivated) return;
         if (!other.CompareTag("Player")) return;
 
+        hasActivated = true;
+
         Transform root = other.transform.root;
 
         Debug.Log($"[Arena] Entra: {other.name} → trayendo al resto del grupo");
 
-        // 1. Cachear los spawn points ANTES de teletransportar
-        if (respawnManager != null)
-            respawnManager.CacheSpawnPoints();
-        else
-            Debug.LogWarning("[Arena] ArenaRespawnManager no asignado");
+        // Cachear spawnpoints antes de moverlos
+        respawnManager?.CacheSpawnPoints();
 
-        // 2. Teletransportar al resto del grupo adentro
-        if (respawnManager != null)
-            respawnManager.TeleportPlayersIntoArena(root);
+        // Teletransportar al resto del grupo
+        respawnManager?.TeleportPlayersIntoArena(root);
 
-        // 3. Activar el boss (internamente llama ActivateForArena)
-        if (bossAI != null)
-            bossAI.ActivateBoss();
-        else
-            Debug.LogError("[Arena] BossAI no asignado en el inspector");
-
-        hasActivated = true;
-
-        if (disableAfterActivation)
-            gameObject.SetActive(false);
+        // Activar nuevamente la pelea
+        bossAI?.ActivateBoss();
     }
 }

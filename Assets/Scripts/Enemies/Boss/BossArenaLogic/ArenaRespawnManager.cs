@@ -200,12 +200,10 @@ public class ArenaRespawnManager : NetworkBehaviour
 
         if (!Object.HasStateAuthority) yield break;
 
-        // Wipe total → reabrimos la arena
         if (bossAI != null)
-            bossAI.RequestOpenArenaGate();
-
-        // 1. Resetear el boss
-        bossHealth?.ResetBoss();
+        {
+            bossAI.DeactivateAfterWipe();
+        }
 
         // 2. Revivir + teletransportar a todos los players a su punto de
         //    ANTES de entrar a la arena (cacheado en CacheSpawnPoints).
@@ -222,9 +220,22 @@ public class ArenaRespawnManager : NetworkBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
+        // Apagar el modo arena de todos los players
+        foreach (var health in trackedPlayers)
+        {
+            if (health == null) continue;
+            health.SetArenaFightActive(false);
+        }
+
+        // La pelea terminó.
+        // El trigger volverá a iniciar todo cuando alguien entre otra vez.
+        isActive = false;
         isResetting = false;
 
-        Debug.Log("[ArenaRespawn] Pelea reseteada");
+        trackedPlayers.Clear();
+        originalSpawnPoints.Clear();
+
+        Debug.Log("[ArenaRespawn] Wipe completo. Esperando que vuelvan a entrar.");
     }
 
     // =============================
@@ -239,8 +250,9 @@ public class ArenaRespawnManager : NetworkBehaviour
     public void DeactivateArena()
     {
         if (!Object.HasStateAuthority) return;
-        if (isResetting) return; // guard: si está reseteando la pelea, no interfieran
+                StopAllCoroutines();
 
+        if (isResetting) return; // guard: si está reseteando la pelea, no interfieran
         // Revivir cualquier player que quedó muerto esperando el wipe.
         foreach (var health in trackedPlayers)
         {

@@ -25,16 +25,14 @@ namespace Game.CameraSystem
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
+
                 shakeOffset = Random.insideUnitSphere * intensity;
+
                 yield return null;
             }
 
-            // ANTES (bug): esto mueve la cámara DESPUÉS de que termina el shake
-            // shakeOffset = (transform.right * Random.Range(-1f,1f) +
-            //    transform.up * Random.Range(-1f,1f)) * intensity;
-            
-            // CORRECTO: resetea el offset y listo
-            shakeOffset = Vector3.zero;
+            shakeOffset = (transform.right * Random.Range(-1f,1f) +
+               transform.up * Random.Range(-1f,1f)) * intensity;
             shakeRoutine = null;
         }
     }
