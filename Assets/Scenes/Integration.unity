@@ -23438,7 +23438,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bossAI: {fileID: 1561269582}
   respawnManager: {fileID: 1561269586}
-  disableAfterActivation: 1
 --- !u!4 &468121812
 Transform:
   m_ObjectHideFlags: 0
@@ -103282,15 +103281,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4881478733651182327, guid: 5ee94982ebef2c842acd071f43edd4fd, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -75
+      value: -528.4
       objectReference: {fileID: 0}
     - target: {fileID: 4881478733651182327, guid: 5ee94982ebef2c842acd071f43edd4fd, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -5
+      value: -22.6
       objectReference: {fileID: 0}
     - target: {fileID: 4881478733651182327, guid: 5ee94982ebef2c842acd071f43edd4fd, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -25
+      value: 447.7
       objectReference: {fileID: 0}
     - target: {fileID: 4881478733651182327, guid: 5ee94982ebef2c842acd071f43edd4fd, type: 3}
       propertyPath: m_LocalRotation.w
