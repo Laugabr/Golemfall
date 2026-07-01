@@ -19,6 +19,10 @@ public class NetworkVFXManager : NetworkBehaviour
     [SerializeField] private GameObject projectileHitTargetVFX;
     [SerializeField] private GameObject enemyProjectileCollisionVFX;
 
+    [Header("SFX de proyectil")]
+    [Tooltip("Sonido de explosión/impacto del proyectil. Suena en todos los peers.")]
+    [SerializeField] private SoundEvent projectileExplosionSound;
+
     [Header("VFX de destructibles")]
     [Tooltip("VFX que se muestra cuando se rompe una flor u objeto destructible.")]
     [SerializeField] private GameObject destructibleBreakVFX;
@@ -40,6 +44,8 @@ public class NetworkVFXManager : NetworkBehaviour
     {
         Quaternion rot = hitDirection != Vector3.zero ?
             Quaternion.LookRotation(-hitDirection) : Quaternion.identity;
+        // SFX de explosión: suena siempre que el proyectil impacta, en todos los peers.
+        projectileExplosionSound?.Play(position);
 
         if (damagedTarget)
         {

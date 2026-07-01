@@ -326,73 +326,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b18e1a64d2e26984f9ecf3cb747ee599, type: 3}
---- !u!1 &2282925
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2282928}
-  - component: {fileID: 2282927}
-  - component: {fileID: 2282926}
-  m_Layer: 2
-  m_Name: TriggerMissionRompibles01
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &2282926
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2282925}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93d20fe89e23b05499a42242833297c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  missionToStart: mision_rompibles_01
---- !u!65 &2282927
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2282925}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1.6984651, y: 5.57122, z: 4.1178093}
-  m_Center: {x: -1.7185459, y: -2.0345151, z: -1.918392}
---- !u!4 &2282928
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2282925}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.81618404, z: -0, w: 0.5777921}
-  m_LocalPosition: {x: -86, y: -2.2, z: 9}
-  m_LocalScale: {x: 5, y: 5, z: 5}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 109.409, z: 0}
 --- !u!1001 &2948224
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23438,7 +23371,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bossAI: {fileID: 1561269582}
   respawnManager: {fileID: 1561269586}
-  disableAfterActivation: 1
 --- !u!4 &468121812
 Transform:
   m_ObjectHideFlags: 0
@@ -42925,73 +42857,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a4e4a07aa385c8b4aa077dbd3df17f27, type: 3}
---- !u!1 &872436623
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 872436625}
-  - component: {fileID: 872436624}
-  - component: {fileID: 872436626}
-  m_Layer: 2
-  m_Name: TriggerMissionBatalla05
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!65 &872436624
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 872436623}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 43.036026, y: 17.545145, z: 1.7943575}
-  m_Center: {x: -4.761404, y: 3.9524477, z: -1.4411612}
---- !u!4 &872436625
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 872436623}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.3362807, z: -0, w: 0.94176185}
-  m_LocalPosition: {x: -403.3, y: -50.840652, z: 520}
-  m_LocalScale: {x: 5, y: 5, z: 5}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 39.301, z: 0}
---- !u!114 &872436626
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 872436623}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93d20fe89e23b05499a42242833297c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  missionToStart: mision_batalla_05
 --- !u!1001 &873242032
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -60248,6 +60113,7 @@ GameObject:
   - component: {fileID: 1247381038}
   - component: {fileID: 1247381037}
   - component: {fileID: 1247381036}
+  - component: {fileID: 1247381040}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -60401,6 +60267,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enableAutoSave: 0
   autoSaveInterval: 60
+--- !u!114 &1247381040
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1247381029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27b40b1910bdf2f4bba21f653ee10534, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseTrack: {fileID: 11400000, guid: 819eef413ce8ef949a35a416b442a5b0, type: 2}
 --- !u!1001 &1247488897
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -72851,73 +72730,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8635904516727133312, guid: ec7b85e8d5a42fa40a6f8cd4439e4dee, type: 3}
   m_PrefabInstance: {fileID: 331928232}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1498173110
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1498173111}
-  - component: {fileID: 1498173113}
-  - component: {fileID: 1498173112}
-  m_Layer: 2
-  m_Name: KillZoneMisionBatalla03
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1498173111
+--- !u!4 &1498173111 stripped
 Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 2971900024999970439, guid: d2b8be001d0256944b0467baf6ee82cc, type: 3}
+  m_PrefabInstance: {fileID: 7533045873874102275}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1498173110}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.596225, z: -0, w: -0.8028174}
-  m_LocalPosition: {x: 104.5, y: -50, z: 272.9}
-  m_LocalScale: {x: 2, y: 2, z: 2}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 807878027}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1498173112
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1498173110}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5aeed102073a4e8488f0dafdff4f90a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  objectiveKey: z2_batalla03
---- !u!135 &1498173113
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1498173110}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 27.689034
-  m_Center: {x: 6.4702835, y: 0, z: 5.921715}
 --- !u!1001 &1499766447
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -73761,73 +73578,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b18e1a64d2e26984f9ecf3cb747ee599, type: 3}
---- !u!1 &1511412541
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1511412542}
-  - component: {fileID: 1511412544}
-  - component: {fileID: 1511412543}
-  m_Layer: 2
-  m_Name: KillZoneMisionBatalla02
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1511412542
+--- !u!4 &1511412542 stripped
 Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 1729296643229571280, guid: cf4184c8c11b91e4d82d50c57df901dd, type: 3}
+  m_PrefabInstance: {fileID: 8125605384829848438}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1511412541}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.596225, z: -0, w: -0.8028174}
-  m_LocalPosition: {x: 82, y: -30.4, z: 116.1}
-  m_LocalScale: {x: 2, y: 2, z: 2}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 807878027}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1511412543
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1511412541}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5aeed102073a4e8488f0dafdff4f90a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  objectiveKey: z1_redtree
---- !u!135 &1511412544
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1511412541}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 27.689034
-  m_Center: {x: 6.4702835, y: 0, z: 5.921715}
 --- !u!1001 &1511586154
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -75684,6 +75439,7 @@ MonoBehaviour:
   projectileCollisionVFX: {fileID: 5206478384481510202, guid: e35ff35c1f8018c46aebe317070f19eb, type: 3}
   projectileHitTargetVFX: {fileID: 5206478384481510202, guid: e35ff35c1f8018c46aebe317070f19eb, type: 3}
   enemyProjectileCollisionVFX: {fileID: 1462583455677290251, guid: 6f50629b8d27ea841a56108dee4f1b9b, type: 3}
+  projectileExplosionSound: {fileID: 11400000, guid: fcd1d686784162349a9f45b4bec1add7, type: 2}
   destructibleBreakVFX: {fileID: 8828155658195520032, guid: a25be0e4cefbdd34a8f9f296cb5d1f31, type: 3}
   healVFX: {fileID: 406087668005387499, guid: 83ebc41fba3a55e468204494c0ace524, type: 3}
 --- !u!114 &1532648658
@@ -103656,6 +103412,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1001 &6470476296627487130
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4620608784372849367, guid: 46db66c7465452b47902095cd8847d94, type: 3}
+      propertyPath: m_Name
+      value: TriggerMissionBatalla05
+      objectReference: {fileID: 0}
+    - target: {fileID: 5919730002518527261, guid: 46db66c7465452b47902095cd8847d94, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -403.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5919730002518527261, guid: 46db66c7465452b47902095cd8847d94, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -50.840652
+      objectReference: {fileID: 0}
+    - target: {fileID: 5919730002518527261, guid: 46db66c7465452b47902095cd8847d94, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 520
+      objectReference: {fileID: 0}
+    - target: {fileID: 5919730002518527261, guid: 46db66c7465452b47902095cd8847d94, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.94176185
+      objectReference: {fileID: 0}
+    - target: {fileID: 5919730002518527261, guid: 46db66c7465452b47902095cd8847d94, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5919730002518527261, guid: 46db66c7465452b47902095cd8847d94, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.3362807
+      objectReference: {fileID: 0}
+    - target: {fileID: 5919730002518527261, guid: 46db66c7465452b47902095cd8847d94, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5919730002518527261, guid: 46db66c7465452b47902095cd8847d94, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5919730002518527261, guid: 46db66c7465452b47902095cd8847d94, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 39.301
+      objectReference: {fileID: 0}
+    - target: {fileID: 5919730002518527261, guid: 46db66c7465452b47902095cd8847d94, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 46db66c7465452b47902095cd8847d94, type: 3}
 --- !u!114 &6495066188441681845 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3734103018847415445, guid: bf02153c642bb9444a685e2fcc51f532, type: 3}
@@ -103724,6 +103537,120 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 94245ba039eda00499911dc0b78f88fe, type: 3}
+--- !u!1001 &6979676210816176094
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1633042943730555219, guid: 152dbb4de461e534c9aada0f5185a797, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -86
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633042943730555219, guid: 152dbb4de461e534c9aada0f5185a797, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633042943730555219, guid: 152dbb4de461e534c9aada0f5185a797, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633042943730555219, guid: 152dbb4de461e534c9aada0f5185a797, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.5777921
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633042943730555219, guid: 152dbb4de461e534c9aada0f5185a797, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633042943730555219, guid: 152dbb4de461e534c9aada0f5185a797, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.81618404
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633042943730555219, guid: 152dbb4de461e534c9aada0f5185a797, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633042943730555219, guid: 152dbb4de461e534c9aada0f5185a797, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633042943730555219, guid: 152dbb4de461e534c9aada0f5185a797, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 109.409
+      objectReference: {fileID: 0}
+    - target: {fileID: 1633042943730555219, guid: 152dbb4de461e534c9aada0f5185a797, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2434169266428689393, guid: 152dbb4de461e534c9aada0f5185a797, type: 3}
+      propertyPath: m_Name
+      value: TriggerMissionRompibles01
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 152dbb4de461e534c9aada0f5185a797, type: 3}
+--- !u!1001 &7533045873874102275
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 807878027}
+    m_Modifications:
+    - target: {fileID: 2971900024999970439, guid: d2b8be001d0256944b0467baf6ee82cc, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 104.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2971900024999970439, guid: d2b8be001d0256944b0467baf6ee82cc, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -50
+      objectReference: {fileID: 0}
+    - target: {fileID: 2971900024999970439, guid: d2b8be001d0256944b0467baf6ee82cc, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 272.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 2971900024999970439, guid: d2b8be001d0256944b0467baf6ee82cc, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.8028174
+      objectReference: {fileID: 0}
+    - target: {fileID: 2971900024999970439, guid: d2b8be001d0256944b0467baf6ee82cc, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2971900024999970439, guid: d2b8be001d0256944b0467baf6ee82cc, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.596225
+      objectReference: {fileID: 0}
+    - target: {fileID: 2971900024999970439, guid: d2b8be001d0256944b0467baf6ee82cc, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2971900024999970439, guid: d2b8be001d0256944b0467baf6ee82cc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2971900024999970439, guid: d2b8be001d0256944b0467baf6ee82cc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2971900024999970439, guid: d2b8be001d0256944b0467baf6ee82cc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9047709283591943253, guid: d2b8be001d0256944b0467baf6ee82cc, type: 3}
+      propertyPath: m_Name
+      value: KillZoneMisionBatalla03
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d2b8be001d0256944b0467baf6ee82cc, type: 3}
 --- !u!114 &7962337526898746419 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1123952755865564487, guid: bf02153c642bb9444a685e2fcc51f532, type: 3}
@@ -103735,6 +103662,63 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1001 &8125605384829848438
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 807878027}
+    m_Modifications:
+    - target: {fileID: 1729296643229571280, guid: cf4184c8c11b91e4d82d50c57df901dd, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 82
+      objectReference: {fileID: 0}
+    - target: {fileID: 1729296643229571280, guid: cf4184c8c11b91e4d82d50c57df901dd, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -30.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1729296643229571280, guid: cf4184c8c11b91e4d82d50c57df901dd, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 116.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1729296643229571280, guid: cf4184c8c11b91e4d82d50c57df901dd, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.8028174
+      objectReference: {fileID: 0}
+    - target: {fileID: 1729296643229571280, guid: cf4184c8c11b91e4d82d50c57df901dd, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1729296643229571280, guid: cf4184c8c11b91e4d82d50c57df901dd, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.596225
+      objectReference: {fileID: 0}
+    - target: {fileID: 1729296643229571280, guid: cf4184c8c11b91e4d82d50c57df901dd, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1729296643229571280, guid: cf4184c8c11b91e4d82d50c57df901dd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1729296643229571280, guid: cf4184c8c11b91e4d82d50c57df901dd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1729296643229571280, guid: cf4184c8c11b91e4d82d50c57df901dd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4339171045602446747, guid: cf4184c8c11b91e4d82d50c57df901dd, type: 3}
+      propertyPath: m_Name
+      value: KillZoneMisionBatalla02
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: cf4184c8c11b91e4d82d50c57df901dd, type: 3}
 --- !u!114 &8476398994623217613 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4329096182268318358, guid: bf02153c642bb9444a685e2fcc51f532, type: 3}
@@ -104669,8 +104653,8 @@ SceneRoots:
   - {fileID: 278548277}
   - {fileID: 967469472}
   - {fileID: 1913083711}
-  - {fileID: 872436625}
-  - {fileID: 2282928}
+  - {fileID: 6470476296627487130}
+  - {fileID: 6979676210816176094}
   - {fileID: 185684640}
   - {fileID: 2100775812}
   - {fileID: 468121812}

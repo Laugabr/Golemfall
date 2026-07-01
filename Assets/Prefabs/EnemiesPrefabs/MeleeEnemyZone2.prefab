@@ -74,6 +74,8 @@ MonoBehaviour:
   _chaseRadius: 60
   _returnSpeed: 7
   _patrolWaitTime: 1
+  navMeshSnapRadius: 3
+  navMeshRetryWarningTicks: 60
 --- !u!114 &1876080899843528332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,6 +143,7 @@ MonoBehaviour:
   netAnimator: {fileID: 0}
   enemyAI: {fileID: 0}
   deathAnimDuration: 3.5
+  defaultMissionKey: 
 --- !u!114 &2992418593781395394
 MonoBehaviour:
   m_ObjectHideFlags: 0
