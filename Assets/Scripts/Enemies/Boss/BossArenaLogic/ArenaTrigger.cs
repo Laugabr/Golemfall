@@ -13,8 +13,9 @@ public class ArenaTrigger : NetworkBehaviour
     {
         // Si el boss ya no está activo (murió o hubo wipe),
         // permitimos volver a activar el trigger.
-        if (hasActivated && bossAI != null && !bossAI.IsActive)
+        if (hasActivated && bossAI != null)
         {
+            if (!bossAI.IsActive)
             hasActivated = false;
         }
     }

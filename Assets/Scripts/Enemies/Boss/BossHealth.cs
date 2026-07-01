@@ -51,13 +51,15 @@ public class BossHealth : NetworkBehaviour
         isDead = true;
 
         Debug.Log("[BossHealth] Boss muerto");
+            if (respawnManager != null)
+            respawnManager.DeactivateArena();
+
 
         if (bossAI != null)
             bossAI.DisableBoss();
-
+        Runner.Despawn(Object);
         // Notificamos al manager que el boss murió para desactivar la arena
-        if (respawnManager != null)
-            respawnManager.DeactivateArena();
+
     }
 
     /// <summary>

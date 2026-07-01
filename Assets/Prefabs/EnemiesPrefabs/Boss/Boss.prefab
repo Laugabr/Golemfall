@@ -252,6 +252,60 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5353296886022182737}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2028451007607799132
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3322927457221901655}
+  - component: {fileID: 477184663253943678}
+  m_Layer: 0
+  m_Name: BossCollider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3322927457221901655
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028451007607799132}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 56.6}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4481837989305925580}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!64 &477184663253943678
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028451007607799132}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 1181935122075479338, guid: 3a0165e8d90b96c438a9447b6e9f6237, type: 3}
 --- !u!1 &2344818139388173416
 GameObject:
   m_ObjectHideFlags: 0
@@ -456,6 +510,7 @@ GameObject:
   - component: {fileID: 4124617026974490642}
   - component: {fileID: 2635796316578884317}
   - component: {fileID: 4050175373825568047}
+  - component: {fileID: 9082923815729160169}
   m_Layer: 0
   m_Name: Boss
   m_TagString: Untagged
@@ -483,6 +538,7 @@ Transform:
   - {fileID: 3670966830368388310}
   - {fileID: 8908108247275448834}
   - {fileID: 7581964681987980733}
+  - {fileID: 3322927457221901655}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5877145660600481446
@@ -597,8 +653,8 @@ MonoBehaviour:
   - {fileID: 3365969245891570180}
   - {fileID: 6571384259601547202}
   telegraphTime: 1
-  phase1SpikeCount: 4
-  phase2SpikeCount: 7
+  phase1SpikeCount: 19
+  phase2SpikeCount: 60
   phase1ToothDelay: 0.4
   phase2ToothDelay: 0.2
 --- !u!114 &4050175373825568047
@@ -619,6 +675,28 @@ MonoBehaviour:
   - {fileID: 3915647905076154590}
   - {fileID: 1985655407529329501}
   resetDelay: 2
+--- !u!64 &9082923815729160169
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4567885038340387554}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}
 --- !u!1 &4602259312076478509
 GameObject:
   m_ObjectHideFlags: 0
