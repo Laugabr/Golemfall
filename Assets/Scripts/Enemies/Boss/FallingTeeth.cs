@@ -4,7 +4,15 @@ using Fusion;
 public class FallingTeeth : NetworkBehaviour
 {
     [Header("Movement")]
+    [Tooltip("Velocidad de caída. Se puede cambiar en runtime con SetFallSpeed()")]
     [SerializeField] private float fallSpeed = 10f;
+
+    /// <summary>
+    /// Cambia la velocidad de caída en runtime.
+    /// Llamar desde BossAttackHandler antes de StartFalling() para
+    /// variar la dificultad entre fases.
+    /// </summary>
+    public void SetFallSpeed(float speed) => fallSpeed = speed;
 
     [Header("Reset")]
     [Tooltip("Tiempo que espera antes de volver al techo")]
@@ -45,7 +53,7 @@ public class FallingTeeth : NetworkBehaviour
         if (!isFalling) return;
 
         bool hitPlayer = other.CompareTag("Player");
-        bool hitGround = other.CompareTag("Ground");
+        bool hitGround = other.CompareTag("Terrain");
 
         if (!hitPlayer && !hitGround) return;
 

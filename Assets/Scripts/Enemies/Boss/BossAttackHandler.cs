@@ -38,10 +38,11 @@ public class BossAttackHandler : NetworkBehaviour
     [Tooltip("Los puntos del mapa entre los que el weak point se mueve (3 recomendado)")]
     [SerializeField] private Transform[] weakPointPositions;
 
-    // Instancia única del weak point. Igual que con los dientes, se
-    // spawnea una sola vez y nunca se vuelve a instanciar: simplemente
-    // se mueve entre weakPointPositions (eso lo maneja BossWeakPoint).
+    // Instancia única del weak point. Se spawnea una sola vez (lazy) y
+    // se reutiliza siempre — nunca se despawnea, solo se activa/desactiva
+    // (ver InitializeWeakPoint / DeactivateWeakPoint).
     private NetworkObject weakPointInstance;
+    private BossWeakPoint weakPointComponent;
 
     // Pool de dientes ya instanciados, uno por ceilingPoint.
     // Se llena una sola vez en InitializeTeethPool().
@@ -57,7 +58,11 @@ public class BossAttackHandler : NetworkBehaviour
     [Tooltip("Cuántos puntos activa en fase 2")]
     [SerializeField] private int phase2SpikeCount = 5;
 
-    [Header("Falling Teeth — delay entre dientes")]
+    [Header("Falling Teeth — velocidad por fase")]
+    [Tooltip("Velocidad de caída en fase 1")]
+    [SerializeField] private float phase1FallSpeed = 8f;
+    [Tooltip("Velocidad de caída en fase 2")]
+    [SerializeField] private float phase2FallSpeed = 14f;
     [Tooltip("Delay entre cada diente en fase 1")]
     [SerializeField] private float phase1ToothDelay = 0.4f;
     [Tooltip("Delay entre cada diente en fase 2")]
@@ -138,12 +143,13 @@ public class BossAttackHandler : NetworkBehaviour
         if (teethPool.Count == 0) return;
 
         float delay = phase == 2 ? phase2ToothDelay : phase1ToothDelay;
+        float speed = phase == 2 ? phase2FallSpeed : phase1FallSpeed;
         int[] indices = ShuffledIndices(teethPool.Count);
 
-        StartCoroutine(DropTeethSequence(indices, delay));
+        StartCoroutine(DropTeethSequence(indices, delay, speed));
     }
 
-    IEnumerator DropTeethSequence(int[] indices, float delayBetween)
+    IEnumerator DropTeethSequence(int[] indices, float delayBetween, float fallSpeed)
     {
         foreach (int i in indices)
         {
@@ -158,10 +164,14 @@ public class BossAttackHandler : NetworkBehaviour
 
             var telegraphObj = Runner.Spawn(telegraphPrefab, tooth.transform.position, Quaternion.identity);
             var telegraph = telegraphObj.GetComponent<TelegraphZone>();
+            float speed = fallSpeed;
             telegraph.Init(telegraphTime, () =>
             {
                 if (tooth != null)
+                {
+                    tooth.SetFallSpeed(speed);
                     tooth.StartFalling();
+                }
             });
 
             yield return new WaitForSeconds(Random.Range(delayBetween, delayBetween * 2f));
@@ -173,57 +183,83 @@ public class BossAttackHandler : NetworkBehaviour
     // =============================
 
     /// <summary>
-    /// Instancia el weak point una sola vez (igual patrón que el pool de
-    /// dientes) y le pasa los puntos del mapa entre los que puede moverse.
-    /// Llamar al activar/resetear el boss. Si ya existe, no hace nada.
+    /// Instancia el weak point la primera vez que se llama (igual patrón
+    /// que el pool de dientes) y lo activa. Si ya existe (llamado de nuevo
+    /// en un reintento tras un wipe, o al reactivar el boss), simplemente
+    /// lo reactiva sin volver a spawnear nada.
+    /// Llamar en cada ActivateBoss()/ResetBoss().
     /// </summary>
-public void InitializeWeakPoint()
-{
-    if (!Object.HasStateAuthority) return;
-
-    // Si ya existe simplemente lo reactivamos
-    if (weakPointInstance != null)
+    public void InitializeWeakPoint()
     {
-        var existing = weakPointInstance.GetComponent<BossWeakPoint>();
-        existing?.Activate();
-        return;
+        if (!Object.HasStateAuthority) return;
+
+        // Si ya existe simplemente lo reactivamos
+        if (weakPointInstance != null)
+        {
+            var existing = weakPointInstance.GetComponent<BossWeakPoint>();
+            existing?.Activate();
+            return;
+        }
+
+        if (weakPointPrefab == null)
+        {
+            Debug.LogWarning("[BossAttackHandler] weakPointPrefab no asignado");
+            return;
+        }
+
+        if (weakPointPositions == null || weakPointPositions.Length == 0)
+        {
+            Debug.LogWarning("[BossAttackHandler] weakPointPositions vacío");
+            return;
+        }
+
+        Vector3 startPos = weakPointPositions[0].position;
+
+        weakPointInstance = Runner.Spawn(
+            weakPointPrefab,
+            startPos,
+            Quaternion.identity);
+
+        var weakPoint = weakPointInstance.GetComponent<BossWeakPoint>();
+
+        if (weakPoint != null)
+        {
+            weakPoint.Setup(weakPointPositions);
+            weakPoint.bossHealth = GetComponent<BossHealth>();
+            weakPoint.Activate();
+        }
+        else
+        {
+            Debug.LogWarning("[BossAttackHandler] weakPointPrefab sin componente BossWeakPoint");
+        }
+
+        Debug.Log("[BossAttackHandler] WeakPoint inicializado");
     }
 
-    if (weakPointPrefab == null)
+    /// <summary>
+    /// Desactiva el weak point: deja de moverse, deja de recibir daño y
+    /// se oculta. NO lo despawnea — se reutiliza la misma instancia la
+    /// próxima vez que se llame a InitializeWeakPoint().
+    /// Llamar cuando el boss muere o hay un wipe de la pelea.
+    /// </summary>
+    public void DeactivateWeakPoint()
     {
-        Debug.LogWarning("[BossAttackHandler] weakPointPrefab no asignado");
-        return;
-    }
+        if (!Object.HasStateAuthority) return;
+        if (weakPointInstance == null) return;
 
-    if (weakPointPositions == null || weakPointPositions.Length == 0)
+        var weakPoint = weakPointInstance.GetComponent<BossWeakPoint>();
+        if (weakPoint != null)
+            weakPoint.Deactivate();
+    }
+    public void ReactivateWeakPoint()
     {
-        Debug.LogWarning("[BossAttackHandler] weakPointPositions vacío");
-        return;
+        if (!Object.HasStateAuthority) return;
+        if (weakPointInstance == null) return;
+
+        var weakPoint = weakPointInstance.GetComponent<BossWeakPoint>();
+        if (weakPoint != null)
+            weakPoint.Activate();
     }
-
-    Vector3 startPos = weakPointPositions[0].position;
-
-    weakPointInstance = Runner.Spawn(
-        weakPointPrefab,
-        startPos,
-        Quaternion.identity);
-
-    var weakPoint = weakPointInstance.GetComponent<BossWeakPoint>();
-
-    if (weakPoint != null)
-    {
-        weakPoint.Setup(weakPointPositions);
-        weakPoint.bossHealth = GetComponent<BossHealth>();
-        weakPoint.Activate();
-    }
-    else
-    {
-        Debug.LogWarning("[BossAttackHandler] weakPointPrefab sin componente BossWeakPoint");
-    }
-
-    Debug.Log("[BossAttackHandler] WeakPoint inicializado");
-}
-
     // =============================
     // UTILIDAD
     // =============================
@@ -239,27 +275,4 @@ public void InitializeWeakPoint()
         }
         return indices;
     }
-    /// <summary>
-    /// Desactiva el weak point existente (deja de moverse, de recibir
-    /// daño, y se oculta). Llamado por BossAI.DisableBoss() cuando el
-    /// boss muere. No hace nada si todavía no se instanció.
-    /// </summary>
-    public void DeactivateWeakPoint()
-    {
-        if (!Object.HasStateAuthority) return;
-        if (weakPointInstance == null) return;
-
-        var weakPoint = weakPointInstance.GetComponent<BossWeakPoint>();
-        if (weakPoint != null)
-            weakPoint.Deactivate();
-    }
-    public void ReactivateWeakPoint()
-{
-    if (!Object.HasStateAuthority) return;
-    if (weakPointInstance == null) return;
-
-    var weakPoint = weakPointInstance.GetComponent<BossWeakPoint>();
-    if (weakPoint != null)
-        weakPoint.Activate();
-}
 }
