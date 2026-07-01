@@ -23,6 +23,8 @@ public class FallingTeeth : NetworkBehaviour
 
     private Vector3 ceilingOrigin;
 
+    [SerializeField] private GameObject visualsRoot;
+
     [Networked] private bool isFalling { get; set; }
     [Networked] private bool hasHit { get; set; }
 
@@ -82,6 +84,8 @@ public class FallingTeeth : NetworkBehaviour
         transform.position = ceilingOrigin;
         hasHit = false;
 
+        visualsRoot.SetActive(false); // Ocultar visuales mientras está en el techo
+
         Debug.Log("[FallingTooth] Reseteado al techo");
     }
 
@@ -90,6 +94,8 @@ public class FallingTeeth : NetworkBehaviour
         if (!Object.HasStateAuthority) return;
         if (isFalling) return;
         if (hasHit) return;
+
+        visualsRoot.SetActive(true); // Mostrar visuales mientras está en el techo
 
         transform.position = ceilingOrigin;
         isFalling = true;

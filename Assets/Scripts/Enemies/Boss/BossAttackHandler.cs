@@ -162,17 +162,15 @@ public class BossAttackHandler : NetworkBehaviour
             // en vez de generar uno nuevo.
             if (tooth == null) continue;
 
-            var telegraphObj = Runner.Spawn(telegraphPrefab, tooth.transform.position, Quaternion.identity);
-            var telegraph = telegraphObj.GetComponent<TelegraphZone>();
+
             float speed = fallSpeed;
-            telegraph.Init(telegraphTime, () =>
+
+            if (tooth != null)
             {
-                if (tooth != null)
-                {
-                    tooth.SetFallSpeed(speed);
-                    tooth.StartFalling();
-                }
-            });
+                tooth.SetFallSpeed(speed);
+                tooth.StartFalling();
+            }
+
 
             yield return new WaitForSeconds(Random.Range(delayBetween, delayBetween * 2f));
         }
