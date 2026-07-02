@@ -4904,7 +4904,6 @@ GameObject:
   - component: {fileID: -7830566259726997780}
   - component: {fileID: -166465162631183935}
   - component: {fileID: 641263649067273509}
-  - component: {fileID: 6499544378383091155}
   m_Layer: 0
   m_Name: ENM_UltraRangedAttackPrefab
   m_TagString: Untagged
@@ -9829,6 +9828,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   collisionVFX: {fileID: 1462583455677290251, guid: 6f50629b8d27ea841a56108dee4f1b9b, type: 3}
   hitTargetVFX: {fileID: 0}
+  spawnMeleeVFXOnHit: 0
 --- !u!135 &1605022318800810227
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -9900,20 +9900,6 @@ MonoBehaviour:
   SyncParent: 0
   _autoAOIOverride: 1
   DisableSharedModeInterpolation: 0
---- !u!114 &6499544378383091155
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4695642118095032319}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1541381998, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Guid:
-    RawGuidValue: 91629e6225f90bb498e42ed3f5b38480
 --- !u!1001 &6850705685428907197
 PrefabInstance:
   m_ObjectHideFlags: 0

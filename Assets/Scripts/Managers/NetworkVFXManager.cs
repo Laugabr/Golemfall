@@ -16,6 +16,8 @@ public class NetworkVFXManager : NetworkBehaviour
 
     [Header("VFX de proyectil")]
     [SerializeField] private GameObject projectileCollisionVFX;
+    [SerializeField] private GameObject meleeHitVFX;
+
     [SerializeField] private GameObject projectileHitTargetVFX;
     [SerializeField] private GameObject enemyProjectileCollisionVFX;
 
@@ -66,12 +68,29 @@ public class NetworkVFXManager : NetworkBehaviour
 
             if (vfxToSpawn != null)
             {
-                Vector3 finalPos = position + hitDirection.normalized * 5f;
+                Vector3 finalPos = position;
                 var vfx = Instantiate(vfxToSpawn, finalPos, rot);
                 Destroy(vfx, 5f);
             }
         }
     }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    public void RPC_SpawnMeleeHitVFXBatch(Vector3[] positions, Vector3 hitDirection)
+    {
+        Debug.Log($"[NetworkVFXManager] {HasStateAuthority} RPC_SpawnMeleeHitVFXBatch: El peer que disparó ya instanció el VFX localmente");
+        if (meleeHitVFX == null || positions == null) return;
+
+        Quaternion rot = hitDirection != Vector3.zero ?
+            Quaternion.LookRotation(-hitDirection) : Quaternion.identity;
+
+        for (int i = 0; i < positions.Length; i++)
+        {
+            var vfx = Instantiate(meleeHitVFX, positions[i], Quaternion.identity);
+            Destroy(vfx, 5f);
+        }
+    }
+
 
     /// <summary>
     /// Llamado por DestructibleObject cuando un objeto se rompe.

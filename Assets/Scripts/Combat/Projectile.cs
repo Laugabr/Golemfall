@@ -70,7 +70,7 @@ public class Projectile : NetworkBehaviour
     // propia entrada -> un VFX por enemigo golpeado, sin duplicarse si el
     // mismo enemigo dispara OnTriggerEnter mas de una vez (colliders compuestos).
     private HashSet<NetworkObject> vfxSentTo = new HashSet<NetworkObject>();
-
+    [SerializeField] private bool spawnMeleeVFXOnHit = true;   // ← nuevo
     private Collider col;
 
     // Variable local — evita que el VFX de expiracion se instancie mas de una vez por peer
@@ -124,6 +124,14 @@ public class Projectile : NetworkBehaviour
             if (!Object.HasStateAuthority)
                 return;
 
+                if (_pendingMeleeVfxPositions.Count > 0 && NetworkVFXManager.Instance != null)
+                {
+                    Debug.Log($"[Projectile] Enviando batch de VFX melee a {NetworkVFXManager.Instance.name} con {_pendingMeleeVfxPositions.Count} posiciones");
+                    NetworkVFXManager.Instance.RPC_SpawnMeleeHitVFXBatch(
+                        _pendingMeleeVfxPositions.ToArray(), Direction);
+                    _pendingMeleeVfxPositions.Clear();
+                }
+
             if (!hasHit)
                 transform.position += Direction * Speed * Runner.DeltaTime;
 
@@ -161,7 +169,9 @@ public class Projectile : NetworkBehaviour
     /// usando ObjectLifeTime. El collider ya deberia estar desactivado
     /// para este punto (por hit o por expiracion).
     /// </summary>
-private bool _wallHitVFXSent = false;
+    private List<Vector3> _pendingMeleeVfxPositions = new List<Vector3>();
+
+    private bool _wallHitVFXSent = false;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -183,8 +193,8 @@ private bool _wallHitVFXSent = false;
         {
             _wallHitVFXSent = true;
             Vector3 vfxPos = other.ClosestPoint(transform.position);
-            var vfx = Instantiate(collisionVFX, vfxPos, Quaternion.identity);
-            vfx.transform.SetParent(null);
+            NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(
+                        vfxPos, false, Type, Direction);
         }
         
         if (damageable != null)
@@ -196,61 +206,62 @@ private bool _wallHitVFXSent = false;
 
             damageable.TakeDamage(Damage, Owner.gameObject);
             damagedTarget = true;
-            if (Object.HasStateAuthority && Owner != null && Owner.HasInputAuthority)
+
+            RPC_ShakeCamera(Owner.InputAuthority);
+            
+        }
+
+        skip:
+            if (!IsAoe)
             {
-                CameraController.Local?.Shake(0.08f, 0.2f);
+                hasHit = true;
+                col.enabled = false;
+                Speed = 0f;      // Solo se frena si DestroyOnHit + no AOE
+                HitTick = Runner.Tick;
+            }
+
+            if (onExpireAoe) SpawnOnExpireAoe(transform.position); // ← al impactar si es AOE de expiracion
+
+            // ── VFX de impacto ────────────────────────────────────────────────────
+            // Un solo bloque de dedup para ambos casos: melee AOE y proyectil no-AOE
+            // nunca coexisten en el mismo ataque (melee = IsAoe siempre, sin ShowHitVFX;
+            // proyectil = no-AOE siempre, con ShowHitVFX), así que alcanza con
+            // ramificar adentro según cual sea.
+            if (damageable != null && NetworkVFXManager.Instance != null)
+            {
+                bool alreadySent = otherNet != null && vfxSentTo.Contains(otherNet);
+                if (!alreadySent)
+                {
+                    if (otherNet != null) vfxSentTo.Add(otherNet);
+
+                    Vector3 vfxPos = other.ClosestPoint(transform.position);
+
+                    if (IsAoe && Type == ProjectileType.Player && spawnMeleeVFXOnHit)
+                    {
+                        Vector3 meleeVfxPos = other.bounds.center + Vector3.up * 0.3f;
+                        // Ataque melee AOE: nunca tiene ShowHitVFX, VFX dedicado
+                        _pendingMeleeVfxPositions.Add(meleeVfxPos);
+                    }
+                    else if (ShowHitVFX)
+                    {
+                        // Ataque a distancia no-AOE: VFX de proyectil normal
+                        NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(
+                            vfxPos, damagedTarget, Type, Direction);
+                    }
+                }
             }
         }
 
-    skip:
-        if (!IsAoe)
-        {
-            hasHit = true;
-            col.enabled = false;
-            Speed = 0f;      // Solo se frena si DestroyOnHit + no AOE
-            HitTick = Runner.Tick;
-        }
-        if (onExpireAoe) SpawnOnExpireAoe(transform.position); // ← al impactar si es AOE de expiracion
-
-        // ── VFX de impacto ────────────────────────────────────────────────────
-        // Usamos "damageable != null" en lugar de "damagedTarget" para que el VFX
-        // se dispare aunque el daño haya sido bloqueado (ej: PvP entre jugadores,
-        // bloqueado arriba por el chequeo de Type+Tag que salta a este label).
-        // damagedTarget se sigue pasando al RPC para que elija el VFX correcto
-        // (impacto a objetivo vs colisión genérica) según corresponda.
-        // Solo una vez por target — igual que antes.
-    if (damageable != null && ShowHitVFX && NetworkVFXManager.Instance != null)
-    {
-        bool alreadySent = otherNet != null && vfxSentTo.Contains(otherNet);
-        if (!alreadySent)
-        {
-            if (otherNet != null) vfxSentTo.Add(otherNet);
-
-            Vector3 vfxPos = other.ClosestPoint(transform.position);
-            
-            // RPC para que TODOS los peers vean el VFX + shake
-            RPC_SpawnMeleeHitVFX(vfxPos);
-        }
-    }
-    }
-
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void RPC_SpawnMeleeHitVFX(Vector3 hitPosition)
+    private void RPC_ShakeCamera(PlayerRef playerRef = default)
     {
-        // VFX visual en todos los peers
-        if (NetworkVFXManager.Instance != null)
-        {
-            NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(
-                hitPosition, true, Type, Direction
-            );
-        }
-
-        // Camera shake en el cliente local (si tiene InputAuthority)
-        if (HasInputAuthority)
+        if (playerRef == PlayerRef.None || Runner.LocalPlayer == playerRef)
         {
             CameraController.Local?.Shake(0.08f, 0.2f);
         }
-    }    private void SpawnOnExpireAoe(Vector3 position)
+    }
+ 
+    private void SpawnOnExpireAoe(Vector3 position)
     {
         if (!onExpireAoe || onExpirePrefab == null) return;
         if (_aoeSpawned) return; // ← guard inmediato
@@ -272,8 +283,8 @@ private bool _wallHitVFXSent = false;
                     cachedDamage,
                     0f,
                     Vector3.zero,
-                    .3f,
-                    .3f,
+                    .2f,
+                    .2f,
                     false,
                     cachedType,
                     false,
@@ -285,17 +296,5 @@ private bool _wallHitVFXSent = false;
         );
     }
 
-    /// <summary>
-    /// Render() corre en TODOS los peers a framerate de pantalla.
-    /// Maneja el VFX de expiracion por tiempo — los hits los maneja
-    /// el NetworkVFXManager via RPC, o LocalMeleeHitVFX.cs para el caso melee.
-    /// El collider y el Despawn real ahora tienen tiempos independientes
-    /// (ver ActiveTime/ObjectLifeTime en FixedUpdateNetwork), asi que el VFX
-    /// de expiracion sigue siendo visible mientras el objeto vive su
-    /// ObjectLifeTime extra.
-    /// </summary>
-    public override void Render()
-    {
 
-    }
 }
