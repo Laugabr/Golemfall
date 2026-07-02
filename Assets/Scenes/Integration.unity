@@ -75437,9 +75437,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   projectileCollisionVFX: {fileID: 5206478384481510202, guid: e35ff35c1f8018c46aebe317070f19eb, type: 3}
+  meleeHitVFX: {fileID: 8304955995901741427, guid: dd4bbe7f71bd5704fae995b56c0e4177, type: 3}
   projectileHitTargetVFX: {fileID: 5206478384481510202, guid: e35ff35c1f8018c46aebe317070f19eb, type: 3}
   enemyProjectileCollisionVFX: {fileID: 1462583455677290251, guid: 6f50629b8d27ea841a56108dee4f1b9b, type: 3}
-  projectileExplosionSound: {fileID: 11400000, guid: fcd1d686784162349a9f45b4bec1add7, type: 2}
+  projectileExplosionSound: {fileID: 0}
   destructibleBreakVFX: {fileID: 8828155658195520032, guid: a25be0e4cefbdd34a8f9f296cb5d1f31, type: 3}
   healVFX: {fileID: 406087668005387499, guid: 83ebc41fba3a55e468204494c0ace524, type: 3}
 --- !u!114 &1532648658
@@ -100938,7 +100939,7 @@ Terrain:
   m_TreeBillboardDistance: 50
   m_TreeCrossFadeLength: 5
   m_TreeMaximumFullLODCount: 50
-  m_DetailObjectDistance: 100
+  m_DetailObjectDistance: 351
   m_DetailObjectDensity: 1
   m_HeightmapPixelError: 5
   m_SplatMapDistance: 1000
