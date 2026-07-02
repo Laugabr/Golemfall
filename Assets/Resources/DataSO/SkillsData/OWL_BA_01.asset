@@ -15,8 +15,8 @@ MonoBehaviour:
   name: meleAttack
   cooldownTime: 0.6
   activeTime: 0
-  colliderLifeTime: 0.3
-  objectLifeTime: 1
+  colliderLifeTime: 0.2
+  objectLifeTime: 0.8
   projectilePrefab: {fileID: 1675199986379086463, guid: e678130e0c743684598758290be96f8c, type: 3}
   projectileSpeed: 0
   damageMultiplier: 1.2
