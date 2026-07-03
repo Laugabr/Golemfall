@@ -6,43 +6,43 @@ public class GameInputSimulator : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.I))
         {
-            Debug.Log("Collected Item");
+         //   Debug.Log("Collected Item");
             TrackEvents.OnTrackEvent?.Invoke(GameEventType.CollectItem, 1, "");
         }
 
         if (Input.GetKeyDown(KeyCode.Y))
         {
-            Debug.Log("Collected Special Item");
+          //  Debug.Log("Collected Special Item");
             TrackEvents.OnTrackEvent?.Invoke(GameEventType.CollectSpecialItem, 1, "");
         }
 
         if (Input.GetKeyDown(KeyCode.E))
         {
-            Debug.Log("Enemy Killed");
+         //   Debug.Log("Enemy Killed");
             TrackEvents.OnTrackEvent?.Invoke(GameEventType.KillEnemy, 1, "");
         }
 
         if (Input.GetKeyDown(KeyCode.N))
         {
-            Debug.Log("Talked to NPC");
+           // Debug.Log("Talked to NPC");
             TrackEvents.OnTrackEvent?.Invoke(GameEventType.TalkNPC, 1, "");
         }
 
         if (Input.GetKeyDown(KeyCode.B))
         {
-            Debug.Log("NPC Killed");
+          //  Debug.Log("NPC Killed");
             TrackEvents.OnTrackEvent?.Invoke(GameEventType.KillNPC, 1, "");
         }
 
         if (Input.GetKeyDown(KeyCode.C))
         {
-            Debug.Log("Entered Cave");
+          //  Debug.Log("Entered Cave");
             TrackEvents.OnTrackEvent?.Invoke(GameEventType.EnterCave, 1, "");
         }
 
         if (Input.GetKeyDown(KeyCode.M))
         {
-            Debug.Log("Player Died");
+           // Debug.Log("Player Died");
             TrackEvents.OnTrackEvent?.Invoke(GameEventType.PlayerDied, 1, "");
         }
     }
