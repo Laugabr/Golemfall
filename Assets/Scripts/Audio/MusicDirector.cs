@@ -1,59 +1,84 @@
-using System.Collections.Generic;
+using Fusion;
 using UnityEngine;
 
 /// <summary>
-/// Decide QUÉ música debe sonar (SRP: solo la decisión; reproducir es del
-/// AudioManager). Vive uno por escena con música: le asignás su pista base en el
-/// Inspector (menú -> música de menú; gameplay -> exploración).
+/// Decide qué música suena (SRP: solo decisión; reproducir es del AudioManager).
+/// Vive uno por escena con su pista base asignada en el Inspector.
 ///
-/// Maneja una PILA de zonas: cuando el jugador entra a una MusicZone, esa pista
-/// se apila y suena; al salir, se desapila y vuelve la que quedó debajo (o la
-/// base si no queda ninguna). La pila evita quedar en silencio al salir de una
-/// zona estando todavía dentro de otra solapada.
+/// Enfoque por POLLING: cada 'checkInterval' segundos mira dónde está el jugador
+/// local y elige la MusicZone de mayor prioridad que lo contiene (o la base si no
+/// está en ninguna). Sin triggers, sin pila, sin parches: teleports, muertes y
+/// respawns quedan bien solos, porque la música siempre sigue la posición real.
+///
+/// El chequeo es baratísimo (unas pocas zonas, 4 veces por segundo). Y como
+/// AudioManager.PlayMusic ignora si ya suena esa pista, solo hay crossfade cuando
+/// la zona realmente cambia.
 /// </summary>
 public class MusicDirector : MonoBehaviour
 {
     public static MusicDirector Instance { get; private set; }
 
-    [Tooltip("Música por defecto de esta escena (menú o exploración).")]
+    [Tooltip("Música por defecto de la escena (menú o exploración).")]
     [SerializeField] private MusicTrack baseTrack;
 
-    // Tope de la pila = lo que suena. Si está vacía, suena baseTrack.
-    private readonly List<MusicTrack> _zoneStack = new List<MusicTrack>();
+    [Tooltip("Cada cuántos segundos se chequea la zona. 0.25 = 4 veces por segundo.")]
+    [SerializeField] private float checkInterval = 0.25f;
 
-    private void Awake()
+    private Transform _localPlayer;
+    private float _timer;
+
+    private void Awake() => Instance = this;
+    private void OnDestroy() { if (Instance == this) Instance = null; }
+
+    private void Start() => AudioManager.Instance?.PlayMusic(baseTrack);
+
+    private void Update()
     {
-        // NO es DontDestroyOnLoad: cada escena tiene el suyo con su propia baseTrack.
-        Instance = this;
+        _timer -= Time.deltaTime;
+        if (_timer > 0f) return;
+        _timer = checkInterval;
+
+        AudioManager.Instance?.PlayMusic(ResolveTrack());
     }
 
-    private void Start() => Apply();
-
-    private void OnDestroy()
+    /// <summary>Zona de mayor prioridad que contiene al jugador local, o la base.</summary>
+    private MusicTrack ResolveTrack()
     {
-        if (Instance == this) Instance = null;
+        var player = GetLocalPlayer();
+        if (player == null) return baseTrack;
+
+        MusicTrack best = baseTrack;
+        int bestPriority = int.MinValue;
+
+        foreach (var zone in MusicZone.Active)
+        {
+            if (zone.Track == null) continue;
+            if (!zone.Contains(player.position)) continue;
+            if (zone.Priority >= bestPriority)
+            {
+                bestPriority = zone.Priority;
+                best = zone.Track;
+            }
+        }
+        return best;
     }
 
-    /// <summary>Llamado por MusicZone cuando el jugador local entra a la zona.</summary>
-    public void PushZone(MusicTrack track)
+    /// <summary>
+    /// Busca y cachea el transform del jugador local (InputAuthority). La búsqueda
+    /// solo corre hasta encontrarlo; después queda cacheado.
+    /// </summary>
+    private Transform GetLocalPlayer()
     {
-        if (track == null) return;
-        _zoneStack.Add(track);
-        Apply();
-    }
+        if (_localPlayer != null) return _localPlayer;
 
-    /// <summary>Llamado por MusicZone cuando el jugador local sale de la zona.</summary>
-    public void PopZone(MusicTrack track)
-    {
-        if (track == null) return;
-        _zoneStack.Remove(track); // saca la primera coincidencia; alcanza acá
-        Apply();
-    }
-
-    /// <summary>Pide al AudioManager la pista actual (tope de pila, o base si no hay zonas).</summary>
-    private void Apply()
-    {
-        MusicTrack target = _zoneStack.Count > 0 ? _zoneStack[_zoneStack.Count - 1] : baseTrack;
-        AudioManager.Instance?.PlayMusic(target);
+        foreach (var no in FindObjectsByType<NetworkObject>(FindObjectsSortMode.None))
+        {
+            if (no.HasInputAuthority && no.CompareTag("Player"))
+            {
+                _localPlayer = no.transform;
+                break;
+            }
+        }
+        return _localPlayer;
     }
 }
