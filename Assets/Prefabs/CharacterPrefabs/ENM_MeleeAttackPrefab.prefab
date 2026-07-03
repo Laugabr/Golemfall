@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 1675199986379086463}
   - component: {fileID: 1009992665799927410}
   - component: {fileID: 318941843082986781}
-  m_Layer: 2
+  m_Layer: 1
   m_Name: ENM_MeleeAttackPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4932,7 +4932,7 @@ Rigidbody:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 264
+    m_Bits: 256
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
@@ -5033,7 +5033,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2035329302156291107, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
       propertyPath: m_Layer
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2086540314218099293, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
       propertyPath: m_Name
@@ -5041,7 +5041,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2086540314218099293, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
       propertyPath: m_Layer
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2580561444201378492, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
       propertyPath: m_LocalScale.x
@@ -5101,11 +5101,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2605427049259038838, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
       propertyPath: m_Layer
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2629744534331925979, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
       propertyPath: m_Layer
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3563698293323809374, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
       propertyPath: ShapeModule.enabled
@@ -5113,7 +5113,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4401237581896119780, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
       propertyPath: m_Layer
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4642052602320786318, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
       propertyPath: m_LocalScale.x
@@ -5165,11 +5165,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6001384847077884739, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
       propertyPath: m_Layer
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6266928382346516599, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
       propertyPath: m_Layer
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6600739473857936378, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
       propertyPath: m_LocalScale.x
@@ -5201,7 +5201,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6638111593690941023, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
       propertyPath: m_Layer
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6638896066428399821, guid: 0290f7bf85754364e87ab3762c6b96e1, type: 3}
       propertyPath: m_LocalScale.x
