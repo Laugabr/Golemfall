@@ -28,7 +28,7 @@ Material:
   - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords: []
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: 3000
   stringTagMap:
@@ -62,7 +62,7 @@ Material:
     - _AlphaToMask: 0
     - _Blend: 0
     - _CastShadows: 1
-    - _Cull: 2
+    - _Cull: 0
     - _Depth_Fade_Distance: 0
     - _DstBlend: 10
     - _Fire_Noise_Intensity: 1.12
@@ -77,8 +77,8 @@ Material:
     - _ZWriteControl: 0
     m_Colors:
     - _Fire_Color_A: {r: 0.31476846, g: 1.9999999, b: 0.028301833, a: 0}
-    - _Fire_Color_B: {r: 1.8695991, g: 2.3541584, b: 0, a: 0}
+    - _Fire_Color_B: {r: 3.739198, g: 4.7083163, b: 0, a: 0}
     - _Fire_Noise_UV_Distortion_Tiling_and_Offset_Speed: {r: 1.64, g: 1.48, b: 0, a: 2}
-    - _SmoothStep: {r: 0.54, g: -0.01, b: 0, a: 0}
+    - _SmoothStep: {r: 0.86, g: 0.11, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

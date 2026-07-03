@@ -655,6 +655,18 @@ PrefabInstance:
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
+    - target: {fileID: 8568220870916982159, guid: 94245ba039eda00499911dc0b78f88fe, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 10308, guid: 0000000000000000f000000000000000, type: 0}
+    - target: {fileID: 8951321662618123566, guid: 94245ba039eda00499911dc0b78f88fe, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8951321662618123566, guid: 94245ba039eda00499911dc0b78f88fe, type: 3}
+      propertyPath: InitialModule.startSize.minScalar
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8951321662618123566, guid: 94245ba039eda00499911dc0b78f88fe, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
       value: 0
