@@ -252,14 +252,13 @@ public class MissionController : NetworkBehaviour
             pausingMission = newMission;
         }
 
-        Debug.Log($"Mission Started: {newMission.missionId}");
+        //Debug.Log($"Mission Started: {newMission.missionId}");
         MissionEvents.OnMissionStarted?.Invoke(newMission);
     }
 
     private void ServerTrackStep(GameEventType stepId, int progress, string key)
     {
         if (!Object.HasStateAuthority) return;
-
         // El sync (progreso absoluto y remove) se maneja dentro de TrackStep.
         TrackStep(stepId, progress, key);
     }
@@ -268,8 +267,7 @@ public class MissionController : NetworkBehaviour
     public MissionStatus TrackStep(GameEventType stepId, int progress, string key)
     {
         if (!Object.HasStateAuthority)
-            return MissionStatus.kNone;
-
+            return MissionStatus.kNone; 
         MissionStatus globalStatus = MissionStatus.kNone;
 
         // Missions that start from gameplay events
@@ -326,7 +324,7 @@ public class MissionController : NetworkBehaviour
                     break;
 
                 case MissionStatus.kComplete:
-                    Debug.Log($"Mission Completed: {mission.missionId}");
+                    //Debug.Log($"Mission Completed: {mission.missionId}");
                     _completedMissionIds.Add(mission.missionId);
                     MissionEvents.OnMissionComplete?.Invoke(mission);
                     globalStatus = MissionStatus.kComplete;
@@ -339,14 +337,14 @@ public class MissionController : NetworkBehaviour
                         {
                             em.AddExperience(mission.xp);
                         }
-                        Debug.Log($"[MISSION] XP grupal otorgada: {mission.xp} a {allExpManagers.Length} players");
+                        //Debug.Log($"[MISSION] XP grupal otorgada: {mission.xp} a {allExpManagers.Length} players");
                     }
 
                     if (mission == pausingMission)
                     {
                         missionsPaused = false;
                         pausingMission = null;
-                        Debug.Log("Dungeon finished → missions resumed");
+                        //Debug.Log("Dungeon finished → missions resumed");
                     }
 
                     foreach (var next in mission.nextMissions)
@@ -356,7 +354,7 @@ public class MissionController : NetworkBehaviour
                     break;
 
                 case MissionStatus.kFailed:
-                    Debug.Log($"Mission Failed: {mission.missionId}");
+                    //Debug.Log($"Mission Failed: {mission.missionId}");
                     MissionEvents.OnMissionFailed?.Invoke(mission);
                     globalStatus = MissionStatus.kFailed;
                     RPC_AllClientsRemoveMission(mission.missionId, false);
@@ -365,7 +363,7 @@ public class MissionController : NetworkBehaviour
                     {
                         missionsPaused = false;
                         pausingMission = null;
-                        Debug.Log("Dungeon failed → missions resumed");
+                        //Debug.Log("Dungeon failed → missions resumed");
                     }
 
                     missionsToRemove.Add(mission);

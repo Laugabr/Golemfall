@@ -25,7 +25,7 @@ public class MissionEventBridge : NetworkBehaviour
         if (!Runner.IsServer)
         {
             _missionController.RPC_RequestSync();
-            Debug.Log("MissionEventBridge: sync requested from server");
+            //Debug.Log("MissionEventBridge: sync requested from server");
         }
     }
 

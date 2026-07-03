@@ -44,10 +44,10 @@ public class NotificationManager : MonoBehaviour
     /// <summary>API canónica: muestra una notificación a partir de un SO.</summary>
     public void Show(NotificationData data, params object[] formatArgs)
     {
-        Debug.Log($"[NotifManager] Show: data={data?.name}, prefab={viewPrefab != null}, parent={viewParent?.name}");
+        //Debug.Log($"[NotifManager] Show: data={data?.name}, prefab={viewPrefab != null}, parent={viewParent?.name}");
         if (data == null)
         {
-            Debug.LogWarning("[NotificationManager] Show llamado con data null.");
+            //Debug.LogWarning("[NotificationManager] Show llamado con data null.");
             return;
         }
 
@@ -74,7 +74,7 @@ public class NotificationManager : MonoBehaviour
     {
         if (data == null)
         {
-            Debug.LogWarning("[NotificationManager] Show llamado con data null.");
+            //Debug.LogWarning("[NotificationManager] Show llamado con data null.");
             return;
         }
 
@@ -149,7 +149,7 @@ public class NotificationManager : MonoBehaviour
     {
         if (viewPrefab == null)
         {
-            Debug.LogError("[NotificationManager] viewPrefab no asignado.");
+            //Debug.LogError("[NotificationManager] viewPrefab no asignado.");
             yield break;
         }
 
@@ -177,7 +177,7 @@ public class NotificationManager : MonoBehaviour
         try { return string.Format(template, args); }
         catch (FormatException)
         {
-            Debug.LogWarning($"[NotificationManager] Template inválido: \"{template}\". Usando texto crudo.");
+            //Debug.LogWarning($"[NotificationManager] Template inválido: \"{template}\". Usando texto crudo.");
             return template;
         }
     }
