@@ -84,7 +84,7 @@ public class AbilityHolder : NetworkBehaviour
 
         if (Object.HasInputAuthority)
         {
-            SpawnFakeProjectile(index, direction);
+            //SpawnFakeProjectile(index, direction);
             RPC_RequestUseAbility(index, direction, 0f);
         }
     }
@@ -104,9 +104,8 @@ public class AbilityHolder : NetworkBehaviour
         if (progression != null && !progression.IsAbilityUnlocked(index)) return;
 
         var ability = abilities[index];
-        if (ability == null) { Debug.LogError("Ability null"); return; }
+        if (ability == null) { return; }
 
-        Debug.Log($"[SERVER] Player {info.Source} usa skill {index}");
 
         var netController = GetComponent<NetCharacterController>();
         if (netController != null && attackYaw != 0f)

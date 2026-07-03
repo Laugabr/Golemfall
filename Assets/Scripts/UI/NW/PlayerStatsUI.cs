@@ -26,7 +26,6 @@ public class PlayerStatsUI : MonoBehaviour
 
         if (runner == null)
         {
-            Debug.LogWarning("[PlayerStatsUI] No se encontró NetworkRunner en la escena.");
             return;
         }
 

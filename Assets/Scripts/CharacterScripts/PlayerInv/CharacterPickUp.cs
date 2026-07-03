@@ -35,7 +35,7 @@ public class CharacterPickUp : NetworkBehaviour
         var item = currentInteractor.GetComponent<PickableItem>();
         if (item == null) return;
 
-        Debug.Log($"{Object} tries to collect {item.Item.displayName}");
+        //Debug.Log($"{Object} tries to collect {item.Item.displayName}");
         item.Rpc_Collect(Object);
         TrackEvents.OnTrackEvent?.Invoke(GameEventType.CollectItem, 1, item.Item.missionKey);
 

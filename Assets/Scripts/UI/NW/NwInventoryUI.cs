@@ -70,7 +70,7 @@ public class NwInventoryUI : MonoBehaviour
             targetCraftingSystem = ps.GetComponent<CraftingSystem>();
             if (targetCraftingSystem != null)
             {
-                Debug.Log("[CraftingSystem] Vinculado al inventario local.");
+                //Debug.Log("[CraftingSystem] Vinculado al inventario local.");
 
                 if (craftingUI == null) craftingUI = GetComponent<CraftingUI>();
                 if (craftingUI != null) craftingUI.SetCraftingSystem(targetCraftingSystem);
@@ -81,7 +81,7 @@ public class NwInventoryUI : MonoBehaviour
             targetInventory = ps.GetComponent<NetworkInventory>();
             if (targetInventory != null)
             {
-                Debug.Log("[NwInventoryUI] Vinculado al inventario local.");
+                //Debug.Log("[NwInventoryUI] Vinculado al inventario local.");
                 CancelInvoke(nameof(TryBindToLocalPlayer));
                 Refresh();
             }

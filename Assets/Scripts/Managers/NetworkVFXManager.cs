@@ -78,7 +78,6 @@ public class NetworkVFXManager : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void RPC_SpawnMeleeHitVFXBatch(Vector3[] positions, Vector3 hitDirection)
     {
-        Debug.Log($"[NetworkVFXManager] {HasStateAuthority} RPC_SpawnMeleeHitVFXBatch: El peer que disparó ya instanció el VFX localmente");
         if (meleeHitVFX == null || positions == null) return;
 
         Quaternion rot = hitDirection != Vector3.zero ?

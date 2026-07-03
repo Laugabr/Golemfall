@@ -26,7 +26,6 @@ public class EnemyFireAtFrame : StateMachineBehaviour
         if (_hasFired) return;
         if (_ai == null) return;
 
-        //Debug.Log($"[FIRE] HasStateAuthority: {_ai.Object?.HasStateAuthority}, normalizedTime: {stateInfo.normalizedTime:F2}");
 
         if (!_ai.Object.HasStateAuthority) return;
 

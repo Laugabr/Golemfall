@@ -72,7 +72,6 @@ public class HealthSystem : NetworkBehaviour, IDamageable
 
         CurrentHealth -= finalDamage;
 
-        Debug.Log($"[SERVER] {gameObject.name} recibió {finalDamage} daño");
 
         if (CurrentHealth <= 0)
         {

@@ -125,9 +125,9 @@ public class ExperienceManager : NetworkBehaviour
         if (TotalExperience >= xpForNext)
         {
             CurrentLevel++;
-            Debug.Log($"[ExperienceManager] Disparando OnLevelUp con level {CurrentLevel}");
+            //Debug.Log($"[ExperienceManager] Disparando OnLevelUp con level {CurrentLevel}");
 
-            Debug.Log($"[SERVER] {gameObject.name} subió al nivel {CurrentLevel}");
+            ///Debug.Log($"[SERVER] {gameObject.name} subió al nivel {CurrentLevel}");
 
             // Notify PlayerStats so it can apply level bonuses
             BasicEventsManager.OnLevelUp?.Invoke(CurrentLevel);

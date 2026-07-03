@@ -21,7 +21,6 @@ public class ItemSlotDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
     public void OnBeginDrag(PointerEventData eventData)
     {
         IsDragging = true;
-        Debug.Log($"OnBeginDrag — UIRoot:{UIRoot.Instance != null} dragLayer:{UIRoot.Instance?.dragLayer != null}");
         if (UIRoot.Instance == null) return;
         originalParent = transform.parent;
         originalPos = transform.localPosition;

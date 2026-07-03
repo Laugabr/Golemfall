@@ -85,14 +85,13 @@ public class PlayerHealth : HealthSystem
         bodyVisualsGO?.SetActive(true);
         playerCollider.enabled = true;
 
-        Debug.Log($"[SERVER] {gameObject.name} respawneado en {_lastSpawnPoint}");
     }
 
     public void SetLastSpawnPoint(Vector3 position)
     {
         if (!Object.HasStateAuthority) return;
         _lastSpawnPoint = position;
-        Debug.Log($"[SERVER] LastSpawnPoint seteado en {position}");
+        //Debug.Log($"[SERVER] LastSpawnPoint seteado en {position}");
     }
 
     private void OnDestroy()
@@ -116,7 +115,7 @@ public class PlayerHealth : HealthSystem
     {
         if (!Object.HasStateAuthority || IsDead) return;
 
-        Debug.Log($"[SERVER] {gameObject.name} murió.");
+        //Debug.Log($"[SERVER] {gameObject.name} murió.");
         IsDead = true;
 
         // En pelea de arena: NO se respawnea solo. Se queda muerto/desactivado
@@ -124,7 +123,7 @@ public class PlayerHealth : HealthSystem
         // todos murieron y llame ForceRespawn() en cada uno.
         if (arenaFightActive)
         {
-            Debug.Log($"[SERVER] {gameObject.name} queda muerto esperando wipe de arena");
+            //Debug.Log($"[SERVER] {gameObject.name} queda muerto esperando wipe de arena");
             return;
         }
 

@@ -6,7 +6,6 @@ public class CollectedSlotDrop : MonoBehaviour, IDropHandler, IItemDropTarget
     public void OnDrop(PointerEventData eventData)
     {
         var dragged = eventData.pointerDrag?.GetComponent<ItemSlotDrag>();
-        Debug.Log($"OnDrop — dragged:{dragged != null}");
         if (dragged == null) return;
         TryAccept(dragged);
     }

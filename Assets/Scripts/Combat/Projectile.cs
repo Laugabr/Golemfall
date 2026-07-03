@@ -126,8 +126,7 @@ public class Projectile : NetworkBehaviour
 
                 if (_pendingMeleeVfxPositions.Count > 0 && NetworkVFXManager.Instance != null)
                 {
-                    Debug.Log($"[Projectile] Enviando batch de VFX melee a {NetworkVFXManager.Instance.name} con {_pendingMeleeVfxPositions.Count} posiciones");
-                    NetworkVFXManager.Instance.RPC_SpawnMeleeHitVFXBatch(
+                        NetworkVFXManager.Instance.RPC_SpawnMeleeHitVFXBatch(
                         _pendingMeleeVfxPositions.ToArray(), Direction);
                     _pendingMeleeVfxPositions.Clear();
                 }

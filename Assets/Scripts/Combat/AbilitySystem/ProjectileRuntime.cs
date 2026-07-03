@@ -9,7 +9,6 @@ public static class ProjectileRuntime
         NetworkObject caster,
         Vector3 direction)
     {
-        Debug.Log("EXECUTE PROJECTILE");
 
         Vector3 spawnPos = caster.transform.position + Vector3.up * 1f;
         Quaternion rot = Quaternion.LookRotation(direction);
@@ -45,6 +44,5 @@ public static class ProjectileRuntime
             }
         );
 
-        Debug.Log("[SERVER] Projectile spawned");
     }
 }
