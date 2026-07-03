@@ -74,6 +74,8 @@ MonoBehaviour:
   _chaseRadius: 135
   _returnSpeed: 7.5
   _patrolWaitTime: 0.5
+  navMeshSnapRadius: 3
+  navMeshRetryWarningTicks: 60
 --- !u!114 &1876080899843528332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -579,7 +581,8 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 8531887250862338775, guid: 7a84ec6515776104fb19d9b40fd394ae, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7a84ec6515776104fb19d9b40fd394ae, type: 3}

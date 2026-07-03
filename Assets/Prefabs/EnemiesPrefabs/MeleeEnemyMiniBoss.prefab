@@ -74,6 +74,8 @@ MonoBehaviour:
   _chaseRadius: 60
   _returnSpeed: 7
   _patrolWaitTime: 1
+  navMeshSnapRadius: 3
+  navMeshRetryWarningTicks: 60
 --- !u!114 &1876080899843528332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -141,6 +143,7 @@ MonoBehaviour:
   netAnimator: {fileID: 0}
   enemyAI: {fileID: 0}
   deathAnimDuration: 3.5
+  defaultMissionKey: 
 --- !u!114 &2992418593781395394
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -453,7 +456,8 @@ PrefabInstance:
       value: EnemiesAnimations
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: -4053608831015356855, guid: 7a84ec6515776104fb19d9b40fd394ae, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7a84ec6515776104fb19d9b40fd394ae, type: 3}
