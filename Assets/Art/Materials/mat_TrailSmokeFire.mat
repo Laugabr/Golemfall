@@ -1,5 +1,18 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-852056324558826171
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 10
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -7,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: mat_SparkleFireBallExplosionVenom
-  m_Shader: {fileID: -6465566751694194690, guid: fa165695a6f99c244865d20e075f128f, type: 3}
+  m_Name: mat_TrailSmokeFire
+  m_Shader: {fileID: -6465566751694194690, guid: 776092056c305f147a067c7a2862cce1, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
@@ -17,18 +30,18 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 3000
   stringTagMap:
     RenderType: Transparent
   disabledShaderPasses:
-  - DepthOnly
   - MOTIONVECTORS
+  - DepthOnly
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _Texture2D:
-        m_Texture: {fileID: 2800000, guid: 3e18475f5cd229b4ea3ffe78febf8c34, type: 3}
+    - _Fire_Noise:
+        m_Texture: {fileID: 2800000, guid: e1fd47d6efd91024292dc0917577c105, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -49,33 +62,23 @@ Material:
     - _AlphaToMask: 0
     - _Blend: 0
     - _CastShadows: 1
-    - _Cull: 0
+    - _Cull: 2
+    - _Depth_Fade_Distance: 0
     - _DstBlend: 10
-    - _EmissionStrength: 40.6
-    - _FresnelIntensity: 27.85
+    - _Fire_Noise_Intensity: 20
+    - _Fire_Noise_UV_Distortion_Intensity: 0
     - _QueueControl: 0
     - _QueueOffset: 0
     - _SrcBlend: 5
     - _Surface: 1
-    - _ZTest: 8
+    - _UV_Masking_Bottom_0_Legt_1: 0
+    - _ZTest: 4
     - _ZWrite: 0
-    - _ZWriteControl: 2
+    - _ZWriteControl: 0
     m_Colors:
-    - _Color: {r: 0, g: 0.39607844, b: 0.11463997, a: 0}
-    - _FresnelColor: {r: 0, g: 0, b: 0, a: 0}
-    - _SmoosStepMas: {r: -0.42, g: 0.66, b: 0, a: 0}
+    - _Fire_Color_A: {r: 0.024417335, g: 0, b: 0.41509432, a: 0.2627451}
+    - _Fire_Color_B: {r: 0.038538735, g: 0, b: 0.2264151, a: 1}
+    - _Fire_Noise_UV_Distortion_Tiling_and_Offset_Speed: {r: 1, g: 1, b: -6.2, a: 0}
+    - _SmoothStep: {r: 1, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &3570644120810938924
-MonoBehaviour:
-  m_ObjectHideFlags: 11
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 10
