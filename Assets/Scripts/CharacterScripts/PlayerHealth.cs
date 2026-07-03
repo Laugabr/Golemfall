@@ -114,7 +114,9 @@ public class PlayerHealth : HealthSystem
     public override void Die()
     {
         if (!Object.HasStateAuthority || IsDead) return;
-
+        
+        if (Object.HasStateAuthority)
+            StartCoroutine(RespawnRoutine());
         //Debug.Log($"[SERVER] {gameObject.name} murió.");
         IsDead = true;
 
@@ -182,12 +184,6 @@ public class PlayerHealth : HealthSystem
             playerCollider.enabled = false;
             var kcc = GetComponent<SimpleKCC>();
             if (kcc != null) kcc.SetGravity(0f);
-
-            // Desactivamos visuals acá también (antes solo lo hacía
-            // RespawnRoutine() al final del timer, pero ahora en arena
-            // el player puede quedarse muerto indefinidamente).
-            if (bodyVisualsGO != null)
-                bodyVisualsGO.SetActive(false);
         }
         else
         {
