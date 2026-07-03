@@ -1,44 +1,36 @@
-using Fusion;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Zona de música: un trigger que colocás en el mapa. Cuando el JUGADOR LOCAL
-/// entra, le pide al MusicDirector que ponga su pista (fight, ambience, etc.);
-/// al salir, la quita. Reutilizable: cada zona elige su MusicTrack en el Inspector.
+/// Zona de música (versión por polling). Ya NO usa OnTriggerEnter/Exit: es un
+/// marcador pasivo. El MusicDirector le pregunta "¿el jugador está dentro tuyo?"
+/// cada tanto. Así los teleports/muertes/respawns no la descolocan: la música
+/// siempre refleja dónde está el jugador de verdad.
 ///
-/// Multiplayer: filtramos por HasInputAuthority para reaccionar SOLO al jugador
-/// local de este cliente. Así cada jugador escucha la música de la zona en la que
-/// está él, sin importar dónde estén los demás.
-///
-/// Requiere un Collider marcado como "Is Trigger" en este objeto.
+/// Requiere un Collider (Is Trigger para que no choque con el player).
+/// El chequeo usa el bounding box del collider: aproximado, pero de sobra para música.
 /// </summary>
 [RequireComponent(typeof(Collider))]
 public class MusicZone : MonoBehaviour
 {
-    [Tooltip("Pista que suena mientras el jugador local está dentro de la zona.")]
+    [Tooltip("Pista que suena mientras el jugador local está dentro.")]
     [SerializeField] private MusicTrack track;
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (!IsLocalPlayer(other)) return;
-        MusicDirector.Instance?.PushZone(track);
-    }
+    [Tooltip("Si dos zonas se solapan, gana la de mayor prioridad.")]
+    [SerializeField] private int priority = 0;
 
-    private void OnTriggerExit(Collider other)
-    {
-        if (!IsLocalPlayer(other)) return;
-        MusicDirector.Instance?.PopZone(track);
-    }
+    private Collider _col;
 
-    /// <summary>
-    /// True solo si el collider es del jugador local (el que tiene InputAuthority
-    /// en este cliente). El NetworkObject puede estar en un padre del collider,
-    /// por eso usamos GetComponentInParent.
-    /// </summary>
-    private static bool IsLocalPlayer(Collider other)
-    {
-        if (!other.CompareTag("Player")) return false;
-        var netObj = other.GetComponentInParent<NetworkObject>();
-        return netObj != null && netObj.HasInputAuthority;
-    }
+    public MusicTrack Track => track;
+    public int Priority => priority;
+
+    // Lista de zonas activas: el MusicDirector recorre solo esto (nada de FindObjects).
+    public static readonly List<MusicZone> Active = new List<MusicZone>();
+
+    private void Awake() => _col = GetComponent<Collider>();
+    private void OnEnable() => Active.Add(this);
+    private void OnDisable() => Active.Remove(this);
+
+    /// <summary>True si el punto cae dentro de la zona.</summary>
+    public bool Contains(Vector3 point) => _col.bounds.Contains(point);
 }
