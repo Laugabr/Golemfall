@@ -13,6 +13,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] private GameObject _lobbyPanel;
     [SerializeField] private Button _createRoomButton;
     [SerializeField] private Button _joinRoomButton;
+    [SerializeField] private Button _singlePlayerButton;
     [SerializeField] private Transform _spawnPoint;
     [SerializeField] private GameObject _Hud;
 
@@ -35,7 +36,30 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         // Assign UI button callbacks
         _createRoomButton.onClick.AddListener(CreateRoom);
         _joinRoomButton.onClick.AddListener(JoinRoom);
-        
+        _singlePlayerButton.onClick.AddListener(StartSinglePlayerGame);
+    }
+
+    private async void StartSinglePlayerGame()
+    {
+        var gameArg = new StartGameArgs()
+        {
+            GameMode = GameMode.Single,
+            SessionName = "SinglePlayer_" + Guid.NewGuid(), // no importa mucho, no hay matchmaking real
+            SceneManager = _networkSceneManagerDefault,
+            Scene = SceneRef.FromIndex(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex),
+        };
+
+        var result = await _networkRunner.StartGame(gameArg);
+
+        if (!result.Ok)
+        {
+            Debug.LogError(result.ShutdownReason);
+            Debug.LogError("Error: " + result.ErrorMessage);
+            return;
+        }
+
+        if (_lobbyPanel)
+            _lobbyPanel.SetActive(false);
     }
 
     //Gets called On Destroy to debug 
