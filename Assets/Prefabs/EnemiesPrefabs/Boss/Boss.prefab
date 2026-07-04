@@ -760,7 +760,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d260d1ad48f802f41901b543d22d50b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 200
+  maxHealth: 1500
   _CurrentHealth: 0
   bossAI: {fileID: 3041949536673850921}
   respawnManager: {fileID: 4050175373825568047}
@@ -810,6 +810,8 @@ MonoBehaviour:
   telegraphTime: 1
   phase1SpikeCount: 19
   phase2SpikeCount: 60
+  phase1FallSpeed: 8
+  phase2FallSpeed: 14
   phase1ToothDelay: 0.4
   phase2ToothDelay: 0.2
 --- !u!114 &4050175373825568047
