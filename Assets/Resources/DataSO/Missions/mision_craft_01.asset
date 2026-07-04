@@ -15,7 +15,7 @@ MonoBehaviour:
   missionId: mision_craft_01
   missionName: '"Uno es mejor que dos"'
   description: "Craftear una reliquia a partir de 2 objetos m\xE1gicos"
-  xp: 100
+  xp: 250
   coins: 0
   missionSteps:
   - targetId: 20
@@ -27,5 +27,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 937114a442a991f41a287799746c0a47, type: 2}
   pausesOtherMissions: 0
   startWithEvent: 0
+  startEventKey: 
   startEvent: 0
   startOnlyOnce: 0

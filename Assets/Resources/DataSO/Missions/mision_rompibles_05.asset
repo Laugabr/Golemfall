@@ -15,7 +15,7 @@ MonoBehaviour:
   missionId: mision_rompibles_05
   missionName: '"Cenicienta no, nebucenizas"'
   description: Eliminar 30 nebucenizas
-  xp: 100
+  xp: 350
   coins: 0
   missionSteps:
   - targetId: 7
@@ -26,5 +26,6 @@ MonoBehaviour:
   nextMissions: []
   pausesOtherMissions: 0
   startWithEvent: 0
+  startEventKey: 
   startEvent: 0
   startOnlyOnce: 0

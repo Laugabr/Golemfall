@@ -15,15 +15,17 @@ MonoBehaviour:
   missionId: mision_explorar_02
   missionName: "\"Objetos m\xE1gicos\""
   description: "Recolectar 9 objetos m\xE1gicos"
-  xp: 150
+  xp: 350
   coins: 0
   missionSteps:
   - targetId: 1
     amount: 9
+    targetKey: 
     displayText: "Objetos m\xE1gicos encontrados"
   failureSteps: []
   nextMissions: []
   pausesOtherMissions: 0
   startWithEvent: 1
+  startEventKey: 
   startEvent: 1
   startOnlyOnce: 1

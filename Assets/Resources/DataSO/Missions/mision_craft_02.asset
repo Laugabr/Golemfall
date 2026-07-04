@@ -15,7 +15,7 @@ MonoBehaviour:
   missionId: mision_craft_02
   missionName: '"Reina de las Reliquias"'
   description: Craftear 6 reliquias
-  xp: 250
+  xp: 500
   coins: 0
   missionSteps:
   - targetId: 20
@@ -26,5 +26,6 @@ MonoBehaviour:
   nextMissions: []
   pausesOtherMissions: 0
   startWithEvent: 0
+  startEventKey: 
   startEvent: 0
   startOnlyOnce: 0
