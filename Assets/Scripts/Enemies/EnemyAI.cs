@@ -333,8 +333,9 @@ public class EnemyAI : NetworkBehaviour
     {
         if (!Object.HasStateAuthority) return;
         if (CurrentTarget == null) return;
+        if (IsInAttackAnimation) return; // guarda extra por las dudas
 
-        // Solo dispara la animación, el proyectil sale desde EnemyFireAtFrame
+        IsInAttackAnimation = true; // <-- clave: bloquea reentradas YA, no esperamos al animator
         _animator?.TriggerAttack();
     }
 
