@@ -18,7 +18,7 @@ public class EnemyHealthBar : MonoBehaviour
             enemyRenderer = rend;
 
 
-        maxBillboardDistance = GetComponentInParent<EnemyAI>().VisionRange;
+        maxBillboardDistance = GetComponentInParent<EnemyAI>().VisionRange * 2;
     }
 
 
