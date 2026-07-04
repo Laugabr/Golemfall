@@ -26,6 +26,7 @@ using UnityEngine;
 ///   trigger takeDamageTrigger
 ///   trigger deathTrigger
 ///   trigger healTrigger
+///   trigger pickupTrigger
 /// </summary>
 public class NetCharacterAnimator : NetworkBehaviour
 {
@@ -47,6 +48,7 @@ public class NetCharacterAnimator : NetworkBehaviour
     [Networked] private int NetJumpTick { get; set; }
     [Networked] private int NetMeleeTick { get; set; }
     [Networked] private int NetRangeTick { get; set; }
+    [Networked] private int NetPickupTick { get; set; } // ← NUEVO: tick de la animación de pickup
 
     /// <summary>
     /// Tick stamp para la animación de curación.
@@ -64,6 +66,7 @@ public class NetCharacterAnimator : NetworkBehaviour
     private int _lastRangeTick;
     private int _lastHealTick;
     private int _lastTakeDamageTick;
+    private int _lastPickupTick; // ← NUEVO
 
     private static readonly int IsWalking = Animator.StringToHash("isWalking");
     private static readonly int IsDashing = Animator.StringToHash("isDashing");
@@ -74,6 +77,7 @@ public class NetCharacterAnimator : NetworkBehaviour
     private static readonly int MeleeTriggerHash = Animator.StringToHash("meleeTrigger");
     private static readonly int RangeTriggerHash = Animator.StringToHash("rangeTrigger");
     private static readonly int HealTriggerHash = Animator.StringToHash("healTrigger");
+    private static readonly int PickupTriggerHash = Animator.StringToHash("pickupTrigger"); // ← NUEVO
     private static readonly int TakeDamageTriggerHash = Animator.StringToHash("takeDamageTrigger");
     private static readonly int VerticalVelocityHash = Animator.StringToHash("verticalVelocity");
     private static readonly int DeathTriggerHash = Animator.StringToHash("deathTrigger");
@@ -109,6 +113,7 @@ public class NetCharacterAnimator : NetworkBehaviour
         _lastRangeTick = NetRangeTick;
         _lastHealTick = NetHealTick;
         _lastTakeDamageTick = NetTakeDamageTick;
+        _lastPickupTick = NetPickupTick; // ← NUEVO
     }
 
     /// <summary>
@@ -123,6 +128,21 @@ public class NetCharacterAnimator : NetworkBehaviour
         NetHealTick = Runner.Tick;
         animator.SetTrigger(HealTriggerHash);
         ResetIdleLocal();
+    }
+
+    /// <summary>
+    /// Llamado por CharacterPickUp.TryPickUp() SOLO cuando hay un item cerca
+    /// (currentInteractor != null). A diferencia de Jump/Melee/Range, este trigger
+    /// NO se dispara con el input crudo — evita que apretar F "en el aire" interrumpa
+    /// otras animaciones. El owner (host o cliente) escribe el tick para que los
+    /// proxies lo detecten en Render().
+    /// </summary>
+    public void TriggerPickupAnimation()
+    {
+        if (!(HasStateAuthority || HasInputAuthority)) return;
+        animator.SetTrigger(PickupTriggerHash);
+        ResetIdleLocal();
+        NetPickupTick = Runner.Tick;
     }
 
     public override void FixedUpdateNetwork()
@@ -360,6 +380,12 @@ public class NetCharacterAnimator : NetworkBehaviour
         {
             _lastTakeDamageTick = NetTakeDamageTick;
             animator.SetTrigger(TakeDamageTriggerHash);
+        }
+
+        if (NetPickupTick != _lastPickupTick) // ← NUEVO
+        {
+            _lastPickupTick = NetPickupTick;
+            animator.SetTrigger(PickupTriggerHash);
         }
     }
 
