@@ -189,7 +189,14 @@ public class Projectile : NetworkBehaviour
         
 
         if (damageable == null && ShowHitVFX && collisionVFX != null && !_wallHitVFXSent)
-        {
+        {   
+            if(onExpireAoe)
+            {
+                ExpirePosition = transform.position;
+                Expired = true;
+                SpawnOnExpireAoe(ExpirePosition);
+            } 
+            
             _wallHitVFXSent = true;
             Vector3 vfxPos = other.ClosestPoint(transform.position);
             NetworkVFXManager.Instance.RPC_SpawnProjectileHitVFX(
