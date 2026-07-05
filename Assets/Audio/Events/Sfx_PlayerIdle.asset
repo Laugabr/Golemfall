@@ -10,14 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4510da6fd8a29c40be2075a903d567e, type: 3}
-  m_Name: Sfx_ButtonCraft
+  m_Name: Sfx_PlayerIdle
   m_EditorClassIdentifier: 
   clips:
-  - {fileID: 8300000, guid: f1e723809a339374fbf63e02fd73c02f, type: 3}
+  - {fileID: 8300000, guid: 920d2d8355df39e468a39bc63530dbc0, type: 3}
+  - {fileID: 8300000, guid: acc2477b40e18484d864c286442bab3a, type: 3}
   volume: 1
   pitchMin: 1
   pitchMax: 1
   loop: 0
   is3D: 1
   maxDistance: 25
-  mixerGroup: {fileID: -6829211463232764639, guid: e59c7a5ffc26ca74695bd57bf635bb63, type: 2}
+  mixerGroup: {fileID: -310158625271403409, guid: e59c7a5ffc26ca74695bd57bf635bb63, type: 2}

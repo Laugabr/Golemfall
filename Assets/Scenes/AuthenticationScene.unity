@@ -706,6 +706,7 @@ GameObject:
   - component: {fileID: 462841599}
   - component: {fileID: 462841598}
   - component: {fileID: 462841597}
+  - component: {fileID: 462841600}
   m_Layer: 5
   m_Name: TogglePasswordBtn
   m_TagString: Untagged
@@ -827,6 +828,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 462841595}
   m_CullTransparentMesh: 1
+--- !u!114 &462841600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 462841595}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7de848a3bf29ccc4cab524268bac93fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSound: {fileID: 11400000, guid: 1c7a69c0d1a01f643978eae3279301b5, type: 2}
 --- !u!1 &620307734
 GameObject:
   m_ObjectHideFlags: 0
@@ -1251,6 +1265,7 @@ GameObject:
   - component: {fileID: 1029508271}
   - component: {fileID: 1029508270}
   - component: {fileID: 1029508269}
+  - component: {fileID: 1029508272}
   m_Layer: 5
   m_Name: AnonymousLoginBtn
   m_TagString: Untagged
@@ -1372,6 +1387,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1029508267}
   m_CullTransparentMesh: 1
+--- !u!114 &1029508272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1029508267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7de848a3bf29ccc4cab524268bac93fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSound: {fileID: 11400000, guid: 1c7a69c0d1a01f643978eae3279301b5, type: 2}
 --- !u!1 &1034888981
 GameObject:
   m_ObjectHideFlags: 0
@@ -2476,6 +2504,7 @@ GameObject:
   - component: {fileID: 1749796829}
   - component: {fileID: 1749796828}
   - component: {fileID: 1749796827}
+  - component: {fileID: 1749796830}
   m_Layer: 5
   m_Name: LoginBtn
   m_TagString: Untagged
@@ -2597,6 +2626,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1749796825}
   m_CullTransparentMesh: 1
+--- !u!114 &1749796830
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1749796825}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7de848a3bf29ccc4cab524268bac93fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSound: {fileID: 11400000, guid: 1c7a69c0d1a01f643978eae3279301b5, type: 2}
 --- !u!1 &1821230019
 GameObject:
   m_ObjectHideFlags: 0
@@ -2770,6 +2812,7 @@ MonoBehaviour:
   loginButton: {fileID: 1749796827}
   anonymousLoginButton: {fileID: 1029508269}
   sceneToLoad: Integration
+  expoAutoLogin: 1
 --- !u!4 &1852725580
 Transform:
   m_ObjectHideFlags: 0
@@ -3223,6 +3266,7 @@ GameObject:
   - component: {fileID: 2138924218}
   - component: {fileID: 2138924217}
   - component: {fileID: 2138924216}
+  - component: {fileID: 2138924219}
   m_Layer: 5
   m_Name: RegisterBtn
   m_TagString: Untagged
@@ -3344,6 +3388,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2138924214}
   m_CullTransparentMesh: 1
+--- !u!114 &2138924219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2138924214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7de848a3bf29ccc4cab524268bac93fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSound: {fileID: 11400000, guid: 1c7a69c0d1a01f643978eae3279301b5, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

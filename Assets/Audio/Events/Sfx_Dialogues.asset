@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4510da6fd8a29c40be2075a903d567e, type: 3}
+  m_Name: Sfx_Dialogues
+  m_EditorClassIdentifier: 
+  clips:
+  - {fileID: 8300000, guid: 774e5d4bbe157f24f8bcb4d1f80475ee, type: 3}
+  - {fileID: 8300000, guid: a7bcce6f8fcbfc14d97c043e7caa1c21, type: 3}
+  - {fileID: 8300000, guid: 5b0f54b9acbb3c446af3fc931a1a98c5, type: 3}
+  - {fileID: 8300000, guid: d74738cf8b574a849a1e2336a6059bf0, type: 3}
+  - {fileID: 8300000, guid: a68fac52a1ca35d4a9a9537294f16fcd, type: 3}
+  - {fileID: 8300000, guid: bacd70804614022478a78520358cf941, type: 3}
+  - {fileID: 8300000, guid: fdcc5165c669c9340b85a66945c08f9c, type: 3}
+  volume: 1
+  pitchMin: 0.7
+  pitchMax: 0.8
+  loop: 0
+  is3D: 0
+  maxDistance: 25
+  mixerGroup: {fileID: -6829211463232764639, guid: e59c7a5ffc26ca74695bd57bf635bb63, type: 2}
