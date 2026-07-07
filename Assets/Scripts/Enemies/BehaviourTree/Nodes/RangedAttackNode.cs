@@ -4,7 +4,7 @@ namespace BehaviourTree
 {
     /// <summary>
     /// Nodo de ataque para el enemigo ranged.
-    /// Verifica que el jugador esté dentro del ShootDistance y que la habilidad esté lista.
+    /// Verifica que el jugador estï¿½ dentro del ShootDistance y que la habilidad estï¿½ lista.
     /// El cooldown lo maneja el AbilityHolder via el ScriptableObject de la habilidad.
     /// </summary>
     public class RangedAttackNode : Node
@@ -18,12 +18,15 @@ namespace BehaviourTree
 
         public override NodeState Evaluate()
         {
+            
+            // Bloquea el ï¿½rbol mientras se reproduce la animaciï¿½n de ataque
+            if (ai.IsInAttackAnimation)
+                return state = NodeState.Running;
+
             if (ai.CurrentTarget == null)
                 return state = NodeState.Failure;
 
-            // Bloquea el árbol mientras se reproduce la animación de ataque
-            if (ai.IsInAttackAnimation)
-                return state = NodeState.Running;
+
 
             float distance = Vector3.Distance(
                 ai.transform.position,
@@ -33,7 +36,7 @@ namespace BehaviourTree
             if (distance > ai.ShootDistance)
                 return state = NodeState.Failure;
 
-            // Dispara solo si el AbilityHolder dice que está listo
+            // Dispara solo si el AbilityHolder dice que estï¿½ listo
             if (ai.CanAttack())
                 ai.RangedAttack();
 

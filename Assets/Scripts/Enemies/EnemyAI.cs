@@ -289,6 +289,8 @@ public class EnemyAI : NetworkBehaviour
     /// </summary>
     void UpdateTarget()
     {
+        if (IsInAttackAnimation) return; // no reevaluar target durante el ataque
+
         if (CurrentTarget != null)
         {
             var health = CurrentTarget.GetComponent<PlayerHealth>();
@@ -365,8 +367,11 @@ public class EnemyAI : NetworkBehaviour
     public void FireProjectile()
     {
         if (!Object.HasStateAuthority) return;
-        if (CurrentTarget == null) return;
-
+        if (CurrentTarget == null)
+        {
+            Debug.LogWarning($"[EnemyAI] '{name}' intentó disparar sin target — animación desperdiciada.");
+            return;
+        }
         Vector3 shootPos = _shootPoint != null ? _shootPoint.position : transform.position + Vector3.up * 1f;
         Vector3 targetPos = CurrentTarget.position + Vector3.up * 1f;
 
