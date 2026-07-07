@@ -39,6 +39,9 @@ public class NetCharacterAnimator : NetworkBehaviour
     [SerializeField] private float chanceToChange = 0.15f;
     [SerializeField] private float variantDuration = 4f;
 
+    [Header("Debug")]
+    [SerializeField] private bool debugLogs = false;
+
     [Networked] private NetworkBool NetIsWalking { get; set; }
     [Networked] private NetworkBool NetIsGrounded { get; set; }
     [Networked] private NetworkBool NetIsFalling { get; set; }
@@ -143,6 +146,8 @@ public class NetCharacterAnimator : NetworkBehaviour
         animator.SetTrigger(PickupTriggerHash);
         ResetIdleLocal();
         NetPickupTick = Runner.Tick;
+        if (debugLogs)
+            Debug.Log($"[PICKUP-DEBUG] TriggerPickupAnimation ejecutado en {Object} | HasStateAuthority={HasStateAuthority} | HasInputAuthority={HasInputAuthority} | NetPickupTick={NetPickupTick}");
     }
 
     public override void FixedUpdateNetwork()
@@ -382,8 +387,10 @@ public class NetCharacterAnimator : NetworkBehaviour
             animator.SetTrigger(TakeDamageTriggerHash);
         }
 
-        if (NetPickupTick != _lastPickupTick) // ← NUEVO
+        if (NetPickupTick != _lastPickupTick)
         {
+            if (debugLogs)
+                Debug.Log($"[PICKUP-DEBUG] Render (proxy) detecta cambio NetPickupTick en {Object} | {_lastPickupTick} -> {NetPickupTick}");
             _lastPickupTick = NetPickupTick;
             animator.SetTrigger(PickupTriggerHash);
         }

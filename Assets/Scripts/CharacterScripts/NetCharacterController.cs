@@ -263,9 +263,10 @@ public class NetCharacterController : NetworkBehaviour
             charAbilities?.RPC_RequestUseAbility(2, Vector3.zero, 0f);
         }
 
-        // PICK UP (Interact) — siempre disponible.
-        if (input.Buttons.WasPressed(PreviousButtons, InputButton.Interact) && HasInputAuthority)
-            charPickUp?.TryPickUp();
+        // PICK UP (Interact) ← el llamado se hizo antes acá y quedó duplicado
+        // con CharacterPickUp.FixedUpdateNetwork(), causando una carrera de
+        // condiciones (dos detecciones de flanco independientes al mismo tiempo).
+        // CharacterPickUp es ahora la única fuente de verdad para el pickup.
 
         // ── MOVIMIENTO ───────────────────────────────────────────────────────────
         Vector3 moveDir;
@@ -318,7 +319,7 @@ public class NetCharacterController : NetworkBehaviour
         bodyVisuals.rotation = Quaternion.Slerp(
             bodyVisuals.rotation, target, rotationSpeed * Time.deltaTime
         );
-                if(HasInputAuthority)
+        if (HasInputAuthority)
             Shader.SetGlobalVector("_Player", transform.position + Vector3.up * capsuleCollider.radius);
     }
 
