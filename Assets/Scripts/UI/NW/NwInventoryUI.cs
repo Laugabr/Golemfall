@@ -24,7 +24,6 @@ public class NwInventoryUI : MonoBehaviour
 
     private NetworkInventory targetInventory;
     private NetworkRunner runner;
-    private List<short> visualOrder = new List<short>();
     private bool suppressRefresh = false;
 
     private void Start()
@@ -87,7 +86,7 @@ public class NwInventoryUI : MonoBehaviour
             }
 
 
-            
+
             return;
         }
     }
@@ -103,8 +102,8 @@ public class NwInventoryUI : MonoBehaviour
         if (targetInventory == null) return;
         if (!targetInventory.Object.IsValid) return;
 
-            if (targetInventory.IsDirty || targetInventory.LocalItems.Count != lastCount)        
-            {
+        if (targetInventory.IsDirty || targetInventory.LocalItems.Count != lastCount)
+        {
 
             if (ItemSlotDrag.IsDragging)
             {
@@ -129,19 +128,19 @@ public class NwInventoryUI : MonoBehaviour
 
     public void TogglePanel()
     {
-    if (inventoryPanel != null)
-    {
-        bool nowActive = !inventoryPanel.activeSelf;
-        inventoryPanel.SetActive(nowActive);
-
-        if (nowActive)
+        if (inventoryPanel != null)
         {
-            Refresh(); 
+            bool nowActive = !inventoryPanel.activeSelf;
+            inventoryPanel.SetActive(nowActive);
+
+            if (nowActive)
+            {
+                Refresh();
+            }
         }
     }
-    }
 
-        private void OnEnable()
+    private void OnEnable()
     {
         Refresh();
     }
@@ -149,30 +148,33 @@ public class NwInventoryUI : MonoBehaviour
     public void Refresh()
     {
         if (targetInventory == null) return;
+        if (targetInventory.LocalItems == null) return;
 
-         visualOrder.Clear(); 
+        // Lista cruda: una entrada por cada item en Items (incluye repetidos).
+        // Ya NO se deduplica por key: cada copia ocupa su propio slot visual.
+        var displayKeys = targetInventory.LocalItems.Select(s => s.itemKey).ToList();
 
-        var currentKeys = targetInventory.LocalItems
-            .Select(s => s.itemKey)
-            .Where(k => !targetInventory.EquippedItems.Contains(k)
-                        && (craftingUI == null || !craftingUI.IsKeyInCraft(k)))
-            .ToList();
+        // Equip es una vista sobre Items: restamos UNA copia por cada item equipado.
+        // Remove() saca solo la primera ocurrencia, así N copias equipadas restan N.
+        foreach (var key in targetInventory.EquippedItems)
+            displayKeys.Remove(key);
 
-        foreach (var key in currentKeys)
-            if (!visualOrder.Contains(key))
-                visualOrder.Add(key);
-
-        visualOrder.RemoveAll(k => !currentKeys.Contains(k));
+        // Ídem para los materiales que están ocupando un slot de craft.
+        if (craftingUI != null)
+            foreach (var key in craftingUI.GetCraftKeys())
+                displayKeys.Remove(key);
 
         foreach (var s in inventorySlots) s.ClearSlot();
         foreach (var s in equipSlots) s.ClearSlot();
 
-        for (int i = 0; i < visualOrder.Count && i < inventorySlots.Length; i++)
+        // Recolectados no equipados → grilla, uno por slot.
+        for (int i = 0; i < displayKeys.Count && i < inventorySlots.Length; i++)
         {
-            ItemData data = ItemData.GetItem(visualOrder[i]);
+            ItemData data = ItemData.GetItem(displayKeys[i]);
             if (data != null) AddItemToSlot(inventorySlots[i], data);
         }
 
+        // Equipados → slots de equip, uno por entrada (permite N copias).
         int e = 0;
         foreach (var key in targetInventory.EquippedItems)
         {
@@ -181,6 +183,7 @@ public class NwInventoryUI : MonoBehaviour
             if (data != null) AddItemToSlot(equipSlots[e], data);
             e++;
         }
+
         lastCount = targetInventory.LocalItems.Count;
     }
 

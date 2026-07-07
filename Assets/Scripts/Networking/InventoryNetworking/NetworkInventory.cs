@@ -71,27 +71,23 @@ public class NetworkInventory : NetworkBehaviour
     {
         if (!Object.HasStateAuthority) return;
 
-        if (!Items.Any(s => s.itemKey == itemKey)) return;
+        int owned = Items.Count(s => s.itemKey == itemKey);
+        if (owned == 0) return; // no lo tenés en el inventario
 
-        // no exceder la capacidad de EquippedItems (Capacity(3)).
-        // El !Contains evita bloquear un re-equip de algo ya equipado.
-        if (EquippedItems.Count >= 3 && !EquippedItems.Contains(itemKey))
+        // N copias: solo podés equipar una más si te quedan copias sin equipar.
+        int equipped = EquippedItems.Count(k => k == itemKey);
+        if (equipped >= owned) return;
+
+        if (EquippedItems.Count >= 3)
         {
             Debug.Log("[SERVER] equip slots full");
             return;
         }
 
-        if (!EquippedItems.Contains(itemKey))
-        {
-            Debug.Log($"[SERVER] Item equipped: {itemKey}");
-            EquippedItems.Add(itemKey);
-            GetComponent<PlayerStats>().RefreshStats();
-            RPC_NotifyInventoryChanged();
-        }
-        else
-        {
-            Debug.Log($"[SERVER] Item already equipped: {itemKey}");
-        }
+        EquippedItems.Add(itemKey);
+        GetComponent<PlayerStats>().RefreshStats();
+        RPC_NotifyInventoryChanged();
+        Debug.Log($"[SERVER] Item equipped: {itemKey} ({equipped + 1}/{owned})");
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
