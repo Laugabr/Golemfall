@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 
 public class CraftingUI : MonoBehaviour
 {
@@ -82,6 +83,15 @@ public class CraftingUI : MonoBehaviour
         if (slotA != null && !slotA.IsEmpty && slotA.GetOccupiedKey() == key) return true;
         if (slotB != null && !slotB.IsEmpty && slotB.GetOccupiedKey() == key) return true;
         return false;
+    }
+
+    // Keys que ocupan los slots de craft (0 a 2 entradas).
+    // Lo usa NwInventoryUI.Refresh para restar del inventario una copia por
+    // cada material en craft, sin esconder las demás copias del mismo tipo.
+    public IEnumerable<short> GetCraftKeys()
+    {
+        if (slotA != null && !slotA.IsEmpty) yield return slotA.GetOccupiedKey();
+        if (slotB != null && !slotB.IsEmpty) yield return slotB.GetOccupiedKey();
     }
 
     private void ShowPreview(ItemData result)

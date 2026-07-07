@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Linq;
 
 public class EquipSlotDrop : MonoBehaviour, IDropHandler, IItemDropTarget
 {
@@ -30,6 +31,13 @@ public class EquipSlotDrop : MonoBehaviour, IDropHandler, IItemDropTarget
         var ui = FindFirstObjectByType<NwInventoryUI>();
         var inventory = ui?.GetTargetInventory();
         if (inventory == null) return false;
+
+        // N copias: rechazar el drop si ya tenés equipadas todas las que poseés.
+        // El server revalida igual; esto evita el parpadeo de equipar de más.
+        int owned = inventory.LocalItems != null
+            ? inventory.LocalItems.Count(s => s.itemKey == itemKey) : 0;
+        int equipped = inventory.EquippedItems.Count(k => k == itemKey);
+        if (equipped >= owned) return false;
 
         inventory.RPC_RequestEquip(itemKey);
 
