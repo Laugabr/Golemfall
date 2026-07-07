@@ -55,7 +55,12 @@ public class EnemyHealth : HealthSystem
 
         int newHealth = CurrentHealth;
 
-        if (_lastObservedHealth > 0 && newHealth < _lastObservedHealth && newHealth > 0)
+        bool tookDamage = _lastObservedHealth > 0 && newHealth < _lastObservedHealth && newHealth > 0;
+
+        // ← NUEVO: si el enemigo está atacando y no puede ser interrumpido, no disparamos TriggerTakeDamage
+        bool blockedByAttackLock = enemyAI != null && enemyAI.IsInAttackAnimation && !enemyAI.CanInterruptAttack;
+
+        if (tookDamage && !blockedByAttackLock)
             netAnimator?.TriggerTakeDamage();
 
         _lastObservedHealth = newHealth;

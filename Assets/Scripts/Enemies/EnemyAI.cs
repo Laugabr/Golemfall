@@ -67,6 +67,12 @@ public class EnemyAI : NetworkBehaviour
     [Tooltip("Cuántos ticks reintenta engancharse al NavMesh antes de avisar en consola")]
     [SerializeField] private int navMeshRetryWarningTicks = 60;
 
+    [Header("Boss Settings")]
+    [Tooltip("Si es false, recibir daño durante la animación de ataque NO interrumpe el ataque (ideal para bosses).")]
+    [SerializeField] private bool _canInterruptAttack = true; // ← NUEVO
+
+    public bool CanInterruptAttack => _canInterruptAttack; // ← NUEVO
+
     public float PatrolSpeed => _patrolSpeed;
     public float PatrolRadius => _patrolRadius;
     public float ChaseRadius => _chaseRadius;
