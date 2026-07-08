@@ -71,11 +71,12 @@ MonoBehaviour:
   _shootDistance: 35
   _minDistance: 15
   _patrolRadius: 40
-  _chaseRadius: 60
+  _chaseRadius: 120.6
   _returnSpeed: 7
   _patrolWaitTime: 1
   navMeshSnapRadius: 3
   navMeshRetryWarningTicks: 60
+  _canInterruptAttack: 1
 --- !u!114 &1876080899843528332
 MonoBehaviour:
   m_ObjectHideFlags: 0
