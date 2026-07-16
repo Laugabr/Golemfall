@@ -43,9 +43,9 @@ public class CraftingSystem : NetworkBehaviour
 
             return;
         }
-        // 1. Remover materiales
-        RemoveItem(inv, recipe.itemA);
-        RemoveItem(inv, recipe.itemB);
+        // 1. Remover materiales (incluye desequipar si era la última instancia)
+        inv.RemoveItem_Server(recipe.itemA);
+        inv.RemoveItem_Server(recipe.itemB);
 
         // 2. Agregar resultado (AddItem_Server ya notifica al cliente)
         bool success = inv.AddItem_Server(recipe.resultItemKey);
@@ -94,25 +94,6 @@ public class CraftingSystem : NetworkBehaviour
 
         return inv.Items.Any(s => s.itemKey == recipe.itemA) &&
             inv.Items.Any(s => s.itemKey == recipe.itemB);
-    }
-
-    void RemoveItem(NetworkInventory inv, short key)
-    {
-        foreach (var slot in inv.Items)
-        {
-            if (slot.itemKey == key)
-            {
-                inv.Items.Remove(slot);
-
-                // Si era la última instancia de ese item y estaba equipado, desequipar.
-                if (!inv.Items.Any(s => s.itemKey == key) && inv.EquippedItems.Contains(key))
-                {
-                    inv.EquippedItems.Remove(key);
-                    inv.GetComponent<PlayerStats>()?.RefreshStats();
-                }
-                return;
-            }
-        }
     }
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]

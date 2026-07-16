@@ -5,10 +5,20 @@ using System.Collections.Generic;
 
 public class NetworkInventory : NetworkBehaviour
 {
+    [Header("Descarte al mundo")]
+    [Tooltip("Altura sobre el player a la que aparece el item descartado. " +
+             "Spawnear sobre la cabeza garantiza que nunca caiga en agua, KillZone " +
+             "ni geometría rara: siempre es recuperable con un salto en el lugar.")]
+    [SerializeField] private float dropHeight = 1.5f;
+
+    [Tooltip("Radio del jitter horizontal del spawn. Evita que varios descartes " +
+             "seguidos queden encastrados exactamente en el mismo punto.")]
+    [SerializeField] private float dropRadius = 0.3f;
+
     // IsDirty ya no es [Networked] — es local, se setea via RPC
     public bool IsDirty { get; set; }
 
-    [Networked, Capacity(12)]
+    [Networked, Capacity(9)]
     public NetworkLinkedList<InventorySlot> Items => default;
 
     public List<InventorySlot> LocalItems;
@@ -22,7 +32,7 @@ public class NetworkInventory : NetworkBehaviour
     {
         if (!Object.HasStateAuthority) return false;
 
-        if (Items.Count >= 12)
+        if (Items.Count >= 9)
         {
             Debug.Log("[SERVER] full inventory");
             return false;
@@ -38,9 +48,41 @@ public class NetworkInventory : NetworkBehaviour
         RPC_UpdateLocalInventory();
         RPC_NotifyInventoryChanged();
 
-        Debug.Log($"[SERVER] Item added ({Items.Count}/12)");
+        Debug.Log($"[SERVER] Item added ({Items.Count}/9)");
         BasicEventsManager.OnInventoryCountChanged?.Invoke(Items.Count);
         return true;
+    }
+
+    // Remueve UNA instancia de itemKey. Si era la última que quedaba y el item
+    // estaba equipado, lo desequipa y refresca stats — así un item que ya no se
+    // posee nunca sigue otorgando bonus.
+    //
+    // Vivía como método privado en CraftingSystem. Se movió acá porque mutar el
+    // inventario es responsabilidad de NetworkInventory, no del sistema de crafteo,
+    // y porque el descarte necesita exactamente la misma regla (dos copias de esta
+    // lógica se desincronizarían tarde o temprano).
+    //
+    // A propósito NO notifica al cliente: el llamador decide cuándo re-sincronizar,
+    // para poder agrupar varias remociones en un solo refresh (ej: los dos
+    // materiales de un craft).
+    public bool RemoveItem_Server(short itemKey)
+    {
+        if (!Object.HasStateAuthority) return false;
+
+        foreach (var slot in Items)
+        {
+            if (slot.itemKey != itemKey) continue;
+
+            Items.Remove(slot);
+
+            if (!Items.Any(s => s.itemKey == itemKey) && EquippedItems.Contains(itemKey))
+            {
+                EquippedItems.Remove(itemKey);
+                GetComponent<PlayerStats>()?.RefreshStats();
+            }
+            return true;
+        }
+        return false;
     }
 
     #endregion
@@ -71,23 +113,27 @@ public class NetworkInventory : NetworkBehaviour
     {
         if (!Object.HasStateAuthority) return;
 
-        int owned = Items.Count(s => s.itemKey == itemKey);
-        if (owned == 0) return; // no lo tenés en el inventario
+        if (!Items.Any(s => s.itemKey == itemKey)) return;
 
-        // N copias: solo podés equipar una más si te quedan copias sin equipar.
-        int equipped = EquippedItems.Count(k => k == itemKey);
-        if (equipped >= owned) return;
-
-        if (EquippedItems.Count >= 3)
+        // no exceder la capacidad de EquippedItems (Capacity(3)).
+        // El !Contains evita bloquear un re-equip de algo ya equipado.
+        if (EquippedItems.Count >= 3 && !EquippedItems.Contains(itemKey))
         {
             Debug.Log("[SERVER] equip slots full");
             return;
         }
 
-        EquippedItems.Add(itemKey);
-        GetComponent<PlayerStats>().RefreshStats();
-        RPC_NotifyInventoryChanged();
-        Debug.Log($"[SERVER] Item equipped: {itemKey} ({equipped + 1}/{owned})");
+        if (!EquippedItems.Contains(itemKey))
+        {
+            Debug.Log($"[SERVER] Item equipped: {itemKey}");
+            EquippedItems.Add(itemKey);
+            GetComponent<PlayerStats>().RefreshStats();
+            RPC_NotifyInventoryChanged();
+        }
+        else
+        {
+            Debug.Log($"[SERVER] Item already equipped: {itemKey}");
+        }
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -107,6 +153,82 @@ public class NetworkInventory : NetworkBehaviour
         }
     }
 
+
+    #endregion
+
+    #region DISCARD
+
+    // Saca el item del inventario y lo devuelve al mundo como PickableItem.
+    //
+    // El cliente solo manda la key: la posición de spawn la decide el server,
+    // así un cliente no puede pedir que el item aparezca donde se le antoje.
+    //
+    // Aplica tanto a items del inventario como equipados: RemoveItem_Server ya
+    // se encarga de desequipar y refrescar stats si era la última instancia.
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_RequestDiscard(short itemKey, RpcInfo info = default)
+    {
+        if (!Object.HasStateAuthority) return;
+
+        if (!Items.Any(s => s.itemKey == itemKey))
+        {
+            Debug.Log($"[SERVER] Discard rechazado — el item {itemKey} no está en el inventario");
+            ResyncClient();
+            return;
+        }
+
+        var data = ItemData.GetItem(itemKey);
+        if (data == null || data.worldPrefab == null)
+        {
+            // Se valida ANTES de remover: un SO mal configurado no puede hacer
+            // desaparecer un item para siempre. Se conserva y se re-sincroniza
+            // el cliente, que ya lo borró de la UI de forma optimista.
+            Debug.LogWarning($"[SERVER] Discard abortado — ItemData {itemKey} sin worldPrefab. El item se conserva.");
+            ResyncClient();
+            return;
+        }
+
+        if (!RemoveItem_Server(itemKey)) { ResyncClient(); return; }
+
+        Vector2 jitter = UnityEngine.Random.insideUnitCircle * dropRadius;
+        Vector3 dropPos = transform.position
+                          + Vector3.up * dropHeight
+                          + new Vector3(jitter.x, 0f, jitter.y);
+
+        // Mismo patrón que DestructibleObject: spawn server-side, sin física.
+        // PickableItem.Spawned() congela SpawnedPosition y los proxies la copian,
+        // así el item queda quieto y sincronizado para todos los peers, con su
+        // ProximityInteractor activo — cualquier jugador puede recogerlo.
+        Runner.Spawn(data.worldPrefab, dropPos, Quaternion.identity);
+
+        ResyncClient();
+        RPC_NotifyItemDiscarded(itemKey);
+
+        BasicEventsManager.OnInventoryCountChanged?.Invoke(Items.Count);
+        Debug.Log($"[SERVER] Item descartado al mundo: {itemKey} ({Items.Count}/9)");
+    }
+
+    // Server -> InputAuthority. Solo el dueño del inventario descuenta el tracking.
+    [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
+    private void RPC_NotifyItemDiscarded(short itemKey)
+    {
+        var data = ItemData.GetItem(itemKey);
+        if (data == null) return;
+
+        // Contrapeso del +1 que CharacterPickUp.TryPickUp dispara al recolectar.
+        // Sin esto, tirar y volver a levantar el mismo item de misión inflaría el
+        // contador del objetivo indefinidamente.
+        //
+        // Tiene que correr acá y no en el server: TrackEvents es un Action estático,
+        // o sea que el tracking es client-local, igual que el +1 del pickup.
+        TrackEvents.OnTrackEvent?.Invoke(GameEventType.CollectItem, -1, data.missionKey);
+    }
+
+    private void ResyncClient()
+    {
+        RPC_UpdateLocalInventory();
+        RPC_NotifyInventoryChanged();
+    }
 
     #endregion
 }
