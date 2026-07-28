@@ -31,6 +31,9 @@ public class LobbyMenuUI : MonoBehaviour
     [SerializeField] private RoomListEntry _roomEntryPrefab;
     [SerializeField] private Button _joinBackButton;
 
+    // Pool de filas reutilizables: se crean una vez y se reciclan entre refreshes.
+    private readonly List<RoomListEntry> _pooledEntries = new List<RoomListEntry>();
+
     private void Start()
     {
         // Wireo de botones
@@ -133,7 +136,6 @@ public class LobbyMenuUI : MonoBehaviour
     {
         UpdateJoinButtonVisibility(sessions);
 
-        // Si el jugador está mirando la lista, la refrescamos en vivo.
         if (_joinRoomView.activeSelf)
             RebuildRoomList();
     }
@@ -174,20 +176,42 @@ public class LobbyMenuUI : MonoBehaviour
         return false;
     }
 
-    // Reconstruye las filas de la lista de salas.
+    // Reconstruye la lista reutilizando filas (Opción B): crea solo las que
+    // falten, reutiliza las existentes y apaga las sobrantes. Sin destruir.
     private void RebuildRoomList()
     {
-        // Limpia filas anteriores
-        for (int i = _roomListContent.childCount - 1; i >= 0; i--)
-            Destroy(_roomListContent.GetChild(i).gameObject);
-
-        // Crea una fila por cada sala visible
+        // 1. Junta las salas visibles.
+        var visibles = new List<SessionInfo>();
         foreach (var session in NetworkController.Instance.CurrentSessions)
         {
-            if (!session.IsVisible) continue;
-
-            var entry = Instantiate(_roomEntryPrefab, _roomListContent);
-            entry.Setup(session, OnRowJoinClicked);
+            if (session.IsVisible)
+                visibles.Add(session);
         }
+
+        // 2. Si faltan filas en el pool, crea solo las que falten (nunca destruye).
+        while (_pooledEntries.Count < visibles.Count)
+        {
+            var entry = Instantiate(_roomEntryPrefab);
+            entry.transform.SetParent(_roomListContent, false); // false = adopta el layout, no la escala del prefab
+            _pooledEntries.Add(entry);
+        }
+
+        // 3. Reutiliza las filas: activa y configura las necesarias, apaga las sobrantes.
+        for (int i = 0; i < _pooledEntries.Count; i++)
+        {
+            if (i < visibles.Count)
+            {
+                _pooledEntries[i].gameObject.SetActive(true);
+                _pooledEntries[i].Setup(visibles[i], OnRowJoinClicked);
+            }
+            else
+            {
+                _pooledEntries[i].gameObject.SetActive(false);
+            }
+        }
+
+        // 4. Content Size Fitter + poblado en runtime necesita este rebuild para
+        //    resolver el cálculo multi-pase en este frame (sin filas encimadas).
+        LayoutRebuilder.ForceRebuildLayoutImmediate(_roomListContent as RectTransform);
     }
 }
