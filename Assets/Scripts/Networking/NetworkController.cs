@@ -20,6 +20,10 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
     [Header("Room Settings")]
     [SerializeField] private int _maxPlayersPerRoom = 5;
 
+    // Nombre de lobby explícito: host y buscador DEBEN usar el mismo,
+    // sino Fusion los manda a lobbies distintos por GameMode y no se ven.
+    private const string LOBBY_NAME = "GolemfallLobby";
+
     public static NetworkController Instance;
     public Dictionary<PlayerRef, NetworkObject> _players = new Dictionary<PlayerRef, NetworkObject>();
 
@@ -41,8 +45,8 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
 
     private async void Start()
     {
-        // Entramos al lobby (NO arranca partida): habilita recibir OnSessionListUpdated.
-        var result = await _networkRunner.JoinSessionLobby(SessionLobby.ClientServer);
+        // Entramos al lobby custom (NO arranca partida): habilita recibir OnSessionListUpdated.
+        var result = await _networkRunner.JoinSessionLobby(SessionLobby.Custom, LOBBY_NAME);
 
         if (!result.Ok)
         {
@@ -68,6 +72,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         {
             GameMode = GameMode.Host,
             SessionName = sessionName,
+            CustomLobbyName = LOBBY_NAME,   // publica la sala en el MISMO lobby que escucha el buscador
             PlayerCount = _maxPlayersPerRoom,
             SceneManager = _networkSceneManagerDefault,
             Scene = SceneRef.FromIndex(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex),
@@ -87,6 +92,7 @@ public class NetworkController : MonoBehaviour, INetworkRunnerCallbacks
         {
             GameMode = GameMode.Client,
             SessionName = sessionName,
+            CustomLobbyName = LOBBY_NAME,   // consistente con el resto (unir por nombre igual funciona)
             SceneManager = _networkSceneManagerDefault,
             Scene = SceneRef.FromIndex(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex),
         };
