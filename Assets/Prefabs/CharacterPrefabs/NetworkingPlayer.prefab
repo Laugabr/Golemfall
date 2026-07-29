@@ -5123,7 +5123,7 @@ MonoBehaviour:
   charPickUp: {fileID: 1370004718390460943}
   charAbilities: {fileID: 6449719640617588220}
   dashSpeed: 35
-  dashDuration: 0.3
+  dashDuration: 0.35
   dashCooldown: 1
   maxAirDashes: 2
   charHealth: {fileID: 0}
@@ -5180,6 +5180,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea2d4ea3c0a15934ea88706579a43b59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dropHeight: 1.5
+  dropRadius: 0.3
   LocalItems: []
   _Items: []
   _EquippedItems: 
