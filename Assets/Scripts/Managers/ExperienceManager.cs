@@ -14,9 +14,9 @@ public class ExperienceManager : NetworkBehaviour
     [SerializeField] private int maxLevel = 10;
 
     [Header("XP per GameEvent (individual)")]
-    [SerializeField] private int xpPerKillEnemy      = 20;
+    [SerializeField] private int xpPerKillEnemy = 20;
     [SerializeField] private int xpPerBreakBreakable = 3;
-    [SerializeField] private int xpPerCollectItem    = 5;
+    [SerializeField] private int xpPerCollectItem = 5;
     [SerializeField] private int xpPerCollectSpecial = 10;
 
     // Networked state — only the server writes these
@@ -34,6 +34,13 @@ public class ExperienceManager : NetworkBehaviour
 
         CurrentLevel = 1;
         TotalExperience = 0;
+
+        // Late joiner: ponerse al día con la XP grupal de misiones ya completadas
+        // ANTES de escuchar eventos nuevos. AddExperience dispara CheckLevelUp solo,
+        // así el que entra tarde sube de nivel y desbloquea el dash automáticamente.
+        var missionController = FindFirstObjectByType<MissionController>();
+        if (missionController != null && missionController.GroupXpAwarded > 0)
+            AddExperience(missionController.GroupXpAwarded);
 
         // Only the server listens to gameplay events for THIS player
         TrackEvents.OnTrackEvent += ServerHandleEvent;
@@ -70,11 +77,11 @@ public class ExperienceManager : NetworkBehaviour
     {
         return eventType switch
         {
-            GameEventType.KillEnemy          => xpPerKillEnemy,
-            GameEventType.BreakBreakable     => xpPerBreakBreakable,
-            GameEventType.CollectItem        => xpPerCollectItem,
+            GameEventType.KillEnemy => xpPerKillEnemy,
+            GameEventType.BreakBreakable => xpPerBreakBreakable,
+            GameEventType.CollectItem => xpPerCollectItem,
             GameEventType.CollectSpecialItem => xpPerCollectSpecial,
-            _                                => 0
+            _ => 0
         };
     }
 

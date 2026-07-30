@@ -21,6 +21,11 @@ public class MissionController : NetworkBehaviour
     private HashSet<string> _completedMissionIds = new();
     public bool IsMissionComplete(string missionId) => _completedMissionIds.Contains(missionId);
 
+    // XP grupal total ya repartida por misiones completadas.
+    // La consultan los jugadores que se unen tarde para ponerse al día.
+    private int _groupXpAwarded;
+    public int GroupXpAwarded => _groupXpAwarded;
+
     // When true only the pausing mission receives progress
     private bool missionsPaused = false;
     private MissionData pausingMission;
@@ -267,7 +272,7 @@ public class MissionController : NetworkBehaviour
     public MissionStatus TrackStep(GameEventType stepId, int progress, string key)
     {
         if (!Object.HasStateAuthority)
-            return MissionStatus.kNone; 
+            return MissionStatus.kNone;
         MissionStatus globalStatus = MissionStatus.kNone;
 
         // Missions that start from gameplay events
@@ -332,6 +337,8 @@ public class MissionController : NetworkBehaviour
 
                     if (mission.xp > 0)
                     {
+                        _groupXpAwarded += mission.xp;   // acumula para late joiners
+
                         var allExpManagers = FindObjectsByType<ExperienceManager>(FindObjectsSortMode.None);
                         foreach (var em in allExpManagers)
                         {
