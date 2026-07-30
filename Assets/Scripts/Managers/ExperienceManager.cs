@@ -30,19 +30,31 @@ public class ExperienceManager : NetworkBehaviour
 
     public override void Spawned()
     {
+        // === DIAGNÓSTICO (corre en TODOS los peers, antes del filtro de autoridad) ===
+        Debug.Log($"[XP] Spawned | Nivel={CurrentLevel} XP={TotalExperience} InputAuth={Object.HasInputAuthority} StateAuth={Object.HasStateAuthority}");
+
         if (!Object.HasStateAuthority) return;
 
         CurrentLevel = 1;
         TotalExperience = 0;
 
-        // Late joiner: ponerse al día con la XP grupal de misiones ya completadas
-        // ANTES de escuchar eventos nuevos. AddExperience dispara CheckLevelUp solo,
-        // así el que entra tarde sube de nivel y desbloquea el dash automáticamente.
         var missionController = FindFirstObjectByType<MissionController>();
-        if (missionController != null && missionController.GroupXpAwarded > 0)
-            AddExperience(missionController.GroupXpAwarded);
+        if (missionController == null)
+            Debug.LogError("[XP CatchUp] NO se encontró MissionController");
+        else
+            Debug.Log($"[XP CatchUp] MissionController encontrado. GroupXpAwarded = {missionController.GroupXpAwarded}");
 
-        // Only the server listens to gameplay events for THIS player
+        if (missionController != null && missionController.GroupXpAwarded > 0)
+        {
+            Debug.Log($"[XP CatchUp] Aplicando {missionController.GroupXpAwarded} XP al que se une");
+            AddExperience(missionController.GroupXpAwarded);
+            Debug.Log($"[XP CatchUp] Tras aplicar: Nivel={CurrentLevel}, XP={TotalExperience}");
+        }
+        else
+        {
+            Debug.LogWarning("[XP CatchUp] No se aplicó XP (controller null o GroupXpAwarded = 0)");
+        }
+
         TrackEvents.OnTrackEvent += ServerHandleEvent;
     }
 
@@ -53,20 +65,13 @@ public class ExperienceManager : NetworkBehaviour
 
     // Server: individual XP from gameplay events 
 
-    // Called on the server when a gameplay event fires on this machine.
-    // Kill (grupal) y Break (individual por atacante) se otorgan server-side
-    // en su punto de resolución, NO acá. Este handler solo cubre los eventos
-    // que dispara localmente el jugador (collects).
     private void ServerHandleEvent(GameEventType eventType, int amount, string key)
     {
         if (!Object.HasStateAuthority) return;
 
-        // Kill y Break se resuelven en el server con su propia atribución.
         if (eventType == GameEventType.KillEnemy || eventType == GameEventType.BreakBreakable)
             return;
 
-        // Only grant XP to the LOCAL player on the server (the host's own character).
-        // Clients send their events via MissionEventBridge → RPC_ServerAddExperience.
         if (!Object.HasInputAuthority) return;
 
         int xp = GetXpForEvent(eventType) * amount;
@@ -103,8 +108,7 @@ public class ExperienceManager : NetworkBehaviour
         AddExperience(amount);
     }
 
-    // Kill grupal: cada jugador recibe su propia XP configurada.
-    // Se llama server-side desde EnemyHealth.Die().
+    // Kill grupal
     public static void GrantKillXpToAll()
     {
         var all = FindObjectsByType<ExperienceManager>(FindObjectsSortMode.None);
@@ -112,8 +116,7 @@ public class ExperienceManager : NetworkBehaviour
             em.AddExperience(em.xpPerKillEnemy);
     }
 
-    // Break individual: solo el jugador que rompió el objeto.
-    // Se llama server-side desde DestructibleObject sobre el manager del atacante.
+    // Break individual
     public void GrantBreakXp()
     {
         AddExperience(xpPerBreakBreakable);
@@ -126,26 +129,19 @@ public class ExperienceManager : NetworkBehaviour
         if (!Object.HasStateAuthority) return;
         if (CurrentLevel >= maxLevel) return;
 
-
         int xpForNext = GetXpForLevel(CurrentLevel + 1);
 
         if (TotalExperience >= xpForNext)
         {
             CurrentLevel++;
-            //Debug.Log($"[ExperienceManager] Disparando OnLevelUp con level {CurrentLevel}");
 
-            ///Debug.Log($"[SERVER] {gameObject.name} subió al nivel {CurrentLevel}");
-
-            // Notify PlayerStats so it can apply level bonuses
             BasicEventsManager.OnLevelUp?.Invoke(CurrentLevel);
             GetComponent<PlayerProgressionVisuals>()?.OnPlayerLevelUp(CurrentLevel);
 
-            // Recurse in case multiple levels were gained at once
             CheckLevelUp();
         }
     }
 
-    // Returns cumulative XP needed to reach a given level
     private int GetXpForLevel(int level)
     {
         return (int)experienceCurve.Evaluate(level);
@@ -155,7 +151,9 @@ public class ExperienceManager : NetworkBehaviour
 
     private void OnExperienceChanged()
     {
-        // Only update UI for the local player
+        // === DIAGNÓSTICO ===
+        Debug.Log($"[XP] OnExperienceChanged | Nivel={CurrentLevel} XP={TotalExperience} InputAuth={Object.HasInputAuthority}");
+
         if (!Object.HasInputAuthority) return;
         ExperienceUI.Instance?.UpdateXP(TotalExperience, CurrentLevel, GetXpForLevel(CurrentLevel), GetXpForLevel(CurrentLevel + 1));
     }
@@ -166,12 +164,7 @@ public class ExperienceManager : NetworkBehaviour
         ExperienceUI.Instance?.UpdateLevel(CurrentLevel);
     }
 
-    // Public helpers 
-
-    // Called by MissionController when a group mission completes
     public static void GrantMissionXpToAll(int xpAmount)
     {
-        // MissionController iterates all ExperienceManagers and calls AddExperience directly
-        // This helper is here for documentation purposes
     }
 }

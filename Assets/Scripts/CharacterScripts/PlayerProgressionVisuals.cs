@@ -86,9 +86,12 @@ public class PlayerProgressionVisuals : NetworkBehaviour
         if (Object.HasStateAuthority)
             _renderedLevel = 1;
 
-        // Usamos Max(1, _renderedLevel) para que el cliente aplique el nivel mínimo
-        // aunque el snapshot todavía no llegó del host.
-        ApplyUnlocksUpToLevel(Mathf.Max(1, _renderedLevel));
+        // Leemos el nivel REAL del ExperienceManager (que sí llega bien al late
+        // joiner). Aplicamos el mayor entre _renderedLevel y ese nivel, así el
+        // que entra tarde desbloquea según su nivel verdadero, no el snapshot viejo.
+        int expLevel = GetComponent<ExperienceManager>() != null ? GetComponent<ExperienceManager>().CurrentLevel : 1;
+        int effectiveLevel = Mathf.Max(1, Mathf.Max(_renderedLevel, expLevel));
+        ApplyUnlocksUpToLevel(effectiveLevel);
     }
 
     /// <summary>
