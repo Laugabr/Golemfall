@@ -76092,6 +76092,7 @@ GameObject:
   - component: {fileID: 1435359106}
   - component: {fileID: 1435359108}
   - component: {fileID: 1435359109}
+  - component: {fileID: 1435359110}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -76416,6 +76417,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2598ceca6f89f21439f86f1903cb7608, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1435359110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1435359099}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f39459789dca7c43844a09c742ecf0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &1436060574
@@ -110441,13 +110454,13 @@ Terrain:
   m_Enabled: 1
   serializedVersion: 6
   m_TerrainData: {fileID: 15600000, guid: 8aceb7a82e8934d43b8b90c7a34058d8, type: 2}
-  m_TreeDistance: 5000
+  m_TreeDistance: 397
   m_TreeBillboardDistance: 50
   m_TreeCrossFadeLength: 5
   m_TreeMaximumFullLODCount: 50
-  m_DetailObjectDistance: 120
+  m_DetailObjectDistance: 100
   m_DetailObjectDensity: 1
-  m_HeightmapPixelError: 5
+  m_HeightmapPixelError: 26.3
   m_SplatMapDistance: 1000
   m_HeightmapMinimumLODSimplification: 0
   m_HeightmapMaximumLOD: 0
