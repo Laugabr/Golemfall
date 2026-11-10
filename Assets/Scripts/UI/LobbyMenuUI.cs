@@ -162,7 +162,7 @@ public class LobbyMenuUI : MonoBehaviour
                 break;
             }
         }
-        _joinRoomButton.gameObject.SetActive(haySalas);
+        _joinRoomButton.interactable = haySalas;
     }
 
     // Chequeo de duplicados contra la lista cacheada (case-insensitive).
